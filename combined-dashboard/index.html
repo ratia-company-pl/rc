@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>全体PL分析 - PLシミュレーター</title>
+    <title>全体PLanalysis - PLシミュレーター</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -558,7 +558,7 @@
                             <td>0</td>
                         </tr>
                         <tr class="expense-row">
-                            <td>7: 荷造運賃</td>
+                            <td>7: 貨物運賃</td>
                             <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
                             <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
                             <td>0</td>
@@ -969,37 +969,47 @@
 
             let monthlyData = new Array(12).fill(0);
             
-            // 新形式データの処理
+            // 新形式データの処理（budget-inputから送信される形式）
             if (data.monthlySales && Array.isArray(data.monthlySales)) {
-                monthlyData = data.monthlySales.map(sales => Math.round(sales / 1000));
-                console.log(`${dept}: 新形式monthlySales使用`, monthlyData);
+                // 数値確認とエラーハンドリング
+                monthlyData = data.monthlySales.map(sales => {
+                    const numSales = Number(sales);
+                    return isNaN(numSales) ? 0 : Math.round(numSales);
+                });
+                console.log(`${dept}: 新形式monthlySales使用（万円）`, monthlyData);
             }
             // RCは特殊形式（baseSales + variations）
             else if (dept === 'rc' && data.baseSales && Array.isArray(data.variations)) {
-                monthlyData = data.variations.map(variation => 
-                    Math.round((data.baseSales + variation) / 1000)
-                );
-                console.log(`${dept}: RC特殊形式使用`, monthlyData);
+                monthlyData = data.variations.map(variation => {
+                    const baseSales = Number(data.baseSales) || 0;
+                    const variationAmount = Number(variation) || 0;
+                    return Math.round(baseSales + variationAmount);
+                });
+                console.log(`${dept}: RC特殊形式使用（万円）`, monthlyData);
             }
             // RCDは特殊形式（purchases配列）
             else if (dept === 'rcd' && Array.isArray(data.purchases)) {
-                monthlyData = data.purchases.map(purchase => 
-                    Math.round(purchase * 2000 * 1.03 / 1000)
-                );
-                console.log(`${dept}: RCD特殊形式使用`, monthlyData);
+                monthlyData = data.purchases.map(purchase => {
+                    const numPurchase = Number(purchase) || 0;
+                    return Math.round(numPurchase * 2000 * 1.03);
+                });
+                console.log(`${dept}: RCD特殊形式使用（万円）`, monthlyData);
             }
             // monthlyDataがある場合
             else if (data.monthlyData && Array.isArray(data.monthlyData)) {
-                monthlyData = data.monthlyData.map(month => 
-                    Math.round((month.sales || month || 0) / 1000)
-                );
-                console.log(`${dept}: monthlyData形式使用`, monthlyData);
+                monthlyData = data.monthlyData.map(month => {
+                    if (typeof month === 'object' && month.sales) {
+                        return Math.round(Number(month.sales) || 0);
+                    }
+                    return Math.round(Number(month) || 0);
+                });
+                console.log(`${dept}: monthlyData形式使用（万円）`, monthlyData);
             }
             // 旧形式（sales単一値）
             else if (data.sales && typeof data.sales === 'number') {
-                const monthlySales = Math.round(data.sales / 12 / 1000);
+                const monthlySales = Math.round(data.sales / 12);
                 monthlyData = new Array(12).fill(monthlySales);
-                console.log(`${dept}: 旧形式sales使用`, monthlyData);
+                console.log(`${dept}: 旧形式sales使用（万円）`, monthlyData);
             }
 
             const result = {
@@ -1125,6 +1135,57 @@
             updateMonthlyPLTable();
             updateComparisonChart();
             console.log(`データ読み込み完了: ${result.loadedCount}/4事業部, データあり: ${result.hasData}`);
+        }
+
+        // デバッグ用関数
+        function debugLocalStorage() {
+            console.log('=== localStorage診断結果 ===');
+            
+            // 新ルールキーをチェック
+            const keys = ['pl_system_sr_data', 'pl_system_w_data', 'pl_system_rc_data', 'pl_system_rcd_data'];
+            
+            keys.forEach(key => {
+                const data = localStorage.getItem(key);
+                if (data) {
+                    try {
+                        const parsed = JSON.parse(data);
+                        console.log(`${key}:`, parsed);
+                        
+                        if (parsed.monthlySales) {
+                            console.log(`  月次売上合計: ${parsed.monthlySales.reduce((a,b) => a+b, 0)}万円`);
+                        }
+                    } catch (e) {
+                        console.error(`${key} パースエラー:`, e);
+                    }
+                } else {
+                    console.log(`${key}: データなし`);
+                }
+            });
+        }
+
+        // サンプルデータ作成（テスト用）
+        function createSampleData() {
+            console.log('=== サンプルデータ作成 ===');
+            
+            // SRサンプルデータ
+            const srSampleData = {
+                monthlySales: [2500, 2600, 2700, 2800, 2900, 3000, 2400, 2500, 2600, 2700, 2800, 2900],
+                timestamp: new Date().toISOString()
+            };
+            
+            // Wサンプルデータ  
+            const wSampleData = {
+                monthlySales: [1200, 1300, 1400, 1500, 1600, 1700, 1100, 1200, 1300, 1400, 1500, 1600],
+                timestamp: new Date().toISOString()
+            };
+            
+            localStorage.setItem('pl_system_sr_data', JSON.stringify(srSampleData));
+            localStorage.setItem('pl_system_w_data', JSON.stringify(wSampleData));
+            
+            console.log('SRサンプルデータ作成:', srSampleData);
+            console.log('Wサンプルデータ作成:', wSampleData);
+            
+            alert('サンプルデータを作成しました。「データ再読み込み」を実行してください。');
         }
 
         // 初期化
