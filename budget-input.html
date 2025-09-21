@@ -403,6 +403,25 @@
             color: #3182ce;
         }
         
+        /* 復元ボタンのスタイル */
+        .restore-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 10px;
+        }
+        
+        .restore-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        }
+        
         /* レスポンシブ対応 */
         @media (max-width: 768px) {
             .kpi-cards {
@@ -475,6 +494,9 @@
                 </button>
                 <button class="action-btn btn-secondary" onclick="exportToJSON()">
                     データエクスポート
+                </button>
+                <button class="restore-btn" onclick="restoreFromLocalStorage()">
+                    保存データ復元
                 </button>
             </div>
         </div>
@@ -553,19 +575,19 @@
                 <div class="settings-grid">
                     <div class="setting-item">
                         <label>営業手当 <span style="color: #718096; font-size: 0.65rem;">2/6/10月</span></label>
-                        <input type="number" id="sr-commission" value="100" onchange="calculateSR()">
+                        <input type="number" id="sr-commission" value="100" onchange="updateSRSettings(); calculateSR()">
                     </div>
                     <div class="setting-item">
                         <label>6月賞与</label>
-                        <input type="number" id="sr-bonus6" value="100" onchange="calculateSR()">
+                        <input type="number" id="sr-bonus6" value="100" onchange="updateSRSettings(); calculateSR()">
                     </div>
                     <div class="setting-item">
                         <label>12月賞与</label>
-                        <input type="number" id="sr-bonus12" value="0" onchange="calculateSR()">
+                        <input type="number" id="sr-bonus12" value="0" onchange="updateSRSettings(); calculateSR()">
                     </div>
                     <div class="setting-item">
                         <label>広告宣伝費</label>
-                        <input type="number" id="sr-advertising" value="30" onchange="calculateSR()">
+                        <input type="number" id="sr-advertising" value="30" onchange="updateSRSettings(); calculateSR()">
                     </div>
                 </div>
             </div>
@@ -644,16 +666,16 @@
                 <div class="settings-grid">
                     <div class="setting-item">
                         <label>広告宣伝費</label>
-                        <input type="number" id="w-advertising" value="50" onchange="calculateW()">
+                        <input type="number" id="w-advertising" value="50" onchange="updateWSettings(); calculateW()">
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- RC卸事業部 -->
+        <!-- RC店事業部 -->
         <div class="department-section" style="--dept-color: #38a169;">
             <div class="department-header">
-                <div class="department-title">RC卸</div>
+                <div class="department-title">RC店</div>
                 <div class="annual-summary" id="rc-annual">
                     年間合計: 0万円　前年増減: +0万円
                 </div>
@@ -735,11 +757,11 @@
                 <div class="settings-grid">
                     <div class="setting-item">
                         <label>広告宣伝費</label>
-                        <input type="number" id="rc-advertising" value="40" onchange="calculateRC()">
+                        <input type="number" id="rc-advertising" value="40" onchange="updateRCSettings(); calculateRC()">
                     </div>
                     <div class="setting-item">
                         <label>展示会関連費</label>
-                        <input type="number" id="rc-exhibition" value="20" onchange="calculateRC()">
+                        <input type="number" id="rc-exhibition" value="20" onchange="updateRCSettings(); calculateRC()">
                     </div>
                 </div>
             </div>
@@ -826,7 +848,9 @@
             sr_settings: 'pl_system_sr_settings',
             w_settings: 'pl_system_w_settings',
             rc_settings: 'pl_system_rc_settings',
-            rcd_settings: 'pl_system_rcd_settings'
+            rcd_settings: 'pl_system_rcd_settings',
+            // 入力値保存用の新しいキー
+            input_values: 'pl_system_input_values'
         };
 
         // 旧キーから新キーへの移行処理
@@ -872,7 +896,7 @@
                     '静岡店': [369, 386, 600, 535, 285, 437, 351, 270, 369, 391, 256, 242],
                     '掛川店': [284, 375, 508, 278, 394, 394, 377, 309, 248, 469, 448, 535],
                     '市野店': [328, 547, 723, 520, 528, 607, 574, 318, 714, 657, 700, 600],
-                    '住吉小店': [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
+                    '住吉台店': [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
                     '広島店': [490, 493, 427, 542, 558, 416, 622, 641, 496, 385, 253, 620]
                 },
                 variables: {
@@ -909,6 +933,138 @@
         // 数値フォーマット
         function formatNumber(num) {
             return Math.round(num).toLocaleString();
+        }
+
+        // *** 新機能: 入力値の自動保存・復元 ***
+        
+        // 入力値を localStorage に保存
+        function saveInputValues() {
+            try {
+                const inputValues = {
+                    timestamp: new Date().toISOString(),
+                    currentData: JSON.parse(JSON.stringify(currentData))
+                };
+                localStorage.setItem(LOCAL_STORAGE_KEYS.input_values, JSON.stringify(inputValues));
+                console.log('Input values saved to localStorage');
+            } catch (error) {
+                console.error('Error saving input values:', error);
+            }
+        }
+
+        // localStorage から入力値を復元
+        function loadInputValues() {
+            try {
+                const saved = localStorage.getItem(LOCAL_STORAGE_KEYS.input_values);
+                if (saved) {
+                    const inputValues = JSON.parse(saved);
+                    if (inputValues.currentData) {
+                        currentData = inputValues.currentData;
+                        console.log('Input values loaded from localStorage');
+                        return true;
+                    }
+                }
+                return false;
+            } catch (error) {
+                console.error('Error loading input values:', error);
+                return false;
+            }
+        }
+
+        // 手動復元ボタン機能
+        function restoreFromLocalStorage() {
+            const restored = loadInputValues();
+            if (restored) {
+                // UI要素の更新
+                updateAllUIElements();
+                
+                // テーブル再生成
+                generateAllTables();
+                
+                // 計算実行
+                calculateAllDepartments();
+                
+                // チャート更新
+                updateAllCharts();
+                
+                alert('保存されたデータを復元しました！\n復元時刻: ' + new Date().toLocaleTimeString());
+            } else {
+                alert('復元可能なデータが見つかりませんでした。');
+            }
+        }
+
+        // UI要素を currentData に基づいて更新
+        function updateAllUIElements() {
+            // SR設定値
+            const srCommissionElem = document.getElementById('sr-commission');
+            const srBonus6Elem = document.getElementById('sr-bonus6');
+            const srBonus12Elem = document.getElementById('sr-bonus12');
+            const srAdvertisingElem = document.getElementById('sr-advertising');
+            
+            if (srCommissionElem) srCommissionElem.value = currentData.sr.variables.commission;
+            if (srBonus6Elem) srBonus6Elem.value = currentData.sr.variables.bonus6;
+            if (srBonus12Elem) srBonus12Elem.value = currentData.sr.variables.bonus12;
+            if (srAdvertisingElem) srAdvertisingElem.value = currentData.sr.variables.advertising;
+
+            // W設定値
+            const wAdvertisingElem = document.getElementById('w-advertising');
+            if (wAdvertisingElem) wAdvertisingElem.value = currentData.w.variables.advertising;
+
+            // RC設定値
+            const rcAdvertisingElem = document.getElementById('rc-advertising');
+            const rcExhibitionElem = document.getElementById('rc-exhibition');
+            const rcTargetRateElem = document.getElementById('rc-target-rate');
+            const rcCurrentRateElem = document.getElementById('rc-current-rate');
+            
+            if (rcAdvertisingElem) rcAdvertisingElem.value = currentData.rc.variables.advertising;
+            if (rcExhibitionElem) rcExhibitionElem.value = currentData.rc.variables.exhibition;
+            if (rcTargetRateElem) rcTargetRateElem.value = currentData.rc.targetRate;
+            if (rcCurrentRateElem) rcCurrentRateElem.textContent = currentData.rc.targetRate;
+        }
+
+        // 全テーブル生成
+        function generateAllTables() {
+            generateSRTable();
+            generateWTable();
+            generateRCTable();
+            generateRCDTable();
+        }
+
+        // 全計算実行
+        function calculateAllDepartments() {
+            calculateSR();
+            calculateW();
+            calculateRC();
+            calculateRCD();
+        }
+
+        // 全チャート更新
+        function updateAllCharts() {
+            setTimeout(() => {
+                updateSRChart();
+                updateWChart();
+                updateRCChart();
+                updateRCDChart();
+            }, 100);
+        }
+
+        // 設定値更新関数群（自動保存機能付き）
+        function updateSRSettings() {
+            currentData.sr.variables.commission = parseInt(document.getElementById('sr-commission').value) || 0;
+            currentData.sr.variables.bonus6 = parseInt(document.getElementById('sr-bonus6').value) || 0;
+            currentData.sr.variables.bonus12 = parseInt(document.getElementById('sr-bonus12').value) || 0;
+            currentData.sr.variables.advertising = parseInt(document.getElementById('sr-advertising').value) || 0;
+            saveInputValues();
+        }
+
+        function updateWSettings() {
+            currentData.w.variables.advertising = parseInt(document.getElementById('w-advertising').value) || 0;
+            saveInputValues();
+        }
+
+        function updateRCSettings() {
+            currentData.rc.variables.advertising = parseInt(document.getElementById('rc-advertising').value) || 0;
+            currentData.rc.variables.exhibition = parseInt(document.getElementById('rc-exhibition').value) || 0;
+            saveInputValues();
         }
 
         // エラーハンドリング付きテーブル生成
@@ -1187,9 +1343,10 @@
             }
         }
 
-        // データ更新関数群
+        // データ更新関数群（自動保存機能付き）
         function updateSRStore(storeName, monthIndex, value) {
             currentData.sr.stores[storeName][monthIndex] = parseInt(value) || 0;
+            saveInputValues();
             calculateSR();
             generateSRTable();
             updateSRChart();
@@ -1197,6 +1354,7 @@
 
         function updateWSales(monthIndex, value) {
             currentData.w.sales[monthIndex] = parseInt(value) || 0;
+            saveInputValues();
             calculateW();
             generateWTable();
             updateWChart();
@@ -1204,6 +1362,7 @@
 
         function updateRCVariation(monthIndex, value) {
             currentData.rc.variations[monthIndex] = parseInt(value) || 0;
+            saveInputValues();
             calculateRC();
             generateRCTable();
             updateRCChart();
@@ -1211,6 +1370,7 @@
 
         function updateRCDPurchase(monthIndex, value) {
             currentData.rcd.purchases[monthIndex] = parseFloat(value) || 0;
+            saveInputValues();
             calculateRCD();
             generateRCDTable();
             updateRCDChart();
@@ -1218,6 +1378,7 @@
 
         function updateRCDFee(monthIndex, value) {
             currentData.rcd.fees[monthIndex] = parseInt(value) || 0;
+            saveInputValues();
             calculateRCD();
             generateRCDTable();
         }
@@ -1233,24 +1394,6 @@
                 const diff = annual - refTotal;
 
                 const annualElement = document.getElementById('sr-annual');
-                if (annualElement) {
-                    annualElement.textContent = 
-                        `年間合計: ${formatNumber(annual)}万円　前年増減: ${diff >= 0 ? '+' : ''}${formatNumber(diff)}万円`;
-                }
-                
-                updateKPIs();
-            } catch (error) {
-                console.error('Error in calculateSR:', error);
-            }
-        }
-
-        function calculateW() {
-            try {
-                const annual = currentData.w.sales.reduce((sum, val) => sum + val, 0);
-                const refTotal = referenceData.W.reduce((sum, val) => sum + val, 0);
-                const diff = annual - refTotal;
-
-                const annualElement = document.getElementById('w-annual');
                 if (annualElement) {
                     annualElement.textContent = 
                         `年間合計: ${formatNumber(annual)}万円　前年増減: ${diff >= 0 ? '+' : ''}${formatNumber(diff)}万円`;
@@ -1358,7 +1501,7 @@
 
         function updateRCChart() {
             const totals = currentData.rc.variations.map(variation => currentData.rc.baseSales + variation);
-            createDepartmentChart('rc-chart', referenceData.RC, totals, 'RC卸事業部');
+            createDepartmentChart('rc-chart', referenceData.RC, totals, 'RC店事業部');
         }
 
         function updateRCDChart() {
@@ -1366,7 +1509,7 @@
             createDepartmentChart('rcd-chart', referenceData.RCD, totals, 'RCD社事業部');
         }
 
-        // プリセット関数群（省略：前のバージョンと同じ）
+        // プリセット関数群
         function applySRPreset(presetType) {
             const storeNames = Object.keys(currentData.sr.stores);
             storeNames.forEach(storeName => {
@@ -1396,6 +1539,7 @@
                     }
                 }
             });
+            saveInputValues();
             calculateSR();
             generateSRTable();
             updateSRChart();
@@ -1418,6 +1562,7 @@
                         break;
                 }
             }
+            saveInputValues();
             calculateW();
             generateWTable();
             updateWChart();
@@ -1452,6 +1597,7 @@
             const rcCurrentRateElem = document.getElementById('rc-current-rate');
             if (rcTargetRateElem) rcTargetRateElem.value = currentData.rc.targetRate;
             if (rcCurrentRateElem) rcCurrentRateElem.textContent = currentData.rc.targetRate;
+            saveInputValues();
             calculateRC();
             generateRCTable();
             updateRCChart();
@@ -1482,6 +1628,7 @@
                     currentData.rcd.fees = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
                     break;
             }
+            saveInputValues();
             calculateRCD();
             generateRCDTable();
             updateRCDChart();
@@ -1499,6 +1646,7 @@
                 });
                 currentData.rc.targetRate = targetRate;
                 currentRateElem.textContent = targetRate;
+                saveInputValues();
                 calculateRC();
                 generateRCTable();
                 updateRCChart();
@@ -1715,50 +1863,54 @@
                 // localStorage移行処理を最初に実行
                 migrateLocalStorageKeys();
                 
-                // 初期値設定
-                const elements = {
-                    'sr-commission': currentData.sr.variables.commission,
-                    'sr-bonus6': currentData.sr.variables.bonus6,
-                    'sr-bonus12': currentData.sr.variables.bonus12,
-                    'sr-advertising': currentData.sr.variables.advertising,
-                    'w-advertising': currentData.w.variables.advertising,
-                    'rc-advertising': currentData.rc.variables.advertising,
-                    'rc-exhibition': currentData.rc.variables.exhibition,
-                    'rc-target-rate': currentData.rc.targetRate
-                };
+                // 保存されたデータがあれば復元
+                const restored = loadInputValues();
+                
+                if (restored) {
+                    console.log('Previously saved data restored');
+                    updateAllUIElements();
+                } else {
+                    console.log('Using default values');
+                    // 初期値設定
+                    const elements = {
+                        'sr-commission': currentData.sr.variables.commission,
+                        'sr-bonus6': currentData.sr.variables.bonus6,
+                        'sr-bonus12': currentData.sr.variables.bonus12,
+                        'sr-advertising': currentData.sr.variables.advertising,
+                        'w-advertising': currentData.w.variables.advertising,
+                        'rc-advertising': currentData.rc.variables.advertising,
+                        'rc-exhibition': currentData.rc.variables.exhibition,
+                        'rc-target-rate': currentData.rc.targetRate
+                    };
 
-                Object.entries(elements).forEach(([id, value]) => {
-                    const elem = document.getElementById(id);
-                    if (elem) elem.value = value;
-                });
+                    Object.entries(elements).forEach(([id, value]) => {
+                        const elem = document.getElementById(id);
+                        if (elem) elem.value = value;
+                    });
 
-                const rcCurrentRateElem = document.getElementById('rc-current-rate');
-                if (rcCurrentRateElem) rcCurrentRateElem.textContent = currentData.rc.targetRate;
+                    const rcCurrentRateElem = document.getElementById('rc-current-rate');
+                    if (rcCurrentRateElem) rcCurrentRateElem.textContent = currentData.rc.targetRate;
+                }
 
                 // テーブル生成
-                generateSRTable();
-                generateWTable();
-                generateRCTable();
-                generateRCDTable();
+                generateAllTables();
                 
                 // 計算実行
-                calculateSR();
-                calculateW();
-                calculateRC();
-                calculateRCD();
+                calculateAllDepartments();
                 
                 // チャート初期化
-                setTimeout(() => {
-                    updateSRChart();
-                    updateWChart();
-                    updateRCChart();
-                    updateRCDChart();
-                }, 100);
+                updateAllCharts();
                 
                 // KPI更新
                 updateKPIs();
                 
                 console.log('Initialization completed successfully');
+                
+                // 初期保存（まだ保存データがない場合）
+                if (!restored) {
+                    saveInputValues();
+                }
+                
             } catch (error) {
                 console.error('Error during initialization:', error);
             }
@@ -1769,5 +1921,22 @@
         window.addEventListener('load', initialize);
     </script>
 </body>
-</html>
+</html>${formatNumber(diff)}万円`;
+                }
                 
+                updateKPIs();
+            } catch (error) {
+                console.error('Error in calculateSR:', error);
+            }
+        }
+
+        function calculateW() {
+            try {
+                const annual = currentData.w.sales.reduce((sum, val) => sum + val, 0);
+                const refTotal = referenceData.W.reduce((sum, val) => sum + val, 0);
+                const diff = annual - refTotal;
+
+                const annualElement = document.getElementById('w-annual');
+                if (annualElement) {
+                    annualElement.textContent = 
+                        `年間合計: ${formatNumber(annual)}万円　前年増減: ${diff >= 0 ? '+' : ''}
