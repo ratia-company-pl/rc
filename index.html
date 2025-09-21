@@ -371,11 +371,11 @@
             <tr>
                 <td><button class="nav-btn active">ダッシュボード</button></td>
                 <td><button class="nav-btn" onclick="location.href='budget-input.html'">予算入力</button></td>
-                <td><button class="nav-btn coming-soon" onclick="showComingSoon('事業部PL')">事業部PL</button></td>
-                <td><button class="nav-btn coming-soon" onclick="showComingSoon('予算履歴')">予算履歴</button></td>
-                <td><button class="action-btn reload" onclick="reloadAllData()">再読込</button></td>
-                <td><button class="action-btn export" onclick="exportTotalPL()">エクスポート</button></td>
-                <td><button class="action-btn toggle" onclick="toggleTargetAllocation()" id="allocation-main-toggle">目標配分OFF</button></td>
+                <td><button class="nav-btn" onclick="location.href='department-pl/sr-pl.html'">SR事業部PL</button></td>
+                <td><button class="nav-btn" onclick="location.href='department-pl/w-pl.html'">W事業部PL</button></td>
+                <td><button class="nav-btn" onclick="location.href='department-pl/rc-pl.html'">RC卸事業部PL</button></td>
+                <td><button class="nav-btn" onclick="location.href='department-pl/rcd-pl.html'">RCD社事業部PL</button></td>
+                <td><button class="nav-btn" onclick="location.href='combined-dashboard/index.html'">全体PL分析</button></td>
             </tr>
         </table>
 
@@ -817,6 +817,36 @@
     </div>
 
     <script>
+        // localStorage統一ルール - 新プレフィックス対応
+        const LOCAL_STORAGE_KEYS = {
+            sr_data: 'pl_system_sr_data',
+            w_data: 'pl_system_w_data', 
+            rc_data: 'pl_system_rc_data',
+            rcd_data: 'pl_system_rcd_data',
+            combined_data: 'pl_system_combined_data'
+        };
+
+        // 旧キーから新キーへの移行処理
+        function migrateLocalStorageKeys() {
+            const migrations = [
+                { old: 'sr_sales_data', new: LOCAL_STORAGE_KEYS.sr_data },
+                { old: 'w_sales_data', new: LOCAL_STORAGE_KEYS.w_data },
+                { old: 'rc_sales_data', new: LOCAL_STORAGE_KEYS.rc_data },
+                { old: 'rcd_sales_data', new: LOCAL_STORAGE_KEYS.rcd_data },
+                { old: 'combined_dashboard_data', new: LOCAL_STORAGE_KEYS.combined_data }
+            ];
+
+            migrations.forEach(migration => {
+                const oldData = localStorage.getItem(migration.old);
+                const newData = localStorage.getItem(migration.new);
+                
+                if (oldData && !newData) {
+                    localStorage.setItem(migration.new, oldData);
+                    console.log(`Migrated ${migration.old} to ${migration.new}`);
+                }
+            });
+        }
+
         const commonExpensesData = {
             executiveSalary: {
                 monthlyData: {
@@ -916,6 +946,9 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            // localStorage移行処理を最初に実行
+            migrateLocalStorageKeys();
+            
             updateCommonExpensesDisplay();
             updatePLSummaryTable();
             calculateAndUpdateKPIs();
