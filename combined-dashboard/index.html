@@ -28,13 +28,11 @@
             overflow: hidden;
         }
 
-        /* ===== ヘッダー（シンプル3行構造） ===== */
         .header {
             background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
             color: white;
         }
 
-        /* 1行目: タイトル */
         .title-section {
             padding: 30px 20px 25px;
             text-align: center;
@@ -49,7 +47,6 @@
             letter-spacing: 2px;
         }
 
-        /* 2行目: ナビゲーション */
         .nav-section {
             padding: 20px 30px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -86,7 +83,6 @@
             border-color: #3498db;
         }
 
-        /* 3行目: ステータス + コントロール（テーブル構造で確実な横並び） */
         .control-section {
             padding: 15px 30px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -206,7 +202,6 @@
             transform: translateY(-2px);
         }
 
-        /* ===== メインコンテンツ ===== */
         .main-content {
             padding: 30px;
         }
@@ -220,7 +215,6 @@
             padding-bottom: 10px;
         }
 
-        /* グラフセクション */
         .chart-section {
             background: #f8f9fa;
             padding: 25px;
@@ -235,7 +229,6 @@
             margin-top: 20px;
         }
 
-        /* 月次PLテーブル */
         .table-section {
             background: #f8f9fa;
             padding: 30px;
@@ -278,13 +271,11 @@
             background: rgba(52, 73, 94, 0.08);
         }
 
-        /* 行タイプ別スタイル */
         .sales-row { background: rgba(39, 174, 96, 0.12); }
         .expense-row { background: rgba(231, 76, 60, 0.12); }
         .profit-row { background: rgba(52, 152, 219, 0.12); font-weight: 700; }
         .total-row { background: rgba(52, 73, 94, 0.25); font-weight: 700; }
 
-        /* レスポンシブ対応 */
         @media (max-width: 768px) {
             .main-title {
                 font-size: 28px;
@@ -340,12 +331,10 @@
 <body>
     <div class="container">
         <header class="header">
-            <!-- 1行目: タイトル -->
             <div class="title-section">
                 <h1 class="main-title">全体PLanalysis システム（4事業部統合）</h1>
             </div>
 
-            <!-- 2行目: ナビゲーション -->
             <div class="nav-section">
                 <div class="nav-buttons">
                     <a href="../index.html" class="btn-nav">メインダッシュボード</a>
@@ -358,7 +347,6 @@
                 </div>
             </div>
 
-            <!-- 3行目: ステータス + コントロール（テーブル構造） -->
             <div class="control-section">
                 <table class="control-table">
                     <tr>
@@ -401,7 +389,6 @@
         </header>
 
         <main class="main-content">
-            <!-- 前期比較グラフ -->
             <div class="chart-section">
                 <h3 class="section-title">📈 前期比較推移（売上・営業利益）</h3>
                 <div class="chart-container">
@@ -409,7 +396,6 @@
                 </div>
             </div>
 
-            <!-- 月次PLテーブル -->
             <div class="table-section">
                 <h3 class="section-title">📊 月次損益計算書（4事業部統合）</h3>
                 <table class="pl-table">
@@ -432,7 +418,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- 4事業部売上 -->
                         <tr class="sales-row">
                             <td>SR事業部売上</td>
                             <td id="sr-sales-jul">0</td>
@@ -514,7 +499,6 @@
                             <td id="total-sales-year"><strong>0</strong></td>
                         </tr>
                         
-                        <!-- 仕入高 -->
                         <tr class="expense-row">
                             <td><strong>B: 仕入高 計</strong></td>
                             <td id="cogs-jul">0</td>
@@ -532,7 +516,6 @@
                             <td id="cogs-total"><strong>0</strong></td>
                         </tr>
                         
-                        <!-- 売上総利益 -->
                         <tr class="profit-row">
                             <td><strong>C: 売上総利益</strong></td>
                             <td id="gross-profit-jul"><strong>0</strong></td>
@@ -550,7 +533,6 @@
                             <td id="gross-profit-year"><strong>0</strong></td>
                         </tr>
                         
-                        <!-- 販売管理費明細（正確な32項目） -->
                         <tr class="expense-row">
                             <td>1: 人件費統合</td>
                             <td id="personnel-jul">0</td>
@@ -774,7 +756,6 @@
                             <td>900</td>
                         </tr>
                         
-                        <!-- 販売管理費計 -->
                         <tr class="total-row">
                             <td><strong>D: 販売管理費 計</strong></td>
                             <td id="total-expenses-jul"><strong>9,917</strong></td>
@@ -792,7 +773,6 @@
                             <td id="total-expenses-year"><strong>101,472</strong></td>
                         </tr>
                         
-                        <!-- 営業利益 -->
                         <tr class="profit-row">
                             <td><strong>E: 営業利益</strong></td>
                             <td id="operating-profit-jul"><strong>-9,917</strong></td>
@@ -816,7 +796,6 @@
     </div>
 
     <script>
-        // localStorageキー定義（新プレフィックス対応）
         const LOCAL_STORAGE_KEYS = {
             sr_data: 'pl_system_sr_data',
             w_data: 'pl_system_w_data', 
@@ -826,7 +805,6 @@
             executive_data: 'pl_system_executive_data'
         };
 
-        // localStorage移行処理
         function migrateLocalStorageData() {
             const migrations = [
                 ['sr_sales_data', LOCAL_STORAGE_KEYS.sr_data],
@@ -844,7 +822,6 @@
             });
         }
 
-        // 前期決算データ
         const previousYearData = {
             "売上高 計": {
                 "monthlyData": [161079, 193592, 166322, 203795, 174747, 217615, 188572, 201380, 189491, 204567, 199178, 214260],
@@ -856,34 +833,11 @@
             }
         };
 
-        // ベース共通経費データ（ダッシュボードと同期）
-        let baseCommonExpenses = {
-            'jul': 9917025, 'aug': 9279621, 'sep': 9791470, 'oct': 8006922,
-            'nov': 7935983, 'dec': 8248433, 'jan': 8217091, 'feb': 8110941,
-            'mar': 8729446, 'apr': 8236253, 'may': 8653401, 'jun': 8247029
-        };
-
-        // 各事業部の人件費データ（万円）
-        let departmentPersonnelCosts = {
-            'jul': 0, 'aug': 0, 'sep': 0, 'oct': 0, 'nov': 0, 'dec': 0,
-            'jan': 0, 'feb': 0, 'mar': 0, 'apr': 0, 'may': 0, 'jun': 0
-        };
-
-        // 役員報酬・賞与設定（ダッシュボードから取得）
-        let executiveSalaryMonthly = 6755;  // 月額（万円）
-        let executiveBonusAmount = 300;     // 賞与（万円）
+        let executiveSalaryMonthly = 6755;
+        let executiveBonusAmount = 300;
         
-        // 各事業部の原価率（実際の値）
-        const departmentCOGSRates = {
-            sr: 0.272,   // SR事業部: 27.2%
-            w: 0.29964,  // W事業部: 29.964%  
-            rc: 0.352,   // RC支店事業部: 35.2%
-            rcd: 0.97    // RCD社事業部: 97%（仕入本数×2000万円÷売上）
-        };
-
         let comparisonChart;
         
-        // 各事業部の売上・仕入データ格納用
         let departmentData = {
             sr: { sales: 0, monthlyData: [], cogsData: [], lastUpdate: null },
             w: { sales: 0, monthlyData: [], cogsData: [], lastUpdate: null },
@@ -891,27 +845,23 @@
             rcd: { sales: 0, monthlyData: [], cogsData: [], lastUpdate: null }
         };
 
-        // 新規追加: ダッシュボードから役員報酬データを読み込み
+        let combinedPersonnelData = [];
+
         function loadExecutiveDataFromDashboard() {
             try {
                 const savedData = localStorage.getItem(LOCAL_STORAGE_KEYS.executive_data);
                 if (savedData) {
                     const executiveData = JSON.parse(savedData);
-                    console.log('ダッシュボードから役員報酬データを読み込み:', executiveData);
                     
-                    // 賞与額の取得
                     executiveBonusAmount = executiveData.bonusAmount || 300;
                     
-                    // ベース給与 + 調整額の計算
                     const baseMonthly = 6755;
                     const adjustment = executiveData.adjustment || 0;
                     executiveSalaryMonthly = baseMonthly + adjustment;
                     
-                    // UIの更新
                     document.getElementById('executive-salary').value = executiveSalaryMonthly;
                     document.getElementById('executive-bonus').value = executiveBonusAmount;
                     
-                    console.log(`役員報酬設定: 月額${executiveSalaryMonthly}万円, 賞与${executiveBonusAmount}万円`);
                     return true;
                 }
             } catch (error) {
@@ -920,42 +870,32 @@
             return false;
         }
 
-        // 修正版: 共通経費計算（役員報酬・賞与を反映）
         function calculateCommonExpenses() {
             const months = ['jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar', 'apr', 'may', 'jun'];
-            const welfareRate = 0.13002;  // 法定福利費率
+            const welfareRate = 0.13002;
             
             let commonExpenses = {};
             
             months.forEach((month, index) => {
-                // 役員報酬計算（7-9月は高額期間）
                 let monthlySalary = executiveSalaryMonthly;
-                if (index <= 2) {  // 7-9月
-                    monthlySalary += 1500;  // 高額期間加算
+                if (index <= 2) {
+                    monthlySalary += 1500;
                 }
                 
-                // 6月の賞与加算
                 if (month === 'jun') {
                     monthlySalary += executiveBonusAmount;
                 }
                 
-                // 法定福利費計算
                 const welfare = Math.round(monthlySalary * welfareRate);
+                const personnelCosts = combinedPersonnelData[index] || 0;
+                const otherExpenses = 2537;
                 
-                // 人件費統合の加算
-                const personnelCosts = departmentPersonnelCosts[month] || 0;
-                
-                // その他経費（ベースデータから取得）
-                const otherExpenses = Math.round((baseCommonExpenses[month] - (6755 + 677) * 10000) / 10000);  // 万円換算
-                
-                // 月次合計（人件費統合を含む）
                 commonExpenses[month] = monthlySalary + welfare + personnelCosts + otherExpenses;
             });
             
             return commonExpenses;
         }
 
-        // チャート初期化
         function initializeComparisonChart() {
             const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
             
@@ -1034,7 +974,6 @@
             });
         }
 
-        // チャート更新
         function updateComparisonChart() {
             const months = ['jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar', 'apr', 'may', 'jun'];
             const departments = ['sr', 'w', 'rc', 'rcd'];
@@ -1043,7 +982,6 @@
                 return departments.reduce((sum, dept) => sum + (departmentData[dept].monthlyData[index] || 0), 0);
             });
             
-            // 各事業部の仕入高を集計
             const currentCOGSData = months.map((month, index) => {
                 return departments.reduce((sum, dept) => {
                     if (departmentData[dept].cogsData && departmentData[dept].cogsData[index]) {
@@ -1066,87 +1004,52 @@
             comparisonChart.update();
         }
 
-        // 修正版: データ読み込み関数（売上データ修正版）
         function loadDepartmentData() {
             const departments = ['sr', 'w', 'rc', 'rcd'];
             let loadedCount = 0, hasData = false;
 
-            console.log('=== データ読み込み開始 ===');
-
             departments.forEach(dept => {
                 try {
-                    // 新ルール優先で取得
                     let data = localStorage.getItem(LOCAL_STORAGE_KEYS[`${dept}_data`]);
-                    
-                    // 新ルールでデータがない場合は旧ルールを試行
-                    if (!data) {
-                        data = localStorage.getItem(`${dept}_sales_data`);
-                        console.log(`${dept}: 旧ルールキーで取得試行`);
-                    } else {
-                        console.log(`${dept}: 新ルールキーで取得成功`);
-                    }
                     
                     if (data) {
                         const parsedData = JSON.parse(data);
-                        console.log(`${dept}部門データ取得:`, parsedData);
-                        
-                        // データ形式の統一処理 (強化版)
                         departmentData[dept] = extractFinancialData(parsedData, dept);
                         
                         if (departmentData[dept].sales > 0) hasData = true;
                         loadedCount++;
-                        
-                        console.log(`${dept}部門処理後:`, departmentData[dept]);
                     } else {
-                        console.warn(`${dept}部門: データが見つかりません`);
-                        // デフォルト値を設定
                         departmentData[dept] = { sales: 0, monthlyData: new Array(12).fill(0), cogsData: new Array(12).fill(0), lastUpdate: null };
                     }
                 } catch (error) {
                     console.error(`${dept}事業部データ読み込みエラー:`, error);
-                    // エラー時もデフォルト値を設定
                     departmentData[dept] = { sales: 0, monthlyData: new Array(12).fill(0), cogsData: new Array(12).fill(0), lastUpdate: null };
                 }
             });
 
-            // 統合データ（計算済みPL）の読み込み
             loadCombinedPLData();
 
             updateLinkageStatus(loadedCount, hasData);
-            console.log('全データ読み込み完了:', departmentData);
             return { loadedCount, hasData };
         }
 
-        // 修正版: 統合PLデータ読み込み（仕入高統合対応）
         function loadCombinedPLData() {
             try {
                 const combinedData = localStorage.getItem(LOCAL_STORAGE_KEYS.combined_data);
                 if (combinedData) {
                     const parsed = JSON.parse(combinedData);
-                    console.log('統合PLデータ取得:', parsed);
                     
-                    // 各事業部の計算済みデータを反映（仕入高含む）
                     ['sr', 'w', 'rc', 'rcd'].forEach(dept => {
                         if (parsed[dept] && parsed[dept].monthly) {
-                            departmentData[dept].expensesData = parsed[dept].monthly;
-                            // 各月の仕入高を取得
                             departmentData[dept].cogsData = parsed[dept].monthly.map(m => {
-                                // COGSまたはpurchases（RCD用）を取得
-                                return m.cogs || m.purchases || 0;
+                                const cogsValue = m.cogs || m.purchases || 0;
+                                return Math.round(cogsValue / 10000);
                             });
-                            console.log(`${dept}: 販管費・仕入高データ取得済み`);
                         }
                     });
 
-                    // 人件費統合データの読み込み（強化版）
                     if (parsed.personnel && parsed.personnel.monthly) {
-                        const months = ['jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar', 'apr', 'may', 'jun'];
-                        months.forEach((month, index) => {
-                            if (parsed.personnel.monthly[index]) {
-                                departmentPersonnelCosts[month] = Math.round(parsed.personnel.monthly[index] / 10000); // 万円変換
-                            }
-                        });
-                        console.log('人件費統合データ取得:', departmentPersonnelCosts);
+                        combinedPersonnelData = parsed.personnel.monthly.map(value => Math.round(value / 10000));
                     }
                 }
             } catch (error) {
@@ -1154,10 +1057,7 @@
             }
         }
 
-        // 修正版: データ抽出関数 (強化版)
         function extractFinancialData(data, dept) {
-            console.log(`${dept}部門データ抽出開始:`, data);
-            
             if (!data || typeof data !== 'object') {
                 return { sales: 0, monthlyData: new Array(12).fill(0), cogsData: new Array(12).fill(0), lastUpdate: null };
             }
@@ -1165,64 +1065,24 @@
             let monthlyData = new Array(12).fill(0);
             let cogsData = new Array(12).fill(0);
             
-            // 新形式データの処理（budget-inputから送信される形式）
             if (data.monthlySales && Array.isArray(data.monthlySales)) {
-                // 数値確認とエラーハンドリング
                 monthlyData = data.monthlySales.map(sales => {
                     const numSales = Number(sales);
                     return isNaN(numSales) ? 0 : Math.round(numSales);
                 });
-                
-                // 原価率に基づく仕入高計算
-                const cogsRate = departmentCOGSRates[dept] || 0;
-                cogsData = monthlyData.map(sales => Math.round(sales * cogsRate));
-                
-                console.log(`${dept}: 新形式monthlySales使用（万円）`, monthlyData);
-                console.log(`${dept}: 仕入高計算（原価率${(cogsRate * 100).toFixed(1)}%）`, cogsData);
             }
-            // RCは特殊形式（baseSales + variations）
             else if (dept === 'rc' && data.baseSales && Array.isArray(data.variations)) {
                 monthlyData = data.variations.map(variation => {
                     const baseSales = Number(data.baseSales) || 0;
                     const variationAmount = Number(variation) || 0;
                     return Math.round(baseSales + variationAmount);
                 });
-                cogsData = monthlyData.map(sales => Math.round(sales * departmentCOGSRates.rc));
-                console.log(`${dept}: RC特殊形式使用（万円）`, monthlyData);
             }
-            // RCDは特殊形式（purchases配列）
             else if (dept === 'rcd' && Array.isArray(data.purchases)) {
-                // RCDの売上計算（仕入本数 × 2000万円 × 1.03）
                 monthlyData = data.purchases.map(purchase => {
                     const numPurchase = Number(purchase) || 0;
                     return Math.round(numPurchase * 2000 * 1.03);
                 });
-        // RCDの仕入高（仕入本数 × 2000万円）
-                cogsData = data.purchases.map(purchase => {
-                    const numPurchase = Number(purchase) || 0;
-                    return Math.round(numPurchase * 2000);
-                });
-                console.log(`${dept}: RCD特殊形式使用（万円）`, monthlyData);
-            }
-            // monthlyDataがある場合
-            else if (data.monthlyData && Array.isArray(data.monthlyData)) {
-                monthlyData = data.monthlyData.map(month => {
-                    if (typeof month === 'object' && month.sales) {
-                        return Math.round(Number(month.sales) || 0);
-                    }
-                    return Math.round(Number(month) || 0);
-                });
-                const cogsRate = departmentCOGSRates[dept] || 0;
-                cogsData = monthlyData.map(sales => Math.round(sales * cogsRate));
-                console.log(`${dept}: monthlyData形式使用（万円）`, monthlyData);
-            }
-            // 旧形式（sales単一値）
-            else if (data.sales && typeof data.sales === 'number') {
-                const monthlySales = Math.round(data.sales / 12);
-                monthlyData = new Array(12).fill(monthlySales);
-                const cogsRate = departmentCOGSRates[dept] || 0;
-                cogsData = monthlyData.map(sales => Math.round(sales * cogsRate));
-                console.log(`${dept}: 旧形式sales使用（万円）`, monthlyData);
             }
 
             const result = {
@@ -1232,11 +1092,9 @@
                 lastUpdate: data.timestamp || data.lastUpdate || new Date().toLocaleString()
             };
             
-            console.log(`${dept}部門抽出結果:`, result);
             return result;
         }
 
-        // 月次PLテーブル更新 (仕入高統合対応版)
         function updateMonthlyPLTable() {
             const months = ['jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar', 'apr', 'may', 'jun'];
             const departments = ['sr', 'w', 'rc', 'rcd'];
@@ -1245,10 +1103,9 @@
             
             const commonExpenses = calculateCommonExpenses();
 
-            // 月次データの更新
             months.forEach((month, index) => {
                 let monthlySalesTotal = 0;
-                let monthlyCOGSTotal = 0;  // 各事業部の仕入高合計
+                let monthlyCOGSTotal = 0;
                 
                 departments.forEach(dept => {
                     const sales = departmentData[dept].monthlyData[index] || 0;
@@ -1258,31 +1115,30 @@
                     }
                     monthlySalesTotal += sales;
                     
-                    // 各事業部の仕入高を加算
                     if (departmentData[dept].cogsData && departmentData[dept].cogsData[index]) {
                         monthlyCOGSTotal += departmentData[dept].cogsData[index];
                     }
                 });
 
-                // 仕入高の表示更新（各事業部から集計した値を使用）
                 const cogsElement = document.getElementById(`cogs-${month}`);
                 if (cogsElement) {
                     cogsElement.textContent = monthlyCOGSTotal.toLocaleString();
                 }
                 totalCOGSYear += monthlyCOGSTotal;
 
-                // 合計売上の更新
                 const totalSalesElement = document.getElementById(`total-sales-${month}`);
-                if (totalSalesElement) totalSalesElement.innerHTML = `<strong>${monthlySalesTotal.toLocaleString()}</strong>`;
+                if (totalSalesElement) {
+                    totalSalesElement.innerHTML = `<strong>${monthlySalesTotal.toLocaleString()}</strong>`;
+                }
                 
-                // 売上総利益の計算と更新（売上 - 仕入）
                 const grossProfit = monthlySalesTotal - monthlyCOGSTotal;
                 const grossProfitElement = document.getElementById(`gross-profit-${month}`);
-                if (grossProfitElement) grossProfitElement.innerHTML = `<strong>${grossProfit.toLocaleString()}</strong>`;
+                if (grossProfitElement) {
+                    grossProfitElement.innerHTML = `<strong>${grossProfit.toLocaleString()}</strong>`;
+                }
                 
                 totalSalesYear += monthlySalesTotal;
 
-                // 営業利益の計算と更新（売上総利益 - 販管費）
                 const totalExpense = commonExpenses[month];
                 const operatingProfit = grossProfit - totalExpense;
                 const profitElement = document.getElementById(`operating-profit-${month}`);
@@ -1291,11 +1147,9 @@
                     profitElement.style.color = operatingProfit < 0 ? '#e74c3c' : '#27ae60';
                 }
                 
-                // 販管費詳細の更新
-                updateExpenseDetails(month, totalExpense);
+                updateExpenseDetails(month, totalExpense, index);
             });
 
-            // 年間合計の更新
             departments.forEach(dept => {
                 const element = document.getElementById(`${dept}-sales-total`);
                 if (element) {
@@ -1303,19 +1157,16 @@
                 }
             });
 
-            // 仕入高年間合計の更新
             const cogsTotalElement = document.getElementById('cogs-total');
             if (cogsTotalElement) {
                 cogsTotalElement.innerHTML = `<strong>${totalCOGSYear.toLocaleString()}</strong>`;
             }
 
-            // 売上高年間合計の更新
             const salesYearElement = document.getElementById('total-sales-year');
             if (salesYearElement) {
                 salesYearElement.innerHTML = `<strong>${totalSalesYear.toLocaleString()}</strong>`;
             }
 
-            // 売上総利益年間合計の更新
             const grossProfitYear = totalSalesYear - totalCOGSYear;
             const grossProfitYearElement = document.getElementById('gross-profit-year');
             if (grossProfitYearElement) {
@@ -1330,39 +1181,30 @@
                 totalProfitElement.style.color = totalOperatingProfit < 0 ? '#e74c3c' : '#27ae60';
             }
 
-            // 販管費年間合計の更新
             const expensesYearElement = document.getElementById('total-expenses-year');
             if (expensesYearElement) {
                 expensesYearElement.innerHTML = `<strong>${totalYearExpenses.toLocaleString()}</strong>`;
             }
 
-            // 人件費統合の年間合計更新
             updatePersonnelTotals();
 
             return { totalSalesYear, totalOperatingProfit, totalYearExpenses, totalCOGSYear };
         }
 
-        // 販管費詳細更新 (正確な32項目対応)
-        function updateExpenseDetails(month, totalExpense) {
+        function updateExpenseDetails(month, totalExpense, monthIndex) {
             const months = ['jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar', 'apr', 'may', 'jun'];
-            const monthIndex = months.indexOf(month);
             
-            // 役員報酬計算
             let monthlySalary = executiveSalaryMonthly;
-            if (monthIndex <= 2) {  // 7-9月は高額期間
+            if (monthIndex <= 2) {
                 monthlySalary += 1500;
             }
-            if (month === 'jun') {  // 6月は賞与加算
+            if (month === 'jun') {
                 monthlySalary += executiveBonusAmount;
             }
             
-            // 法定福利費計算
             const welfare = Math.round(monthlySalary * 0.13002);
+            const personnelCost = combinedPersonnelData[monthIndex] || 0;
             
-            // 人件費統合データの反映
-            const personnelCost = departmentPersonnelCosts[month] || 0;
-            
-            // テーブル更新
             const salaryElement = document.getElementById(`salary-${month}`);
             const welfareElement = document.getElementById(`welfare-${month}`);
             const expenseElement = document.getElementById(`total-expenses-${month}`);
@@ -1374,7 +1216,6 @@
             if (personnelElement) personnelElement.textContent = personnelCost.toLocaleString();
         }
 
-        // ステータス更新
         function updateLinkageStatus(loadedCount, hasData) {
             const statusElement = document.getElementById('linkage-status');
             const updateElement = document.getElementById('last-update');
@@ -1395,7 +1236,6 @@
             }
         }
 
-        // CSV出力
         function exportCSV() {
             try {
                 const csvData = [
@@ -1439,38 +1279,28 @@
             }
         }
 
-        // 役員報酬更新機能
         function updateExecutiveSalary() {
             const newSalary = parseInt(document.getElementById('executive-salary').value) || 6755;
             executiveSalaryMonthly = newSalary;
             
             console.log(`役員報酬更新: ${executiveSalaryMonthly}万円/月`);
             
-            // 再計算とテーブル更新
             updateMonthlyPLTable();
             updateComparisonChart();
         }
 
-        // 役員賞与更新機能
         function updateExecutiveBonus() {
             const newBonus = parseInt(document.getElementById('executive-bonus').value) || 300;
             executiveBonusAmount = newBonus;
             
             console.log(`役員賞与更新: ${executiveBonusAmount}万円`);
             
-            // 再計算とテーブル更新
             updateMonthlyPLTable();
             updateComparisonChart();
         }
 
-        // 人件費統合データの年間合計更新
         function updatePersonnelTotals() {
-            const months = ['jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar', 'apr', 'may', 'jun'];
-            let personnelTotal = 0;
-            
-            months.forEach(month => {
-                personnelTotal += departmentPersonnelCosts[month] || 0;
-            });
+            let personnelTotal = combinedPersonnelData.reduce((sum, val) => sum + val, 0);
             
             const personnelTotalElement = document.getElementById('personnel-total');
             if (personnelTotalElement) {
@@ -1480,26 +1310,19 @@
             console.log('人件費統合年間合計:', personnelTotal);
         }
 
-        // 全データ読み込み（メイン関数）
         function loadAllData() {
             console.log('統合ダッシュボード: データ更新開始...');
             
-            // ダッシュボードから役員報酬データを読み込み
             loadExecutiveDataFromDashboard();
-            
-            // 部門データ読み込み
             loadDepartmentData();
-            
-            // テーブル・チャート更新
             updateMonthlyPLTable();
             updateComparisonChart();
             
             console.log('統合ダッシュボード: データ更新完了');
         }
 
-        // 初期化
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('統合ダッシュボード初期化開始（正確な表示項目対応版）...');
+            console.log('統合ダッシュボード初期化開始...');
             migrateLocalStorageData();
             initializeComparisonChart();
             loadAllData();
