@@ -419,7 +419,7 @@
                     <a href="../budget-input.html" class="btn btn-nav">予算入力</a>
                     <a href="w-pl.html" class="btn btn-nav">W事業部PL</a>
                     <a href="rcd-pl.html" class="btn btn-nav">RCD社事業部PL</a>
-                    <a href="rc-pl.html" class="btn btn-nav">RC卸事業部PL</a>
+                    <a href="rc-pl.html" class="btn btn-nav">RC支店事業部PL</a>
                     <a href="../combined-dashboard/index.html" class="btn btn-nav">全体PL分析</a>
                 </div>
             </div>
@@ -989,74 +989,61 @@
             }
         }
 
-        // 各事業部PLファイルの updateDashboard() 関数を以下に置き換えてください
+        // 修正版updateDashboard関数
+        function updateDashboard() {
+            if (!window.srCurrentResults) return;
+            const { monthlyResults, annual } = window.srCurrentResults;
 
-function updateDashboard() {
-    if (!window.srCurrentResults) return; // 各事業部に応じて変更（sr/w/rc/rcd）
+            const srDashboardData = {
+                department: 'SR事業部',
+                annual: {
+                    sales: annual.sales,
+                    grossProfit: annual.grossProfit,
+                    totalExpenses: annual.totalExpenses,
+                    operatingProfit: annual.operatingProfit,
+                    expenses: {
+                        personnel: annual.personnel || 0,
+                        welfare: annual.welfare || 0,
+                        logistics: annualExpenses.logistics || 0,
+                        rent: annualExpenses.rent || 0,
+                        advertising: (currentData.sr.advertising * 12) || 0
+                    }
+                },
+                monthly: monthlyResults.map(month => ({
+                    sales: month.sales,
+                    grossProfit: month.grossProfit,
+                    totalExpenses: month.totalExpenses,
+                    operatingProfit: month.operatingProfit,
+                    expenses: {
+                        personnel: month.personnel || 0,
+                        welfare: month.welfare || 0,
+                        logistics: month.logistics || 0,
+                        rent: month.rent || 0,
+                        advertising: month.advertising || 0
+                    }
+                })),
+                linkageActive: linkageActive,
+                timestamp: new Date().toISOString()
+            };
 
-    const { monthlyResults, annual } = window.srCurrentResults; // 各事業部に応じて変更
+            try {
+                let combinedData = {};
+                const existingData = localStorage.getItem('pl_system_combined_data');
+                if (existingData) {
+                    combinedData = JSON.parse(existingData);
+                }
 
-    // ダッシュボード送信用データ準備（売上＋販管費込み）
-    const srDashboardData = { // 各事業部に応じて変更（sr/w/rc/rcd）
-        department: 'SR事業部', // 各事業部に応じて変更
-        annual: {
-            sales: annual.sales,
-            grossProfit: annual.grossProfit,
-            totalExpenses: annual.totalExpenses,
-            operatingProfit: annual.operatingProfit,
-            // 販管費詳細データも送信
-            expenses: {
-                personnel: annual.personnel || 0,
-                welfare: annual.welfare || 0,
-                logistics: annual.logistics || 0,
-                rent: annual.rent || 0,
-                advertising: annual.advertising || 0,
-                // 他の必要な費用項目も追加
+                combinedData.sr = srDashboardData;
+                combinedData.lastUpdated = new Date().toISOString();
+
+                localStorage.setItem('pl_system_combined_data', JSON.stringify(combinedData));
+                localStorage.setItem('sr_dashboard_data', JSON.stringify(srDashboardData));
+                
+                console.log('SR事業部データを自動送信しました:', srDashboardData);
+            } catch (error) {
+                console.error('ダッシュボードデータ自動送信エラー:', error);
             }
-        },
-        monthly: monthlyResults.map(month => ({
-            sales: month.sales,
-            grossProfit: month.grossProfit,
-            totalExpenses: month.totalExpenses,
-            operatingProfit: month.operatingProfit,
-            // 月次販管費詳細
-            expenses: {
-                personnel: month.personnel || 0,
-                welfare: month.welfare || 0,
-                logistics: month.logistics || 0,
-                rent: month.rent || 0,
-                advertising: month.advertising || 0,
-                // 他の必要な費用項目も追加
-            }
-        })),
-        linkageActive: linkageActive,
-        timestamp: new Date().toISOString()
-    };
-
-    // 自動送信：統合ダッシュボードデータを即座に更新
-    try {
-        // 既存の統合データを取得
-        let combinedData = {};
-        const existingData = localStorage.getItem('pl_system_combined_data');
-        if (existingData) {
-            combinedData = JSON.parse(existingData);
         }
-
-        // SR事業部データを更新（各事業部に応じて変更：sr/w/rc/rcd）
-        combinedData.sr = srDashboardData;
-        combinedData.lastUpdated = new Date().toISOString();
-
-        // 統合データを保存
-        localStorage.setItem('pl_system_combined_data', JSON.stringify(combinedData));
-        
-        // 個別データも保存（後方互換性）
-        localStorage.setItem('sr_dashboard_data', JSON.stringify(srDashboardData)); // 各事業部に応じて変更
-
-        console.log('SR事業部データを自動送信しました:', srDashboardData); // 各事業部に応じて変更
-    } catch (error) {
-        console.error('ダッシュボードデータ自動送信エラー:', error);
-    }
-}
 
         // CSV出力
         function exportToCSV() {
