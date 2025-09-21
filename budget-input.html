@@ -121,8 +121,6 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
         
-        /* 連携状態表示は削除 */
-        
         /* 事業部セクション - コンパクト版 */
         .department-section {
             background: rgba(255, 255, 255, 0.95);
@@ -263,7 +261,7 @@
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
         
-        /* データテーブル */
+        /* データテーブル - 修正版 */
         .data-table {
             width: 100%;
             border-collapse: collapse;
@@ -273,6 +271,9 @@
             overflow: hidden;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
+            /* 確実な表示を保証 */
+            display: table !important;
+            visibility: visible !important;
         }
         
         .data-table th,
@@ -280,6 +281,9 @@
             border: 1px solid #e2e8f0;
             padding: 8px;
             text-align: center;
+            /* セル内容の確実な表示 */
+            display: table-cell !important;
+            visibility: visible !important;
         }
         
         .data-table th {
@@ -291,16 +295,19 @@
         .data-table input {
             width: 100%;
             padding: 4px 6px;
-            border: none;
+            border: 1px solid #ddd;
             background: rgba(66, 153, 225, 0.1);
             border-radius: 4px;
             text-align: center;
             font-size: 0.8rem;
+            /* 入力フィールドの確実な表示 */
+            display: block !important;
+            visibility: visible !important;
         }
         
         .data-table input:focus {
             background: rgba(66, 153, 225, 0.2);
-            outline: none;
+            outline: 2px solid #4299e1;
         }
         
         /* 設定統合エリア - 簡潔版 */
@@ -472,8 +479,6 @@
             </div>
         </div>
         
-        <!-- 連携状態表示は削除 -->
-        
         <!-- SR事業部 -->
         <div class="department-section" style="--dept-color: #e53e3e;">
             <div class="department-header">
@@ -519,11 +524,21 @@
             <!-- データテーブル -->
             <div style="overflow-x: auto;">
                 <table class="data-table" id="sr-table">
-                    <!-- SRテーブル（JavaScript生成） -->
+                    <thead>
+                        <tr>
+                            <th>店舗</th>
+                            <th>項目</th>
+                            <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
+                            <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sr-table-body">
+                        <!-- JavaScript生成 -->
+                    </tbody>
                 </table>
             </div>
             
-            <!-- 情報パネル - テーブル下に移動 -->
+            <!-- 情報パネル -->
             <div class="info-panel">
                 <div class="info-grid">
                     <div class="info-item"><strong>店舗数:</strong> 6店舗</div>
@@ -601,11 +616,20 @@
             <!-- データテーブル -->
             <div style="overflow-x: auto;">
                 <table class="data-table" id="w-table">
-                    <!-- Wテーブル（JavaScript生成） -->
+                    <thead>
+                        <tr>
+                            <th>項目</th>
+                            <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
+                            <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
+                        </tr>
+                    </thead>
+                    <tbody id="w-table-body">
+                        <!-- JavaScript生成 -->
+                    </tbody>
                 </table>
             </div>
             
-            <!-- 情報パネル - テーブル下に移動 -->
+            <!-- 情報パネル -->
             <div class="info-panel">
                 <div class="info-grid">
                     <div class="info-item"><strong>入力方式:</strong> 統合月別売上</div>
@@ -683,11 +707,20 @@
             <!-- データテーブル -->
             <div style="overflow-x: auto;">
                 <table class="data-table" id="rc-table">
-                    <!-- RCテーブル（JavaScript生成） -->
+                    <thead>
+                        <tr>
+                            <th>項目</th>
+                            <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
+                            <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rc-table-body">
+                        <!-- JavaScript生成 -->
+                    </tbody>
                 </table>
             </div>
             
-            <!-- 情報パネル - テーブル下に移動 -->
+            <!-- 情報パネル -->
             <div class="info-panel">
                 <div class="info-grid">
                     <div class="info-item"><strong>基準売上:</strong> 1550万円/月</div>
@@ -758,11 +791,20 @@
             <!-- データテーブル -->
             <div style="overflow-x: auto;">
                 <table class="data-table" id="rcd-table">
-                    <!-- RCDテーブル（JavaScript生成） -->
+                    <thead>
+                        <tr>
+                            <th>項目</th>
+                            <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
+                            <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rcd-table-body">
+                        <!-- JavaScript生成 -->
+                    </tbody>
                 </table>
             </div>
             
-            <!-- 情報パネル - テーブル下に移動 -->
+            <!-- 情報パネル -->
             <div class="info-panel">
                 <div class="info-grid">
                     <div class="info-item"><strong>仕入単価:</strong> 2,000万円/本</div>
@@ -811,7 +853,7 @@
             });
         }
 
-        // 基本データ（integrated_pl_engine.tsxから移植）
+        // 基本データ
         const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
         
         // 参考データ（前年実績）
@@ -864,112 +906,612 @@
         // チャートインスタンス保存用
         let charts = {};
 
-        // 一括送信・事業部合計PL確認機能
-        function sendAllDataAndNavigateToPL() {
-            try {
-                // 4事業部のデータを一括送信
-                sendSRDataToPLSystem();
-                sendWDataToPLSystem(); 
-                sendRCDataToPLSystem();
-                sendRCDDataToPLSystem();
-                
-                // 一括送信完了フラグを設定
-                localStorage.setItem('all_data_sync_flag', JSON.stringify({
-                    timestamp: new Date().toISOString(),
-                    status: 'completed'
-                }));
-                
-                updateLinkageStatus('success', '✅ 全事業部データを一括送信しました');
-                
-                // 事業部合計PLページへ遷移
-                setTimeout(() => {
-                    window.location.href = 'combined-dashboard/index.html';
-                }, 1000);
-                
-                alert('全事業部データを事業部合計PLに送信しました！\n\n1秒後に事業部合計PLページに移動します。');
-                
-            } catch (error) {
-                updateLinkageStatus('error', '❌ 一括送信に失敗しました');
-                alert('一括送信に失敗しました: ' + error.message);
-            }
-        }
-
         // 数値フォーマット
         function formatNumber(num) {
             return Math.round(num).toLocaleString();
         }
 
+        // エラーハンドリング付きテーブル生成
+        function generateSRTable() {
+            try {
+                const tableBody = document.getElementById('sr-table-body');
+                if (!tableBody) {
+                    console.error('SR table body not found');
+                    return;
+                }
+
+                let html = '';
+                
+                // 合計行
+                const totals = months.map((_, i) => {
+                    return Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0);
+                });
+
+                html += `
+                    <tr style="background: #ebf8ff; font-weight: 600;">
+                        <td rowspan="3" style="background: #3182ce; color: white;">合計</td>
+                        <td style="color: #1e40af;">売上</td>
+                        ${totals.map(total => `<td style="color: #1e40af;"><strong>${formatNumber(total)}</strong></td>`).join('')}
+                    </tr>
+                    <tr style="background: #ebf8ff;">
+                        <td style="color: #059669;">増減</td>
+                        ${totals.map((total, i) => {
+                            const diff = total - referenceData.SR[i];
+                            const color = diff >= 0 ? '#059669' : '#dc2626';
+                            return `<td style="color: ${color}; font-weight: 600;">${diff >= 0 ? '+' : ''}${formatNumber(diff)}</td>`;
+                        }).join('')}
+                    </tr>
+                    <tr style="background: #f3f4f6;">
+                        <td style="color: #6b7280;">参考</td>
+                        ${referenceData.SR.map(val => `<td style="color: #6b7280;">${formatNumber(val)}</td>`).join('')}
+                    </tr>
+                `;
+
+                // 各店舗行
+                Object.entries(currentData.sr.stores).forEach(([storeName, values]) => {
+                    html += `
+                        <tr style="background: white;">
+                            <td rowspan="2" style="font-weight: 600;">${storeName}</td>
+                            <td style="color: #3182ce; font-weight: 600;">売上</td>
+                            ${values.map((val, i) => `
+                                <td>
+                                    <input type="number" value="${val}" 
+                                           onchange="updateSRStore('${storeName}', ${i}, this.value)"
+                                           style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; text-align: center;">
+                                </td>
+                            `).join('')}
+                        </tr>
+                        <tr style="background: #f9fafb;">
+                            <td style="color: #6b7280;">参考</td>
+                            ${values.map(val => `<td style="color: #6b7280; font-size: 0.8rem;">${formatNumber(val)}</td>`).join('')}
+                        </tr>
+                    `;
+                });
+
+                tableBody.innerHTML = html;
+                console.log('SR table generated successfully');
+            } catch (error) {
+                console.error('Error generating SR table:', error);
+            }
+        }
+
+        function generateWTable() {
+            try {
+                const tableBody = document.getElementById('w-table-body');
+                if (!tableBody) {
+                    console.error('W table body not found');
+                    return;
+                }
+
+                let html = `
+                    <tr style="background: white;">
+                        <td style="font-weight: 600; color: #3182ce;">売上</td>
+                        ${currentData.w.sales.map((val, i) => `
+                            <td>
+                                <input type="number" value="${val}" 
+                                       onchange="updateWSales(${i}, this.value)"
+                                       style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; text-align: center;">
+                            </td>
+                        `).join('')}
+                    </tr>
+                    <tr style="background: white;">
+                        <td style="font-weight: 600;">増減</td>
+                        ${currentData.w.sales.map((val, i) => {
+                            const diff = val - referenceData.W[i];
+                            const color = diff >= 0 ? '#059669' : '#dc2626';
+                            return `<td style="color: ${color}; font-weight: 600; text-align: center;">${diff >= 0 ? '+' : ''}${formatNumber(diff)}</td>`;
+                        }).join('')}
+                    </tr>
+                    <tr style="background: #f3f4f6;">
+                        <td style="color: #6b7280;">参考</td>
+                        ${referenceData.W.map(val => `<td style="color: #6b7280; text-align: center;">${formatNumber(val)}</td>`).join('')}
+                    </tr>
+                `;
+                tableBody.innerHTML = html;
+                console.log('W table generated successfully');
+            } catch (error) {
+                console.error('Error generating W table:', error);
+            }
+        }
+
+        function generateRCTable() {
+            try {
+                const tableBody = document.getElementById('rc-table-body');
+                if (!tableBody) {
+                    console.error('RC table body not found');
+                    return;
+                }
+
+                let html = `
+                    <tr style="background: white;">
+                        <td style="font-weight: 600; color: #3182ce;">増減</td>
+                        ${currentData.rc.variations.map((val, i) => `
+                            <td>
+                                <input type="number" value="${val}" 
+                                       onchange="updateRCVariation(${i}, this.value)"
+                                       style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; text-align: center;">
+                            </td>
+                        `).join('')}
+                    </tr>
+                    <tr style="background: #f0fff4; border-left: 4px solid #059669;">
+                        <td style="font-weight: 600; color: #059669;">売上</td>
+                        ${currentData.rc.variations.map(val => `
+                            <td style="color: #059669; font-weight: 600; text-align: center;">
+                                ${formatNumber(currentData.rc.baseSales + val)}
+                            </td>
+                        `).join('')}
+                    </tr>
+                    <tr style="background: white;">
+                        <td style="font-weight: 600;">対前年増減</td>
+                        ${currentData.rc.variations.map((val, i) => {
+                            const currentSales = currentData.rc.baseSales + val;
+                            const diff = currentSales - referenceData.RC[i];
+                            const color = diff >= 0 ? '#059669' : '#dc2626';
+                            return `<td style="color: ${color}; font-weight: 600; text-align: center;">${diff >= 0 ? '+' : ''}${formatNumber(diff)}</td>`;
+                        }).join('')}
+                    </tr>
+                    <tr style="background: #f3f4f6;">
+                        <td style="color: #6b7280;">参考</td>
+                        ${referenceData.RC.map(val => `<td style="color: #6b7280; text-align: center;">${formatNumber(val)}</td>`).join('')}
+                    </tr>
+                `;
+                tableBody.innerHTML = html;
+                console.log('RC table generated successfully');
+            } catch (error) {
+                console.error('Error generating RC table:', error);
+            }
+        }
+
+        function generateRCDTable() {
+            try {
+                const tableBody = document.getElementById('rcd-table-body');
+                if (!tableBody) {
+                    console.error('RCD table body not found');
+                    return;
+                }
+
+                let html = `
+                    <tr style="background: white;">
+                        <td style="font-weight: 600; color: #3182ce;">仕入</td>
+                        ${currentData.rcd.purchases.map((val, i) => `
+                            <td>
+                                <input type="number" step="0.1" value="${val}" 
+                                       onchange="updateRCDPurchase(${i}, this.value)"
+                                       style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; text-align: center;">
+                            </td>
+                        `).join('')}
+                    </tr>
+                    <tr style="background: #f0fff4; border-left: 4px solid #059669;">
+                        <td style="font-weight: 600; color: #059669;">売上</td>
+                        ${currentData.rcd.purchases.map(val => `
+                            <td style="color: #059669; font-weight: 600; text-align: center;">
+                                ${formatNumber(Math.round(val * 2000 * 1.03))}
+                            </td>
+                        `).join('')}
+                    </tr>
+                    <tr style="background: white;">
+                        <td style="font-weight: 600;">対前年増減</td>
+                        ${currentData.rcd.purchases.map((val, i) => {
+                            const currentSales = Math.round(val * 2000 * 1.03);
+                            const diff = currentSales - referenceData.RCD[i];
+                            const color = diff >= 0 ? '#059669' : '#dc2626';
+                            return `<td style="color: ${color}; font-weight: 600; text-align: center;">${diff >= 0 ? '+' : ''}${formatNumber(diff)}</td>`;
+                        }).join('')}
+                    </tr>
+                    <tr style="background: #fffbeb; border-left: 4px solid #f59e0b;">
+                        <td style="font-weight: 600; color: #b45309;">手数料</td>
+                        ${currentData.rcd.fees.map((val, i) => `
+                            <td>
+                                <input type="number" min="0" max="10" value="${val}" 
+                                       onchange="updateRCDFee(${i}, this.value)"
+                                       style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; text-align: center;">
+                                <div style="font-size: 0.7rem; color: #b45309; text-align: center;">
+                                    ${formatNumber(Math.round(val * 90.6))}万円
+                                </div>
+                            </td>
+                        `).join('')}
+                    </tr>
+                    <tr style="background: #f3f4f6;">
+                        <td style="color: #6b7280;">参考</td>
+                        ${referenceData.RCD.map(val => `<td style="color: #6b7280; text-align: center;">${formatNumber(val)}</td>`).join('')}
+                    </tr>
+                `;
+                tableBody.innerHTML = html;
+                console.log('RCD table generated successfully');
+            } catch (error) {
+                console.error('Error generating RCD table:', error);
+            }
+        }
+
         // チャート作成関数
         function createDepartmentChart(containerId, referenceData, currentData, deptName) {
-            const ctx = document.getElementById(containerId).getContext('2d');
-            
-            // 既存のチャートを破棄
-            if (charts[containerId]) {
-                charts[containerId].destroy();
-            }
-            
-            charts[containerId] = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: months,
-                    datasets: [
-                        {
-                            label: '参考売上',
-                            data: referenceData,
-                            backgroundColor: 'rgba(59, 130, 246, 0.7)',
-                            borderColor: 'rgba(59, 130, 246, 1)',
-                            borderWidth: 1
-                        },
-                        {
-                            label: '予算設定',
-                            data: currentData,
-                            backgroundColor: 'rgba(34, 197, 94, 0.7)',
-                            borderColor: 'rgba(34, 197, 94, 1)',
-                            borderWidth: 1
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false  // レジェンドを非表示
-                        },
-                        title: {
-                            display: false  // タイトルを非表示
-                        }
+            try {
+                const ctx = document.getElementById(containerId);
+                if (!ctx) {
+                    console.error(`Chart container ${containerId} not found`);
+                    return;
+                }
+                
+                // 既存のチャートを破棄
+                if (charts[containerId]) {
+                    charts[containerId].destroy();
+                }
+                
+                charts[containerId] = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: months,
+                        datasets: [
+                            {
+                                label: '参考売上',
+                                data: referenceData,
+                                backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                                borderColor: 'rgba(59, 130, 246, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: '予算設定',
+                                data: currentData,
+                                backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                                borderColor: 'rgba(34, 197, 94, 1)',
+                                borderWidth: 1
+                            }
+                        ]
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                font: {
-                                    size: 9
-                                }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
                             }
                         },
-                        x: {
-                            ticks: {
-                                font: {
-                                    size: 9
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    font: { size: 9 }
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    font: { size: 9 }
                                 }
                             }
                         }
                     }
-                }
-            });
+                });
+                console.log(`Chart ${containerId} created successfully`);
+            } catch (error) {
+                console.error(`Error creating chart ${containerId}:`, error);
+            }
         }
 
-        // SRデータをPLシステムに送信する新機能
+        // データ更新関数群
+        function updateSRStore(storeName, monthIndex, value) {
+            currentData.sr.stores[storeName][monthIndex] = parseInt(value) || 0;
+            calculateSR();
+            generateSRTable();
+            updateSRChart();
+        }
+
+        function updateWSales(monthIndex, value) {
+            currentData.w.sales[monthIndex] = parseInt(value) || 0;
+            calculateW();
+            generateWTable();
+            updateWChart();
+        }
+
+        function updateRCVariation(monthIndex, value) {
+            currentData.rc.variations[monthIndex] = parseInt(value) || 0;
+            calculateRC();
+            generateRCTable();
+            updateRCChart();
+        }
+
+        function updateRCDPurchase(monthIndex, value) {
+            currentData.rcd.purchases[monthIndex] = parseFloat(value) || 0;
+            calculateRCD();
+            generateRCDTable();
+            updateRCDChart();
+        }
+
+        function updateRCDFee(monthIndex, value) {
+            currentData.rcd.fees[monthIndex] = parseInt(value) || 0;
+            calculateRCD();
+            generateRCDTable();
+        }
+
+        // 計算関数群
+        function calculateSR() {
+            try {
+                const totals = months.map((_, i) => {
+                    return Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0);
+                });
+                const annual = totals.reduce((sum, val) => sum + val, 0);
+                const refTotal = referenceData.SR.reduce((sum, val) => sum + val, 0);
+                const diff = annual - refTotal;
+
+                const annualElement = document.getElementById('sr-annual');
+                if (annualElement) {
+                    annualElement.textContent = 
+                        `年間合計: ${formatNumber(annual)}万円　前年増減: ${diff >= 0 ? '+' : ''}${formatNumber(diff)}万円`;
+                }
+                
+                updateKPIs();
+            } catch (error) {
+                console.error('Error in calculateSR:', error);
+            }
+        }
+
+        function calculateW() {
+            try {
+                const annual = currentData.w.sales.reduce((sum, val) => sum + val, 0);
+                const refTotal = referenceData.W.reduce((sum, val) => sum + val, 0);
+                const diff = annual - refTotal;
+
+                const annualElement = document.getElementById('w-annual');
+                if (annualElement) {
+                    annualElement.textContent = 
+                        `年間合計: ${formatNumber(annual)}万円　前年増減: ${diff >= 0 ? '+' : ''}${formatNumber(diff)}万円`;
+                }
+                
+                updateKPIs();
+            } catch (error) {
+                console.error('Error in calculateW:', error);
+            }
+        }
+
+        function calculateRC() {
+            try {
+                const totals = currentData.rc.variations.map(variation => currentData.rc.baseSales + variation);
+                const annual = totals.reduce((sum, val) => sum + val, 0);
+                const refTotal = referenceData.RC.reduce((sum, val) => sum + val, 0);
+                const diff = annual - refTotal;
+
+                const annualElement = document.getElementById('rc-annual');
+                if (annualElement) {
+                    annualElement.textContent = 
+                        `年間合計: ${formatNumber(annual)}万円　前年増減: ${diff >= 0 ? '+' : ''}${formatNumber(diff)}万円`;
+                }
+                
+                updateKPIs();
+            } catch (error) {
+                console.error('Error in calculateRC:', error);
+            }
+        }
+
+        function calculateRCD() {
+            try {
+                const totals = currentData.rcd.purchases.map(purchase => Math.round(purchase * 2000 * 1.03));
+                const annual = totals.reduce((sum, val) => sum + val, 0);
+                const refTotal = referenceData.RCD.reduce((sum, val) => sum + val, 0);
+                const diff = annual - refTotal;
+
+                const annualElement = document.getElementById('rcd-annual');
+                if (annualElement) {
+                    annualElement.textContent = 
+                        `年間合計: ${formatNumber(annual)}万円　前年増減: ${diff >= 0 ? '+' : ''}${formatNumber(diff)}万円`;
+                }
+                
+                updateKPIs();
+            } catch (error) {
+                console.error('Error in calculateRCD:', error);
+            }
+        }
+
+        // KPI更新
+        function updateKPIs() {
+            try {
+                const srTotal = months.map((_, i) => {
+                    return Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0);
+                }).reduce((sum, val) => sum + val, 0);
+
+                const wTotal = currentData.w.sales.reduce((sum, val) => sum + val, 0);
+                const rcTotal = currentData.rc.variations.map(variation => 
+                    currentData.rc.baseSales + variation
+                ).reduce((sum, val) => sum + val, 0);
+                const rcdTotal = currentData.rcd.purchases.map(purchase => 
+                    Math.round(purchase * 2000 * 1.03)
+                ).reduce((sum, val) => sum + val, 0);
+
+                const totalRevenue = srTotal + wTotal + rcTotal + rcdTotal;
+
+                const refTotals = {
+                    SR: referenceData.SR.reduce((sum, val) => sum + val, 0),
+                    W: referenceData.W.reduce((sum, val) => sum + val, 0),
+                    RC: referenceData.RC.reduce((sum, val) => sum + val, 0),
+                    RCD: referenceData.RCD.reduce((sum, val) => sum + val, 0)
+                };
+                const totalRefRevenue = refTotals.SR + refTotals.W + refTotals.RC + refTotals.RCD;
+                const totalDiff = totalRevenue - totalRefRevenue;
+
+                const totalRevenueElement = document.getElementById('total-revenue');
+                const revenueDiffElement = document.getElementById('revenue-diff');
+                const syncStatusElement = document.getElementById('sync-status');
+
+                if (totalRevenueElement) {
+                    totalRevenueElement.textContent = formatNumber(totalRevenue) + '万円';
+                }
+                if (revenueDiffElement) {
+                    revenueDiffElement.textContent = (totalDiff >= 0 ? '+' : '') + formatNumber(totalDiff) + '万円';
+                }
+                if (syncStatusElement) {
+                    syncStatusElement.textContent = '送信準備完了';
+                }
+            } catch (error) {
+                console.error('Error in updateKPIs:', error);
+            }
+        }
+
+        // チャート更新関数群
+        function updateSRChart() {
+            const totals = months.map((_, i) => {
+                return Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0);
+            });
+            createDepartmentChart('sr-chart', referenceData.SR, totals, 'SR事業部');
+        }
+
+        function updateWChart() {
+            createDepartmentChart('w-chart', referenceData.W, currentData.w.sales, 'W事業部');
+        }
+
+        function updateRCChart() {
+            const totals = currentData.rc.variations.map(variation => currentData.rc.baseSales + variation);
+            createDepartmentChart('rc-chart', referenceData.RC, totals, 'RC卸事業部');
+        }
+
+        function updateRCDChart() {
+            const totals = currentData.rcd.purchases.map(purchase => Math.round(purchase * 2000 * 1.03));
+            createDepartmentChart('rcd-chart', referenceData.RCD, totals, 'RCD社事業部');
+        }
+
+        // プリセット関数群（省略：前のバージョンと同じ）
+        function applySRPreset(presetType) {
+            const storeNames = Object.keys(currentData.sr.stores);
+            storeNames.forEach(storeName => {
+                for (let i = 0; i < 12; i++) {
+                    switch(presetType) {
+                        case 'actual':
+                            const storeIndex = storeNames.indexOf(storeName);
+                            const storeData = [
+                                [416, 397, 421, 502, 471, 544, 567, 476, 355, 408, 299, 346],
+                                [369, 386, 600, 535, 285, 437, 351, 270, 369, 391, 256, 242],
+                                [284, 375, 508, 278, 394, 394, 377, 309, 248, 469, 448, 535],
+                                [328, 547, 723, 520, 528, 607, 574, 318, 714, 657, 700, 600],
+                                [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
+                                [490, 493, 427, 542, 558, 416, 622, 641, 496, 385, 253, 620]
+                            ];
+                            currentData.sr.stores[storeName][i] = storeData[storeIndex][i];
+                            break;
+                        case '50p':
+                            currentData.sr.stores[storeName][i] += 50;
+                            break;
+                        case '100p':
+                            currentData.sr.stores[storeName][i] += 100;
+                            break;
+                        case '150p':
+                            currentData.sr.stores[storeName][i] += 150;
+                            break;
+                    }
+                }
+            });
+            calculateSR();
+            generateSRTable();
+            updateSRChart();
+        }
+
+        function applyWPreset(presetType) {
+            for (let i = 0; i < 12; i++) {
+                switch(presetType) {
+                    case 'actual':
+                        currentData.w.sales[i] = referenceData.W[i];
+                        break;
+                    case '200':
+                        currentData.w.sales[i] = referenceData.W[i] + 200;
+                        break;
+                    case '400':
+                        currentData.w.sales[i] = referenceData.W[i] + 400;
+                        break;
+                    case '600':
+                        currentData.w.sales[i] = referenceData.W[i] + 600;
+                        break;
+                }
+            }
+            calculateW();
+            generateWTable();
+            updateWChart();
+        }
+
+        function applyRCPreset(presetType) {
+            switch(presetType) {
+                case 'standard':
+                    currentData.rc.variations = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                    currentData.rc.targetRate = 0;
+                    break;
+                case 'actual':
+                    currentData.rc.variations = referenceData.RC.map(ref => ref - currentData.rc.baseSales);
+                    currentData.rc.targetRate = 0;
+                    break;
+                case 'growth':
+                    currentData.rc.variations = referenceData.RC.map(ref => {
+                        const targetSales = Math.round(ref * 1.04);
+                        return targetSales - currentData.rc.baseSales;
+                    });
+                    currentData.rc.targetRate = 4;
+                    break;
+                case 'improvement':
+                    currentData.rc.variations = referenceData.RC.map(ref => {
+                        const targetSales = Math.round(ref * 1.07);
+                        return targetSales - currentData.rc.baseSales;
+                    });
+                    currentData.rc.targetRate = 7;
+                    break;
+            }
+            const rcTargetRateElem = document.getElementById('rc-target-rate');
+            const rcCurrentRateElem = document.getElementById('rc-current-rate');
+            if (rcTargetRateElem) rcTargetRateElem.value = currentData.rc.targetRate;
+            if (rcCurrentRateElem) rcCurrentRateElem.textContent = currentData.rc.targetRate;
+            calculateRC();
+            generateRCTable();
+            updateRCChart();
+        }
+
+        function applyRCDPreset(presetType) {
+            switch(presetType) {
+                case 'zero':
+                    currentData.rcd.fees = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                    break;
+                case 'actual':
+                    currentData.rcd.purchases = referenceData.RCD.map(refSales => {
+                        const purchaseCount = refSales / (2000 * 1.03);
+                        return Math.floor(purchaseCount * 10) / 10;
+                    });
+                    currentData.rcd.fees = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1];
+                    break;
+                case 'standard':
+                    currentData.rcd.purchases = [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8];
+                    currentData.rcd.fees = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+                    break;
+                case 'seven':
+                    currentData.rcd.purchases = [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7];
+                    currentData.rcd.fees = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+                    break;
+                case 'six':
+                    currentData.rcd.purchases = [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6];
+                    currentData.rcd.fees = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                    break;
+            }
+            calculateRCD();
+            generateRCDTable();
+            updateRCDChart();
+        }
+
+        function applyRCTargetRate() {
+            const targetRateElem = document.getElementById('rc-target-rate');
+            const currentRateElem = document.getElementById('rc-current-rate');
+            
+            if (targetRateElem && currentRateElem) {
+                const targetRate = parseFloat(targetRateElem.value) || 0;
+                currentData.rc.variations = referenceData.RC.map(ref => {
+                    const targetSales = Math.round(ref * (1 + targetRate / 100));
+                    return targetSales - currentData.rc.baseSales;
+                });
+                currentData.rc.targetRate = targetRate;
+                currentRateElem.textContent = targetRate;
+                calculateRC();
+                generateRCTable();
+                updateRCChart();
+            }
+        }
+
+        // 送信機能群
         function sendSRDataToPLSystem() {
             try {
-                // SRの月次売上合計を計算
                 const monthlySales = months.map((_, i) => {
                     return Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0);
                 });
 
-                // SRデータを保存
                 const srSalesData = {
                     monthlySales: monthlySales,
                     timestamp: new Date().toISOString()
@@ -982,19 +1524,250 @@
                     advertising: currentData.sr.variables.advertising
                 };
 
-                // localStorage に保存（新ルール適用）
                 localStorage.setItem(LOCAL_STORAGE_KEYS.sr_data, JSON.stringify(srSalesData));
                 localStorage.setItem(LOCAL_STORAGE_KEYS.sr_settings, JSON.stringify(srSettings));
 
-                // 状態表示を更新
-                updateLinkageStatus('success', '✅ SRデータを正常に送信しました');
-
-                // 成功メッセージ
+                const annual = monthlySales.reduce((sum, val) => sum + val, 0);
                 alert('SRデータをPLシステムに送信しました！\n\n' +
-                      '年間合計: ' + formatNumber(monthlySales.reduce((sum, val) => sum + val, 0)) + '万円\n' +
+                      '年間合計: ' + formatNumber(annual) + '万円\n' +
                       '送信時刻: ' + new Date().toLocaleTimeString());
 
             } catch (error) {
-                updateLinkageStatus('error', '❌ データ送信に失敗しました');
                 alert('データ送信に失敗しました: ' + error.message);
+            }
+        }
+
+        function sendWDataToPLSystem() {
+            try {
+                const wSalesData = {
+                    monthlySales: currentData.w.sales,
+                    timestamp: new Date().toISOString()
+                };
+
+                const wSettings = {
+                    advertising: currentData.w.variables.advertising
+                };
+
+                localStorage.setItem(LOCAL_STORAGE_KEYS.w_data, JSON.stringify(wSalesData));
+                localStorage.setItem(LOCAL_STORAGE_KEYS.w_settings, JSON.stringify(wSettings));
+
+                const annual = currentData.w.sales.reduce((sum, val) => sum + val, 0);
+                alert('WデータをPLシステムに送信しました！\n\n' +
+                      '年間合計: ' + formatNumber(annual) + '万円\n' +
+                      '送信時刻: ' + new Date().toLocaleTimeString());
+
+            } catch (error) {
+                alert('Wデータ送信に失敗しました: ' + error.message);
+            }
+        }
+
+        function sendRCDataToPLSystem() {
+            try {
+                const rcSalesData = {
+                    baseSales: currentData.rc.baseSales,
+                    variations: currentData.rc.variations,
+                    timestamp: new Date().toISOString()
+                };
+
+                const rcSettings = {
+                    advertising: currentData.rc.variables.advertising,
+                    decemberExhibition: currentData.rc.variables.exhibition,
+                    aprilBoothFee: currentData.rc.variables.exhibition
+                };
+
+                localStorage.setItem(LOCAL_STORAGE_KEYS.rc_data, JSON.stringify(rcSalesData));
+                localStorage.setItem(LOCAL_STORAGE_KEYS.rc_settings, JSON.stringify(rcSettings));
+
+                const monthlySales = currentData.rc.variations.map(variation => currentData.rc.baseSales + variation);
+                const annual = monthlySales.reduce((sum, val) => sum + val, 0);
+                alert('RCデータをPLシステムに送信しました！\n\n' +
+                      '年間合計: ' + formatNumber(annual) + '万円\n' +
+                      '送信時刻: ' + new Date().toLocaleTimeString());
+
+            } catch (error) {
+                alert('RCデータ送信に失敗しました: ' + error.message);
+            }
+        }
+
+        function sendRCDDataToPLSystem() {
+            try {
+                const rcdSalesData = {
+                    purchases: currentData.rcd.purchases,
+                    timestamp: new Date().toISOString()
+                };
+
+                const rcdSettings = {
+                    feeOccurrences: currentData.rcd.fees
+                };
+
+                localStorage.setItem(LOCAL_STORAGE_KEYS.rcd_data, JSON.stringify(rcdSalesData));
+                localStorage.setItem(LOCAL_STORAGE_KEYS.rcd_settings, JSON.stringify(rcdSettings));
+
+                const monthlySales = currentData.rcd.purchases.map(purchase => Math.round(purchase * 2000 * 1.03));
+                const annual = monthlySales.reduce((sum, val) => sum + val, 0);
+                alert('RCDデータをPLシステムに送信しました！\n\n' +
+                      '年間合計: ' + formatNumber(annual) + '万円\n' +
+                      '送信時刻: ' + new Date().toLocaleTimeString());
+
+            } catch (error) {
+                alert('RCDデータ送信に失敗しました: ' + error.message);
+            }
+        }
+
+        function sendAllDataAndNavigateToPL() {
+            try {
+                sendSRDataToPLSystem();
+                sendWDataToPLSystem(); 
+                sendRCDataToPLSystem();
+                sendRCDDataToPLSystem();
+                
+                localStorage.setItem('all_data_sync_flag', JSON.stringify({
+                    timestamp: new Date().toISOString(),
+                    status: 'completed'
+                }));
+                
+                setTimeout(() => {
+                    window.location.href = 'combined-dashboard/index.html';
+                }, 1000);
+                
+                alert('全事業部データを事業部合計PLに送信しました！\n\n1秒後に事業部合計PLページに移動します。');
+                
+            } catch (error) {
+                alert('一括送信に失敗しました: ' + error.message);
+            }
+        }
+
+        // ナビゲーション機能
+        function navigateToSRPL() {
+            window.location.href = 'department-pl/sr-pl.html';
+        }
+
+        function navigateToWPL() {
+            window.location.href = 'department-pl/w-pl.html';
+        }
+
+        function navigateToRCPL() {
+            window.location.href = 'department-pl/rc-pl.html';
+        }
+
+        function navigateToRCDPL() {
+            window.location.href = 'department-pl/rcd-pl.html';
+        }
+
+        // エクスポート機能
+        function exportToJSON() {
+            const exportData = {
+                timestamp: new Date().toISOString(),
+                data: currentData,
+                summary: {
+                    totalRevenue: getCurrentTotalRevenue(),
+                    breakdown: getCurrentBreakdown()
+                }
+            };
             
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'budget_input_data.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function getCurrentTotalRevenue() {
+            const srTotal = months.map((_, i) => {
+                return Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0);
+            }).reduce((sum, val) => sum + val, 0);
+
+            const wTotal = currentData.w.sales.reduce((sum, val) => sum + val, 0);
+            const rcTotal = currentData.rc.variations.map(variation => 
+                currentData.rc.baseSales + variation
+            ).reduce((sum, val) => sum + val, 0);
+            const rcdTotal = currentData.rcd.purchases.map(purchase => 
+                Math.round(purchase * 2000 * 1.03)
+            ).reduce((sum, val) => sum + val, 0);
+
+            return srTotal + wTotal + rcTotal + rcdTotal;
+        }
+
+        function getCurrentBreakdown() {
+            const srTotal = months.map((_, i) => {
+                return Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0);
+            }).reduce((sum, val) => sum + val, 0);
+
+            return {
+                SR: srTotal,
+                W: currentData.w.sales.reduce((sum, val) => sum + val, 0),
+                RC: currentData.rc.variations.map(variation => 
+                    currentData.rc.baseSales + variation
+                ).reduce((sum, val) => sum + val, 0),
+                RCD: currentData.rcd.purchases.map(purchase => 
+                    Math.round(purchase * 2000 * 1.03)
+                ).reduce((sum, val) => sum + val, 0)
+            };
+        }
+
+        // 初期化関数
+        function initialize() {
+            try {
+                console.log('Initializing budget input system...');
+                
+                // localStorage移行処理を最初に実行
+                migrateLocalStorageKeys();
+                
+                // 初期値設定
+                const elements = {
+                    'sr-commission': currentData.sr.variables.commission,
+                    'sr-bonus6': currentData.sr.variables.bonus6,
+                    'sr-bonus12': currentData.sr.variables.bonus12,
+                    'sr-advertising': currentData.sr.variables.advertising,
+                    'w-advertising': currentData.w.variables.advertising,
+                    'rc-advertising': currentData.rc.variables.advertising,
+                    'rc-exhibition': currentData.rc.variables.exhibition,
+                    'rc-target-rate': currentData.rc.targetRate
+                };
+
+                Object.entries(elements).forEach(([id, value]) => {
+                    const elem = document.getElementById(id);
+                    if (elem) elem.value = value;
+                });
+
+                const rcCurrentRateElem = document.getElementById('rc-current-rate');
+                if (rcCurrentRateElem) rcCurrentRateElem.textContent = currentData.rc.targetRate;
+
+                // テーブル生成
+                generateSRTable();
+                generateWTable();
+                generateRCTable();
+                generateRCDTable();
+                
+                // 計算実行
+                calculateSR();
+                calculateW();
+                calculateRC();
+                calculateRCD();
+                
+                // チャート初期化
+                setTimeout(() => {
+                    updateSRChart();
+                    updateWChart();
+                    updateRCChart();
+                    updateRCDChart();
+                }, 100);
+                
+                // KPI更新
+                updateKPIs();
+                
+                console.log('Initialization completed successfully');
+            } catch (error) {
+                console.error('Error during initialization:', error);
+            }
+        }
+
+        // ページ読み込み時に初期化実行
+        document.addEventListener('DOMContentLoaded', initialize);
+        window.addEventListener('load', initialize);
+    </script>
+</body>
+</html>
+                
