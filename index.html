@@ -823,7 +823,8 @@
             w_data: 'pl_system_w_data', 
             rc_data: 'pl_system_rc_data',
             rcd_data: 'pl_system_rcd_data',
-            combined_data: 'pl_system_combined_data'
+            combined_data: 'pl_system_combined_data',
+            executive_data: 'pl_system_executive_data'  // 追加: 役員報酬データ用
         };
 
         // 旧キーから新キーへの移行処理
@@ -945,9 +946,54 @@
             alert(`${pageName}画面は開発中です。\n\n次期アップデートで実装予定:\n- ${pageName}画面\n- ナビゲーション機能\n- ページ間連携`);
         }
 
+        // 新規追加: 役員報酬データの保存機能
+        function saveExecutiveData() {
+            const executiveData = {
+                adjustment: executiveAdjustment,
+                bonusAmount: executiveBonusAmount,
+                timestamp: new Date().toISOString(),
+                lastUpdate: new Date().toLocaleString()
+            };
+            
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEYS.executive_data, JSON.stringify(executiveData));
+                console.log('役員報酬データを保存:', executiveData);
+                return true;
+            } catch (error) {
+                console.error('役員報酬データ保存エラー:', error);
+                return false;
+            }
+        }
+
+        // 新規追加: 役員報酬データの読み込み機能
+        function loadExecutiveData() {
+            try {
+                const savedData = localStorage.getItem(LOCAL_STORAGE_KEYS.executive_data);
+                if (savedData) {
+                    const executiveData = JSON.parse(savedData);
+                    console.log('役員報酬データを読み込み:', executiveData);
+                    
+                    // データの復元
+                    executiveAdjustment = executiveData.adjustment || 0;
+                    executiveBonusAmount = executiveData.bonusAmount || 300;
+                    
+                    // UIの更新
+                    document.getElementById('executive-bonus').value = executiveBonusAmount;
+                    
+                    return true;
+                }
+            } catch (error) {
+                console.error('役員報酬データ読み込みエラー:', error);
+            }
+            return false;
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // localStorage移行処理を最初に実行
             migrateLocalStorageKeys();
+            
+            // 役員報酬データの読み込み
+            loadExecutiveData();
             
             updateCommonExpensesDisplay();
             updatePLSummaryTable();
@@ -1019,6 +1065,9 @@
             updateElement('welfare-total', totalWelfare.toLocaleString());
             updateElement('common-total', totalCommon.toLocaleString());
             updateElement('common-expenses-total', `-${totalCommon.toLocaleString()}万円`);
+            
+            // 役員報酬データの保存（変更があった場合）
+            saveExecutiveData();
         }
 
         function updateExecutiveBonus() {
@@ -1240,20 +1289,17 @@
             targetAllocation.isEnabled = !targetAllocation.isEnabled;
             
             const toggleBtn = document.getElementById('allocation-toggle-btn');
-            const mainToggleBtn = document.getElementById('allocation-main-toggle');
             const allocationResults = document.getElementById('allocation-results');
             
             if (targetAllocation.isEnabled) {
                 toggleBtn.textContent = '目標配分ON';
                 toggleBtn.className = 'target-toggle toggle-active';
-                mainToggleBtn.textContent = '目標配分ON';
                 allocationResults.style.display = 'block';
                 updateElement('header-allocation-status', 'ON');
                 updateTargetAllocation();
             } else {
                 toggleBtn.textContent = '目標配分OFF';
                 toggleBtn.className = 'target-toggle toggle-inactive';
-                mainToggleBtn.textContent = '目標配分OFF';
                 allocationResults.style.display = 'none';
                 updateElement('target-achievement', '---%');
                 updateElement('target-status', '目標配分OFF');
@@ -1539,6 +1585,15 @@
             if (element) {
                 element.textContent = value;
             }
+        }
+
+        // 新規追加: loadAllData関数（PL合算ページでデータ更新時に使用）
+        function loadAllData() {
+            // 役員報酬データの再読み込み
+            loadExecutiveData();
+            updateCommonExpensesDisplay();
+            calculateAndUpdateKPIs();
+            console.log('全体PL分析ページ: データ更新完了');
         }
     </script>
 </body>
