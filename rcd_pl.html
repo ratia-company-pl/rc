@@ -26,16 +26,16 @@
             padding: 10px;
         }
 
-        /* ダッシュボードレイアウト準拠ヘッダー */
+        /* 共通ヘッダー仕様（青・水色系） */
         .header-row1 {
-            background: rgba(255, 255, 255, 0.95);
+            background: linear-gradient(135deg, #3498db 0%, #5dade2 100%);
+            color: white;
             border-radius: 12px 12px 0 0;
             padding: 15px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .main-title {
-            color: #2c3e50;
             font-size: 1.6em;
             font-weight: 700;
             text-align: left;
@@ -43,21 +43,19 @@
         }
 
         .header-row2 {
-            background: rgba(255, 255, 255, 0.95);
+            background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
             padding: 10px 15px;
-            display: flex;
-            justify-content: center;
         }
 
         .header-row3 {
-            background: rgba(255, 255, 255, 0.95);
+            background: #f8f9fa;
             padding: 12px 15px;
             display: flex;
             justify-content: center;
         }
 
         .header-row4 {
-            background: rgba(255, 255, 255, 0.95);
+            background: #ecf0f1;
             border-radius: 0 0 12px 12px;
             padding: 10px 15px;
             margin-bottom: 10px;
@@ -72,6 +70,7 @@
             width: 100%;
             max-width: 1100px;
             gap: 8px;
+            margin: 0 auto;
         }
 
         .btn {
@@ -92,12 +91,13 @@
         }
 
         .btn-nav {
-            background: #34495e;
+            background: rgba(255, 255, 255, 0.2);
             color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .btn-nav:hover {
-            background: #2c3e50;
+            background: rgba(255, 255, 255, 0.3);
             transform: translateY(-1px);
         }
 
@@ -119,7 +119,7 @@
             background: #229954;
         }
 
-        /* KPIカード4列レイアウト（3行目に配置） */
+        /* KPIカード4列レイアウト（白ベース、動的色分け） */
         .kpi-grid {
             display: grid;
             grid-template-columns: repeat(4, minmax(160px, 1fr));
@@ -129,8 +129,9 @@
         }
 
         .kpi-card {
-            background: linear-gradient(135deg, var(--card-bg) 0%, var(--card-bg-secondary) 100%);
-            color: white;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            color: #2c3e50;
+            border: 2px solid #3498db;
             padding: 10px 12px;
             border-radius: 8px;
             text-align: center;
@@ -142,29 +143,19 @@
             transform: translateY(-2px);
         }
 
-        .kpi-card.sales {
-            --card-bg: #3498db;
-            --card-bg-secondary: #2980b9;
+        .kpi-card.positive {
+            border-color: #27ae60;
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
         }
 
-        .kpi-card.profit {
-            --card-bg: #27ae60;
-            --card-bg-secondary: #229954;
-        }
-
-        .kpi-card.rate {
-            --card-bg: #8e44ad;
-            --card-bg-secondary: #7d3c98;
-        }
-
-        .kpi-card.volume {
-            --card-bg: #e67e22;
-            --card-bg-secondary: #d35400;
+        .kpi-card.negative {
+            border-color: #e74c3c;
+            background: linear-gradient(135deg, #fdf2f2 0%, #fef5f5 100%);
         }
 
         .kpi-label {
             font-size: 0.75em;
-            opacity: 0.9;
+            color: #7f8c8d;
             margin-bottom: 6px;
             font-weight: 600;
         }
@@ -174,11 +165,20 @@
             font-weight: 700;
             margin-bottom: 3px;
             line-height: 1.1;
+            color: #2c3e50;
+        }
+
+        .kpi-value.positive {
+            color: #27ae60;
+        }
+
+        .kpi-value.negative {
+            color: #e74c3c;
         }
 
         .kpi-unit {
             font-size: 0.7em;
-            opacity: 0.8;
+            color: #7f8c8d;
             font-weight: 500;
         }
 
@@ -289,15 +289,19 @@
         }
 
         .spec-info {
-            background: #e8f5e8;
-            border: 2px solid #27ae60;
-            border-left: 6px solid #27ae60;
-            padding: 12px;
-            margin-bottom: 15px;
-            border-radius: 6px;
-            font-size: 0.85em;
-            font-weight: 600;
+            background: linear-gradient(135deg, #e8f4fd 0%, #f0f8ff 100%);
+            border: 2px solid #3498db;
+            border-left: 6px solid #3498db;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+
+        .spec-info strong {
             color: #2c3e50;
+            font-weight: 700;
         }
 
         table {
@@ -453,7 +457,7 @@
 </head>
 <body>
     <div class="container">
-        <!-- ダッシュボードレイアウト準拠ヘッダー -->
+        <!-- 共通ヘッダー仕様（4行構造） -->
         <!-- 1行目: タイトル（左端配置） -->
         <div class="header-row1">
             <h1 class="main-title">RCD社事業部PLシミュレーター（連携機能付）</h1>
@@ -474,22 +478,22 @@
         <!-- 3行目: KPIカード -->
         <div class="header-row3">
             <div class="kpi-grid">
-                <div class="kpi-card sales">
+                <div class="kpi-card">
                     <div class="kpi-label">年間売上高</div>
                     <div class="kpi-value" id="kpi-sales">---</div>
                     <div class="kpi-unit">万円</div>
                 </div>
-                <div class="kpi-card profit">
+                <div class="kpi-card" id="profit-card">
                     <div class="kpi-label">年間営業利益</div>
                     <div class="kpi-value" id="kpi-profit">---</div>
                     <div class="kpi-unit">万円</div>
                 </div>
-                <div class="kpi-card rate">
+                <div class="kpi-card" id="rate-card">
                     <div class="kpi-label">営業利益率</div>
                     <div class="kpi-value" id="kpi-rate">---</div>
                     <div class="kpi-unit">%</div>
                 </div>
-                <div class="kpi-card volume">
+                <div class="kpi-card">
                     <div class="kpi-label">年間仕入本数</div>
                     <div class="kpi-value" id="kpi-volume">---</div>
                     <div class="kpi-unit">本</div>
@@ -534,11 +538,13 @@
                     <button class="btn btn-success" onclick="exportToCSV()">CSV出力</button>
                 </div>
             </div>
+            <div id="rcd-table"></div>
+            
+            <!-- 仕様説明（PLテーブル下に移動） -->
             <div class="spec-info">
                 <strong>RCD社事業部特有仕様・計算仕様</strong><br>
                 仕入単価: 2,000万円/本　利益率: 3%固定　支払手数料: 1件90.6万円×回数　外部委託: 人件費・経費0円
             </div>
-            <div id="rcd-table"></div>
         </div>
 
         <!-- 非表示の入力フィールド（連携データ受信用） -->
@@ -547,7 +553,7 @@
     </div>
 
     <script>
-        // RCD社事業部PLシステム（高情報密度UI版）
+        // RCD社事業部PLシステム（自動送信方式対応版）
         
         // グローバル変数
         let currentData = {
@@ -683,7 +689,7 @@
             updateDashboard();
         }
 
-        // KPIカード更新
+        // KPIカード更新（動的色分け対応）
         function updateKPICards() {
             const monthlyResults = currentData.rcd.purchases.map((purchases, i) => 
                 calculateMonthlyPL(i, purchases, currentData.rcd.fees[i])
@@ -703,15 +709,34 @@
             const volumeElem = document.getElementById('kpi-volume');
             
             if (salesElem) salesElem.textContent = formatNumber(annual.sales);
-            if (profitElem) {
+            if (volumeElem) volumeElem.textContent = formatNumber(annual.purchaseCount);
+            
+            // 利益関連の動的色分け
+            const profitCard = document.getElementById('profit-card');
+            const rateCard = document.getElementById('rate-card');
+            
+            if (profitElem && profitCard) {
                 profitElem.textContent = formatNumber(annual.operatingProfit);
-                profitElem.parentElement.className = `kpi-card profit ${annual.operatingProfit >= 0 ? '' : 'negative'}`;
+                if (annual.operatingProfit >= 0) {
+                    profitCard.className = 'kpi-card positive';
+                    profitElem.className = 'kpi-value positive';
+                } else {
+                    profitCard.className = 'kpi-card negative';
+                    profitElem.className = 'kpi-value negative';
+                }
             }
-            if (rateElem) {
+            
+            if (rateElem && rateCard) {
                 const profitRate = annual.sales > 0 ? (annual.operatingProfit / annual.sales * 100).toFixed(1) : '0.0';
                 rateElem.textContent = profitRate;
+                if (annual.operatingProfit >= 0) {
+                    rateCard.className = 'kpi-card positive';
+                    rateElem.className = 'kpi-value positive';
+                } else {
+                    rateCard.className = 'kpi-card negative';
+                    rateElem.className = 'kpi-value negative';
+                }
             }
-            if (volumeElem) volumeElem.textContent = formatNumber(annual.purchaseCount);
         }
 
         // Chart.js更新（RCD社専用：売上・利益2軸表示）
@@ -881,33 +906,59 @@
             if (tableContainer) {
                 tableContainer.innerHTML = html;
             }
+
+            // グローバル変数に保存（他の関数で使用）
+            window.rcdCurrentResults = { monthlyResults, annual };
         }
 
-        // ダッシュボード更新
+        // ダッシュボード自動更新（自動送信方式）
         function updateDashboard() {
-            const monthlyResults = currentData.rcd.purchases.map((purchases, i) => 
-                calculateMonthlyPL(i, purchases, currentData.rcd.fees[i])
-            );
-            const annual = {
-                operatingProfit: monthlyResults.reduce((sum, m) => sum + m.operatingProfit, 0),
-                sales: monthlyResults.reduce((sum, m) => sum + m.sales, 0)
-            };
+            if (!window.rcdCurrentResults) return;
+
+            const { monthlyResults, annual } = window.rcdCurrentResults;
 
             // ダッシュボード送信用データ準備
-            window.rcdDashboardData = {
+            const rcdDashboardData = {
                 department: 'RCD社事業部',
                 annual: annual,
                 monthly: monthlyResults,
                 linkageActive: linkageActive,
                 timestamp: new Date().toISOString()
             };
+
+            // 自動送信：統合ダッシュボードデータを即座に更新
+            try {
+                // 既存の統合データを取得
+                let combinedData = {};
+                const existingData = localStorage.getItem('combined_dashboard_data');
+                if (existingData) {
+                    combinedData = JSON.parse(existingData);
+                }
+
+                // RCD社事業部データを更新
+                combinedData.rcd_sha = rcdDashboardData;
+                combinedData.lastUpdated = new Date().toISOString();
+
+                // 統合データを保存
+                localStorage.setItem('combined_dashboard_data', JSON.stringify(combinedData));
+                
+                // 個別データも保存（後方互換性）
+                localStorage.setItem('rcd_dashboard_data', JSON.stringify(rcdDashboardData));
+
+                console.log('RCD社事業部データを自動送信しました:', rcdDashboardData);
+            } catch (error) {
+                console.error('ダッシュボードデータ自動送信エラー:', error);
+            }
         }
 
         // CSV出力
         function exportToCSV() {
-            const monthlyResults = currentData.rcd.purchases.map((purchases, i) => 
-                calculateMonthlyPL(i, purchases, currentData.rcd.fees[i])
-            );
+            if (!window.rcdCurrentResults) {
+                alert('データが生成されていません。');
+                return;
+            }
+
+            const { monthlyResults } = window.rcdCurrentResults;
             
             let csv = 'RCD社事業部PL（連携機能付）\n';
             csv += '項目,' + months.join(',') + ',年間計\n';
