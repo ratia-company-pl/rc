@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>全体PLanalysis - PLシミュレーター</title>
+    <title>4事業部統合PLシミュレーター</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -11,620 +11,809 @@
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            color: #333;
+            padding: 8px;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
-        /* ===== ヘッダー（シンプル3行構造） ===== */
-        .header {
-            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
-            color: white;
-        }
-
-        /* 1行目: タイトル */
-        .title-section {
-            padding: 30px 20px 25px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .main-title {
-            font-size: 36px;
-            font-weight: 800;
-            color: white;
-            text-align: center;
-            letter-spacing: 2px;
-        }
-
-        /* 2行目: ナビゲーション */
-        .nav-section {
-            padding: 20px 30px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            text-align: center;
-        }
-
-        .nav-buttons {
-            display: inline-flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            justify-content: center;
-        }
-
-        .btn-nav {
-            padding: 12px 20px;
-            border: 2px solid rgba(255,255,255,0.25);
-            border-radius: 10px;
-            background: rgba(255,255,255,0.15);
-            color: white;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .btn-nav:hover {
-            background: rgba(255,255,255,0.25);
-            transform: translateY(-2px);
-        }
-
-        .btn-nav.active {
-            background: #3498db;
-            border-color: #3498db;
-        }
-
-        /* 3行目: ステータス + コントロール（テーブル構造で確実な横並び） */
-        .control-section {
-            padding: 15px 30px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .control-table {
+        .header-table {
             width: 100%;
             border-collapse: collapse;
+            background: #667eea;
+            color: white;
+            border-radius: 8px 8px 0 0;
         }
 
-        .control-table td {
-            padding: 8px 0;
+        .header-table td {
+            padding: 8px 12px;
+            font-size: 0.85em;
+            font-weight: 600;
             vertical-align: middle;
         }
 
-        .status-cell {
-            width: 30%;
+        .header-left {
             text-align: left;
+            width: 60%;
         }
 
-        .controls-cell {
-            width: 70%;
+        .header-right {
             text-align: right;
+            width: 40%;
+            font-size: 0.75em;
         }
 
-        .linkage-status {
-            display: inline-block;
-            padding: 10px 18px;
-            border-radius: 25px;
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
+        .nav-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.98);
         }
 
-        .linkage-warning {
-            background: rgba(243, 156, 18, 0.25);
-            color: #f39c12;
-            border: 2px solid rgba(243, 156, 18, 0.5);
+        .nav-table td {
+            padding: 6px 8px;
+            text-align: center;
+            border-right: 1px solid #ddd;
         }
 
-        .linkage-success {
-            background: rgba(39, 174, 96, 0.25);
-            color: #27ae60;
-            border: 2px solid rgba(39, 174, 96, 0.5);
+        .nav-table td:last-child {
+            border-right: none;
         }
 
-        .linkage-error {
-            background: rgba(231, 76, 60, 0.25);
-            color: #e74c3c;
-            border: 2px solid rgba(231, 76, 60, 0.5);
-        }
-
-        .control-group {
-            display: inline-flex;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: nowrap;
-        }
-
-        .control-item {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 13px;
-            font-weight: 500;
+        .nav-btn, .action-btn {
+            background: #667eea;
             color: white;
-            white-space: nowrap;
-        }
-
-        .control-item select {
-            padding: 5px 10px;
+            padding: 4px 8px;
             border: none;
-            border-radius: 5px;
-            font-size: 11px;
-            font-weight: 500;
-            background: white;
-            color: #2c3e50;
-            width: 110px;
-        }
-
-        .control-item input {
-            padding: 4px 6px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            width: 80px;
-            font-size: 11px;
-        }
-
-        .btn-action {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 12px;
+            border-radius: 12px;
             cursor: pointer;
+            font-size: 0.7em;
+            font-weight: 600;
             transition: all 0.3s ease;
-            white-space: nowrap;
+            text-decoration: none;
+            display: inline-block;
         }
 
-        .btn-update {
+        .nav-btn:hover, .action-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+
+        .nav-btn.active {
+            background: #4a5bc4;
+        }
+
+        .nav-btn.coming-soon {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .nav-btn.coming-soon:hover {
+            background: #95a5a6;
+            transform: none;
+        }
+
+        .action-btn.reload { background: #e74c3c; }
+        .action-btn.export { background: #27ae60; }
+        .action-btn.toggle { background: #9b59b6; }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            padding: 10px;
+            background: white;
+        }
+
+        .kpi-card {
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .kpi-card.dept { background: linear-gradient(135deg, #3498db, #2980b9); color: white; }
+        .kpi-card.common { background: linear-gradient(135deg, #34495e, #2c3e50); color: white; }
+        .kpi-card.final-positive { background: linear-gradient(135deg, #27ae60, #229954); color: white; }
+        .kpi-card.final-negative { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; }
+        .kpi-card.target { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; }
+
+        .kpi-label {
+            font-size: 0.65em;
+            margin-bottom: 2px;
+            opacity: 0.9;
+        }
+
+        .kpi-value {
+            font-size: 1.1em;
+            font-weight: 700;
+            margin-bottom: 1px;
+        }
+
+        .kpi-detail {
+            font-size: 0.55em;
+            opacity: 0.8;
+        }
+
+        .chart-section {
+            padding: 10px;
+            background: white;
+            border-top: 1px solid #eee;
+        }
+
+        .chart-title {
+            font-size: 0.9em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            height: 220px;
+        }
+
+        .pl-summary-section {
+            padding: 10px;
+            background: white;
+            border-top: 1px solid #eee;
+        }
+
+        .target-section {
+            padding: 10px;
+            background: #f8f9fa;
+            border-top: 1px solid #eee;
+        }
+
+        .section-title {
+            font-size: 0.85em;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #2c3e50;
+            border-left: 3px solid #667eea;
+            padding-left: 6px;
+            display: inline-block;
+        }
+
+        .target-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .target-toggle {
+            padding: 4px 12px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.7em;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-active {
             background: #27ae60;
             color: white;
         }
 
-        .btn-update:hover {
-            background: #219a52;
-            transform: translateY(-2px);
+        .toggle-inactive {
+            background: #bdc3c7;
+            color: #7f8c8d;
         }
 
-        .btn-csv {
-            background: #e67e22;
-            color: white;
+        .target-input input {
+            padding: 3px 6px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            width: 80px;
+            font-size: 0.75em;
         }
 
-        .btn-csv:hover {
-            background: #d35400;
-            transform: translateY(-2px);
+        .executive-section {
+            padding: 10px;
+            background: white;
+            border-top: 1px solid #eee;
         }
 
-        /* ===== メインコンテンツ ===== */
-        .main-content {
-            padding: 30px;
+        .executive-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
         }
 
-        .section-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 25px;
-            color: #2c3e50;
-            border-bottom: 3px solid #34495e;
-            padding-bottom: 10px;
+        .executive-controls input {
+            padding: 3px 6px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            width: 60px;
+            font-size: 0.7em;
         }
 
-        /* グラフセクション */
-        .chart-section {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-            margin-bottom: 25px;
+        .executive-controls button {
+            padding: 3px 8px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.65em;
+            font-weight: 600;
         }
 
-        .chart-container {
-            position: relative;
-            height: 220px;
-            margin-top: 20px;
-        }
+        .btn-increase { background: #27ae60; color: white; }
+        .btn-decrease { background: #e74c3c; color: white; }
+        .btn-reset { background: #3498db; color: white; }
 
-        /* 月次PLテーブル */
-        .table-section {
-            background: #f8f9fa;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-        }
-
-        .pl-table {
+        .micro-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12px;
-            margin-top: 20px;
+            font-size: 0.65em;
+            margin-bottom: 8px;
         }
 
-        .pl-table th,
-        .pl-table td {
-            padding: 10px 8px;
-            text-align: right;
-            border: 1px solid #ddd;
+        .micro-table th,
+        .micro-table td {
+            padding: 2px 4px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
         }
 
-        .pl-table th {
+        .micro-table th {
             background: #34495e;
             color: white;
+            font-weight: 600;
+            font-size: 0.6em;
+        }
+
+        .micro-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .positive { color: #27ae60; font-weight: 600; }
+        .negative { color: #e74c3c; font-weight: 600; }
+
+        .data-status {
+            padding: 6px 10px;
+            background: #d4edda;
+            color: #155724;
+            font-size: 0.7em;
+            font-weight: 600;
+            text-align: center;
+            border-top: 1px solid #c3e6cb;
+        }
+
+        .bonus-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .bonus-controls label {
+            font-size: 0.7em;
+            font-weight: 600;
+        }
+
+        .bonus-controls input {
+            padding: 3px 6px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            width: 80px;
+            font-size: 0.7em;
+        }
+
+        .budget-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+
+        .budget-title {
+            font-size: 0.85em;
             font-weight: 700;
-            position: sticky;
-            top: 0;
-            font-size: 13px;
+            color: #2c3e50;
+            border-left: 3px solid #667eea;
+            padding-left: 6px;
         }
 
-        .pl-table th:first-child,
-        .pl-table td:first-child {
-            text-align: left;
-            font-weight: 700;
+        .budget-supplement {
+            font-size: 0.65em;
+            color: #666;
         }
 
-        .pl-table tr:hover {
-            background: rgba(52, 73, 94, 0.08);
+        .budget-table-compact {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
         }
 
-        /* 行タイプ別スタイル */
-        .sales-row { background: rgba(39, 174, 96, 0.12); }
-        .expense-row { background: rgba(231, 76, 60, 0.12); }
-        .profit-row { background: rgba(52, 152, 219, 0.12); font-weight: 700; }
-        .total-row { background: rgba(52, 73, 94, 0.25); font-weight: 700; }
-
-        /* レスポンシブ対応 */
         @media (max-width: 768px) {
-            .main-title {
-                font-size: 28px;
-            }
-
-            .nav-buttons {
-                gap: 8px;
-            }
-
-            .btn-nav {
-                padding: 10px 15px;
-                font-size: 12px;
-            }
-
-            .control-table td {
-                display: block;
-                width: 100%;
-                text-align: center;
-                padding: 5px 0;
-            }
-
-            .control-group {
-                justify-content: center;
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-
-            .control-item {
-                font-size: 12px;
-            }
-
-            .control-item select {
-                width: 90px;
-                font-size: 10px;
-            }
-
-            .btn-action {
-                padding: 6px 12px;
-                font-size: 11px;
-            }
-
-            .pl-table {
-                font-size: 10px;
-            }
-
-            .pl-table th,
-            .pl-table td {
-                padding: 6px 4px;
-            }
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .executive-controls { flex-direction: column; align-items: stretch; }
+            .target-controls { flex-direction: column; align-items: stretch; }
+            .budget-table-compact { grid-template-columns: 1fr; }
+            #allocation-results > div { grid-template-columns: 1fr; }
+            .bonus-controls { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header class="header">
-            <!-- 1行目: タイトル -->
-            <div class="title-section">
-                <h1 class="main-title">全体PLanalysis システム（4事業部統合）</h1>
-            </div>
+        <table class="header-table">
+            <tr>
+                <td class="header-left">
+                    最終営業利益 <span id="header-final-profit">---</span>万円（共通経費控除後・目標配分<span id="header-allocation-status">OFF</span>）
+                </td>
+                <td class="header-right">
+                    4事業部統合PLシミュレーター Phase2完全版
+                </td>
+            </tr>
+        </table>
 
-            <!-- 2行目: ナビゲーション -->
-            <div class="nav-section">
-                <div class="nav-buttons">
-                    <a href="../index.html" class="btn-nav">メインダッシュボード</a>
-                    <a href="../budget-input.html" class="btn-nav">予算入力</a>
-                    <a href="../department-pl/sr-pl.html" class="btn-nav">SR事業部PL</a>
-                    <a href="../department-pl/w-pl.html" class="btn-nav">W事業部PL</a>
-                    <a href="../department-pl/rc-pl.html" class="btn-nav">RC卸事業部PL</a>
-                    <a href="../department-pl/rcd-pl.html" class="btn-nav">RCD社事業部PL</a>
-                    <a href="index.html" class="btn-nav active">全体PL分析</a>
+        <table class="nav-table">
+            <tr>
+                <td><button class="nav-btn active">ダッシュボード</button></td>
+                <td><button class="nav-btn" onclick="location.href='budget-input.html'">予算入力</button></td>
+                <td><button class="nav-btn" onclick="location.href='department-pl/sr-pl.html'">SR事業部PL</button></td>
+                <td><button class="nav-btn" onclick="location.href='department-pl/w-pl.html'">W事業部PL</button></td>
+                <td><button class="nav-btn" onclick="location.href='department-pl/rc-pl.html'">RC卸事業部PL</button></td>
+                <td><button class="nav-btn" onclick="location.href='department-pl/rcd-pl.html'">RCD社事業部PL</button></td>
+                <td><button class="nav-btn" onclick="location.href='combined-dashboard/index.html'">全体PL分析</button></td>
+            </tr>
+        </table>
+
+        <div class="kpi-grid">
+            <div class="kpi-card dept">
+                <div class="kpi-label">事業部営業利益</div>
+                <div class="kpi-value" id="dept-total-profit">---万円</div>
+                <div class="kpi-detail">4事業部合計</div>
+            </div>
+            <div class="kpi-card common">
+                <div class="kpi-label">年間共通経費</div>
+                <div class="kpi-value" id="common-expenses-total">-10,342万円</div>
+                <div class="kpi-detail">役員報酬・諸経費</div>
+            </div>
+            <div class="kpi-card final-positive" id="final-card">
+                <div class="kpi-label">最終営業利益</div>
+                <div class="kpi-value" id="final-profit">---万円</div>
+                <div class="kpi-detail">共通経費控除後</div>
+            </div>
+            <div class="kpi-card target">
+                <div class="kpi-label">目標達成率</div>
+                <div class="kpi-value" id="target-achievement">---%</div>
+                <div class="kpi-detail" id="target-status">目標配分OFF</div>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-title">月次利益推移（事業部利益 vs 最終利益）</div>
+            <div class="chart-wrapper">
+                <canvas id="monthly-profit-chart"></canvas>
+            </div>
+        </div>
+
+        <div class="pl-summary-section">
+            <div class="budget-header">
+                <div class="budget-title">予実管理・事業部合算損益表</div>
+                <div class="budget-supplement">
+                    <label style="font-size: 0.65em;">
+                        <input type="checkbox" id="budget-lock" onchange="toggleBudgetLock()"> 予算を確定してロック
+                    </label>
+                    予算状態: <span id="budget-status">未設定</span>
+                </div>
+            </div>
+            
+            <div class="budget-table-compact">
+                <div style="background: #e8f4fd; padding: 6px; border-radius: 4px;">
+                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                        <span style="font-size: 0.7em; font-weight: 600;">計算モード:</span>
+                        <button id="calculation-mode-btn" class="target-toggle toggle-inactive" onclick="toggleCalculationMode()">
+                            シミュレーションモード
+                        </button>
+                    </div>
+                    <div style="font-size: 0.65em; color: #666;">
+                        確定実績: <span id="confirmed-months-display">なし</span>
+                    </div>
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 6px; border-radius: 4px;">
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <span style="font-size: 0.65em;">予算ソース:</span>
+                        <label style="font-size: 0.65em;"><input type="radio" name="budget-source" value="simulation" checked> 現在のシミュレーション</label>
+                        <button onclick="setBudgetFromSource()" style="padding: 3px 8px; background: #3498db; color: white; border: none; border-radius: 3px; font-size: 0.65em; cursor: pointer;">予算設定</button>
+                    </div>
                 </div>
             </div>
 
-            <!-- 3行目: ステータス + コントロール（テーブル構造） -->
-            <div class="control-section">
-                <table class="control-table">
-                    <tr>
-                        <td class="status-cell">
-                            <div id="linkage-status" class="linkage-status linkage-warning">
-                                ✗ データが見つかりません
-                            </div>
-                        </td>
-                        <td class="controls-cell">
-                            <div class="control-group">
-                                <div class="control-item">
-                                    <span>役員報酬:</span>
-                                    <input type="number" id="executive-salary" value="6755" min="0" max="10000" step="100" onchange="updateExecutiveSalary()">
-                                    <span style="font-size: 11px;">万円/月</span>
-                                </div>
-                                <div class="control-item">
-                                    <span>役員賞与:</span>
-                                    <input type="number" id="executive-bonus" value="300" min="0" max="2000" step="50" onchange="updateExecutiveBonus()">
-                                    <span style="font-size: 11px;">万円</span>
-                                </div>
-                                <div class="control-item">
-                                    <span>表示期間:</span>
-                                    <select id="period-select">
-                                        <option value="12">年間（12ヶ月）</option>
-                                        <option value="6">半期（6ヶ月）</option>
-                                        <option value="3">四半期（3ヶ月）</option>
-                                    </select>
-                                </div>
-                                <div class="control-item">
-                                    <span>最終更新:</span>
-                                    <span id="last-update">未取得</span>
-                                </div>
-                                <button class="btn-action btn-update" onclick="loadAllData()">データ再読み込み</button>
-                                <button class="btn-action btn-csv" onclick="exportCSV()">📊 CSV出力</button>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-        </header>
-
-        <main class="main-content">
-            <!-- 前期比較グラフ -->
-            <div class="chart-section">
-                <h3 class="section-title">📈 前期比較推移（売上・営業利益）</h3>
-                <div class="chart-container">
-                    <canvas id="comparisonChart"></canvas>
-                </div>
-            </div>
-
-            <!-- 月次PLテーブル -->
-            <div class="table-section">
-                <h3 class="section-title">📊 月次損益計算書（4事業部統合）</h3>
-                <table class="pl-table">
+            <div style="background: #f8f9fa; padding: 8px; border-radius: 4px; margin-bottom: 8px;">
+                <div style="font-size: 0.75em; font-weight: 700; margin-bottom: 6px;">事業部合算損益表</div>
+                
+                <table class="micro-table">
                     <thead>
                         <tr>
-                            <th style="width: 120px;">項目</th>
-                            <th>7月</th>
-                            <th>8月</th>
-                            <th>9月</th>
-                            <th>10月</th>
-                            <th>11月</th>
-                            <th>12月</th>
-                            <th>1月</th>
-                            <th>2月</th>
-                            <th>3月</th>
-                            <th>4月</th>
-                            <th>5月</th>
-                            <th>6月</th>
-                            <th>年間合計</th>
+                            <th>項目/月次</th>
+                            <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
+                            <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
+                            <th>年計</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- 4事業部売上 -->
-                        <tr class="sales-row">
-                            <td>SR事業部売上</td>
-                            <td id="sr-sales-jul">0</td>
-                            <td id="sr-sales-aug">0</td>
-                            <td id="sr-sales-sep">0</td>
-                            <td id="sr-sales-oct">0</td>
-                            <td id="sr-sales-nov">0</td>
-                            <td id="sr-sales-dec">0</td>
-                            <td id="sr-sales-jan">0</td>
-                            <td id="sr-sales-feb">0</td>
-                            <td id="sr-sales-mar">0</td>
-                            <td id="sr-sales-apr">0</td>
-                            <td id="sr-sales-may">0</td>
-                            <td id="sr-sales-jun">0</td>
-                            <td id="sr-sales-total">0</td>
+                        <tr style="background: #e3f2fd;">
+                            <td style="text-align: left; font-weight: bold; font-size: 0.6em;">統合売上高</td>
+                            <td id="total-revenue-7">22,200</td><td id="total-revenue-8">22,700</td><td id="total-revenue-9">22,280</td><td id="total-revenue-10">22,900</td>
+                            <td id="total-revenue-11">22,550</td><td id="total-revenue-12">23,100</td><td id="total-revenue-1">22,900</td><td id="total-revenue-2">22,450</td>
+                            <td id="total-revenue-3">22,970</td><td id="total-revenue-4">23,080</td><td id="total-revenue-5">22,380</td><td id="total-revenue-6">22,800</td>
+                            <td id="total-revenue-annual" style="font-weight: bold;">273,310</td>
                         </tr>
-                        <tr class="sales-row">
-                            <td>W事業部売上</td>
-                            <td id="w-sales-jul">0</td>
-                            <td id="w-sales-aug">0</td>
-                            <td id="w-sales-sep">0</td>
-                            <td id="w-sales-oct">0</td>
-                            <td id="w-sales-nov">0</td>
-                            <td id="w-sales-dec">0</td>
-                            <td id="w-sales-jan">0</td>
-                            <td id="w-sales-feb">0</td>
-                            <td id="w-sales-mar">0</td>
-                            <td id="w-sales-apr">0</td>
-                            <td id="w-sales-may">0</td>
-                            <td id="w-sales-jun">0</td>
-                            <td id="w-sales-total">0</td>
+                        <tr style="background: #f3e5f5;">
+                            <td style="text-align: left; font-weight: bold; font-size: 0.6em;">事業部営業利益</td>
+                            <td id="dept-profit-7">-173</td><td id="dept-profit-8">455</td><td id="dept-profit-9">359</td><td id="dept-profit-10">280</td>
+                            <td id="dept-profit-11">242</td><td id="dept-profit-12">358</td><td id="dept-profit-1">489</td><td id="dept-profit-2">-230</td>
+                            <td id="dept-profit-3">88</td><td id="dept-profit-4">280</td><td id="dept-profit-5">-344</td><td id="dept-profit-6">-43</td>
+                            <td id="dept-profit-annual" style="font-weight: bold;">1,761</td>
                         </tr>
-                        <tr class="sales-row">
-                            <td>RC卸事業部売上</td>
-                            <td id="rc-sales-jul">0</td>
-                            <td id="rc-sales-aug">0</td>
-                            <td id="rc-sales-sep">0</td>
-                            <td id="rc-sales-oct">0</td>
-                            <td id="rc-sales-nov">0</td>
-                            <td id="rc-sales-dec">0</td>
-                            <td id="rc-sales-jan">0</td>
-                            <td id="rc-sales-feb">0</td>
-                            <td id="rc-sales-mar">0</td>
-                            <td id="rc-sales-apr">0</td>
-                            <td id="rc-sales-may">0</td>
-                            <td id="rc-sales-jun">0</td>
-                            <td id="rc-sales-total">0</td>
+                        <tr style="background: #ffebee;">
+                            <td style="text-align: left; font-weight: bold; font-size: 0.6em;">共通経費</td>
+                            <td id="common-expense-7">-992</td><td id="common-expense-8">-928</td><td id="common-expense-9">-979</td><td id="common-expense-10">-801</td>
+                            <td id="common-expense-11">-794</td><td id="common-expense-12">-826</td><td id="common-expense-1">-822</td><td id="common-expense-2">-812</td>
+                            <td id="common-expense-3">-874</td><td id="common-expense-4">-824</td><td id="common-expense-5">-866</td><td id="common-expense-6">-825</td>
+                            <td id="common-expense-annual" style="font-weight: bold; color: #e74c3c;">-10,343</td>
                         </tr>
-                        <tr class="sales-row">
-                            <td>RCD社事業部売上</td>
-                            <td id="rcd-sales-jul">0</td>
-                            <td id="rcd-sales-aug">0</td>
-                            <td id="rcd-sales-sep">0</td>
-                            <td id="rcd-sales-oct">0</td>
-                            <td id="rcd-sales-nov">0</td>
-                            <td id="rcd-sales-dec">0</td>
-                            <td id="rcd-sales-jan">0</td>
-                            <td id="rcd-sales-feb">0</td>
-                            <td id="rcd-sales-mar">0</td>
-                            <td id="rcd-sales-apr">0</td>
-                            <td id="rcd-sales-may">0</td>
-                            <td id="rcd-sales-jun">0</td>
-                            <td id="rcd-sales-total">0</td>
-                        </tr>
-                        <tr class="total-row">
-                            <td><strong>A: 売上高 計</strong></td>
-                            <td id="total-sales-jul"><strong>0</strong></td>
-                            <td id="total-sales-aug"><strong>0</strong></td>
-                            <td id="total-sales-sep"><strong>0</strong></td>
-                            <td id="total-sales-oct"><strong>0</strong></td>
-                            <td id="total-sales-nov"><strong>0</strong></td>
-                            <td id="total-sales-dec"><strong>0</strong></td>
-                            <td id="total-sales-jan"><strong>0</strong></td>
-                            <td id="total-sales-feb"><strong>0</strong></td>
-                            <td id="total-sales-mar"><strong>0</strong></td>
-                            <td id="total-sales-apr"><strong>0</strong></td>
-                            <td id="total-sales-may"><strong>0</strong></td>
-                            <td id="total-sales-jun"><strong>0</strong></td>
-                            <td id="total-sales-year"><strong>0</strong></td>
-                        </tr>
-                        
-                        <!-- 仕入高 -->
-                        <tr class="expense-row">
-                            <td>B: 仕入高 計</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
-                        </tr>
-                        
-                        <!-- 売上総利益 -->
-                        <tr class="profit-row">
-                            <td><strong>C: 売上総利益</strong></td>
-                            <td id="gross-profit-jul"><strong>0</strong></td>
-                            <td id="gross-profit-aug"><strong>0</strong></td>
-                            <td id="gross-profit-sep"><strong>0</strong></td>
-                            <td id="gross-profit-oct"><strong>0</strong></td>
-                            <td id="gross-profit-nov"><strong>0</strong></td>
-                            <td id="gross-profit-dec"><strong>0</strong></td>
-                            <td id="gross-profit-jan"><strong>0</strong></td>
-                            <td id="gross-profit-feb"><strong>0</strong></td>
-                            <td id="gross-profit-mar"><strong>0</strong></td>
-                            <td id="gross-profit-apr"><strong>0</strong></td>
-                            <td id="gross-profit-may"><strong>0</strong></td>
-                            <td id="gross-profit-jun"><strong>0</strong></td>
-                            <td id="gross-profit-year"><strong>0</strong></td>
-                        </tr>
-                        
-                        <!-- 販売管理費明細（37項目完全版） -->
-                        <tr class="expense-row">
-                            <td>1: 人件費統合</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>2: 法定福利費</td>
-                            <td id="welfare-jul">1,072</td>
-                            <td id="welfare-aug">1,072</td>
-                            <td id="welfare-sep">1,072</td>
-                            <td id="welfare-oct">877</td>
-                            <td id="welfare-nov">877</td>
-                            <td id="welfare-dec">877</td>
-                            <td id="welfare-jan">877</td>
-                            <td id="welfare-feb">877</td>
-                            <td id="welfare-mar">877</td>
-                            <td id="welfare-apr">877</td>
-                            <td id="welfare-may">877</td>
-                            <td id="welfare-jun">877</td>
-                            <td id="welfare-total">10,511</td>
-                        </tr>
-                        <!-- 3-19項目は省略表示（実際のシステムでは全項目表示） -->
-                        <tr class="expense-row">
-                            <td>20: 役員報酬</td>
-                            <td id="salary-jul">8,255</td>
-                            <td id="salary-aug">8,255</td>
-                            <td id="salary-sep">8,255</td>
-                            <td id="salary-oct">6,755</td>
-                            <td id="salary-nov">6,755</td>
-                            <td id="salary-dec">6,755</td>
-                            <td id="salary-jan">6,755</td>
-                            <td id="salary-feb">6,755</td>
-                            <td id="salary-mar">6,755</td>
-                            <td id="salary-apr">6,755</td>
-                            <td id="salary-may">6,755</td>
-                            <td id="salary-jun">7,055</td>
-                            <td id="salary-total">83,060</td>
-                        </tr>
-                        <!-- 21-37項目は実際の値を使用 -->
-                        <tr class="expense-row">
-                            <td>その他販管費</td>
-                            <td>590</td><td>-47</td><td>464</td><td>375</td><td>304</td><td>616</td>
-                            <td>585</td><td>479</td><td>1,100</td><td>604</td><td>1,021</td><td>315</td>
-                            <td>6,406</td>
-                        </tr>
-                        
-                        <!-- 販売管理費計 -->
-                        <tr class="total-row">
-                            <td><strong>D: 販売管理費 計</strong></td>
-                            <td id="total-expenses-jul"><strong>9,917</strong></td>
-                            <td id="total-expenses-aug"><strong>9,280</strong></td>
-                            <td id="total-expenses-sep"><strong>9,791</strong></td>
-                            <td id="total-expenses-oct"><strong>8,007</strong></td>
-                            <td id="total-expenses-nov"><strong>7,936</strong></td>
-                            <td id="total-expenses-dec"><strong>8,248</strong></td>
-                            <td id="total-expenses-jan"><strong>8,217</strong></td>
-                            <td id="total-expenses-feb"><strong>8,111</strong></td>
-                            <td id="total-expenses-mar"><strong>8,729</strong></td>
-                            <td id="total-expenses-apr"><strong>8,236</strong></td>
-                            <td id="total-expenses-may"><strong>8,653</strong></td>
-                            <td id="total-expenses-jun"><strong>8,247</strong></td>
-                            <td id="total-expenses-year"><strong>101,472</strong></td>
-                        </tr>
-                        
-                        <!-- 営業利益 -->
-                        <tr class="profit-row">
-                            <td><strong>E: 営業利益</strong></td>
-                            <td id="operating-profit-jul"><strong>-9,917</strong></td>
-                            <td id="operating-profit-aug"><strong>-9,280</strong></td>
-                            <td id="operating-profit-sep"><strong>-9,791</strong></td>
-                            <td id="operating-profit-oct"><strong>-8,007</strong></td>
-                            <td id="operating-profit-nov"><strong>-7,936</strong></td>
-                            <td id="operating-profit-dec"><strong>-8,248</strong></td>
-                            <td id="operating-profit-jan"><strong>-8,217</strong></td>
-                            <td id="operating-profit-feb"><strong>-8,111</strong></td>
-                            <td id="operating-profit-mar"><strong>-8,729</strong></td>
-                            <td id="operating-profit-apr"><strong>-8,236</strong></td>
-                            <td id="operating-profit-may"><strong>-8,653</strong></td>
-                            <td id="operating-profit-jun"><strong>-8,247</strong></td>
-                            <td id="operating-profit-year"><strong>-101,472</strong></td>
+                        <tr style="background: #e8f5e8;">
+                            <td style="text-align: left; font-weight: bold; font-size: 0.6em;">最終営業利益</td>
+                            <td id="final-profit-7" class="negative">-1,165</td><td id="final-profit-8" class="negative">-473</td><td id="final-profit-9" class="negative">-620</td><td id="final-profit-10" class="negative">-521</td>
+                            <td id="final-profit-11" class="negative">-552</td><td id="final-profit-12" class="negative">-468</td><td id="final-profit-1" class="negative">-333</td><td id="final-profit-2" class="negative">-1,042</td>
+                            <td id="final-profit-3" class="negative">-786</td><td id="final-profit-4" class="negative">-544</td><td id="final-profit-5" class="negative">-1,210</td><td id="final-profit-6" class="negative">-868</td>
+                            <td id="final-profit-annual-table" style="font-weight: bold;" class="negative">-8,582</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-        </main>
+
+            <div style="background: #f8f9fa; padding: 8px; border-radius: 4px; margin-bottom: 8px;">
+                <div style="font-size: 0.75em; font-weight: 700; margin-bottom: 6px;">4事業部別売上・営業利益詳細</div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div style="background: white; padding: 6px; border-radius: 4px; border-left: 3px solid #e74c3c;">
+                        <div style="font-size: 0.65em; font-weight: bold; margin-bottom: 4px; color: #e74c3c;">SR事業部</div>
+                        <table class="micro-table" style="font-size: 0.55em;">
+                            <thead>
+                                <tr><th>項目</th><th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th><th>年前半計</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="text-align: left; font-weight: bold;">売上</td>
+                                    <td>2850</td><td>2900</td><td>2750</td>
+                                    <td>2800</td><td>2650</td><td>2700</td>
+                                    <td style="font-weight: bold;">16,650</td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left; font-weight: bold;">営業利益</td>
+                                    <td class="negative">-423</td><td class="positive">45</td><td class="negative">-16</td>
+                                    <td class="negative">-180</td><td class="negative">-173</td><td class="negative">-162</td>
+                                    <td class="negative" style="font-weight: bold;">-909</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="micro-table" style="font-size: 0.55em; margin-top: 4px;">
+                            <thead>
+                                <tr><th>項目</th><th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th><th>年後半計</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="text-align: left; font-weight: bold;">売上</td>
+                                    <td>2900</td><td>2600</td><td>2500</td>
+                                    <td>2750</td><td>2400</td><td>2650</td>
+                                    <td style="font-weight: bold;">15,800</td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left; font-weight: bold;">営業利益</td>
+                                    <td class="positive">99</td><td class="negative">-470</td><td class="negative">-337</td>
+                                    <td class="negative">-215</td><td class="negative">-719</td><td class="negative">-503</td>
+                                    <td class="negative" style="font-weight: bold;">-2,145</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="background: white; padding: 6px; border-radius: 4px; border-left: 3px solid #3498db;">
+                        <div style="font-size: 0.65em; font-weight: bold; margin-bottom: 4px; color: #3498db;">W事業部</div>
+                        <table class="micro-table" style="font-size: 0.55em;">
+                            <thead>
+                                <tr><th>項目</th><th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th><th>年前半計</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="text-align: left; font-weight: bold;">売上</td>
+                                    <td>1200</td><td>1300</td><td>1250</td>
+                                    <td>1350</td><td>1280</td><td>1400</td>
+                                    <td style="font-weight: bold;">7,780</td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left; font-weight: bold;">営業利益</td>
+                                    <td class="positive">150</td><td class="positive">200</td><td class="positive">180</td>
+                                    <td class="positive">220</td><td class="positive">190</td><td class="positive">250</td>
+                                    <td class="positive" style="font-weight: bold;">1,190</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="micro-table" style="font-size: 0.55em; margin-top: 4px;">
+                            <thead>
+                                <tr><th>項目</th><th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th><th>年後半計</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="text-align: left; font-weight: bold;">売上</td>
+                                    <td>1300</td><td>1200</td><td>1350</td>
+                                    <td>1450</td><td>1300</td><td>1400</td>
+                                    <td style="font-weight: bold;">8,000</td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left; font-weight: bold;">営業利益</td>
+                                    <td class="positive">180</td><td class="positive">160</td><td class="positive">200</td>
+                                    <td class="positive">240</td><td class="positive">180</td><td class="positive">220</td>
+                                    <td class="positive" style="font-weight: bold;">1,180</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="background: white; padding: 6px; border-radius: 4px; border-left: 3px solid #27ae60;">
+                        <div style="font-size: 0.65em; font-weight: bold; margin-bottom: 4px; color: #27ae60;">RC卸事業部</div>
+                        <table class="micro-table" style="font-size: 0.55em;">
+                            <thead>
+                                <tr><th>項目</th><th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th><th>年前半計</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="text-align: left; font-weight: bold;">売上</td>
+                                    <td>1650</td><td>1700</td><td>1680</td>
+                                    <td>1750</td><td>1720</td><td>1800</td>
+                                    <td style="font-weight: bold;">10,300</td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left; font-weight: bold;">営業利益</td>
+                                    <td class="positive">100</td><td class="positive">120</td><td class="positive">110</td>
+                                    <td class="positive">140</td><td class="positive">130</td><td class="positive">160</td>
+                                    <td class="positive" style="font-weight: bold;">760</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="micro-table" style="font-size: 0.55em; margin-top: 4px;">
+                            <thead>
+                                <tr><th>項目</th><th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th><th>年後半計</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="text-align: left; font-weight: bold;">売上</td>
+                                    <td>1700</td><td>1650</td><td>1720</td>
+                                    <td>1780</td><td>1680</td><td>1750</td>
+                                    <td style="font-weight: bold;">10,280</td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left; font-weight: bold;">営業利益</td>
+                                    <td class="positive">120</td><td class="positive">100</td><td class="positive">130</td>
+                                    <td class="positive">150</td><td class="positive">110</td><td class="positive">140</td>
+                                    <td class="positive" style="font-weight: bold;">750</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="background: white; padding: 6px; border-radius: 4px; border-left: 3px solid #9b59b6;">
+                        <div style="font-size: 0.65em; font-weight: bold; margin-bottom: 4px; color: #9b59b6;">RCD社事業部</div>
+                        <table class="micro-table" style="font-size: 0.55em;">
+                            <thead>
+                                <tr><th>項目</th><th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th><th>年前半計</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="text-align: left; font-weight: bold;">売上</td>
+                                    <td>16500</td><td>16800</td><td>16600</td>
+                                    <td>17000</td><td>16900</td><td>17200</td>
+                                    <td style="font-weight: bold;">101,000</td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left; font-weight: bold;">営業利益</td>
+                                    <td class="positive">80</td><td class="positive">90</td><td class="positive">85</td>
+                                    <td class="positive">100</td><td class="positive">95</td><td class="positive">110</td>
+                                    <td class="positive" style="font-weight: bold;">560</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="micro-table" style="font-size: 0.55em; margin-top: 4px;">
+                            <thead>
+                                <tr><th>項目</th><th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th><th>年後半計</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="text-align: left; font-weight: bold;">売上</td>
+                                    <td>16800</td><td>16500</td><td>16900</td>
+                                    <td>17100</td><td>16600</td><td>17000</td>
+                                    <td style="font-weight: bold;">100,900</td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left; font-weight: bold;">営業利益</td>
+                                    <td class="positive">90</td><td class="positive">80</td><td class="positive">95</td>
+                                    <td class="positive">105</td><td class="positive">85</td><td class="positive">100</td>
+                                    <td class="positive" style="font-weight: bold;">555</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="target-section">
+            <div class="section-title">目標配分機能（損失圧縮ロジック）</div>
+            
+            <div class="target-controls">
+                <button id="allocation-toggle-btn" class="target-toggle toggle-inactive" onclick="toggleTargetAllocation()">
+                    目標配分OFF
+                </button>
+                <div class="target-input">
+                    <label style="font-size: 0.7em;">年間目標:</label>
+                    <input type="number" id="total-target" value="6000" step="100" onchange="updateTargetAllocation()">
+                    <span style="font-size: 0.7em;">万円</span>
+                </div>
+            </div>
+
+            <div id="allocation-results" style="display: none;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <table class="micro-table">
+                            <thead>
+                                <tr>
+                                    <th>事業部</th>
+                                    <th>戦略</th>
+                                    <th>現在利益</th>
+                                    <th>目標利益</th>
+                                    <th>改善額</th>
+                                    <th>売上増率</th>
+                                    <th>現実性</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allocation-table">
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div style="background: white; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
+                        <div style="font-size: 0.7em; font-weight: 600; margin-bottom: 8px; text-align: center; color: #2c3e50;">利益比較チャート</div>
+                        <div style="position: relative; height: 200px;">
+                            <canvas id="profit-comparison-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: #fff3cd; padding: 6px; border-radius: 4px; font-size: 0.65em; margin-top: 6px;">
+                    <strong>配分ロジック:</strong>
+                    赤字事業部（SR）:月+100万固定 | 黒字事業部（W・RC卸）:効率配分 | RCD社:計画受注により除外 | 制約:売上増20%上限
+                </div>
+            </div>
+        </div>
+
+        <div class="executive-section">
+            <div class="section-title">役員報酬・共通経費設定</div>
+            
+            <div style="background: #fffacd; padding: 8px; border-radius: 4px; margin-bottom: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div>
+                    <div style="font-size: 0.7em; font-weight: 600; margin-bottom: 4px; color: #8b7d3a;">一律調整機能</div>
+                    <div class="executive-controls">
+                        <label style="font-size: 0.7em;">調整額:</label>
+                        <input type="number" id="adjustment-amount" value="50" step="10">
+                        <span style="font-size: 0.7em;">万円</span>
+                    </div>
+                    <div style="margin-top: 4px;">
+                        <button class="btn-increase" onclick="adjustExecutiveSalary(1)">+増額</button>
+                        <button class="btn-decrease" onclick="adjustExecutiveSalary(-1)">-減額</button>
+                        <button class="btn-reset" onclick="resetExecutiveSalary()">リセット</button>
+                    </div>
+                </div>
+                
+                <div>
+                    <div style="font-size: 0.7em; font-weight: 600; margin-bottom: 4px; color: #8b7d3a;">役員賞与設定</div>
+                    <div class="bonus-controls">
+                        <label style="font-size: 0.7em;">6月支給額:</label>
+                        <input type="number" id="executive-bonus" value="300" step="50" onchange="updateExecutiveBonus()">
+                        <span style="font-size: 0.7em;">万円</span>
+                    </div>
+                    <div style="margin-top: 4px;">
+                        <button class="btn-reset" onclick="resetExecutiveBonus()">リセット</button>
+                    </div>
+                </div>
+            </div>
+
+            <table class="micro-table">
+                <thead>
+                    <tr>
+                        <th>項目</th>
+                        <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
+                        <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
+                        <th>年計</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="background: #ecf0f1; font-weight: bold; text-align: left; font-size: 0.6em;">役員報酬</td>
+                        <td id="exec-7">826</td><td id="exec-8">826</td><td id="exec-9">826</td><td id="exec-10">676</td>
+                        <td id="exec-11">676</td><td id="exec-12">676</td><td id="exec-1">676</td><td id="exec-2">676</td>
+                        <td id="exec-3">676</td><td id="exec-4">676</td><td id="exec-5">676</td><td id="exec-6">1,076</td>
+                        <td id="exec-total" style="font-weight: bold;">8,836</td>
+                    </tr>
+                    <tr>
+                        <td style="background: #ecf0f1; font-weight: bold; text-align: left; font-size: 0.6em;">法定福利費</td>
+                        <td id="welfare-7">107</td><td id="welfare-8">107</td><td id="welfare-9">107</td><td id="welfare-10">88</td>
+                        <td id="welfare-11">88</td><td id="welfare-12">88</td><td id="welfare-1">88</td><td id="welfare-2">88</td>
+                        <td id="welfare-3">88</td><td id="welfare-4">88</td><td id="welfare-5">88</td><td id="welfare-6">140</td>
+                        <td id="welfare-total" style="font-weight: bold;">1,149</td>
+                    </tr>
+                    <tr>
+                        <td style="background: #ecf0f1; font-weight: bold; text-align: left; font-size: 0.6em;">その他経費</td>
+                        <td>59</td><td>-5</td><td>46</td><td>37</td><td>30</td><td>62</td>
+                        <td>58</td><td>48</td><td>110</td><td>60</td><td>102</td><td>61</td>
+                        <td style="font-weight: bold;">668</td>
+                    </tr>
+                    <tr style="background: #fff3cd;">
+                        <td style="font-weight: bold; text-align: left; font-size: 0.6em;">共通経費計</td>
+                        <td id="common-7" style="font-weight: bold;">992</td><td id="common-8" style="font-weight: bold;">928</td>
+                        <td id="common-9" style="font-weight: bold;">979</td><td id="common-10" style="font-weight: bold;">801</td>
+                        <td id="common-11" style="font-weight: bold;">794</td><td id="common-12" style="font-weight: bold;">826</td>
+                        <td id="common-1" style="font-weight: bold;">822</td><td id="common-2" style="font-weight: bold;">812</td>
+                        <td id="common-3" style="font-weight: bold;">874</td><td id="common-4" style="font-weight: bold;">824</td>
+                        <td id="common-5" style="font-weight: bold;">866</td><td id="common-6" style="font-weight: bold;">1,277</td>
+                        <td id="common-total" style="font-weight: bold; color: #e74c3c;">10,653</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="margin-top: 8px;">
+                <div style="font-size: 0.75em; font-weight: 700; margin-bottom: 4px; color: #2c3e50;">販管費月次詳細（万円）</div>
+                <table class="micro-table">
+                    <thead>
+                        <tr>
+                            <th>項目</th>
+                            <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
+                            <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
+                            <th>年計</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td style="text-align: left; font-size: 0.55em;">管理諸費</td><td>33</td><td>36</td><td>41</td><td>33</td><td>36</td><td>43</td><td>35</td><td>38</td><td>43</td><td>35</td><td>38</td><td>43</td><td>454</td></tr>
+                        <tr><td style="text-align: left; font-size: 0.55em;">修繕費</td><td>8</td><td class="negative">-5</td><td class="negative">-8</td><td>8</td><td class="negative">-5</td><td class="negative">-13</td><td>5</td><td class="negative">-2</td><td class="negative">-8</td><td>5</td><td class="negative">-2</td><td class="negative">-8</td><td class="negative">-25</td></tr>
+                        <tr><td style="text-align: left; font-size: 0.55em;">車両費</td><td>12</td><td>15</td><td>12</td><td>12</td><td>15</td><td>18</td><td>13</td><td>16</td><td>18</td><td>13</td><td>16</td><td>18</td><td>178</td></tr>
+                        <tr><td style="text-align: left; font-size: 0.55em;">租税公課</td><td class="negative">-5</td><td class="negative">-5</td><td class="negative">-5</td><td class="negative">-5</td><td class="negative">-5</td><td class="negative">-5</td><td class="negative">-5</td><td class="negative">-5</td><td class="negative">-5</td><td class="negative">-5</td><td class="negative">-5</td><td class="negative">-5</td><td class="negative">-60</td></tr>
+                        <tr><td style="text-align: left; font-size: 0.55em;">交際費</td><td>3</td><td>5</td><td>8</td><td>3</td><td>5</td><td>12</td><td>4</td><td>7</td><td>12</td><td>4</td><td>7</td><td>12</td><td>82</td></tr>
+                        <tr><td style="text-align: left; font-size: 0.55em;">その他5項目</td><td>8</td><td class="negative">-9</td><td class="negative">-2</td><td class="negative">-14</td><td class="negative">-16</td><td>7</td><td>6</td><td class="negative">-6</td><td>50</td><td>8</td><td>48</td><td>1</td><td>39</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div style="background: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; padding: 6px; margin-top: 8px;">
+            <div style="font-size: 0.7em; font-weight: 700; color: #155724; margin-bottom: 3px;">Phase 2実装完了状況</div>
+            <div style="font-size: 0.6em; color: #155724;">
+                ✓ 確定実績・シミュレーション切替機能　✓ 予算管理・ロック機能　✓ 予実分析ウィジェット　✓ 事業部合算損益表　✓ ハイブリッドモード対応　✓ 4事業部詳細表示　✓ 販管費月次内訳
+            </div>
+        </div>
     </div>
 
     <script>
@@ -638,77 +827,159 @@
             executive_data: 'pl_system_executive_data'  // 追加: 役員報酬データ用
         };
 
-        // localStorage移行処理
-        function migrateLocalStorageData() {
+        // 旧キーから新キーへの移行処理
+        function migrateLocalStorageKeys() {
             const migrations = [
-                ['sr_sales_data', LOCAL_STORAGE_KEYS.sr_data],
-                ['w_sales_data', LOCAL_STORAGE_KEYS.w_data],
-                ['rc_sales_data', LOCAL_STORAGE_KEYS.rc_data],
-                ['rcd_sales_data', LOCAL_STORAGE_KEYS.rcd_data],
-                ['combined_dashboard_data', LOCAL_STORAGE_KEYS.combined_data]
+                { old: 'sr_sales_data', new: LOCAL_STORAGE_KEYS.sr_data },
+                { old: 'w_sales_data', new: LOCAL_STORAGE_KEYS.w_data },
+                { old: 'rc_sales_data', new: LOCAL_STORAGE_KEYS.rc_data },
+                { old: 'rcd_sales_data', new: LOCAL_STORAGE_KEYS.rcd_data },
+                { old: 'combined_dashboard_data', new: LOCAL_STORAGE_KEYS.combined_data }
             ];
-            
-            migrations.forEach(([oldKey, newKey]) => {
-                const oldData = localStorage.getItem(oldKey);
-                if (oldData && !localStorage.getItem(newKey)) {
-                    localStorage.setItem(newKey, oldData);
+
+            migrations.forEach(migration => {
+                const oldData = localStorage.getItem(migration.old);
+                const newData = localStorage.getItem(migration.new);
+                
+                if (oldData && !newData) {
+                    localStorage.setItem(migration.new, oldData);
+                    console.log(`Migrated ${migration.old} to ${migration.new}`);
                 }
             });
         }
 
-        // 前期決算データ
-        const previousYearData = {
-            "売上高 計": {
-                "monthlyData": [161079, 193592, 166322, 203795, 174747, 217615, 188572, 201380, 189491, 204567, 199178, 214260],
-                "yearTotal": 2314599
+        const commonExpensesData = {
+            executiveSalary: {
+                monthlyData: {
+                    '7月': 826, '8月': 826, '9月': 826, '10月': 676, '11月': 676, '12月': 676,
+                    '1月': 676, '2月': 676, '3月': 676, '4月': 676, '5月': 676, '6月': 676
+                }
             },
-            "営業利益": {
-                "monthlyData": [-4811, 1597, 40, 3972, 3205, 5866, 3011, -1386, -759, 791, 644, -3255],
-                "yearTotal": 8915
+            legalWelfare: {
+                monthlyData: {
+                    '7月': 107, '8月': 107, '9月': 107, '10月': 88, '11月': 88, '12月': 88,
+                    '1月': 88, '2月': 88, '3月': 88, '4月': 88, '5月': 88, '6月': 88
+                }
+            },
+            otherExpenses: {
+                '7月': 59, '8月': -5, '9月': 46, '10月': 37, '11月': 30, '12月': 62,
+                '1月': 58, '2月': 48, '3月': 110, '4月': 60, '5月': 102, '6月': 61
+            },
+            welfareRate: 0.13002
+        };
+
+        const monthNames = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
+
+        const systemData = {
+            departments: {
+                SR: {
+                    name: 'SR事業部',
+                    forecastData: { 
+                        '7月': -423, '8月': 45, '9月': -16, '10月': -180, 
+                        '11月': -173, '12月': -162, '1月': 99, '2月': -470, 
+                        '3月': -337, '4月': -215, '5月': -719, '6月': -503 
+                    }
+                },
+                W: {
+                    name: 'W事業部',
+                    forecastData: { 
+                        '7月': 150, '8月': 200, '9月': 180, '10月': 220, 
+                        '11月': 190, '12月': 250, '1月': 180, '2月': 160, 
+                        '3月': 200, '4月': 240, '5月': 180, '6月': 220 
+                    }
+                },
+                RC_OROSHI: {
+                    name: 'RC卸',
+                    forecastData: { 
+                        '7月': 100, '8月': 120, '9月': 110, '10月': 140, 
+                        '11月': 130, '12月': 160, '1月': 120, '2月': 100, 
+                        '3月': 130, '4月': 150, '5月': 110, '6月': 140 
+                    }
+                },
+                RCD_COMPANY: {
+                    name: 'RCD社',
+                    forecastData: { 
+                        '7月': 80, '8月': 90, '9月': 85, '10月': 100, 
+                        '11月': 95, '12月': 110, '1月': 90, '2月': 80, 
+                        '3月': 95, '4月': 105, '5月': 85, '6月': 100 
+                    }
+                }
             }
         };
 
-        // ベース共通経費データ（ダッシュボードと同期）
-        let baseCommonExpenses = {
-            'jul': 9917025, 'aug': 9279621, 'sep': 9791470, 'oct': 8006922,
-            'nov': 7935983, 'dec': 8248433, 'jan': 8217091, 'feb': 8110941,
-            'mar': 8729446, 'apr': 8236253, 'may': 8653401, 'jun': 8247029
+        let executiveAdjustment = 0;
+        let executiveBonusAmount = 300;
+        let profitComparisonChart = null;
+
+        const targetAllocation = {
+            isEnabled: false,
+            totalTarget: 6000
         };
 
-        // 役員報酬・賞与設定（ダッシュボードから取得）
-        let executiveSalaryMonthly = 6755;  // 月額（万円）
-        let executiveBonusAmount = 300;     // 賞与（万円）
-        
-        // グローバル変数
-        let comparisonChart;
-        let departmentData = {
-            sr: { sales: 0, monthlyData: [], lastUpdate: null },
-            w: { sales: 0, monthlyData: [], lastUpdate: null },
-            rc: { sales: 0, monthlyData: [], lastUpdate: null },
-            rcd: { sales: 0, monthlyData: [], lastUpdate: null }
+        const calculationMode = {
+            current: 'simulation',
+            confirmedMonths: [],
+            confirmedData: {},
+            lastUpdated: null
         };
 
-        // 新規追加: ダッシュボードから役員報酬データを読み込み
-        function loadExecutiveDataFromDashboard() {
+        const budgetManagement = {
+            currentBudget: {
+                id: 'budget_2024_v1',
+                setDate: null,
+                source: 'simulation',
+                locked: false,
+                departmentBudgets: {
+                    SR: { monthly: Array(12).fill(0), annual: 0 },
+                    W: { monthly: Array(12).fill(0), annual: 0 },
+                    RC: { monthly: Array(12).fill(0), annual: 0 },
+                    RCD: { monthly: Array(12).fill(0), annual: 0 }
+                }
+            },
+            budgetHistory: [],
+            actualResults: {},
+            variance: {}
+        };
+
+        // 新規追加: Coming Soon機能
+        function showComingSoon(pageName) {
+            alert(`${pageName}画面は開発中です。\n\n次期アップデートで実装予定:\n- ${pageName}画面\n- ナビゲーション機能\n- ページ間連携`);
+        }
+
+        // 新規追加: 役員報酬データの保存機能
+        function saveExecutiveData() {
+            const executiveData = {
+                adjustment: executiveAdjustment,
+                bonusAmount: executiveBonusAmount,
+                timestamp: new Date().toISOString(),
+                lastUpdate: new Date().toLocaleString()
+            };
+            
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEYS.executive_data, JSON.stringify(executiveData));
+                console.log('役員報酬データを保存:', executiveData);
+                return true;
+            } catch (error) {
+                console.error('役員報酬データ保存エラー:', error);
+                return false;
+            }
+        }
+
+        // 新規追加: 役員報酬データの読み込み機能
+        function loadExecutiveData() {
             try {
                 const savedData = localStorage.getItem(LOCAL_STORAGE_KEYS.executive_data);
                 if (savedData) {
                     const executiveData = JSON.parse(savedData);
-                    console.log('ダッシュボードから役員報酬データを読み込み:', executiveData);
+                    console.log('役員報酬データを読み込み:', executiveData);
                     
-                    // 賞与額の取得
+                    // データの復元
+                    executiveAdjustment = executiveData.adjustment || 0;
                     executiveBonusAmount = executiveData.bonusAmount || 300;
                     
-                    // ベース給与 + 調整額の計算
-                    const baseMonthly = 6755;
-                    const adjustment = executiveData.adjustment || 0;
-                    executiveSalaryMonthly = baseMonthly + adjustment;
-                    
                     // UIの更新
-                    document.getElementById('executive-salary').value = executiveSalaryMonthly;
                     document.getElementById('executive-bonus').value = executiveBonusAmount;
                     
-                    console.log(`役員報酬設定: 月額${executiveSalaryMonthly}万円, 賞与${executiveBonusAmount}万円`);
                     return true;
                 }
             } catch (error) {
@@ -717,509 +988,613 @@
             return false;
         }
 
-        // 修正版: 共通経費計算（役員報酬・賞与を反映）
-        function calculateCommonExpenses() {
-            const months = ['jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar', 'apr', 'may', 'jun'];
-            const welfareRate = 0.13002;  // 法定福利費率
+        document.addEventListener('DOMContentLoaded', function() {
+            // localStorage移行処理を最初に実行
+            migrateLocalStorageKeys();
             
-            let commonExpenses = {};
+            // 役員報酬データの読み込み
+            loadExecutiveData();
             
-            months.forEach((month, index) => {
-                // 役員報酬計算（7-9月は高額期間）
-                let monthlySalary = executiveSalaryMonthly;
-                if (index <= 2) {  // 7-9月
-                    monthlySalary += 1500;  // 高額期間加算
+            updateCommonExpensesDisplay();
+            updatePLSummaryTable();
+            calculateAndUpdateKPIs();
+            initializeChart();
+            initializeProfitComparisonChart();
+        });
+
+        function updateCommonExpensesDisplay() {
+            monthNames.forEach((month, index) => {
+                const monthNum = index + 7 <= 12 ? index + 7 : index - 5;
+                const baseExecutiveSalary = commonExpensesData.executiveSalary.monthlyData[month] + executiveAdjustment;
+                
+                let totalExecutiveSalary = baseExecutiveSalary;
+                if (month === '6月') {
+                    totalExecutiveSalary += executiveBonusAmount;
                 }
                 
-                // 6月の賞与加算
-                if (month === 'jun') {
-                    monthlySalary += executiveBonusAmount;
+                const legalWelfare = Math.round(totalExecutiveSalary * commonExpensesData.welfareRate);
+                const otherExpenses = commonExpensesData.otherExpenses[month];
+                const total = totalExecutiveSalary + legalWelfare + otherExpenses;
+
+                updateElement(`exec-${monthNum}`, totalExecutiveSalary.toLocaleString());
+                updateElement(`welfare-${monthNum}`, legalWelfare.toLocaleString());
+                updateElement(`common-${monthNum}`, total.toLocaleString());
+                
+                const execElement = document.getElementById(`exec-${monthNum}`);
+                const welfareElement = document.getElementById(`welfare-${monthNum}`);
+                
+                if (month === '6月' && executiveBonusAmount > 0) {
+                    if (execElement) {
+                        execElement.style.color = '#007bff';
+                        execElement.style.fontWeight = 'bold';
+                    }
+                    if (welfareElement) {
+                        welfareElement.style.color = '#007bff';
+                        welfareElement.style.fontWeight = 'bold';
+                    }
+                } else {
+                    if (execElement) {
+                        execElement.style.color = '';
+                        execElement.style.fontWeight = '';
+                    }
+                    if (welfareElement) {
+                        welfareElement.style.color = '';
+                        welfareElement.style.fontWeight = '';
+                    }
                 }
-                
-                // 法定福利費計算
-                const welfare = Math.round(monthlySalary * welfareRate);
-                
-                // その他経費（ベースデータから取得）
-                const otherExpenses = Math.round((baseCommonExpenses[month] - (6755 + 677) * 10000) / 10000);  // 万円換算
-                
-                // 月次合計
-                commonExpenses[month] = monthlySalary + welfare + otherExpenses;
             });
+
+            let totalExec = 0, totalWelfare = 0, totalCommon = 0;
+            monthNames.forEach(month => {
+                const baseExecutiveSalary = commonExpensesData.executiveSalary.monthlyData[month] + executiveAdjustment;
+                
+                let totalExecutiveSalary = baseExecutiveSalary;
+                if (month === '6月') {
+                    totalExecutiveSalary += executiveBonusAmount;
+                }
+                
+                const legalWelfare = Math.round(totalExecutiveSalary * commonExpensesData.welfareRate);
+                const otherExpenses = commonExpensesData.otherExpenses[month];
+                
+                totalExec += totalExecutiveSalary;
+                totalWelfare += legalWelfare;
+                totalCommon += (totalExecutiveSalary + legalWelfare + otherExpenses);
+            });
+
+            updateElement('exec-total', totalExec.toLocaleString());
+            updateElement('welfare-total', totalWelfare.toLocaleString());
+            updateElement('common-total', totalCommon.toLocaleString());
+            updateElement('common-expenses-total', `-${totalCommon.toLocaleString()}万円`);
             
-            return commonExpenses;
+            // 役員報酬データの保存（変更があった場合）
+            saveExecutiveData();
         }
 
-        // チャート初期化
-        function initializeComparisonChart() {
-            const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
+        function updateExecutiveBonus() {
+            const bonusInput = document.getElementById('executive-bonus');
+            executiveBonusAmount = parseInt(bonusInput.value) || 0;
             
-            const ctx = document.getElementById('comparisonChart').getContext('2d');
-            comparisonChart = new Chart(ctx, {
-                type: 'line',
+            updateCommonExpensesDisplay();
+            calculateAndUpdateKPIs();
+        }
+
+        function resetExecutiveBonus() {
+            executiveBonusAmount = 0;
+            document.getElementById('executive-bonus').value = 0;
+            updateCommonExpensesDisplay();
+            calculateAndUpdateKPIs();
+        }
+
+        function adjustExecutiveSalary(direction) {
+            const adjustmentInput = document.getElementById('adjustment-amount');
+            const amount = parseInt(adjustmentInput.value) || 50;
+            
+            executiveAdjustment += direction * amount;
+            
+            updateCommonExpensesDisplay();
+            calculateAndUpdateKPIs();
+        }
+
+        function resetExecutiveSalary() {
+            executiveAdjustment = 0;
+            updateCommonExpensesDisplay();
+            calculateAndUpdateKPIs();
+        }
+
+        function updatePLSummaryTable() {
+            monthNames.forEach((month, index) => {
+                const monthNum = index + 7 <= 12 ? index + 7 : index - 5;
+                
+                let deptProfitMonthly = 0;
+                Object.values(systemData.departments).forEach(dept => {
+                    deptProfitMonthly += dept.forecastData[month];
+                });
+                
+                const executiveSalary = commonExpensesData.executiveSalary.monthlyData[month] + executiveAdjustment;
+                let totalExecutiveSalary = executiveSalary;
+                if (month === '6月') {
+                    totalExecutiveSalary += executiveBonusAmount;
+                }
+                const legalWelfare = Math.round(totalExecutiveSalary * commonExpensesData.welfareRate);
+                const otherExpenses = commonExpensesData.otherExpenses[month];
+                const commonExpensesMonthly = totalExecutiveSalary + legalWelfare + otherExpenses;
+                
+                const finalProfitMonthly = deptProfitMonthly - commonExpensesMonthly;
+                
+                updateElement(`dept-profit-${monthNum}`, deptProfitMonthly.toLocaleString());
+                updateElement(`final-profit-${monthNum}`, finalProfitMonthly.toLocaleString());
+                
+                const finalElement = document.getElementById(`final-profit-${monthNum}`);
+                if (finalElement) {
+                    finalElement.className = finalProfitMonthly >= 0 ? 'positive' : 'negative';
+                }
+            });
+            
+            let annualDeptProfit = 0;
+            let totalAnnualCommonExpenses = 0;
+            
+            monthNames.forEach(month => {
+                Object.values(systemData.departments).forEach(dept => {
+                    annualDeptProfit += dept.forecastData[month];
+                });
+                
+                const executiveSalary = commonExpensesData.executiveSalary.monthlyData[month] + executiveAdjustment;
+                let totalExecutiveSalary = executiveSalary;
+                if (month === '6月') {
+                    totalExecutiveSalary += executiveBonusAmount;
+                }
+                const legalWelfare = Math.round(totalExecutiveSalary * commonExpensesData.welfareRate);
+                const otherExpenses = commonExpensesData.otherExpenses[month];
+                totalAnnualCommonExpenses += (totalExecutiveSalary + legalWelfare + otherExpenses);
+            });
+            
+            const annualFinalProfit = annualDeptProfit - totalAnnualCommonExpenses;
+            
+            updateElement('dept-profit-annual', annualDeptProfit.toLocaleString());
+            updateElement('final-profit-annual-table', annualFinalProfit.toLocaleString());
+            
+            const annualFinalElement = document.getElementById('final-profit-annual-table');
+            if (annualFinalElement) {
+                annualFinalElement.className = annualFinalProfit >= 0 ? 'positive' : 'negative';
+            }
+        }
+
+        function calculateAndUpdateKPIs() {
+            let departmentTotal = 0;
+            monthNames.forEach(month => {
+                Object.values(systemData.departments).forEach(dept => {
+                    departmentTotal += dept.forecastData[month];
+                });
+            });
+
+            let commonExpensesTotal = 0;
+            monthNames.forEach(month => {
+                const executiveSalary = commonExpensesData.executiveSalary.monthlyData[month] + executiveAdjustment;
+                let totalExecutiveSalary = executiveSalary;
+                if (month === '6月') {
+                    totalExecutiveSalary += executiveBonusAmount;
+                }
+                const legalWelfare = Math.round(totalExecutiveSalary * commonExpensesData.welfareRate);
+                const otherExpenses = commonExpensesData.otherExpenses[month];
+                commonExpensesTotal += (totalExecutiveSalary + legalWelfare + otherExpenses);
+            });
+
+            const finalProfit = departmentTotal - commonExpensesTotal;
+
+            updateElement('dept-total-profit', `${departmentTotal.toLocaleString()}万円`);
+            updateElement('final-profit', `${finalProfit.toLocaleString()}万円`);
+            updateElement('header-final-profit', finalProfit.toLocaleString());
+
+            const finalCard = document.getElementById('final-card');
+            if (finalCard) {
+                finalCard.className = 'kpi-card ' + (finalProfit >= 0 ? 'final-positive' : 'final-negative');
+            }
+
+            if (targetAllocation.isEnabled) {
+                const achievementRate = (finalProfit / targetAllocation.totalTarget) * 100;
+                updateElement('target-achievement', `${achievementRate.toFixed(1)}%`);
+                updateElement('target-status', '目標配分ON');
+            }
+
+            updatePLSummaryTable();
+        }
+
+        function calculateTargetAllocation(totalTarget) {
+            const result = {};
+            
+            const departmentSettings = {
+                SR: { profitMargin: 0.02, strategicImportance: 0.8, allocatable: true },
+                W: { profitMargin: 0.15, strategicImportance: 0.9, allocatable: true },
+                RC_OROSHI: { profitMargin: 0.08, strategicImportance: 0.7, allocatable: true },
+                RCD_COMPANY: { profitMargin: 0.005, strategicImportance: 0.6, allocatable: false }
+            };
+
+            let remainingTarget = totalTarget;
+            const blackProfitDepartments = [];
+
+            Object.entries(systemData.departments).forEach(([deptId, dept]) => {
+                const settings = departmentSettings[deptId];
+                if (!settings || !settings.allocatable) return;
+
+                const currentProfit = Object.values(dept.forecastData).reduce((sum, val) => sum + val, 0);
+                
+                if (currentProfit < 0) {
+                    const fixedAnnualImprovement = 1200;
+                    
+                    result[deptId] = {
+                        name: dept.name,
+                        currentProfit: currentProfit,
+                        targetProfit: currentProfit + fixedAnnualImprovement,
+                        strategyType: '赤字改善',
+                        improvementEffect: fixedAnnualImprovement,
+                        salesIncreaseRate: '固定',
+                        feasibility: 'fixed_improvement',
+                        allocationType: 'red_deficit'
+                    };
+                    
+                    remainingTarget -= fixedAnnualImprovement;
+                } else {
+                    blackProfitDepartments.push([deptId, dept, settings]);
+                }
+            });
+
+            if (blackProfitDepartments.length > 0) {
+                const totalEfficiencyScore = blackProfitDepartments.reduce((sum, [_, __, settings]) => 
+                    sum + (settings.profitMargin * settings.strategicImportance), 0);
+                
+                blackProfitDepartments.forEach(([deptId, dept, settings]) => {
+                    const currentProfit = Object.values(dept.forecastData).reduce((sum, val) => sum + val, 0);
+                    const efficiencyScore = settings.profitMargin * settings.strategicImportance;
+                    const allocation = Math.max(0, (efficiencyScore / totalEfficiencyScore) * remainingTarget);
+                    
+                    const estimatedSales = currentProfit / settings.profitMargin;
+                    const requiredSalesIncrease = allocation / settings.profitMargin;
+                    const salesIncreaseRate = (requiredSalesIncrease / estimatedSales) * 100;
+                    
+                    result[deptId] = {
+                        name: dept.name,
+                        currentProfit: currentProfit,
+                        targetProfit: Math.round(currentProfit + allocation),
+                        strategyType: '効率成長',
+                        improvementEffect: Math.round(allocation),
+                        salesIncreaseRate: salesIncreaseRate.toFixed(1) + '%',
+                        feasibility: salesIncreaseRate <= 20 ? 'realistic' : 'challenging',
+                        allocationType: 'efficiency_based'
+                    };
+                });
+            }
+
+            Object.entries(systemData.departments).forEach(([deptId, dept]) => {
+                const settings = departmentSettings[deptId];
+                if (!settings || settings.allocatable) return;
+
+                const currentProfit = Object.values(dept.forecastData).reduce((sum, val) => sum + val, 0);
+                
+                result[deptId] = {
+                    name: dept.name,
+                    currentProfit: currentProfit,
+                    targetProfit: currentProfit,
+                    strategyType: '対象外',
+                    improvementEffect: 0,
+                    salesIncreaseRate: '-',
+                    feasibility: 'excluded',
+                    allocationType: 'excluded'
+                };
+            });
+            
+            return result;
+        }
+
+        function toggleTargetAllocation() {
+            targetAllocation.isEnabled = !targetAllocation.isEnabled;
+            
+            const toggleBtn = document.getElementById('allocation-toggle-btn');
+            const allocationResults = document.getElementById('allocation-results');
+            
+            if (targetAllocation.isEnabled) {
+                toggleBtn.textContent = '目標配分ON';
+                toggleBtn.className = 'target-toggle toggle-active';
+                allocationResults.style.display = 'block';
+                updateElement('header-allocation-status', 'ON');
+                updateTargetAllocation();
+            } else {
+                toggleBtn.textContent = '目標配分OFF';
+                toggleBtn.className = 'target-toggle toggle-inactive';
+                allocationResults.style.display = 'none';
+                updateElement('target-achievement', '---%');
+                updateElement('target-status', '目標配分OFF');
+                updateElement('header-allocation-status', 'OFF');
+            }
+        }
+
+        function updateTargetAllocation() {
+            if (!targetAllocation.isEnabled) return;
+
+            const totalTargetInput = document.getElementById('total-target');
+            targetAllocation.totalTarget = parseInt(totalTargetInput.value) || 6000;
+
+            const allocationData = calculateTargetAllocation(targetAllocation.totalTarget);
+            updateAllocationTable(allocationData);
+            updateProfitComparisonChart(allocationData);
+            calculateAndUpdateKPIs();
+        }
+
+        function updateAllocationTable(allocationData) {
+            const tableBody = document.getElementById('allocation-table');
+            if (!tableBody) return;
+
+            tableBody.innerHTML = '';
+            
+            Object.entries(allocationData).forEach(([deptId, data]) => {
+                const row = document.createElement('tr');
+                
+                let feasibilityColor, feasibilityText;
+                switch(data.feasibility) {
+                    case 'fixed_improvement':
+                        feasibilityColor = '#f39c12';
+                        feasibilityText = '固定改善';
+                        break;
+                    case 'realistic':
+                        feasibilityColor = '#27ae60';
+                        feasibilityText = '現実的';
+                        break;
+                    case 'challenging':
+                        feasibilityColor = '#e74c3c';
+                        feasibilityText = '要検討';
+                        break;
+                    case 'excluded':
+                        feasibilityColor = '#95a5a6';
+                        feasibilityText = '対象外';
+                        break;
+                    default:
+                        feasibilityColor = '#3498db';
+                        feasibilityText = data.feasibility;
+                }
+                
+                row.innerHTML = `
+                    <td style="font-weight: bold; font-size: 0.6em;">${data.name}</td>
+                    <td><span style="padding: 1px 4px; border-radius: 6px; font-size: 0.55em; ${
+                        data.allocationType === 'red_deficit' ? 'background: #ffe0e0; color: #c62828;' :
+                        data.allocationType === 'efficiency_based' ? 'background: #e0f2e0; color: #2e7d32;' :
+                        'background: #f0f0f0; color: #616161;'
+                    }">${data.strategyType}</span></td>
+                    <td class="${data.currentProfit >= 0 ? 'positive' : 'negative'}">
+                        ${data.currentProfit.toLocaleString()}
+                    </td>
+                    <td class="${data.targetProfit >= 0 ? 'positive' : 'negative'}">
+                        ${data.targetProfit.toLocaleString()}
+                    </td>
+                    <td class="positive">
+                        +${data.improvementEffect.toLocaleString()}
+                    </td>
+                    <td style="color: ${
+                        data.salesIncreaseRate.includes('%') && parseFloat(data.salesIncreaseRate) > 20 ? '#e74c3c' : 
+                        data.salesIncreaseRate.includes('%') ? '#27ae60' : '#95a5a6'
+                    };">
+                        ${data.salesIncreaseRate}
+                    </td>
+                    <td style="color: ${feasibilityColor}; font-weight: bold; font-size: 0.6em;">
+                        ${feasibilityText}
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function initializeProfitComparisonChart() {
+            const ctx = document.getElementById('profit-comparison-chart');
+            if (!ctx) return;
+
+            profitComparisonChart = new Chart(ctx, {
+                type: 'bar',
                 data: {
-                    labels: months,
+                    labels: [],
                     datasets: [
                         {
-                            label: '前期売上高',
-                            data: previousYearData["売上高 計"].monthlyData,
-                            backgroundColor: 'rgba(52, 73, 94, 0.1)',
-                            borderColor: '#34495e',
-                            borderWidth: 2,
-                            borderDash: [5, 5],
-                            fill: false,
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: '当期売上高',
-                            data: new Array(12).fill(0),
-                            backgroundColor: 'rgba(52, 152, 219, 0.8)',
+                            label: '現在利益',
+                            data: [],
+                            backgroundColor: 'rgba(52, 152, 219, 0.7)',
                             borderColor: '#3498db',
-                            borderWidth: 3,
-                            fill: false,
-                            yAxisID: 'y'
+                            borderWidth: 1
                         },
                         {
-                            label: '前期営業利益',
-                            data: previousYearData["営業利益"].monthlyData,
-                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
-                            borderColor: '#e74c3c',
-                            borderWidth: 2,
-                            borderDash: [5, 5],
-                            fill: false,
-                            yAxisID: 'y1'
-                        },
-                        {
-                            label: '当期営業利益',
-                            data: new Array(12).fill(0),
-                            backgroundColor: 'rgba(39, 174, 96, 0.8)',
-                            borderColor: '#27ae60',
-                            borderWidth: 3,
-                            fill: false,
-                            yAxisID: 'y1'
+                            label: '目標利益',
+                            data: [],
+                            backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                            borderColor: '#2ecc71',
+                            borderWidth: 1
                         }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
                     plugins: {
                         legend: {
                             position: 'top',
-                            labels: { font: { size: 12 }, padding: 15, usePointStyle: true }
+                            labels: {
+                                font: { size: 10 }
+                            }
                         }
                     },
                     scales: {
-                        x: { ticks: { font: { size: 11 } } },
                         y: {
-                            type: 'linear', display: true, position: 'left',
-                            title: { display: true, text: '売上高（千円）', color: '#3498db', font: { size: 12, weight: 'bold' } },
-                            ticks: { color: '#3498db', font: { size: 10 } },
-                            grid: { drawOnChartArea: true }
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                            ticks: { 
+                                font: { size: 9 },
+                                callback: function(value) {
+                                    return value + '万円';
+                                }
+                            }
                         },
-                        y1: {
-                            type: 'linear', display: true, position: 'right',
-                            title: { display: true, text: '営業利益（千円）', color: '#27ae60', font: { size: 12, weight: 'bold' } },
-                            ticks: { color: '#27ae60', font: { size: 10 } },
-                            grid: { drawOnChartArea: false }
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { size: 9 } }
                         }
                     }
                 }
             });
         }
 
-        // チャート更新
-        function updateComparisonChart() {
-            const months = ['jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar', 'apr', 'may', 'jun'];
-            const departments = ['sr', 'w', 'rc', 'rcd'];
+        function updateProfitComparisonChart(allocationData) {
+            if (!profitComparisonChart) {
+                initializeProfitComparisonChart();
+            }
             
-            const currentSalesData = months.map((month, index) => {
-                return departments.reduce((sum, dept) => sum + (departmentData[dept].monthlyData[index] || 0), 0);
+            const labels = [];
+            const currentProfits = [];
+            const targetProfits = [];
+
+            Object.entries(allocationData).forEach(([deptId, data]) => {
+                labels.push(data.name);
+                currentProfits.push(data.currentProfit);
+                targetProfits.push(data.targetProfit);
             });
-            
-            const commonExpenses = calculateCommonExpenses();
-            const currentProfitData = months.map((month, index) => {
-                const monthlySalesTotal = currentSalesData[index];
-                const monthlyExpense = commonExpenses[month];
-                return monthlySalesTotal - monthlyExpense;
-            });
-            
-            comparisonChart.data.datasets[1].data = currentSalesData;
-            comparisonChart.data.datasets[3].data = currentProfitData;
-            comparisonChart.update();
+
+            profitComparisonChart.data.labels = labels;
+            profitComparisonChart.data.datasets[0].data = currentProfits;
+            profitComparisonChart.data.datasets[1].data = targetProfits;
+            profitComparisonChart.update();
         }
 
-        // 修正版: データ読み込み関数（販管費対応版）
-        function loadDepartmentData() {
-            const departments = ['sr', 'w', 'rc', 'rcd'];
-            let loadedCount = 0, hasData = false;
+        function initializeChart() {
+            const ctx = document.getElementById('monthly-profit-chart');
+            if (!ctx) return;
 
-            console.log('=== データ読み込み開始 ===');
+            const departmentProfits = monthNames.map(month => {
+                return Object.values(systemData.departments).reduce((sum, dept) => {
+                    return sum + dept.forecastData[month];
+                }, 0);
+            });
 
-            departments.forEach(dept => {
-                try {
-                    // 新ルール優先で取得
-                    let data = localStorage.getItem(LOCAL_STORAGE_KEYS[`${dept}_data`]);
-                    
-                    // 新ルールでデータがない場合は旧ルールを試行
-                    if (!data) {
-                        data = localStorage.getItem(`${dept}_sales_data`);
-                        console.log(`${dept}: 旧ルールキーで取得試行`);
-                    } else {
-                        console.log(`${dept}: 新ルールキーで取得成功`);
-                    }
-                    
-                    if (data) {
-                        const parsedData = JSON.parse(data);
-                        console.log(`${dept}部門データ取得:`, parsedData);
-                        
-                        // データ形式の統一処理
-                        departmentData[dept] = extractFinancialData(parsedData, dept);
-                        
-                        if (departmentData[dept].sales > 0) hasData = true;
-                        loadedCount++;
-                        
-                        console.log(`${dept}部門処理後:`, departmentData[dept]);
-                    } else {
-                        console.warn(`${dept}部門: データが見つかりません`);
-                    }
-                } catch (error) {
-                    console.error(`${dept}事業部データ読み込みエラー:`, error);
+            const finalProfits = monthNames.map((month, index) => {
+                const executiveSalary = commonExpensesData.executiveSalary.monthlyData[month] + executiveAdjustment;
+                let totalExecutiveSalary = executiveSalary;
+                if (month === '6月') {
+                    totalExecutiveSalary += executiveBonusAmount;
                 }
-            });
-
-            // 統合データ（計算済みPL）の読み込み
-            loadCombinedPLData();
-
-            updateLinkageStatus(loadedCount, hasData);
-            console.log('全データ読み込み完了:', departmentData);
-            return { loadedCount, hasData };
-        }
-
-        // 新規: 統合PLデータ読み込み（販管費含む）
-        function loadCombinedPLData() {
-            try {
-                const combinedData = localStorage.getItem(LOCAL_STORAGE_KEYS.combined_data);
-                if (combinedData) {
-                    const parsed = JSON.parse(combinedData);
-                    console.log('統合PLデータ取得:', parsed);
-                    
-                    // 各事業部の計算済みデータを反映 
-                    ['sr', 'w', 'rc', 'rcd'].forEach(dept => {
-                        if (parsed[dept] && parsed[dept].monthly) {
-                            departmentData[dept].expensesData = parsed[dept].monthly;
-                            console.log(`${dept}: 販管費データ取得済み`);
-                        }
-                    });
-                }
-            } catch (error) {
-                console.error('統合PLデータ読み込みエラー:', error);
-            }
-        }
-
-        // 修正版: データ抽出関数
-        function extractFinancialData(data, dept) {
-            console.log(`${dept}部門データ抽出開始:`, data);
-            
-            if (!data || typeof data !== 'object') {
-                return { sales: 0, monthlyData: new Array(12).fill(0), lastUpdate: null };
-            }
-
-            let monthlyData = new Array(12).fill(0);
-            
-            // 新形式データの処理（budget-inputから送信される形式）
-            if (data.monthlySales && Array.isArray(data.monthlySales)) {
-                // 数値確認とエラーハンドリング
-                monthlyData = data.monthlySales.map(sales => {
-                    const numSales = Number(sales);
-                    return isNaN(numSales) ? 0 : Math.round(numSales);
-                });
-                console.log(`${dept}: 新形式monthlySales使用（万円）`, monthlyData);
-            }
-            // RCは特殊形式（baseSales + variations）
-            else if (dept === 'rc' && data.baseSales && Array.isArray(data.variations)) {
-                monthlyData = data.variations.map(variation => {
-                    const baseSales = Number(data.baseSales) || 0;
-                    const variationAmount = Number(variation) || 0;
-                    return Math.round(baseSales + variationAmount);
-                });
-                console.log(`${dept}: RC特殊形式使用（万円）`, monthlyData);
-            }
-            // RCDは特殊形式（purchases配列）
-            else if (dept === 'rcd' && Array.isArray(data.purchases)) {
-                monthlyData = data.purchases.map(purchase => {
-                    const numPurchase = Number(purchase) || 0;
-                    return Math.round(numPurchase * 2000 * 1.03);
-                });
-                console.log(`${dept}: RCD特殊形式使用（万円）`, monthlyData);
-            }
-            // monthlyDataがある場合
-            else if (data.monthlyData && Array.isArray(data.monthlyData)) {
-                monthlyData = data.monthlyData.map(month => {
-                    if (typeof month === 'object' && month.sales) {
-                        return Math.round(Number(month.sales) || 0);
-                    }
-                    return Math.round(Number(month) || 0);
-                });
-                console.log(`${dept}: monthlyData形式使用（万円）`, monthlyData);
-            }
-            // 旧形式（sales単一値）
-            else if (data.sales && typeof data.sales === 'number') {
-                const monthlySales = Math.round(data.sales / 12);
-                monthlyData = new Array(12).fill(monthlySales);
-                console.log(`${dept}: 旧形式sales使用（万円）`, monthlyData);
-            }
-
-            const result = {
-                sales: monthlyData.reduce((sum, month) => sum + month, 0),
-                monthlyData: monthlyData,
-                lastUpdate: data.timestamp || data.lastUpdate || new Date().toLocaleString()
-            };
-            
-            console.log(`${dept}部門抽出結果:`, result);
-            return result;
-        }
-
-        // 月次PLテーブル更新
-        function updateMonthlyPLTable() {
-            const months = ['jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar', 'apr', 'may', 'jun'];
-            const departments = ['sr', 'w', 'rc', 'rcd'];
-            let totalSalesYear = 0;
-            
-            const commonExpenses = calculateCommonExpenses();
-
-            months.forEach((month, index) => {
-                let monthlySalesTotal = 0;
-                departments.forEach(dept => {
-                    const sales = departmentData[dept].monthlyData[index] || 0;
-                    document.getElementById(`${dept}-sales-${month}`).textContent = sales.toLocaleString();
-                    monthlySalesTotal += sales;
-                });
-
-                document.getElementById(`total-sales-${month}`).innerHTML = `<strong>${monthlySalesTotal.toLocaleString()}</strong>`;
-                document.getElementById(`gross-profit-${month}`).innerHTML = `<strong>${monthlySalesTotal.toLocaleString()}</strong>`;
-                totalSalesYear += monthlySalesTotal;
-
-                const totalExpense = commonExpenses[month];
-                const operatingProfit = monthlySalesTotal - totalExpense;
-                const profitElement = document.getElementById(`operating-profit-${month}`);
-                profitElement.innerHTML = `<strong>${operatingProfit.toLocaleString()}</strong>`;
-                profitElement.style.color = operatingProfit < 0 ? '#e74c3c' : '#27ae60';
+                const legalWelfare = Math.round(totalExecutiveSalary * commonExpensesData.welfareRate);
+                const otherExpenses = commonExpensesData.otherExpenses[month];
+                const commonExpensesMonthly = totalExecutiveSalary + legalWelfare + otherExpenses;
                 
-                // 販管費詳細の更新
-                updateExpenseDetails(month, totalExpense);
+                return departmentProfits[index] - commonExpensesMonthly;
             });
 
-            departments.forEach(dept => {
-                document.getElementById(`${dept}-sales-total`).textContent = departmentData[dept].sales.toLocaleString();
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: monthNames,
+                    datasets: [
+                        {
+                            label: '事業部営業利益合計',
+                            data: departmentProfits,
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.4
+                        },
+                        {
+                            label: '最終営業利益（共通経費控除後）',
+                            data: finalProfits,
+                            borderColor: '#e74c3c',
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: { size: 10 }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                            ticks: { font: { size: 9 } }
+                        },
+                        x: {
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                            ticks: { font: { size: 9 } }
+                        }
+                    }
+                }
             });
-
-            ['total-sales-year', 'gross-profit-year'].forEach(id => {
-                document.getElementById(id).innerHTML = `<strong>${totalSalesYear.toLocaleString()}</strong>`;
-            });
-
-            const totalYearExpenses = Object.values(commonExpenses).reduce((sum, exp) => sum + exp, 0);
-            const totalOperatingProfit = totalSalesYear - totalYearExpenses;
-            const totalProfitElement = document.getElementById('operating-profit-year');
-            totalProfitElement.innerHTML = `<strong>${totalOperatingProfit.toLocaleString()}</strong>`;
-            totalProfitElement.style.color = totalOperatingProfit < 0 ? '#e74c3c' : '#27ae60';
-
-            return { totalSalesYear, totalOperatingProfit, totalYearExpenses };
         }
 
-        // 販管費詳細更新
-        function updateExpenseDetails(month, totalExpense) {
-            const months = ['jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar', 'apr', 'may', 'jun'];
-            const monthIndex = months.indexOf(month);
+        function toggleCalculationMode() {
+            const btn = document.getElementById('calculation-mode-btn');
             
-            // 役員報酬計算
-            let monthlySalary = executiveSalaryMonthly;
-            if (monthIndex <= 2) {  // 7-9月は高額期間
-                monthlySalary += 1500;
-            }
-            if (month === 'jun') {  // 6月は賞与加算
-                monthlySalary += executiveBonusAmount;
-            }
-            
-            // 法定福利費計算
-            const welfare = Math.round(monthlySalary * 0.13002);
-            
-            // テーブル更新
-            const salaryElement = document.getElementById(`salary-${month}`);
-            const welfareElement = document.getElementById(`welfare-${month}`);
-            const expenseElement = document.getElementById(`total-expenses-${month}`);
-            
-            if (salaryElement) salaryElement.textContent = monthlySalary.toLocaleString();
-            if (welfareElement) welfareElement.textContent = welfare.toLocaleString();
-            if (expenseElement) expenseElement.innerHTML = `<strong>${totalExpense.toLocaleString()}</strong>`;
-        }
-
-        // ステータス更新
-        function updateLinkageStatus(loadedCount, hasData) {
-            const statusElement = document.getElementById('linkage-status');
-            const updateElement = document.getElementById('last-update');
-            
-            if (hasData) {
-                statusElement.className = 'linkage-status linkage-success';
-                statusElement.innerHTML = `✓ ${loadedCount}/4事業部データ連携完了`;
-            } else if (loadedCount > 0) {
-                statusElement.className = 'linkage-status linkage-warning';
-                statusElement.innerHTML = `⚠ ${loadedCount}/4事業部データ読み込み済み（売上未入力）`;
+            if (calculationMode.current === 'simulation') {
+                calculationMode.current = 'hybrid';
+                btn.textContent = 'ハイブリッドモード';
+                btn.className = 'target-toggle toggle-active';
             } else {
-                statusElement.className = 'linkage-status linkage-error';
-                statusElement.innerHTML = '✗ データが見つかりません';
-            }
-            
-            updateElement.textContent = new Date().toLocaleString();
-        }
-
-        // CSV出力
-        function exportCSV() {
-            try {
-                const csvData = [
-                    ['項目', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月', '年間合計']
-                ];
-                
-                const departments = ['sr', 'w', 'rc', 'rcd'];
-                const departmentNames = ['SR事業部売上', 'W事業部売上', 'RC卸事業部売上', 'RCD社事業部売上'];
-                
-                departments.forEach((dept, i) => {
-                    const row = [departmentNames[i]];
-                    departmentData[dept].monthlyData.forEach(value => row.push(value || 0));
-                    row.push(departmentData[dept].sales);
-                    csvData.push(row);
-                });
-                
-                const csvContent = csvData.map(row => row.join(',')).join('\n');
-                const bom = '\uFEFF';
-                const csvBlob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
-                
-                const now = new Date();
-                const timestamp = now.getFullYear() + 
-                    String(now.getMonth() + 1).padStart(2, '0') + 
-                    String(now.getDate()).padStart(2, '0') + '_' +
-                    String(now.getHours()).padStart(2, '0') + 
-                    String(now.getMinutes()).padStart(2, '0');
-                const filename = `統合PL分析_${timestamp}.csv`;
-                
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(csvBlob);
-                link.download = filename;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                alert(`CSV出力完了\nファイル名: ${filename}`);
-                
-            } catch (error) {
-                console.error('CSV出力エラー:', error);
-                alert('CSV出力中にエラーが発生しました。');
+                calculationMode.current = 'simulation';
+                btn.textContent = 'シミュレーションモード';
+                btn.className = 'target-toggle toggle-inactive';
             }
         }
 
-        // 役員報酬更新機能
-        function updateExecutiveSalary() {
-            const newSalary = parseInt(document.getElementById('executive-salary').value) || 6755;
-            executiveSalaryMonthly = newSalary;
+        function toggleBudgetLock() {
+            const checkbox = document.getElementById('budget-lock');
+            const statusSpan = document.getElementById('budget-status');
             
-            console.log(`役員報酬更新: ${executiveSalaryMonthly}万円/月`);
+            budgetManagement.currentBudget.locked = checkbox.checked;
             
-            // 再計算とテーブル更新
-            updateMonthlyPLTable();
-            updateComparisonChart();
+            if (checkbox.checked) {
+                statusSpan.textContent = 'ロック済み';
+                statusSpan.style.color = '#e74c3c';
+            } else {
+                statusSpan.textContent = '未設定';
+                statusSpan.style.color = '#666';
+            }
         }
 
-        // 役員賞与更新機能
-        function updateExecutiveBonus() {
-            const newBonus = parseInt(document.getElementById('executive-bonus').value) || 300;
-            executiveBonusAmount = newBonus;
+        function setBudgetFromSource() {
+            const source = document.querySelector('input[name="budget-source"]:checked').value;
+            budgetManagement.currentBudget.source = source;
+            budgetManagement.currentBudget.setDate = new Date();
             
-            console.log(`役員賞与更新: ${executiveBonusAmount}万円`);
-            
-            // 再計算とテーブル更新
-            updateMonthlyPLTable();
-            updateComparisonChart();
+            document.getElementById('budget-status').textContent = `設定済み(${source})`;
+            alert(`予算が${source}から設定されました。`);
         }
 
-        // デバッグ用関数
-        function debugLocalStorage() {
-            console.log('=== localStorage診断結果 ===');
-            
-            // 新ルールキーをチェック
-            const keys = [LOCAL_STORAGE_KEYS.sr_data, LOCAL_STORAGE_KEYS.w_data, LOCAL_STORAGE_KEYS.rc_data, LOCAL_STORAGE_KEYS.rcd_data, LOCAL_STORAGE_KEYS.executive_data];
-            
-            keys.forEach(key => {
-                const data = localStorage.getItem(key);
-                if (data) {
-                    try {
-                        const parsed = JSON.parse(data);
-                        console.log(`${key}:`, parsed);
-                        
-                        if (parsed.monthlySales) {
-                            console.log(`  月次売上合計: ${parsed.monthlySales.reduce((a,b) => a+b, 0)}万円`);
-                        }
-                        if (parsed.adjustment !== undefined || parsed.bonusAmount !== undefined) {
-                            console.log(`  役員報酬調整: ${parsed.adjustment || 0}万円, 賞与: ${parsed.bonusAmount || 0}万円`);
-                        }
-                    } catch (e) {
-                        console.error(`${key} パースエラー:`, e);
-                    }
-                } else {
-                    console.log(`${key}: データなし`);
-                }
-            });
+        function reloadAllData() {
+            updateCommonExpensesDisplay();
+            calculateAndUpdateKPIs();
+            alert('全データを再読み込みしました。');
         }
 
-        // サンプルデータ作成（テスト用）
-        function createSampleData() {
-            console.log('=== サンプルデータ作成 ===');
-            
-            // SRサンプルデータ
-            const srSampleData = {
-                monthlySales: [2500, 2600, 2700, 2800, 2900, 3000, 2400, 2500, 2600, 2700, 2800, 2900],
-                timestamp: new Date().toISOString()
-            };
-            
-            // Wサンプルデータ  
-            const wSampleData = {
-                monthlySales: [1200, 1300, 1400, 1500, 1600, 1700, 1100, 1200, 1300, 1400, 1500, 1600],
-                timestamp: new Date().toISOString()
-            };
-            
-            localStorage.setItem(LOCAL_STORAGE_KEYS.sr_data, JSON.stringify(srSampleData));
-            localStorage.setItem(LOCAL_STORAGE_KEYS.w_data, JSON.stringify(wSampleData));
-            
-            console.log('SRサンプルデータ作成:', srSampleData);
-            console.log('Wサンプルデータ作成:', wSampleData);
-            
-            alert('サンプルデータを作成しました。「データ再読み込み」を実行してください。');
+        function exportTotalPL() {
+            alert('統合PLエクスポート機能を実行します。');
         }
 
-        // 全データ読み込み（メイン関数）
+        function updateElement(elementId, value) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = value;
+            }
+        }
+
+        // 新規追加: loadAllData関数（PL合算ページでデータ更新時に使用）
         function loadAllData() {
-            console.log('統合ダッシュボード: データ更新開始...');
-            
-            // ダッシュボードから役員報酬データを読み込み
-            loadExecutiveDataFromDashboard();
-            
-            // 部門データ読み込み
-            loadDepartmentData();
-            
-            // テーブル・チャート更新
-            updateMonthlyPLTable();
-            updateComparisonChart();
-            
-            console.log('統合ダッシュボード: データ更新完了');
+            // 役員報酬データの再読み込み
+            loadExecutiveData();
+            updateCommonExpensesDisplay();
+            calculateAndUpdateKPIs();
+            console.log('全体PL分析ページ: データ更新完了');
         }
-
-        // 初期化
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('統合ダッシュボード初期化開始（完全書き直し版）...');
-            migrateLocalStorageData();
-            initializeComparisonChart();
-            loadAllData();
-            console.log('統合ダッシュボード初期化完了');
-        });
     </script>
 </body>
 </html>
