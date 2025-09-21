@@ -360,6 +360,11 @@
                         <td class="controls-cell">
                             <div class="control-group">
                                 <div class="control-item">
+                                    <span>役員報酬:</span>
+                                    <input type="number" id="executive-salary" value="6755" min="0" max="10000" step="100" onchange="updateExecutiveSalary()" style="width: 80px; padding: 4px; border: 1px solid #ccc; border-radius: 3px;">
+                                    <span style="font-size: 11px;">万円/月</span>
+                                </div>
+                                <div class="control-item">
                                     <span>表示期間:</span>
                                     <select id="period-select">
                                         <option value="12">年間（12ヶ月）</option>
@@ -915,7 +920,7 @@
             comparisonChart.update();
         }
 
-        // 修正版: データ読み込み関数
+        // 修正版: データ読み込み関数（販管費対応版）
         function loadDepartmentData() {
             const departments = ['sr', 'w', 'rc', 'rcd'];
             let loadedCount = 0, hasData = false;
@@ -954,9 +959,33 @@
                 }
             });
 
+            // 統合データ（計算済みPL）の読み込み
+            loadCombinedPLData();
+
             updateLinkageStatus(loadedCount, hasData);
             console.log('全データ読み込み完了:', departmentData);
             return { loadedCount, hasData };
+        }
+
+        // 新規: 統合PLデータ読み込み（販管費含む）
+        function loadCombinedPLData() {
+            try {
+                const combinedData = localStorage.getItem('pl_system_combined_data');
+                if (combinedData) {
+                    const parsed = JSON.parse(combinedData);
+                    console.log('統合PLデータ取得:', parsed);
+                    
+                    // 各事業部の計算済みデータを反映
+                    ['sr', 'w', 'rc', 'rcd'].forEach(dept => {
+                        if (parsed[dept] && parsed[dept].monthly) {
+                            departmentData[dept].expensesData = parsed[dept].monthly;
+                            console.log(`${dept}: 販管費データ取得済み`);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('統合PLデータ読み込みエラー:', error);
+            }
         }
 
         // 修正版: データ抽出関数
@@ -1128,13 +1157,31 @@
             }
         }
 
-        // 全データ読み込み
-        function loadAllData() {
-            console.log('=== 手動データ読み込み開始 ===');
-            const result = loadDepartmentData();
+        // 役員報酬更新機能
+        function updateExecutiveSalary() {
+            const executiveSalary = parseInt(document.getElementById('executive-salary').value) || 6755;
+            
+            // 役員報酬のテーブル行を更新（20番目の行）
+            const salaryRows = document.querySelectorAll('.pl-table tr');
+            if (salaryRows.length > 20) {
+                const salaryRow = salaryRows[20]; // 役員報酬行
+                const cells = salaryRow.querySelectorAll('td');
+                
+                // 7-9月（高額期間）
+                for (let i = 1; i <= 3; i++) {
+                    cells[i].textContent = (executiveSalary + 1500).toLocaleString();
+                }
+                // 10-6月（通常期間）
+                for (let i = 4; i <= 12; i++) {
+                    cells[i].textContent = executiveSalary.toLocaleString();
+                }
+                // 年間計
+                const yearTotal = (executiveSalary * 9) + ((executiveSalary + 1500) * 3);
+                cells[13].textContent = yearTotal.toLocaleString();
+            }
+            
+            // 販管費計と営業利益を再計算
             updateMonthlyPLTable();
-            updateComparisonChart();
-            console.log(`データ読み込み完了: ${result.loadedCount}/4事業部, データあり: ${result.hasData}`);
         }
 
         // デバッグ用関数
