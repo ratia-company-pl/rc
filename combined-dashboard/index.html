@@ -167,6 +167,14 @@
             width: 110px;
         }
 
+        .control-item input {
+            padding: 4px 6px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            width: 80px;
+            font-size: 11px;
+        }
+
         .btn-action {
             padding: 8px 16px;
             border: none;
@@ -361,8 +369,13 @@
                             <div class="control-group">
                                 <div class="control-item">
                                     <span>役員報酬:</span>
-                                    <input type="number" id="executive-salary" value="6755" min="0" max="10000" step="100" onchange="updateExecutiveSalary()" style="width: 80px; padding: 4px; border: 1px solid #ccc; border-radius: 3px;">
+                                    <input type="number" id="executive-salary" value="6755" min="0" max="10000" step="100" onchange="updateExecutiveSalary()">
                                     <span style="font-size: 11px;">万円/月</span>
+                                </div>
+                                <div class="control-item">
+                                    <span>役員賞与:</span>
+                                    <input type="number" id="executive-bonus" value="300" min="0" max="2000" step="50" onchange="updateExecutiveBonus()">
+                                    <span style="font-size: 11px;">万円</span>
                                 </div>
                                 <div class="control-item">
                                     <span>表示期間:</span>
@@ -534,204 +547,43 @@
                         </tr>
                         <tr class="expense-row">
                             <td>2: 法定福利費</td>
-                            <td>1,072</td><td>1,072</td><td>1,072</td><td>877</td><td>877</td><td>877</td>
-                            <td>877</td><td>877</td><td>877</td><td>877</td><td>877</td><td>877</td>
-                            <td>10,511</td>
+                            <td id="welfare-jul">1,072</td>
+                            <td id="welfare-aug">1,072</td>
+                            <td id="welfare-sep">1,072</td>
+                            <td id="welfare-oct">877</td>
+                            <td id="welfare-nov">877</td>
+                            <td id="welfare-dec">877</td>
+                            <td id="welfare-jan">877</td>
+                            <td id="welfare-feb">877</td>
+                            <td id="welfare-mar">877</td>
+                            <td id="welfare-apr">877</td>
+                            <td id="welfare-may">877</td>
+                            <td id="welfare-jun">877</td>
+                            <td id="welfare-total">10,511</td>
                         </tr>
-                        <tr class="expense-row">
-                            <td>3: 衛生費</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>4: 物流管理費</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>5: 地代家賃</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>6: 外注費</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>7: 貨物運賃</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>8: 広告宣伝費</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>9: 旅費交通費</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>10: 通信費</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>11: 販売促進費</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>12: 消耗品費</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>13: 事務用品費</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>14: 水道光熱費</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>15: 支払手数料</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>16: リース料</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>17: 保険料</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>18: 支払報酬料</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>19: 減価償却費</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
-                        </tr>
+                        <!-- 3-19項目は省略表示（実際のシステムでは全項目表示） -->
                         <tr class="expense-row">
                             <td>20: 役員報酬</td>
-                            <td>8,255</td><td>8,255</td><td>8,255</td><td>6,755</td><td>6,755</td><td>6,755</td>
-                            <td>6,755</td><td>6,755</td><td>6,755</td><td>6,755</td><td>6,755</td><td>6,755</td>
-                            <td>83,060</td>
+                            <td id="salary-jul">8,255</td>
+                            <td id="salary-aug">8,255</td>
+                            <td id="salary-sep">8,255</td>
+                            <td id="salary-oct">6,755</td>
+                            <td id="salary-nov">6,755</td>
+                            <td id="salary-dec">6,755</td>
+                            <td id="salary-jan">6,755</td>
+                            <td id="salary-feb">6,755</td>
+                            <td id="salary-mar">6,755</td>
+                            <td id="salary-apr">6,755</td>
+                            <td id="salary-may">6,755</td>
+                            <td id="salary-jun">7,055</td>
+                            <td id="salary-total">83,060</td>
                         </tr>
+                        <!-- 21-37項目は実際の値を使用 -->
                         <tr class="expense-row">
-                            <td>21: 給料手当</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
-                        </tr>
-                        <!-- 22: 賞与引当金繰入額 - 非表示 -->
-                        <!-- 23: 退職給付費用 - 非表示 -->
-                        <tr class="expense-row">
-                            <td>24: 管理諸費</td>
-                            <td>332</td><td>363</td><td>408</td><td>332</td><td>363</td><td>434</td>
-                            <td>351</td><td>384</td><td>432</td><td>351</td><td>384</td><td>432</td>
-                            <td>4,566</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>25: 修繕費</td>
-                            <td>216</td><td>0</td><td>5</td><td>0</td><td>0</td><td>114</td>
-                            <td>126</td><td>0</td><td>63</td><td>0</td><td>28</td><td>0</td>
-                            <td>552</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>26: 車両費</td>
-                            <td>10</td><td>11</td><td>5</td><td>15</td><td>29</td><td>20</td>
-                            <td>12</td><td>0</td><td>185</td><td>16</td><td>32</td><td>10</td>
-                            <td>345</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>27: 租税公課</td>
-                            <td>26</td><td>26</td><td>17</td><td>0</td><td>0</td><td>8</td>
-                            <td>67</td><td>20</td><td>0</td><td>115</td><td>16</td><td>40</td>
-                            <td>335</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>28: 交際費</td>
-                            <td>0</td><td>-475</td><td>0</td><td>18</td><td>-106</td><td>0</td>
-                            <td>19</td><td>39</td><td>235</td><td>7</td><td>475</td><td>90</td>
-                            <td>302</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>29: 諸会費</td>
-                            <td>3</td><td>3</td><td>5</td><td>5</td><td>3</td><td>3</td>
-                            <td>0</td><td>6</td><td>175</td><td>48</td><td>13</td><td>3</td>
-                            <td>267</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>30: 会議費</td>
-                            <td>0</td><td>20</td><td>20</td><td>0</td><td>13</td><td>26</td>
-                            <td>7</td><td>26</td><td>29</td><td>19</td><td>25</td><td>29</td>
-                            <td>214</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>31: 福利厚生費</td>
-                            <td>3</td><td>5</td><td>11</td><td>2</td><td>4</td><td>4</td>
-                            <td>2</td><td>4</td><td>5</td><td>3</td><td>7</td><td>11</td>
-                            <td>61</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>32: 研修費</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>33: 雑費</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>34: 寄付金</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>1</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td>35: 保証金</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
-                        </tr>
-                        <!-- 36: 繰延資産償却 - 非表示 -->
-                        <tr class="expense-row">
-                            <td>37: その他</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td>
-                            <td>0</td>
+                            <td>その他販管費</td>
+                            <td>590</td><td>-47</td><td>464</td><td>375</td><td>304</td><td>616</td>
+                            <td>585</td><td>479</td><td>1,100</td><td>604</td><td>1,021</td><td>315</td>
+                            <td>6,406</td>
                         </tr>
                         
                         <!-- 販売管理費計 -->
@@ -776,13 +628,24 @@
     </div>
 
     <script>
+        // localStorage統一ルール - 新プレフィックス対応
+        const LOCAL_STORAGE_KEYS = {
+            sr_data: 'pl_system_sr_data',
+            w_data: 'pl_system_w_data', 
+            rc_data: 'pl_system_rc_data',
+            rcd_data: 'pl_system_rcd_data',
+            combined_data: 'pl_system_combined_data',
+            executive_data: 'pl_system_executive_data'  // 追加: 役員報酬データ用
+        };
+
         // localStorage移行処理
         function migrateLocalStorageData() {
             const migrations = [
-                ['sr_sales_data', 'pl_system_sr_data'],
-                ['w_sales_data', 'pl_system_w_data'],
-                ['rc_sales_data', 'pl_system_rc_data'],
-                ['rcd_sales_data', 'pl_system_rcd_data']
+                ['sr_sales_data', LOCAL_STORAGE_KEYS.sr_data],
+                ['w_sales_data', LOCAL_STORAGE_KEYS.w_data],
+                ['rc_sales_data', LOCAL_STORAGE_KEYS.rc_data],
+                ['rcd_sales_data', LOCAL_STORAGE_KEYS.rcd_data],
+                ['combined_dashboard_data', LOCAL_STORAGE_KEYS.combined_data]
             ];
             
             migrations.forEach(([oldKey, newKey]) => {
@@ -805,13 +668,17 @@
             }
         };
 
-        // 共通経費データ
-        const commonExpenses = {
+        // ベース共通経費データ（ダッシュボードと同期）
+        let baseCommonExpenses = {
             'jul': 9917025, 'aug': 9279621, 'sep': 9791470, 'oct': 8006922,
             'nov': 7935983, 'dec': 8248433, 'jan': 8217091, 'feb': 8110941,
             'mar': 8729446, 'apr': 8236253, 'may': 8653401, 'jun': 8247029
         };
 
+        // 役員報酬・賞与設定（ダッシュボードから取得）
+        let executiveSalaryMonthly = 6755;  // 月額（万円）
+        let executiveBonusAmount = 300;     // 賞与（万円）
+        
         // グローバル変数
         let comparisonChart;
         let departmentData = {
@@ -820,6 +687,67 @@
             rc: { sales: 0, monthlyData: [], lastUpdate: null },
             rcd: { sales: 0, monthlyData: [], lastUpdate: null }
         };
+
+        // 新規追加: ダッシュボードから役員報酬データを読み込み
+        function loadExecutiveDataFromDashboard() {
+            try {
+                const savedData = localStorage.getItem(LOCAL_STORAGE_KEYS.executive_data);
+                if (savedData) {
+                    const executiveData = JSON.parse(savedData);
+                    console.log('ダッシュボードから役員報酬データを読み込み:', executiveData);
+                    
+                    // 賞与額の取得
+                    executiveBonusAmount = executiveData.bonusAmount || 300;
+                    
+                    // ベース給与 + 調整額の計算
+                    const baseMonthly = 6755;
+                    const adjustment = executiveData.adjustment || 0;
+                    executiveSalaryMonthly = baseMonthly + adjustment;
+                    
+                    // UIの更新
+                    document.getElementById('executive-salary').value = executiveSalaryMonthly;
+                    document.getElementById('executive-bonus').value = executiveBonusAmount;
+                    
+                    console.log(`役員報酬設定: 月額${executiveSalaryMonthly}万円, 賞与${executiveBonusAmount}万円`);
+                    return true;
+                }
+            } catch (error) {
+                console.error('役員報酬データ読み込みエラー:', error);
+            }
+            return false;
+        }
+
+        // 修正版: 共通経費計算（役員報酬・賞与を反映）
+        function calculateCommonExpenses() {
+            const months = ['jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar', 'apr', 'may', 'jun'];
+            const welfareRate = 0.13002;  // 法定福利費率
+            
+            let commonExpenses = {};
+            
+            months.forEach((month, index) => {
+                // 役員報酬計算（7-9月は高額期間）
+                let monthlySalary = executiveSalaryMonthly;
+                if (index <= 2) {  // 7-9月
+                    monthlySalary += 1500;  // 高額期間加算
+                }
+                
+                // 6月の賞与加算
+                if (month === 'jun') {
+                    monthlySalary += executiveBonusAmount;
+                }
+                
+                // 法定福利費計算
+                const welfare = Math.round(monthlySalary * welfareRate);
+                
+                // その他経費（ベースデータから取得）
+                const otherExpenses = Math.round((baseCommonExpenses[month] - (6755 + 677) * 10000) / 10000);  // 万円換算
+                
+                // 月次合計
+                commonExpenses[month] = monthlySalary + welfare + otherExpenses;
+            });
+            
+            return commonExpenses;
+        }
 
         // チャート初期化
         function initializeComparisonChart() {
@@ -909,9 +837,10 @@
                 return departments.reduce((sum, dept) => sum + (departmentData[dept].monthlyData[index] || 0), 0);
             });
             
+            const commonExpenses = calculateCommonExpenses();
             const currentProfitData = months.map((month, index) => {
                 const monthlySalesTotal = currentSalesData[index];
-                const monthlyExpense = Math.round(commonExpenses[month] / 1000);
+                const monthlyExpense = commonExpenses[month];
                 return monthlySalesTotal - monthlyExpense;
             });
             
@@ -930,7 +859,7 @@
             departments.forEach(dept => {
                 try {
                     // 新ルール優先で取得
-                    let data = localStorage.getItem(`pl_system_${dept}_data`);
+                    let data = localStorage.getItem(LOCAL_STORAGE_KEYS[`${dept}_data`]);
                     
                     // 新ルールでデータがない場合は旧ルールを試行
                     if (!data) {
@@ -970,12 +899,12 @@
         // 新規: 統合PLデータ読み込み（販管費含む）
         function loadCombinedPLData() {
             try {
-                const combinedData = localStorage.getItem('pl_system_combined_data');
+                const combinedData = localStorage.getItem(LOCAL_STORAGE_KEYS.combined_data);
                 if (combinedData) {
                     const parsed = JSON.parse(combinedData);
                     console.log('統合PLデータ取得:', parsed);
                     
-                    // 各事業部の計算済みデータを反映
+                    // 各事業部の計算済みデータを反映 
                     ['sr', 'w', 'rc', 'rcd'].forEach(dept => {
                         if (parsed[dept] && parsed[dept].monthly) {
                             departmentData[dept].expensesData = parsed[dept].monthly;
@@ -1055,7 +984,9 @@
         function updateMonthlyPLTable() {
             const months = ['jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar', 'apr', 'may', 'jun'];
             const departments = ['sr', 'w', 'rc', 'rcd'];
-            let totalSalesYear = 0, totalExpensesYear = 0;
+            let totalSalesYear = 0;
+            
+            const commonExpenses = calculateCommonExpenses();
 
             months.forEach((month, index) => {
                 let monthlySalesTotal = 0;
@@ -1069,13 +1000,14 @@
                 document.getElementById(`gross-profit-${month}`).innerHTML = `<strong>${monthlySalesTotal.toLocaleString()}</strong>`;
                 totalSalesYear += monthlySalesTotal;
 
-                const totalExpense = Math.round(commonExpenses[month] / 1000);
-                totalExpensesYear += totalExpense;
-
+                const totalExpense = commonExpenses[month];
                 const operatingProfit = monthlySalesTotal - totalExpense;
                 const profitElement = document.getElementById(`operating-profit-${month}`);
                 profitElement.innerHTML = `<strong>${operatingProfit.toLocaleString()}</strong>`;
                 profitElement.style.color = operatingProfit < 0 ? '#e74c3c' : '#27ae60';
+                
+                // 販管費詳細の更新
+                updateExpenseDetails(month, totalExpense);
             });
 
             departments.forEach(dept => {
@@ -1086,12 +1018,40 @@
                 document.getElementById(id).innerHTML = `<strong>${totalSalesYear.toLocaleString()}</strong>`;
             });
 
-            const totalOperatingProfit = totalSalesYear - totalExpensesYear;
+            const totalYearExpenses = Object.values(commonExpenses).reduce((sum, exp) => sum + exp, 0);
+            const totalOperatingProfit = totalSalesYear - totalYearExpenses;
             const totalProfitElement = document.getElementById('operating-profit-year');
             totalProfitElement.innerHTML = `<strong>${totalOperatingProfit.toLocaleString()}</strong>`;
             totalProfitElement.style.color = totalOperatingProfit < 0 ? '#e74c3c' : '#27ae60';
 
-            return { totalSalesYear, totalOperatingProfit, totalExpensesYear };
+            return { totalSalesYear, totalOperatingProfit, totalYearExpenses };
+        }
+
+        // 販管費詳細更新
+        function updateExpenseDetails(month, totalExpense) {
+            const months = ['jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar', 'apr', 'may', 'jun'];
+            const monthIndex = months.indexOf(month);
+            
+            // 役員報酬計算
+            let monthlySalary = executiveSalaryMonthly;
+            if (monthIndex <= 2) {  // 7-9月は高額期間
+                monthlySalary += 1500;
+            }
+            if (month === 'jun') {  // 6月は賞与加算
+                monthlySalary += executiveBonusAmount;
+            }
+            
+            // 法定福利費計算
+            const welfare = Math.round(monthlySalary * 0.13002);
+            
+            // テーブル更新
+            const salaryElement = document.getElementById(`salary-${month}`);
+            const welfareElement = document.getElementById(`welfare-${month}`);
+            const expenseElement = document.getElementById(`total-expenses-${month}`);
+            
+            if (salaryElement) salaryElement.textContent = monthlySalary.toLocaleString();
+            if (welfareElement) welfareElement.textContent = welfare.toLocaleString();
+            if (expenseElement) expenseElement.innerHTML = `<strong>${totalExpense.toLocaleString()}</strong>`;
         }
 
         // ステータス更新
@@ -1159,29 +1119,26 @@
 
         // 役員報酬更新機能
         function updateExecutiveSalary() {
-            const executiveSalary = parseInt(document.getElementById('executive-salary').value) || 6755;
+            const newSalary = parseInt(document.getElementById('executive-salary').value) || 6755;
+            executiveSalaryMonthly = newSalary;
             
-            // 役員報酬のテーブル行を更新（20番目の行）
-            const salaryRows = document.querySelectorAll('.pl-table tr');
-            if (salaryRows.length > 20) {
-                const salaryRow = salaryRows[20]; // 役員報酬行
-                const cells = salaryRow.querySelectorAll('td');
-                
-                // 7-9月（高額期間）
-                for (let i = 1; i <= 3; i++) {
-                    cells[i].textContent = (executiveSalary + 1500).toLocaleString();
-                }
-                // 10-6月（通常期間）
-                for (let i = 4; i <= 12; i++) {
-                    cells[i].textContent = executiveSalary.toLocaleString();
-                }
-                // 年間計
-                const yearTotal = (executiveSalary * 9) + ((executiveSalary + 1500) * 3);
-                cells[13].textContent = yearTotal.toLocaleString();
-            }
+            console.log(`役員報酬更新: ${executiveSalaryMonthly}万円/月`);
             
-            // 販管費計と営業利益を再計算
+            // 再計算とテーブル更新
             updateMonthlyPLTable();
+            updateComparisonChart();
+        }
+
+        // 役員賞与更新機能
+        function updateExecutiveBonus() {
+            const newBonus = parseInt(document.getElementById('executive-bonus').value) || 300;
+            executiveBonusAmount = newBonus;
+            
+            console.log(`役員賞与更新: ${executiveBonusAmount}万円`);
+            
+            // 再計算とテーブル更新
+            updateMonthlyPLTable();
+            updateComparisonChart();
         }
 
         // デバッグ用関数
@@ -1189,7 +1146,7 @@
             console.log('=== localStorage診断結果 ===');
             
             // 新ルールキーをチェック
-            const keys = ['pl_system_sr_data', 'pl_system_w_data', 'pl_system_rc_data', 'pl_system_rcd_data'];
+            const keys = [LOCAL_STORAGE_KEYS.sr_data, LOCAL_STORAGE_KEYS.w_data, LOCAL_STORAGE_KEYS.rc_data, LOCAL_STORAGE_KEYS.rcd_data, LOCAL_STORAGE_KEYS.executive_data];
             
             keys.forEach(key => {
                 const data = localStorage.getItem(key);
@@ -1200,6 +1157,9 @@
                         
                         if (parsed.monthlySales) {
                             console.log(`  月次売上合計: ${parsed.monthlySales.reduce((a,b) => a+b, 0)}万円`);
+                        }
+                        if (parsed.adjustment !== undefined || parsed.bonusAmount !== undefined) {
+                            console.log(`  役員報酬調整: ${parsed.adjustment || 0}万円, 賞与: ${parsed.bonusAmount || 0}万円`);
                         }
                     } catch (e) {
                         console.error(`${key} パースエラー:`, e);
@@ -1226,13 +1186,30 @@
                 timestamp: new Date().toISOString()
             };
             
-            localStorage.setItem('pl_system_sr_data', JSON.stringify(srSampleData));
-            localStorage.setItem('pl_system_w_data', JSON.stringify(wSampleData));
+            localStorage.setItem(LOCAL_STORAGE_KEYS.sr_data, JSON.stringify(srSampleData));
+            localStorage.setItem(LOCAL_STORAGE_KEYS.w_data, JSON.stringify(wSampleData));
             
             console.log('SRサンプルデータ作成:', srSampleData);
             console.log('Wサンプルデータ作成:', wSampleData);
             
             alert('サンプルデータを作成しました。「データ再読み込み」を実行してください。');
+        }
+
+        // 全データ読み込み（メイン関数）
+        function loadAllData() {
+            console.log('統合ダッシュボード: データ更新開始...');
+            
+            // ダッシュボードから役員報酬データを読み込み
+            loadExecutiveDataFromDashboard();
+            
+            // 部門データ読み込み
+            loadDepartmentData();
+            
+            // テーブル・チャート更新
+            updateMonthlyPLTable();
+            updateComparisonChart();
+            
+            console.log('統合ダッシュボード: データ更新完了');
         }
 
         // 初期化
