@@ -227,7 +227,7 @@
             margin-top: 20px;
         }
 
-        /* 月次PL表 */
+        /* 月次PLテーブル */
         .table-section {
             background: #f8f9fa;
             padding: 30px;
@@ -332,7 +332,7 @@
         <header class="header">
             <!-- 1行目: タイトル -->
             <div class="title-section">
-                <h1 class="main-title">全体PL分析システム（4事業部統合）</h1>
+                <h1 class="main-title">全体PLanalysis システム（4事業部統合）</h1>
             </div>
 
             <!-- 2行目: ナビゲーション -->
@@ -389,7 +389,7 @@
                 </div>
             </div>
 
-            <!-- 月次PL表 -->
+            <!-- 月次PLテーブル -->
             <div class="table-section">
                 <h3 class="section-title">📊 月次損益計算書（4事業部統合）</h3>
                 <table class="pl-table">
@@ -502,9 +502,9 @@
                             <td>0</td>
                         </tr>
                         
-                        <!-- 売上総損益 -->
+                        <!-- 売上総利益 -->
                         <tr class="profit-row">
-                            <td><strong>C: 売上総損益</strong></td>
+                            <td><strong>C: 売上総利益</strong></td>
                             <td id="gross-profit-jul"><strong>0</strong></td>
                             <td id="gross-profit-aug"><strong>0</strong></td>
                             <td id="gross-profit-sep"><strong>0</strong></td>
@@ -915,19 +915,39 @@
             comparisonChart.update();
         }
 
-        // データ読み込み
+        // 修正版: データ読み込み関数
         function loadDepartmentData() {
             const departments = ['sr', 'w', 'rc', 'rcd'];
             let loadedCount = 0, hasData = false;
 
+            console.log('=== データ読み込み開始 ===');
+
             departments.forEach(dept => {
                 try {
-                    const data = localStorage.getItem(`pl_system_${dept}_data`) || localStorage.getItem(`${dept}_sales_data`);
+                    // 新ルール優先で取得
+                    let data = localStorage.getItem(`pl_system_${dept}_data`);
+                    
+                    // 新ルールでデータがない場合は旧ルールを試行
+                    if (!data) {
+                        data = localStorage.getItem(`${dept}_sales_data`);
+                        console.log(`${dept}: 旧ルールキーで取得試行`);
+                    } else {
+                        console.log(`${dept}: 新ルールキーで取得成功`);
+                    }
+                    
                     if (data) {
                         const parsedData = JSON.parse(data);
+                        console.log(`${dept}部門データ取得:`, parsedData);
+                        
+                        // データ形式の統一処理
                         departmentData[dept] = extractFinancialData(parsedData, dept);
+                        
                         if (departmentData[dept].sales > 0) hasData = true;
                         loadedCount++;
+                        
+                        console.log(`${dept}部門処理後:`, departmentData[dept]);
+                    } else {
+                        console.warn(`${dept}部門: データが見つかりません`);
                     }
                 } catch (error) {
                     console.error(`${dept}事業部データ読み込みエラー:`, error);
@@ -935,31 +955,64 @@
             });
 
             updateLinkageStatus(loadedCount, hasData);
+            console.log('全データ読み込み完了:', departmentData);
             return { loadedCount, hasData };
         }
 
-        // 財務データ抽出
+        // 修正版: データ抽出関数
         function extractFinancialData(data, dept) {
+            console.log(`${dept}部門データ抽出開始:`, data);
+            
             if (!data || typeof data !== 'object') {
                 return { sales: 0, monthlyData: new Array(12).fill(0), lastUpdate: null };
             }
 
             let monthlyData = new Array(12).fill(0);
-            if (data.monthlyData && Array.isArray(data.monthlyData)) {
-                monthlyData = data.monthlyData.map(month => Math.round((month.sales || 0) / 1000));
-            } else if (data.sales) {
+            
+            // 新形式データの処理
+            if (data.monthlySales && Array.isArray(data.monthlySales)) {
+                monthlyData = data.monthlySales.map(sales => Math.round(sales / 1000));
+                console.log(`${dept}: 新形式monthlySales使用`, monthlyData);
+            }
+            // RCは特殊形式（baseSales + variations）
+            else if (dept === 'rc' && data.baseSales && Array.isArray(data.variations)) {
+                monthlyData = data.variations.map(variation => 
+                    Math.round((data.baseSales + variation) / 1000)
+                );
+                console.log(`${dept}: RC特殊形式使用`, monthlyData);
+            }
+            // RCDは特殊形式（purchases配列）
+            else if (dept === 'rcd' && Array.isArray(data.purchases)) {
+                monthlyData = data.purchases.map(purchase => 
+                    Math.round(purchase * 2000 * 1.03 / 1000)
+                );
+                console.log(`${dept}: RCD特殊形式使用`, monthlyData);
+            }
+            // monthlyDataがある場合
+            else if (data.monthlyData && Array.isArray(data.monthlyData)) {
+                monthlyData = data.monthlyData.map(month => 
+                    Math.round((month.sales || month || 0) / 1000)
+                );
+                console.log(`${dept}: monthlyData形式使用`, monthlyData);
+            }
+            // 旧形式（sales単一値）
+            else if (data.sales && typeof data.sales === 'number') {
                 const monthlySales = Math.round(data.sales / 12 / 1000);
                 monthlyData = new Array(12).fill(monthlySales);
+                console.log(`${dept}: 旧形式sales使用`, monthlyData);
             }
 
-            return {
+            const result = {
                 sales: monthlyData.reduce((sum, month) => sum + month, 0),
                 monthlyData: monthlyData,
-                lastUpdate: data.lastUpdate || new Date().toLocaleString()
+                lastUpdate: data.timestamp || data.lastUpdate || new Date().toLocaleString()
             };
+            
+            console.log(`${dept}部門抽出結果:`, result);
+            return result;
         }
 
-        // 月次PL表更新
+        // 月次PLテーブル更新
         function updateMonthlyPLTable() {
             const months = ['jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar', 'apr', 'may', 'jun'];
             const departments = ['sr', 'w', 'rc', 'rcd'];
@@ -1067,6 +1120,7 @@
 
         // 全データ読み込み
         function loadAllData() {
+            console.log('=== 手動データ読み込み開始 ===');
             const result = loadDepartmentData();
             updateMonthlyPLTable();
             updateComparisonChart();
