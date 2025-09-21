@@ -311,130 +311,76 @@
         }
 
         th, td {
-            padding: 8px 12px;
-            text-align: center;
+            padding: 10px 8px;
+            text-align: right;
             border: 1px solid #ddd;
-            font-size: 0.8em;
         }
 
         th {
             background: #34495e;
             color: white;
-            font-weight: 600;
+            font-weight: 700;
             position: sticky;
             top: 0;
-            z-index: 10;
+            font-size: 13px;
         }
 
-        .month-header {
-            background: #3498db !important;
-            color: white;
-        }
-
-        .total-header {
-            background: #e74c3c !important;
-            color: white;
-        }
-
-        .item-name {
+        th:first-child,
+        td:first-child {
             text-align: left;
-            font-weight: 600;
-            background: #ecf0f1;
-            padding-left: 12px;
-        }
-
-        .sales-row {
-            background: #e8f4fd;
-        }
-
-        .gross-profit-row {
-            background: #d5f4e6;
-            font-weight: 600;
-        }
-
-        .expense-row {
-            background: #fdf2e9;
-        }
-
-        .total-expense-row {
-            background: #fadbd8;
-            font-weight: 600;
-        }
-
-        .operating-profit-row {
-            background: #d5f4e6;
             font-weight: 700;
-            color: #27ae60;
         }
 
-        .purchase-row {
-            background: #f8f9fa;
+        tr:hover {
+            background: rgba(52, 73, 94, 0.08);
         }
 
-        .fee-row {
-            background: #fff3cd;
-        }
+        /* 行タイプ別スタイル */
+        .sales-row { background: rgba(39, 174, 96, 0.12); }
+        .expense-row { background: rgba(231, 76, 60, 0.12); }
+        .profit-row { background: rgba(52, 152, 219, 0.12); font-weight: 700; }
+        .total-row { background: rgba(52, 73, 94, 0.25); font-weight: 700; }
+        .purchase-row { background: #f8f9fa; }
+        .fee-row { background: #fff3cd; }
 
-        .positive {
-            color: #27ae60 !important;
-            font-weight: 600;
-        }
-
-        .negative {
-            color: #e74c3c !important;
-            font-weight: 600;
-        }
+        .positive { color: #27ae60 !important; font-weight: 600; }
+        .negative { color: #e74c3c !important; font-weight: 600; }
 
         /* レスポンシブ対応 */
         @media (max-width: 768px) {
-            .container {
-                padding: 5px;
-            }
-
-            .header-row2 {
-                padding: 8px 15px;
-            }
-
+            .container { padding: 5px; }
+            
+            .main-title { font-size: 28px; }
+            
             .nav-buttons {
                 flex-direction: column;
                 gap: 8px;
                 align-items: stretch;
             }
-
+            
             .btn {
                 flex: none;
-                min-width: auto;
-                max-width: none;
                 width: 100%;
                 font-size: 0.85em;
                 padding: 10px 12px;
             }
-
-            .header-row3 {
-                padding: 10px 15px;
-            }
-
+            
             .kpi-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 8px;
-                max-width: 100%;
             }
-
-            .kpi-value {
-                font-size: 1.2em;
-            }
-
+            
             .table-header {
                 flex-direction: column;
                 gap: 10px;
                 align-items: flex-start;
             }
-
+            
             .table-actions {
                 flex-direction: column;
                 width: 100%;
             }
-
+            
             .chart-legend {
                 flex-direction: column;
                 gap: 8px;
@@ -470,7 +416,7 @@
                 <a href="../budget-input.html" class="btn btn-nav">予算入力</a>
                 <a href="sr-pl.html" class="btn btn-nav">SR事業部PL</a>
                 <a href="w-pl.html" class="btn btn-nav">W事業部PL</a>
-                <a href="rc-pl.html" class="btn btn-nav">RC卸事業部PL</a>
+                <a href="rc-pl.html" class="btn btn-nav">RC支店事業部PL</a>
                 <a href="../combined-dashboard/index.html" class="btn btn-nav">全体PL分析</a>
             </div>
         </div>
@@ -504,7 +450,7 @@
         <!-- 4行目: 連携ステータス -->
         <div class="header-row4">
             <div id="linkage-status" class="linkage-status linkage-warning">
-                データ連携: ⚠ 連携データを確認中...
+                ✗ データが見つかりません
             </div>
             <p class="dept-subtitle">外部委託型特殊処理・仕入単価2,000万円/本・利益率3%固定・支払手数料90.6万円×回数</p>
         </div>
@@ -543,7 +489,7 @@
             <!-- 仕様説明（PLテーブル下に移動） -->
             <div class="spec-info">
                 <strong>RCD社事業部特有仕様・計算仕様</strong><br>
-                仕入単価: 2,000万円/本　　利益率: 3%固定　　支払手数料: 1件90.6万円×回数　　外部委託: 人件費・経費0円
+                仕入単価: 2,000万円/本　　　利益率: 3%固定　　　支払手数料: 1件90.6万円×回数　　　外部委託: 人件費・経費0円
             </div>
         </div>
 
@@ -610,10 +556,10 @@
 
         // 連携状態表示更新
         function updateLinkageStatus(type, message) {
-            const statusDiv = document.getElementById('linkage-status');
-            if (statusDiv) {
-                statusDiv.className = `linkage-status linkage-${type}`;
-                statusDiv.innerHTML = `
+            const statusElement = document.getElementById('linkage-status');
+            if (statusElement) {
+                statusElement.className = `linkage-status linkage-${type}`;
+                statusElement.innerHTML = `
                     <strong>${type === 'success' ? '✓' : type === 'warning' ? '⚠' : '✗'}</strong>
                     ${message}
                 `;
@@ -873,7 +819,7 @@
                             <td><strong>${formatNumber(annual.purchases)}</strong></td>
                             <td class="negative">+${formatNumber(Math.round(annual.purchases * 0.03))}</td>
                         </tr>
-                        <tr class="gross-profit-row">
+                        <tr class="profit-row">
                             <td class="item-name">売上総利益</td>
                             ${monthlyResults.map(m => `<td>${formatNumber(m.grossProfit)}</td>`).join('')}
                             <td><strong>${formatNumber(annual.grossProfit)}</strong></td>
@@ -886,13 +832,13 @@
                             <td><strong>${formatNumber(annual.fees)} (${annual.feeOccurrences}回)</strong></td>
                             <td>-</td>
                         </tr>
-                        <tr class="total-expense-row">
+                        <tr class="total-row">
                             <td class="item-name">販売管理費計</td>
                             ${monthlyResults.map(m => `<td>${formatNumber(m.totalExpenses)}</td>`).join('')}
                             <td><strong>${formatNumber(annual.totalExpenses)}</strong></td>
                             <td>${annual.totalExpenses > 0 ? '+' : ''}${formatNumber(Math.round(annual.totalExpenses * 0.05))}</td>
                         </tr>
-                        <tr class="operating-profit-row">
+                        <tr class="profit-row">
                             <td class="item-name">営業利益</td>
                             ${monthlyResults.map(m => `<td class="${m.operatingProfit >= 0 ? 'positive' : 'negative'}">${formatNumber(m.operatingProfit)}</td>`).join('')}
                             <td class="${annual.operatingProfit >= 0 ? 'positive' : 'negative'}"><strong>${formatNumber(annual.operatingProfit)}</strong></td>
@@ -911,74 +857,55 @@
             window.rcdCurrentResults = { monthlyResults, annual };
         }
 
-        // 各事業部PLファイルの updateDashboard() 関数を以下に置き換えてください
+        // 修正版updateDashboard関数
+        function updateDashboard() {
+            if (!window.rcdCurrentResults) return;
+            const { monthlyResults, annual } = window.rcdCurrentResults;
 
-function updateDashboard() {
-    if (!window.srCurrentResults) return; // 各事業部に応じて変更（sr/w/rc/rcd）
+            const rcdDashboardData = {
+                department: 'RCD社事業部',
+                annual: {
+                    sales: annual.sales,
+                    grossProfit: annual.grossProfit,
+                    totalExpenses: annual.totalExpenses,
+                    operatingProfit: annual.operatingProfit,
+                    expenses: {
+                        fees: annual.fees || 0,
+                        feeOccurrences: annual.feeOccurrences || 0
+                    }
+                },
+                monthly: monthlyResults.map(month => ({
+                    sales: month.sales,
+                    grossProfit: month.grossProfit,
+                    totalExpenses: month.totalExpenses,
+                    operatingProfit: month.operatingProfit,
+                    expenses: {
+                        fees: month.fees || 0,
+                        feeOccurrences: month.feeOccurrences || 0
+                    }
+                })),
+                linkageActive: linkageActive,
+                timestamp: new Date().toISOString()
+            };
 
-    const { monthlyResults, annual } = window.srCurrentResults; // 各事業部に応じて変更
+            try {
+                let combinedData = {};
+                const existingData = localStorage.getItem('pl_system_combined_data');
+                if (existingData) {
+                    combinedData = JSON.parse(existingData);
+                }
 
-    // ダッシュボード送信用データ準備（売上＋販管費込み）
-    const srDashboardData = { // 各事業部に応じて変更（sr/w/rc/rcd）
-        department: 'SR事業部', // 各事業部に応じて変更
-        annual: {
-            sales: annual.sales,
-            grossProfit: annual.grossProfit,
-            totalExpenses: annual.totalExpenses,
-            operatingProfit: annual.operatingProfit,
-            // 販管費詳細データも送信
-            expenses: {
-                personnel: annual.personnel || 0,
-                welfare: annual.welfare || 0,
-                logistics: annual.logistics || 0,
-                rent: annual.rent || 0,
-                advertising: annual.advertising || 0,
-                // 他の必要な費用項目も追加
+                combinedData.rcd = rcdDashboardData;
+                combinedData.lastUpdated = new Date().toISOString();
+
+                localStorage.setItem('pl_system_combined_data', JSON.stringify(combinedData));
+                localStorage.setItem('rcd_dashboard_data', JSON.stringify(rcdDashboardData));
+                
+                console.log('RCD社事業部データを自動送信しました:', rcdDashboardData);
+            } catch (error) {
+                console.error('ダッシュボードデータ自動送信エラー:', error);
             }
-        },
-        monthly: monthlyResults.map(month => ({
-            sales: month.sales,
-            grossProfit: month.grossProfit,
-            totalExpenses: month.totalExpenses,
-            operatingProfit: month.operatingProfit,
-            // 月次販管費詳細
-            expenses: {
-                personnel: month.personnel || 0,
-                welfare: month.welfare || 0,
-                logistics: month.logistics || 0,
-                rent: month.rent || 0,
-                advertising: month.advertising || 0,
-                // 他の必要な費用項目も追加
-            }
-        })),
-        linkageActive: linkageActive,
-        timestamp: new Date().toISOString()
-    };
-
-    // 自動送信：統合ダッシュボードデータを即座に更新
-    try {
-        // 既存の統合データを取得
-        let combinedData = {};
-        const existingData = localStorage.getItem('pl_system_combined_data');
-        if (existingData) {
-            combinedData = JSON.parse(existingData);
         }
-
-        // SR事業部データを更新（各事業部に応じて変更：sr/w/rc/rcd）
-        combinedData.sr = srDashboardData;
-        combinedData.lastUpdated = new Date().toISOString();
-
-        // 統合データを保存
-        localStorage.setItem('pl_system_combined_data', JSON.stringify(combinedData));
-        
-        // 個別データも保存（後方互換性）
-        localStorage.setItem('sr_dashboard_data', JSON.stringify(srDashboardData)); // 各事業部に応じて変更
-
-        console.log('SR事業部データを自動送信しました:', srDashboardData); // 各事業部に応じて変更
-    } catch (error) {
-        console.error('ダッシュボードデータ自動送信エラー:', error);
-    }
-}
 
         // CSV出力
         function exportToCSV() {
