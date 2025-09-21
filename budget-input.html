@@ -17,60 +17,61 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: #333;
+            overflow-x: hidden;
         }
         
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 15px;
         }
         
-        /* ヘッダー部 - 高情報密度版 */
+        /* ヘッダー部 - 超コンパクト版 */
         .header-section {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-radius: 8px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            padding: 12px 20px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 8px 15px;
         }
         
         .title-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         
         .main-title {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            font-size: 1.1rem;
+            font-size: 0.9rem;
             font-weight: 700;
-            padding: 8px 16px;
-            border-radius: 6px;
+            padding: 6px 12px;
+            border-radius: 4px;
             margin: 0;
         }
         
         .subtitle {
             color: #4a5568;
-            font-size: 0.9rem;
+            font-size: 0.75rem;
             font-weight: 600;
         }
         
         .kpi-cards {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            margin-bottom: 8px;
+            gap: 6px;
+            margin-bottom: 6px;
         }
         
         .kpi-card {
             color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
+            padding: 6px 8px;
+            border-radius: 4px;
             text-align: center;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
         }
         
         .kpi-card:nth-child(1) { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
@@ -79,28 +80,28 @@
         .kpi-card:nth-child(4) { background: linear-gradient(135deg, #7c3aed, #5b21b6); }
         
         .kpi-label {
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             opacity: 0.9;
             margin-bottom: 2px;
         }
         
         .kpi-value {
-            font-size: 1rem;
+            font-size: 0.8rem;
             font-weight: 700;
         }
         
         .action-buttons {
             display: flex;
-            gap: 6px;
+            gap: 4px;
             justify-content: center;
             flex-wrap: wrap;
         }
         
         .action-btn {
-            padding: 6px 12px;
+            padding: 4px 8px;
             border: none;
-            border-radius: 6px;
-            font-size: 0.8rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -116,109 +117,114 @@
             color: white;
         }
         
-        .action-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        .restore-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
         }
         
-        /* 事業部セクション - コンパクト版 */
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 事業部セクション - 超コンパクト版 */
         .department-section {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-radius: 12px;
-            margin-bottom: 20px;
-            padding: 20px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-            border-left: 4px solid var(--dept-color);
+            border-radius: 6px;
+            margin-bottom: 12px;
+            padding: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-left: 3px solid var(--dept-color);
         }
         
         .department-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 6px;
         }
         
         .department-title {
             display: flex;
             align-items: center;
-            font-size: 1.2rem;
+            font-size: 0.9rem;
             font-weight: 700;
             color: #2d3748;
         }
         
         .department-title::before {
             content: '';
-            width: 14px;
-            height: 14px;
+            width: 8px;
+            height: 8px;
             background: var(--dept-color);
             border-radius: 50%;
-            margin-right: 10px;
+            margin-right: 6px;
         }
         
         .annual-summary {
-            font-size: 0.85rem;
+            font-size: 0.7rem;
             font-weight: 600;
             color: var(--dept-color);
         }
         
-        /* チャート部分 - コンパクト版 */
+        /* チャート部分 - 超コンパクト版 */
         .chart-container {
-            height: 140px;
-            margin-bottom: 15px;
+            height: 80px;
+            margin-bottom: 8px;
             background: white;
-            border-radius: 6px;
-            padding: 8px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            padding: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             position: relative;
         }
         
         .chart-legend {
             position: absolute;
             top: 2px;
-            right: 8px;
+            right: 6px;
             display: flex;
-            gap: 8px;
-            font-size: 0.7rem;
+            gap: 6px;
+            font-size: 0.6rem;
             z-index: 10;
         }
         
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 3px;
+            gap: 2px;
         }
         
         .legend-color {
-            width: 8px;
-            height: 8px;
-            border-radius: 2px;
+            width: 6px;
+            height: 6px;
+            border-radius: 1px;
         }
         
         .legend-blue { background: rgba(59, 130, 246, 0.7); }
         .legend-green { background: rgba(34, 197, 94, 0.7); }
         
-        /* ボタン統合行 */
+        /* ボタン統合行 - 超コンパクト版 */
         .action-buttons-row {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 6px;
+            margin-bottom: 8px;
             flex-wrap: wrap;
             align-items: center;
         }
         
         .preset-buttons {
             display: flex;
-            gap: 8px;
+            gap: 3px;
             flex-wrap: wrap;
             flex: 1;
         }
         
         .preset-btn {
-            padding: 8px 16px;
+            padding: 3px 6px;
             border: none;
-            border-radius: 6px;
-            font-size: 0.85rem;
+            border-radius: 3px;
+            font-size: 0.65rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -231,20 +237,20 @@
         .preset-btn.purple { background: #805ad5; color: white; }
         
         .preset-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
         }
         
         .send-buttons {
             display: flex;
-            gap: 8px;
+            gap: 3px;
         }
         
         .send-btn {
-            padding: 10px 16px;
+            padding: 4px 8px;
             border: none;
-            border-radius: 6px;
-            font-size: 0.85rem;
+            border-radius: 3px;
+            font-size: 0.65rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -257,169 +263,148 @@
         .send-btn.rcd-send { background: linear-gradient(135deg, #805ad5, #6b46c1); }
         
         .send-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
         }
         
-        /* データテーブル - 修正版 */
+        /* データテーブル - 超コンパクト版 */
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.85rem;
+            font-size: 0.65rem;
             background: white;
-            border-radius: 8px;
+            border-radius: 4px;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            /* 確実な表示を保証 */
-            display: table !important;
-            visibility: visible !important;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 8px;
         }
         
         .data-table th,
         .data-table td {
             border: 1px solid #e2e8f0;
-            padding: 8px;
+            padding: 3px 4px;
             text-align: center;
-            /* セル内容の確実な表示 */
-            display: table-cell !important;
-            visibility: visible !important;
+            line-height: 1.1;
         }
         
         .data-table th {
             background: #f7fafc;
             font-weight: 600;
             color: #2d3748;
+            font-size: 0.6rem;
         }
         
         .data-table input {
             width: 100%;
-            padding: 4px 6px;
+            padding: 1px 3px;
             border: 1px solid #ddd;
             background: rgba(66, 153, 225, 0.1);
-            border-radius: 4px;
+            border-radius: 2px;
             text-align: center;
-            font-size: 0.8rem;
-            /* 入力フィールドの確実な表示 */
-            display: block !important;
-            visibility: visible !important;
+            font-size: 0.6rem;
+            height: 18px;
         }
         
         .data-table input:focus {
             background: rgba(66, 153, 225, 0.2);
-            outline: 2px solid #4299e1;
+            outline: 1px solid #4299e1;
         }
         
-        /* 設定統合エリア - 簡潔版 */
+        /* 設定統合エリア - 超コンパクト版 */
         .settings-consolidated {
             background: linear-gradient(135deg, #fffcf0, #fff8e1);
             border: 1px solid #f6e05e;
-            border-radius: 8px;
-            padding: 12px;
-            margin-top: 15px;
+            border-radius: 4px;
+            padding: 6px;
+            margin-top: 6px;
         }
         
         .settings-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            gap: 4px;
         }
         
         .setting-item {
             background: white;
-            padding: 8px;
-            border-radius: 4px;
+            padding: 3px;
+            border-radius: 2px;
             border: 1px solid #e2e8f0;
         }
         
         .setting-item label {
             display: block;
-            font-size: 0.75rem;
+            font-size: 0.6rem;
             font-weight: 600;
             color: #2d3748;
-            margin-bottom: 3px;
+            margin-bottom: 1px;
         }
         
         .setting-item input,
         .setting-item select {
             width: 100%;
-            padding: 4px 6px;
+            padding: 1px 3px;
             border: 1px solid #d2d6dc;
-            border-radius: 3px;
-            font-size: 0.75rem;
+            border-radius: 2px;
+            font-size: 0.6rem;
+            height: 18px;
         }
         
-        /* 情報表示エリア - テーブル下に移動 */
+        /* 情報表示エリア - 超コンパクト版 */
         .info-panel {
             background: rgba(59, 130, 246, 0.1);
             border: 1px solid rgba(59, 130, 246, 0.3);
-            border-radius: 6px;
-            padding: 10px;
-            margin-top: 15px;
+            border-radius: 4px;
+            padding: 4px;
+            margin-top: 6px;
         }
         
         .info-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 8px;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 3px;
         }
         
         .info-item {
-            font-size: 0.8rem;
+            font-size: 0.6rem;
         }
         
         .info-item strong {
             color: #1e40af;
         }
         
-        /* RC用の特別設定 */
+        /* RC用の特別設定 - 超コンパクト版 */
         .rc-target-setting {
             background: #ebf8ff;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            padding: 6px;
+            border-radius: 4px;
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 6px;
             flex-wrap: wrap;
         }
         
         .rc-target-input {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 3px;
         }
         
         .rc-target-input input {
-            width: 80px;
-            padding: 6px;
+            width: 50px;
+            padding: 2px;
             text-align: center;
             border: 1px solid #cbd5e0;
-            border-radius: 4px;
+            border-radius: 2px;
+            font-size: 0.6rem;
+            height: 18px;
         }
         
         .rc-current-display {
             font-weight: 600;
             color: #3182ce;
-        }
-        
-        /* 復元ボタンのスタイル */
-        .restore-btn {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-left: 10px;
-        }
-        
-        .restore-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+            font-size: 0.6rem;
         }
         
         /* レスポンシブ対応 */
@@ -428,27 +413,14 @@
                 grid-template-columns: repeat(2, 1fr);
             }
             
-            .action-buttons {
-                flex-direction: column;
-            }
-            
             .action-buttons-row {
                 flex-direction: column;
                 align-items: stretch;
             }
             
-            .preset-buttons {
-                justify-content: center;
-            }
-            
+            .preset-buttons,
             .send-buttons {
                 justify-content: center;
-            }
-            
-            .department-header {
-                grid-template-columns: 1fr;
-                text-align: center;
-                gap: 10px;
             }
             
             .settings-grid {
@@ -459,7 +431,7 @@
 </head>
 <body>
     <div class="container">
-        <!-- ヘッダー部 - KPIカード形式 -->
+        <!-- ヘッダー部 -->
         <div class="header-section">
             <div class="title-row">
                 <div class="main-title">4事業部統合PLシミュレーター - 予算入力システム</div>
@@ -495,7 +467,7 @@
                 <button class="action-btn btn-secondary" onclick="exportToJSON()">
                     データエクスポート
                 </button>
-                <button class="restore-btn" onclick="restoreFromLocalStorage()">
+                <button class="action-btn restore-btn" onclick="restoreFromLocalStorage()">
                     保存データ復元
                 </button>
             </div>
@@ -510,7 +482,6 @@
                 </div>
             </div>
             
-            <!-- チャート -->
             <div class="chart-container">
                 <div class="chart-legend">
                     <div class="legend-item">
@@ -525,7 +496,6 @@
                 <canvas id="sr-chart"></canvas>
             </div>
             
-            <!-- ボタン統合行 -->
             <div class="action-buttons-row">
                 <div class="preset-buttons">
                     <button class="preset-btn green" onclick="applySRPreset('actual')">実績値</button>
@@ -534,16 +504,11 @@
                     <button class="preset-btn red" onclick="applySRPreset('150p')">店舗150万増</button>
                 </div>
                 <div class="send-buttons">
-                    <button class="send-btn sr-send" onclick="sendSRDataToPLSystem()">
-                        PL送信
-                    </button>
-                    <button class="send-btn sr-send" onclick="navigateToSRPL()">
-                        SR詳細
-                    </button>
+                    <button class="send-btn sr-send" onclick="sendSRDataToPLSystem()">PL送信</button>
+                    <button class="send-btn sr-send" onclick="navigateToSRPL()">SR詳細</button>
                 </div>
             </div>
             
-            <!-- データテーブル -->
             <div style="overflow-x: auto;">
                 <table class="data-table" id="sr-table">
                     <thead>
@@ -554,13 +519,10 @@
                             <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
                         </tr>
                     </thead>
-                    <tbody id="sr-table-body">
-                        <!-- JavaScript生成 -->
-                    </tbody>
+                    <tbody id="sr-table-body"></tbody>
                 </table>
             </div>
             
-            <!-- 情報パネル -->
             <div class="info-panel">
                 <div class="info-grid">
                     <div class="info-item"><strong>店舗数:</strong> 6店舗</div>
@@ -570,11 +532,10 @@
                 </div>
             </div>
             
-            <!-- 設定統合エリア -->
             <div class="settings-consolidated">
                 <div class="settings-grid">
                     <div class="setting-item">
-                        <label>営業手当 <span style="color: #718096; font-size: 0.65rem;">2/6/10月</span></label>
+                        <label>営業手当</label>
                         <input type="number" id="sr-commission" value="100" onchange="updateSRSettings(); calculateSR()">
                     </div>
                     <div class="setting-item">
@@ -602,7 +563,6 @@
                 </div>
             </div>
             
-            <!-- チャート -->
             <div class="chart-container">
                 <div class="chart-legend">
                     <div class="legend-item">
@@ -617,7 +577,6 @@
                 <canvas id="w-chart"></canvas>
             </div>
             
-            <!-- ボタン統合行 -->
             <div class="action-buttons-row">
                 <div class="preset-buttons">
                     <button class="preset-btn green" onclick="applyWPreset('actual')">実績値</button>
@@ -626,16 +585,11 @@
                     <button class="preset-btn red" onclick="applyWPreset('600')">毎月600万増</button>
                 </div>
                 <div class="send-buttons">
-                    <button class="send-btn w-send" onclick="sendWDataToPLSystem()">
-                        PL送信
-                    </button>
-                    <button class="send-btn w-send" onclick="navigateToWPL()">
-                        W詳細
-                    </button>
+                    <button class="send-btn w-send" onclick="sendWDataToPLSystem()">PL送信</button>
+                    <button class="send-btn w-send" onclick="navigateToWPL()">W詳細</button>
                 </div>
             </div>
             
-            <!-- データテーブル -->
             <div style="overflow-x: auto;">
                 <table class="data-table" id="w-table">
                     <thead>
@@ -645,13 +599,10 @@
                             <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
                         </tr>
                     </thead>
-                    <tbody id="w-table-body">
-                        <!-- JavaScript生成 -->
-                    </tbody>
+                    <tbody id="w-table-body"></tbody>
                 </table>
             </div>
             
-            <!-- 情報パネル -->
             <div class="info-panel">
                 <div class="info-grid">
                     <div class="info-item"><strong>入力方式:</strong> 統合月別売上</div>
@@ -661,7 +612,6 @@
                 </div>
             </div>
             
-            <!-- 設定統合エリア -->
             <div class="settings-consolidated">
                 <div class="settings-grid">
                     <div class="setting-item">
@@ -681,7 +631,6 @@
                 </div>
             </div>
             
-            <!-- チャート -->
             <div class="chart-container">
                 <div class="chart-legend">
                     <div class="legend-item">
@@ -696,19 +645,17 @@
                 <canvas id="rc-chart"></canvas>
             </div>
             
-            <!-- 目標設定エリア -->
             <div class="rc-target-setting">
-                <span style="font-size: 0.9rem; font-weight: 600;">目標売上設定(%):</span>
+                <span style="font-size: 0.6rem; font-weight: 600;">目標売上設定(%):</span>
                 <div class="rc-target-input">
                     <input type="number" id="rc-target-rate" value="0" step="0.1" min="0" max="50" onchange="applyRCTargetRate()">
-                    <span>%</span>
+                    <span style="font-size: 0.6rem;">%</span>
                 </div>
                 <div class="rc-current-display">
                     現在の設定: カスタム設定 <span id="rc-current-rate">0</span>%
                 </div>
             </div>
             
-            <!-- ボタン統合行 -->
             <div class="action-buttons-row">
                 <div class="preset-buttons">
                     <button class="preset-btn blue" onclick="applyRCPreset('standard')">標準設定</button>
@@ -717,16 +664,11 @@
                     <button class="preset-btn purple" onclick="applyRCPreset('improvement')">大幅改善(7%)</button>
                 </div>
                 <div class="send-buttons">
-                    <button class="send-btn rc-send" onclick="sendRCDataToPLSystem()">
-                        PL送信
-                    </button>
-                    <button class="send-btn rc-send" onclick="navigateToRCPL()">
-                        RC詳細
-                    </button>
+                    <button class="send-btn rc-send" onclick="sendRCDataToPLSystem()">PL送信</button>
+                    <button class="send-btn rc-send" onclick="navigateToRCPL()">RC詳細</button>
                 </div>
             </div>
             
-            <!-- データテーブル -->
             <div style="overflow-x: auto;">
                 <table class="data-table" id="rc-table">
                     <thead>
@@ -736,13 +678,10 @@
                             <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
                         </tr>
                     </thead>
-                    <tbody id="rc-table-body">
-                        <!-- JavaScript生成 -->
-                    </tbody>
+                    <tbody id="rc-table-body"></tbody>
                 </table>
             </div>
             
-            <!-- 情報パネル -->
             <div class="info-panel">
                 <div class="info-grid">
                     <div class="info-item"><strong>基準売上:</strong> 1550万円/月</div>
@@ -752,7 +691,6 @@
                 </div>
             </div>
             
-            <!-- 設定統合エリア -->
             <div class="settings-consolidated">
                 <div class="settings-grid">
                     <div class="setting-item">
@@ -776,7 +714,6 @@
                 </div>
             </div>
             
-            <!-- チャート -->
             <div class="chart-container">
                 <div class="chart-legend">
                     <div class="legend-item">
@@ -791,7 +728,6 @@
                 <canvas id="rcd-chart"></canvas>
             </div>
             
-            <!-- ボタン統合行 -->
             <div class="action-buttons-row">
                 <div class="preset-buttons">
                     <button class="preset-btn red" onclick="applyRCDPreset('zero')">0設定</button>
@@ -801,16 +737,11 @@
                     <button class="preset-btn purple" onclick="applyRCDPreset('six')">月6本設定</button>
                 </div>
                 <div class="send-buttons">
-                    <button class="send-btn rcd-send" onclick="sendRCDDataToPLSystem()">
-                        PL送信
-                    </button>
-                    <button class="send-btn rcd-send" onclick="navigateToRCDPL()">
-                        RCD詳細
-                    </button>
+                    <button class="send-btn rcd-send" onclick="sendRCDDataToPLSystem()">PL送信</button>
+                    <button class="send-btn rcd-send" onclick="navigateToRCDPL()">RCD詳細</button>
                 </div>
             </div>
             
-            <!-- データテーブル -->
             <div style="overflow-x: auto;">
                 <table class="data-table" id="rcd-table">
                     <thead>
@@ -820,13 +751,10 @@
                             <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
                         </tr>
                     </thead>
-                    <tbody id="rcd-table-body">
-                        <!-- JavaScript生成 -->
-                    </tbody>
+                    <tbody id="rcd-table-body"></tbody>
                 </table>
             </div>
             
-            <!-- 情報パネル -->
             <div class="info-panel">
                 <div class="info-grid">
                     <div class="info-item"><strong>仕入単価:</strong> 2,000万円/本</div>
@@ -839,7 +767,7 @@
     </div>
 
     <script>
-        // localStorage統一ルール - 新プレフィックス対応
+        // localStorage統一ルール
         const LOCAL_STORAGE_KEYS = {
             sr_data: 'pl_system_sr_data',
             w_data: 'pl_system_w_data',
@@ -849,38 +777,12 @@
             w_settings: 'pl_system_w_settings',
             rc_settings: 'pl_system_rc_settings',
             rcd_settings: 'pl_system_rcd_settings',
-            // 入力値保存用の新しいキー
             input_values: 'pl_system_input_values'
         };
-
-        // 旧キーから新キーへの移行処理
-        function migrateLocalStorageKeys() {
-            const migrations = [
-                { old: 'sr_sales_data', new: LOCAL_STORAGE_KEYS.sr_data },
-                { old: 'w_sales_data', new: LOCAL_STORAGE_KEYS.w_data },
-                { old: 'rc_sales_data', new: LOCAL_STORAGE_KEYS.rc_data },
-                { old: 'rcd_sales_data', new: LOCAL_STORAGE_KEYS.rcd_data },
-                { old: 'sr_pl_settings', new: LOCAL_STORAGE_KEYS.sr_settings },
-                { old: 'w_pl_settings', new: LOCAL_STORAGE_KEYS.w_settings },
-                { old: 'rc_pl_settings', new: LOCAL_STORAGE_KEYS.rc_settings },
-                { old: 'rcd_pl_settings', new: LOCAL_STORAGE_KEYS.rcd_settings }
-            ];
-
-            migrations.forEach(migration => {
-                const oldData = localStorage.getItem(migration.old);
-                const newData = localStorage.getItem(migration.new);
-                
-                if (oldData && !newData) {
-                    localStorage.setItem(migration.new, oldData);
-                    console.log(`Migrated ${migration.old} to ${migration.new}`);
-                }
-            });
-        }
 
         // 基本データ
         const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
         
-        // 参考データ（前年実績）
         const referenceData = {
             SR: [2236, 2916, 2927, 2810, 2544, 2663, 3008, 2324, 2403, 2602, 2228, 2721],
             W: [886, 500, 669, 1174, 1257, 2331, 712, 772, 865, 824, 608, 923],
@@ -888,7 +790,6 @@
             RCD: [11037, 14297, 11504, 14664, 12507, 14920, 13661, 15455, 14439, 15857, 15478, 16360]
         };
 
-        // 現在のデータ状態
         let currentData = {
             sr: {
                 stores: {
@@ -927,17 +828,13 @@
             }
         };
 
-        // チャートインスタンス保存用
         let charts = {};
 
-        // 数値フォーマット
         function formatNumber(num) {
             return Math.round(num).toLocaleString();
         }
 
-        // *** 新機能: 入力値の自動保存・復元 ***
-        
-        // 入力値を localStorage に保存
+        // 入力値の自動保存・復元
         function saveInputValues() {
             try {
                 const inputValues = {
@@ -945,13 +842,11 @@
                     currentData: JSON.parse(JSON.stringify(currentData))
                 };
                 localStorage.setItem(LOCAL_STORAGE_KEYS.input_values, JSON.stringify(inputValues));
-                console.log('Input values saved to localStorage');
             } catch (error) {
                 console.error('Error saving input values:', error);
             }
         }
 
-        // localStorage から入力値を復元
         function loadInputValues() {
             try {
                 const saved = localStorage.getItem(LOCAL_STORAGE_KEYS.input_values);
@@ -959,7 +854,6 @@
                     const inputValues = JSON.parse(saved);
                     if (inputValues.currentData) {
                         currentData = inputValues.currentData;
-                        console.log('Input values loaded from localStorage');
                         return true;
                     }
                 }
@@ -970,58 +864,40 @@
             }
         }
 
-        // 手動復元ボタン機能
         function restoreFromLocalStorage() {
             const restored = loadInputValues();
             if (restored) {
-                // UI要素の更新
                 updateAllUIElements();
-                
-                // テーブル再生成
                 generateAllTables();
-                
-                // 計算実行
                 calculateAllDepartments();
-                
-                // チャート更新
                 updateAllCharts();
-                
                 alert('保存されたデータを復元しました！\n復元時刻: ' + new Date().toLocaleTimeString());
             } else {
                 alert('復元可能なデータが見つかりませんでした。');
             }
         }
 
-        // UI要素を currentData に基づいて更新
         function updateAllUIElements() {
-            // SR設定値
-            const srCommissionElem = document.getElementById('sr-commission');
-            const srBonus6Elem = document.getElementById('sr-bonus6');
-            const srBonus12Elem = document.getElementById('sr-bonus12');
-            const srAdvertisingElem = document.getElementById('sr-advertising');
-            
-            if (srCommissionElem) srCommissionElem.value = currentData.sr.variables.commission;
-            if (srBonus6Elem) srBonus6Elem.value = currentData.sr.variables.bonus6;
-            if (srBonus12Elem) srBonus12Elem.value = currentData.sr.variables.bonus12;
-            if (srAdvertisingElem) srAdvertisingElem.value = currentData.sr.variables.advertising;
+            const elements = {
+                'sr-commission': currentData.sr.variables.commission,
+                'sr-bonus6': currentData.sr.variables.bonus6,
+                'sr-bonus12': currentData.sr.variables.bonus12,
+                'sr-advertising': currentData.sr.variables.advertising,
+                'w-advertising': currentData.w.variables.advertising,
+                'rc-advertising': currentData.rc.variables.advertising,
+                'rc-exhibition': currentData.rc.variables.exhibition,
+                'rc-target-rate': currentData.rc.targetRate
+            };
 
-            // W設定値
-            const wAdvertisingElem = document.getElementById('w-advertising');
-            if (wAdvertisingElem) wAdvertisingElem.value = currentData.w.variables.advertising;
+            Object.entries(elements).forEach(([id, value]) => {
+                const elem = document.getElementById(id);
+                if (elem) elem.value = value;
+            });
 
-            // RC設定値
-            const rcAdvertisingElem = document.getElementById('rc-advertising');
-            const rcExhibitionElem = document.getElementById('rc-exhibition');
-            const rcTargetRateElem = document.getElementById('rc-target-rate');
             const rcCurrentRateElem = document.getElementById('rc-current-rate');
-            
-            if (rcAdvertisingElem) rcAdvertisingElem.value = currentData.rc.variables.advertising;
-            if (rcExhibitionElem) rcExhibitionElem.value = currentData.rc.variables.exhibition;
-            if (rcTargetRateElem) rcTargetRateElem.value = currentData.rc.targetRate;
             if (rcCurrentRateElem) rcCurrentRateElem.textContent = currentData.rc.targetRate;
         }
 
-        // 全テーブル生成
         function generateAllTables() {
             generateSRTable();
             generateWTable();
@@ -1029,7 +905,6 @@
             generateRCDTable();
         }
 
-        // 全計算実行
         function calculateAllDepartments() {
             calculateSR();
             calculateW();
@@ -1037,7 +912,6 @@
             calculateRCD();
         }
 
-        // 全チャート更新
         function updateAllCharts() {
             setTimeout(() => {
                 updateSRChart();
@@ -1047,7 +921,7 @@
             }, 100);
         }
 
-        // 設定値更新関数群（自動保存機能付き）
+        // 設定値更新関数群
         function updateSRSettings() {
             currentData.sr.variables.commission = parseInt(document.getElementById('sr-commission').value) || 0;
             currentData.sr.variables.bonus6 = parseInt(document.getElementById('sr-bonus6').value) || 0;
@@ -1067,18 +941,14 @@
             saveInputValues();
         }
 
-        // エラーハンドリング付きテーブル生成
+        // テーブル生成関数
         function generateSRTable() {
             try {
                 const tableBody = document.getElementById('sr-table-body');
-                if (!tableBody) {
-                    console.error('SR table body not found');
-                    return;
-                }
+                if (!tableBody) return;
 
                 let html = '';
                 
-                // 合計行
                 const totals = months.map((_, i) => {
                     return Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0);
                 });
@@ -1103,7 +973,6 @@
                     </tr>
                 `;
 
-                // 各店舗行
                 Object.entries(currentData.sr.stores).forEach(([storeName, values]) => {
                     html += `
                         <tr style="background: white;">
@@ -1112,20 +981,18 @@
                             ${values.map((val, i) => `
                                 <td>
                                     <input type="number" value="${val}" 
-                                           onchange="updateSRStore('${storeName}', ${i}, this.value)"
-                                           style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; text-align: center;">
+                                           onchange="updateSRStore('${storeName}', ${i}, this.value)">
                                 </td>
                             `).join('')}
                         </tr>
                         <tr style="background: #f9fafb;">
                             <td style="color: #6b7280;">参考</td>
-                            ${values.map(val => `<td style="color: #6b7280; font-size: 0.8rem;">${formatNumber(val)}</td>`).join('')}
+                            ${values.map(val => `<td style="color: #6b7280; font-size: 0.55rem;">${formatNumber(val)}</td>`).join('')}
                         </tr>
                     `;
                 });
 
                 tableBody.innerHTML = html;
-                console.log('SR table generated successfully');
             } catch (error) {
                 console.error('Error generating SR table:', error);
             }
@@ -1134,10 +1001,7 @@
         function generateWTable() {
             try {
                 const tableBody = document.getElementById('w-table-body');
-                if (!tableBody) {
-                    console.error('W table body not found');
-                    return;
-                }
+                if (!tableBody) return;
 
                 let html = `
                     <tr style="background: white;">
@@ -1145,8 +1009,7 @@
                         ${currentData.w.sales.map((val, i) => `
                             <td>
                                 <input type="number" value="${val}" 
-                                       onchange="updateWSales(${i}, this.value)"
-                                       style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; text-align: center;">
+                                       onchange="updateWSales(${i}, this.value)">
                             </td>
                         `).join('')}
                     </tr>
@@ -1164,7 +1027,6 @@
                     </tr>
                 `;
                 tableBody.innerHTML = html;
-                console.log('W table generated successfully');
             } catch (error) {
                 console.error('Error generating W table:', error);
             }
@@ -1173,10 +1035,7 @@
         function generateRCTable() {
             try {
                 const tableBody = document.getElementById('rc-table-body');
-                if (!tableBody) {
-                    console.error('RC table body not found');
-                    return;
-                }
+                if (!tableBody) return;
 
                 let html = `
                     <tr style="background: white;">
@@ -1184,8 +1043,7 @@
                         ${currentData.rc.variations.map((val, i) => `
                             <td>
                                 <input type="number" value="${val}" 
-                                       onchange="updateRCVariation(${i}, this.value)"
-                                       style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; text-align: center;">
+                                       onchange="updateRCVariation(${i}, this.value)">
                             </td>
                         `).join('')}
                     </tr>
@@ -1212,7 +1070,6 @@
                     </tr>
                 `;
                 tableBody.innerHTML = html;
-                console.log('RC table generated successfully');
             } catch (error) {
                 console.error('Error generating RC table:', error);
             }
@@ -1221,10 +1078,7 @@
         function generateRCDTable() {
             try {
                 const tableBody = document.getElementById('rcd-table-body');
-                if (!tableBody) {
-                    console.error('RCD table body not found');
-                    return;
-                }
+                if (!tableBody) return;
 
                 let html = `
                     <tr style="background: white;">
@@ -1232,8 +1086,7 @@
                         ${currentData.rcd.purchases.map((val, i) => `
                             <td>
                                 <input type="number" step="0.1" value="${val}" 
-                                       onchange="updateRCDPurchase(${i}, this.value)"
-                                       style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; text-align: center;">
+                                       onchange="updateRCDPurchase(${i}, this.value)">
                             </td>
                         `).join('')}
                     </tr>
@@ -1259,10 +1112,9 @@
                         ${currentData.rcd.fees.map((val, i) => `
                             <td>
                                 <input type="number" min="0" max="10" value="${val}" 
-                                       onchange="updateRCDFee(${i}, this.value)"
-                                       style="width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 3px; text-align: center;">
-                                <div style="font-size: 0.7rem; color: #b45309; text-align: center;">
-                                    ${formatNumber(Math.round(val * 90.6))}万円
+                                       onchange="updateRCDFee(${i}, this.value)">
+                                <div style="font-size: 0.55rem; color: #b45309; text-align: center; line-height: 1;">
+                                    ${formatNumber(Math.round(val * 90.6))}万
                                 </div>
                             </td>
                         `).join('')}
@@ -1273,14 +1125,13 @@
                     </tr>
                 `;
                 tableBody.innerHTML = html;
-                console.log('RCD table generated successfully');
             } catch (error) {
                 console.error('Error generating RCD table:', error);
             }
         }
 
         // チャート作成関数
-        function createDepartmentChart(containerId, referenceData, currentData, deptName) {
+        function createDepartmentChart(containerId, referenceDataArray, currentDataArray, deptName) {
             try {
                 const ctx = document.getElementById(containerId);
                 if (!ctx) {
@@ -1288,7 +1139,6 @@
                     return;
                 }
                 
-                // 既存のチャートを破棄
                 if (charts[containerId]) {
                     charts[containerId].destroy();
                 }
@@ -1300,14 +1150,14 @@
                         datasets: [
                             {
                                 label: '参考売上',
-                                data: referenceData,
+                                data: referenceDataArray,
                                 backgroundColor: 'rgba(59, 130, 246, 0.7)',
                                 borderColor: 'rgba(59, 130, 246, 1)',
                                 borderWidth: 1
                             },
                             {
                                 label: '予算設定',
-                                data: currentData,
+                                data: currentDataArray,
                                 backgroundColor: 'rgba(34, 197, 94, 0.7)',
                                 borderColor: 'rgba(34, 197, 94, 1)',
                                 borderWidth: 1
@@ -1326,24 +1176,23 @@
                             y: {
                                 beginAtZero: true,
                                 ticks: {
-                                    font: { size: 9 }
+                                    font: { size: 8 }
                                 }
                             },
                             x: {
                                 ticks: {
-                                    font: { size: 9 }
+                                    font: { size: 8 }
                                 }
                             }
                         }
                     }
                 });
-                console.log(`Chart ${containerId} created successfully`);
             } catch (error) {
                 console.error(`Error creating chart ${containerId}:`, error);
             }
         }
 
-        // データ更新関数群（自動保存機能付き）
+        // データ更新関数群
         function updateSRStore(storeName, monthIndex, value) {
             currentData.sr.stores[storeName][monthIndex] = parseInt(value) || 0;
             saveInputValues();
@@ -1401,6 +1250,24 @@
                 
                 updateKPIs();
             } catch (error) {
+                console.error('Error in calculateSR:', error);
+            }
+        }
+
+        function calculateW() {
+            try {
+                const annual = currentData.w.sales.reduce((sum, val) => sum + val, 0);
+                const refTotal = referenceData.W.reduce((sum, val) => sum + val, 0);
+                const diff = annual - refTotal;
+
+                const annualElement = document.getElementById('w-annual');
+                if (annualElement) {
+                    annualElement.textContent = 
+                        `年間合計: ${formatNumber(annual)}万円　前年増減: ${diff >= 0 ? '+' : ''}${formatNumber(diff)}万円`;
+                }
+                
+                updateKPIs();
+            } catch (error) {
                 console.error('Error in calculateW:', error);
             }
         }
@@ -1443,7 +1310,6 @@
             }
         }
 
-        // KPI更新
         function updateKPIs() {
             try {
                 const srTotal = months.map((_, i) => {
@@ -1860,36 +1726,14 @@
             try {
                 console.log('Initializing budget input system...');
                 
-                // localStorage移行処理を最初に実行
-                migrateLocalStorageKeys();
-                
                 // 保存されたデータがあれば復元
                 const restored = loadInputValues();
                 
                 if (restored) {
-                    console.log('Previously saved data restored');
                     updateAllUIElements();
                 } else {
-                    console.log('Using default values');
                     // 初期値設定
-                    const elements = {
-                        'sr-commission': currentData.sr.variables.commission,
-                        'sr-bonus6': currentData.sr.variables.bonus6,
-                        'sr-bonus12': currentData.sr.variables.bonus12,
-                        'sr-advertising': currentData.sr.variables.advertising,
-                        'w-advertising': currentData.w.variables.advertising,
-                        'rc-advertising': currentData.rc.variables.advertising,
-                        'rc-exhibition': currentData.rc.variables.exhibition,
-                        'rc-target-rate': currentData.rc.targetRate
-                    };
-
-                    Object.entries(elements).forEach(([id, value]) => {
-                        const elem = document.getElementById(id);
-                        if (elem) elem.value = value;
-                    });
-
-                    const rcCurrentRateElem = document.getElementById('rc-current-rate');
-                    if (rcCurrentRateElem) rcCurrentRateElem.textContent = currentData.rc.targetRate;
+                    updateAllUIElements();
                 }
 
                 // テーブル生成
@@ -1921,22 +1765,4 @@
         window.addEventListener('load', initialize);
     </script>
 </body>
-</html>${formatNumber(diff)}万円`;
-                }
-                
-                updateKPIs();
-            } catch (error) {
-                console.error('Error in calculateSR:', error);
-            }
-        }
-
-        function calculateW() {
-            try {
-                const annual = currentData.w.sales.reduce((sum, val) => sum + val, 0);
-                const refTotal = referenceData.W.reduce((sum, val) => sum + val, 0);
-                const diff = annual - refTotal;
-
-                const annualElement = document.getElementById('w-annual');
-                if (annualElement) {
-                    annualElement.textContent = 
-                        `年間合計: ${formatNumber(annual)}万円　前年増減: ${diff >= 0 ? '+' : ''}
+</html>
