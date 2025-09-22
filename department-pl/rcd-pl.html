@@ -416,8 +416,8 @@
                 <a href="../budget-input.html" class="btn btn-nav">予算入力</a>
                 <a href="sr-pl.html" class="btn btn-nav">SR事業部PL</a>
                 <a href="w-pl.html" class="btn btn-nav">W事業部PL</a>
-                <a href="rc-pl.html" class="btn btn-nav">RC店事業部PL</a>
-                <a href="../combined-dashboard/index.html" class="btn btn-nav">全体PL分析</a>
+                <a href="rc-pl.html" class="btn btn-nav">RC卸事業部PL</a>
+                <a href="../combined-dashboard/index.html" class="btn btn-nav">統合PLシステム</a>
             </div>
         </div>
 
@@ -501,6 +501,7 @@
         // 統合システム用LocalStorageキー管理 - 変更禁止
         const STORAGE_KEYS = {
             rcd: 'pl_system_rcd_data',
+            rcd_settings: 'pl_system_rcd_settings',
             w: 'pl_system_w_data',
             rc: 'pl_system_rc_data',
             sr: 'pl_system_sr_data',
@@ -917,6 +918,7 @@
         function loadLinkageData() {
             try {
                 const rcdData = localStorage.getItem(STORAGE_KEYS.rcd);
+                const rcdSettings = localStorage.getItem(STORAGE_KEYS.rcd_settings);
                 
                 if (rcdData) {
                     const parsedData = JSON.parse(rcdData);
@@ -926,8 +928,14 @@
                     if (parsedData.purchases && Array.isArray(parsedData.purchases)) {
                         currentData.rcd.purchases = parsedData.purchases;
                         
-                        // feeOccurrences または fees から手数料回数を取得
-                        if (parsedData.feeOccurrences && Array.isArray(parsedData.feeOccurrences)) {
+                        // 設定データから手数料回数を取得（修正版）
+                        if (rcdSettings) {
+                            const settings = JSON.parse(rcdSettings);
+                            console.log('RCD設定データ:', settings);
+                            if (settings.feeOccurrences && Array.isArray(settings.feeOccurrences)) {
+                                currentData.rcd.fees = settings.feeOccurrences;
+                            }
+                        } else if (parsedData.feeOccurrences && Array.isArray(parsedData.feeOccurrences)) {
                             currentData.rcd.fees = parsedData.feeOccurrences;
                         } else if (parsedData.fees && Array.isArray(parsedData.fees)) {
                             currentData.rcd.fees = parsedData.fees;
