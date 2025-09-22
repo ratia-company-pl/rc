@@ -416,7 +416,7 @@
                 <a href="../budget-input.html" class="btn btn-nav">予算入力</a>
                 <a href="sr-pl.html" class="btn btn-nav">SR事業部PL</a>
                 <a href="w-pl.html" class="btn btn-nav">W事業部PL</a>
-                <a href="rc-pl.html" class="btn btn-nav">RC支店事業部PL</a>
+                <a href="rc-pl.html" class="btn btn-nav">RC卸事業部PL</a>
                 <a href="../combined-dashboard/index.html" class="btn btn-nav">全体PL分析</a>
             </div>
         </div>
@@ -560,7 +560,7 @@
             if (statusElement) {
                 statusElement.className = `linkage-status linkage-${type}`;
                 statusElement.innerHTML = `
-                    <strong>${type === 'success' ? '✓' : type === 'warning' ? '⚠' : '✗'}</strong>
+                    <strong>${type === 'success' ? '✔' : type === 'warning' ? '⚠' : '✗'}</strong>
                     ${message}
                 `;
             }
@@ -613,7 +613,7 @@
 
         // RCD計算実行
         function calculateRCD() {
-            // HTMLエレメントから値を取得
+            // HTML要素から値を取得
             const purchasesElement = document.getElementById('rcd-purchases');
             if (purchasesElement) {
                 const purchasesStr = purchasesElement.value;
@@ -857,7 +857,7 @@
             window.rcdCurrentResults = { monthlyResults, annual };
         }
 
-        // 修正版updateDashboard関数
+        // 修正版updateDashboard関数（仕入データ送信対応）
         function updateDashboard() {
             if (!window.rcdCurrentResults) return;
             const { monthlyResults, annual } = window.rcdCurrentResults;
@@ -869,9 +869,13 @@
                     grossProfit: annual.grossProfit,
                     totalExpenses: annual.totalExpenses,
                     operatingProfit: annual.operatingProfit,
+                    cogs: annual.purchases,  // 仕入原価を追加
                     expenses: {
                         fees: annual.fees || 0,
-                        feeOccurrences: annual.feeOccurrences || 0
+                        feeOccurrences: annual.feeOccurrences || 0,
+                        personnel: 0,  // RCD社は人件費0
+                        welfare: 0,    // RCD社は法定福利費0
+                        othersFixed: 0 // RCD社はその他固定費0
                     }
                 },
                 monthly: monthlyResults.map(month => ({
@@ -879,9 +883,13 @@
                     grossProfit: month.grossProfit,
                     totalExpenses: month.totalExpenses,
                     operatingProfit: month.operatingProfit,
+                    cogs: month.purchases,  // 月次仕入原価を追加
                     expenses: {
                         fees: month.fees || 0,
-                        feeOccurrences: month.feeOccurrences || 0
+                        feeOccurrences: month.feeOccurrences || 0,
+                        personnel: 0,
+                        welfare: 0,
+                        othersFixed: 0
                     }
                 })),
                 linkageActive: linkageActive,
@@ -889,6 +897,7 @@
             };
 
             try {
+                // 統合データ更新
                 let combinedData = {};
                 const existingData = localStorage.getItem('pl_system_combined_data');
                 if (existingData) {
@@ -897,6 +906,13 @@
 
                 combinedData.rcd = rcdDashboardData;
                 combinedData.lastUpdated = new Date().toISOString();
+
+                // 人件費データが存在しない場合は初期化（RCD社は0）
+                if (!combinedData.personnel) {
+                    combinedData.personnel = {
+                        monthly: new Array(12).fill(0)
+                    };
+                }
 
                 localStorage.setItem('pl_system_combined_data', JSON.stringify(combinedData));
                 localStorage.setItem('rcd_dashboard_data', JSON.stringify(rcdDashboardData));
@@ -950,7 +966,7 @@
 
         // 初期化処理
         function initialize() {
-            // HTMLエレメントに初期値を設定
+            // HTML要素に初期値を設定
             updateUI();
             
             // テーブル生成 → 計算実行 → ダッシュボード更新の順序で実行
