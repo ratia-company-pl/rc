@@ -1049,18 +1049,71 @@
                         }
                     });
 
-                    // 人件費統合データを読み込み
+                    // 人件費統合データを読み込み - 複数の方法で試行
+                    combinedPersonnelData = new Array(12).fill(0);
+                    
+                    // 方法1: 直接personnel.monthlyから読み込み
                     if (parsed.personnel && parsed.personnel.monthly) {
-                        combinedPersonnelData = parsed.personnel.monthly.map(value => Math.round(value));
-                    } else {
-                        // 人件費データが存在しない場合は初期化
-                        combinedPersonnelData = new Array(12).fill(0);
+                        combinedPersonnelData = parsed.personnel.monthly.map(value => Math.round(value || 0));
+                        console.log('人件費統合データ読み込み（方法1）:', combinedPersonnelData);
                     }
+                    
+                    // 方法2: 各事業部データから人件費を集計
+                    if (combinedPersonnelData.every(val => val === 0)) {
+                        ['sr', 'w', 'rc', 'rcd'].forEach(dept => {
+                            if (parsed[dept] && parsed[dept].monthly) {
+                                parsed[dept].monthly.forEach((monthData, index) => {
+                                    if (monthData.personnel || monthData.expenses?.personnel) {
+                                        const personnelCost = monthData.personnel || monthData.expenses?.personnel || 0;
+                                        combinedPersonnelData[index] += Math.round(personnelCost);
+                                    }
+                                });
+                            }
+                        });
+                        console.log('人件費統合データ読み込み（方法2）:', combinedPersonnelData);
+                    }
+                } else {
+                    // データが存在しない場合は各事業部から直接読み取り
+                    combinedPersonnelData = new Array(12).fill(0);
+                    loadPersonnelFromIndividualSources();
                 }
             } catch (error) {
                 console.error('統合PLデータ読み込みエラー:', error);
                 combinedPersonnelData = new Array(12).fill(0);
+                loadPersonnelFromIndividualSources();
             }
+        }
+
+        function loadPersonnelFromIndividualSources() {
+            console.log('個別ソースから人件費データを読み込み開始...');
+            
+            const departments = ['sr', 'w', 'rc', 'rcd'];
+            const storageKeys = [
+                'sr_dashboard_data',
+                'w_dashboard_data', 
+                'rc_dashboard_data',
+                'rcd_dashboard_data'
+            ];
+            
+            departments.forEach((dept, index) => {
+                try {
+                    const data = localStorage.getItem(storageKeys[index]);
+                    if (data) {
+                        const parsed = JSON.parse(data);
+                        if (parsed.monthly && Array.isArray(parsed.monthly)) {
+                            parsed.monthly.forEach((monthData, monthIndex) => {
+                                if (monthData.personnel) {
+                                    combinedPersonnelData[monthIndex] += Math.round(monthData.personnel);
+                                }
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error(`${dept}事業部個別データ読み込みエラー:`, error);
+                }
+            });
+            
+            console.log('個別ソースからの人件費統合結果:', combinedPersonnelData);
         }
 
         function extractFinancialData(data, dept) {
@@ -1320,7 +1373,25 @@
             console.log('統合ダッシュボード: データ更新開始...');
             
             loadExecutiveDataFromDashboard();
-            loadDepartmentData();
+            const { loadedCount, hasData } = loadDepartmentData();
+            
+            // 人件費データのデバッグ出力
+            console.log('=== 人件費統合デバッグ情報 ===');
+            console.log('combinedPersonnelData:', combinedPersonnelData);
+            console.log('combinedPersonnelData合計:', combinedPersonnelData.reduce((sum, val) => sum + val, 0));
+            
+            // LocalStorageの内容をデバッグ出力
+            console.log('=== LocalStorage統合データ ===');
+            const combinedData = localStorage.getItem(LOCAL_STORAGE_KEYS.combined_data);
+            if (combinedData) {
+                const parsed = JSON.parse(combinedData);
+                console.log('personnel データ:', parsed.personnel);
+                console.log('sr データ:', parsed.sr?.annual);
+                console.log('w データ:', parsed.w?.annual);
+                console.log('rc データ:', parsed.rc?.annual);
+                console.log('rcd データ:', parsed.rcd?.annual);
+            }
+            
             updateMonthlyPLTable();
             updateComparisonChart();
             
