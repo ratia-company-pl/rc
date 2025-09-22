@@ -381,6 +381,7 @@
                                 </div>
                                 <button class="btn-action btn-update" onclick="loadAllData()">データ再読み込み</button>
                                 <button class="btn-action btn-csv" onclick="exportCSV()">📊 CSV出力</button>
+                                <button class="btn-action" onclick="loadTestData()" style="background: #9b59b6; color: white;">🧪 テストデータ</button>
                             </div>
                         </td>
                     </tr>
@@ -1035,9 +1036,12 @@
 
         function loadCombinedPLData() {
             try {
+                console.log('=== loadCombinedPLData開始 ===');
+                
                 const combinedData = localStorage.getItem(LOCAL_STORAGE_KEYS.combined_data);
                 if (combinedData) {
                     const parsed = JSON.parse(combinedData);
+                    console.log('統合データ構造:', parsed);
                     
                     // 各事業部の仕入データ（COGS）を読み込み
                     ['sr', 'w', 'rc', 'rcd'].forEach(dept => {
@@ -1046,37 +1050,63 @@
                                 const cogsValue = m.cogs || 0;
                                 return Math.round(cogsValue);
                             });
+                            console.log(`${dept}事業部仕入データ:`, departmentData[dept].cogsData);
                         }
                     });
 
-                    // 人件費統合データを読み込み - 複数の方法で試行
+                    // 人件費統合データの複数パターン読み込み
                     combinedPersonnelData = new Array(12).fill(0);
                     
-                    // 方法1: 直接personnel.monthlyから読み込み
+                    // パターン1: 統合personnel.monthlyから
                     if (parsed.personnel && parsed.personnel.monthly) {
                         combinedPersonnelData = parsed.personnel.monthly.map(value => Math.round(value || 0));
-                        console.log('人件費統合データ読み込み（方法1）:', combinedPersonnelData);
+                        console.log('人件費統合データ（パターン1）:', combinedPersonnelData);
                     }
                     
-                    // 方法2: 各事業部データから人件費を集計
+                    // パターン2: 各事業部の人件費を直接集計
                     if (combinedPersonnelData.every(val => val === 0)) {
+                        console.log('パターン2で人件費集計開始...');
                         ['sr', 'w', 'rc', 'rcd'].forEach(dept => {
                             if (parsed[dept] && parsed[dept].monthly) {
                                 parsed[dept].monthly.forEach((monthData, index) => {
-                                    if (monthData.personnel || monthData.expenses?.personnel) {
-                                        const personnelCost = monthData.personnel || monthData.expenses?.personnel || 0;
+                                    const personnelCost = monthData.personnel || monthData.expenses?.personnel || 0;
+                                    if (personnelCost > 0) {
                                         combinedPersonnelData[index] += Math.round(personnelCost);
+                                        console.log(`${dept}事業部 ${index+1}月 人件費: ${personnelCost}万円`);
                                     }
                                 });
                             }
                         });
-                        console.log('人件費統合データ読み込み（方法2）:', combinedPersonnelData);
+                        console.log('人件費統合データ（パターン2）:', combinedPersonnelData);
+                    }
+                    
+                    // パターン3: 各事業部の年間人件費から月割り計算
+                    if (combinedPersonnelData.every(val => val === 0)) {
+                        console.log('パターン3で人件費集計開始...');
+                        let totalAnnualPersonnel = 0;
+                        ['sr', 'w', 'rc', 'rcd'].forEach(dept => {
+                            if (parsed[dept] && parsed[dept].annual && parsed[dept].annual.personnel) {
+                                totalAnnualPersonnel += parsed[dept].annual.personnel;
+                                console.log(`${dept}事業部年間人件費: ${parsed[dept].annual.personnel}万円`);
+                            }
+                        });
+                        
+                        if (totalAnnualPersonnel > 0) {
+                            const monthlyAverage = Math.round(totalAnnualPersonnel / 12);
+                            combinedPersonnelData = new Array(12).fill(monthlyAverage);
+                            console.log('人件費統合データ（パターン3・均等割）:', combinedPersonnelData);
+                        }
                     }
                 } else {
-                    // データが存在しない場合は各事業部から直接読み取り
+                    console.log('統合データなし - 個別読み込み実行');
                     combinedPersonnelData = new Array(12).fill(0);
                     loadPersonnelFromIndividualSources();
                 }
+                
+                console.log('=== loadCombinedPLData完了 ===');
+                console.log('最終人件費統合データ:', combinedPersonnelData);
+                console.log('人件費合計:', combinedPersonnelData.reduce((sum, val) => sum + val, 0));
+                
             } catch (error) {
                 console.error('統合PLデータ読み込みエラー:', error);
                 combinedPersonnelData = new Array(12).fill(0);
@@ -1085,35 +1115,59 @@
         }
 
         function loadPersonnelFromIndividualSources() {
-            console.log('個別ソースから人件費データを読み込み開始...');
+            console.log('=== 個別ソースから人件費データ読み込み開始 ===');
             
-            const departments = ['sr', 'w', 'rc', 'rcd'];
-            const storageKeys = [
-                'sr_dashboard_data',
-                'w_dashboard_data', 
-                'rc_dashboard_data',
-                'rcd_dashboard_data'
+            const departments = [
+                { name: 'sr', key: 'sr_dashboard_data' },
+                { name: 'w', key: 'w_dashboard_data' }, 
+                { name: 'rc', key: 'rc_dashboard_data' },
+                { name: 'rcd', key: 'rcd_dashboard_data' }
+            ];
+            
+            // まず既存のLocalStorageキーも試す
+            const alternativeKeys = [
+                'pl_system_sr_data',
+                'pl_system_w_data',
+                'pl_system_rc_data', 
+                'pl_system_rcd_data'
             ];
             
             departments.forEach((dept, index) => {
                 try {
-                    const data = localStorage.getItem(storageKeys[index]);
+                    // 主要キーから読み込み
+                    let data = localStorage.getItem(dept.key);
+                    if (!data) {
+                        // 代替キーから読み込み
+                        data = localStorage.getItem(alternativeKeys[index]);
+                    }
+                    
                     if (data) {
                         const parsed = JSON.parse(data);
+                        console.log(`${dept.name}事業部個別データ:`, parsed);
+                        
                         if (parsed.monthly && Array.isArray(parsed.monthly)) {
                             parsed.monthly.forEach((monthData, monthIndex) => {
-                                if (monthData.personnel) {
-                                    combinedPersonnelData[monthIndex] += Math.round(monthData.personnel);
+                                const personnelCost = monthData.personnel || monthData.expenses?.personnel || 0;
+                                if (personnelCost > 0) {
+                                    combinedPersonnelData[monthIndex] += Math.round(personnelCost);
+                                    console.log(`${dept.name} ${monthIndex+1}月 人件費: ${personnelCost}万円`);
                                 }
                             });
                         }
+                        
+                        // 年間データからの推定も試行
+                        if (parsed.annual && parsed.annual.personnel) {
+                            const monthlyAvg = Math.round(parsed.annual.personnel / 12);
+                            console.log(`${dept.name}年間人件費: ${parsed.annual.personnel}万円 (月平均: ${monthlyAvg}万円)`);
+                        }
                     }
                 } catch (error) {
-                    console.error(`${dept}事業部個別データ読み込みエラー:`, error);
+                    console.error(`${dept.name}事業部個別データ読み込みエラー:`, error);
                 }
             });
             
             console.log('個別ソースからの人件費統合結果:', combinedPersonnelData);
+            console.log('=== 個別ソース読み込み完了 ===');
         }
 
         function extractFinancialData(data, dept) {
@@ -1396,6 +1450,54 @@
             updateComparisonChart();
             
             console.log('統合ダッシュボード: データ更新完了');
+        }
+
+        function loadTestData() {
+            console.log('=== テストデータ読み込み開始 ===');
+            
+            // 検算用データに基づくテストデータ設定
+            const testPersonnelData = [1407, 1554, 1564, 1683, 1528, 1674, 1589, 1522, 1449, 1497, 1383, 1676]; // 月次人件費
+            const testCOGSData = [
+                [18072, 18142, 18195, 18315, 18268, 18621, 18213, 18231, 18259, 18247, 18182, 18270], // 月次仕入
+            ];
+            
+            // 各事業部のテスト売上データ
+            const testSalesData = {
+                sr: [4636, 5317, 5326, 5210, 4944, 5063, 5407, 4725, 4804, 5003, 4628, 5122],
+                w: [886, 500, 669, 1174, 1257, 2331, 712, 772, 865, 824, 608, 923],
+                rc: [1550, 1550, 1550, 1550, 1550, 1550, 1550, 1550, 1550, 1550, 1550, 1550],
+                rcd: [16480, 16480, 16480, 16480, 16480, 16480, 16480, 16480, 16480, 16480, 16480, 16480]
+            };
+            
+            const testCOGSByDept = {
+                sr: [1261, 1446, 1449, 1417, 1345, 1377, 1471, 1285, 1307, 1361, 1259, 1393],
+                w: [265, 150, 200, 352, 377, 698, 213, 231, 259, 247, 182, 277],
+                rc: [546, 546, 546, 546, 546, 546, 546, 546, 546, 546, 546, 546],
+                rcd: [16000, 16000, 16000, 16000, 16000, 16000, 16000, 16000, 16000, 16000, 16000, 16000]
+            };
+            
+            // テストデータを設定
+            combinedPersonnelData = [...testPersonnelData];
+            
+            Object.keys(testSalesData).forEach(dept => {
+                departmentData[dept] = {
+                    sales: testSalesData[dept].reduce((sum, val) => sum + val, 0),
+                    monthlyData: [...testSalesData[dept]],
+                    cogsData: [...testCOGSByDept[dept]],
+                    lastUpdate: new Date().toLocaleString()
+                };
+            });
+            
+            console.log('テストデータ設定完了:');
+            console.log('人件費統合:', combinedPersonnelData);
+            console.log('事業部データ:', departmentData);
+            
+            // 画面更新
+            updateMonthlyPLTable();
+            updateComparisonChart();
+            updateLinkageStatus(4, true);
+            
+            alert('テストデータを読み込みました。検算用データと照合できます。');
         }
 
         document.addEventListener('DOMContentLoaded', function() {
