@@ -678,6 +678,28 @@
                                 tension: 0.3,
                                 fill: true
                             },
+
+            // 事業部固有の季節変動パターン
+            getSeasonalPattern: function(dept) {
+                const patterns = {
+                    sr: [0.9, 0.8, 1.2, 1.1, 1.0, 1.3, 0.9, 0.8, 1.1, 1.0, 1.2, 1.1], // 店舗系：年末年始・夏季変動
+                    w: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],  // W事業部：安定
+                    rc: [0.8, 0.9, 1.1, 1.0, 1.3, 0.9, 0.8, 1.0, 1.2, 1.1, 0.9, 1.4], // 卸売：展示会影響
+                    rcd: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0] // 外部委託：安定
+                };
+                return patterns[dept] || new Array(12).fill(1.0);
+            },
+
+            // 事業部固有の比率設定
+            getDeptRatios: function(dept) {
+                const ratios = {
+                    sr: { cogsRatio: 0.65, personnelRatio: 0.20, expensesRatio: 0.10 },    // 店舗系
+                    w: { cogsRatio: 0.60, personnelRatio: 0.25, expensesRatio: 0.08 },     // W事業部
+                    rc: { cogsRatio: 0.352, personnelRatio: 0.15, expensesRatio: 0.12 },   // RC卸（35.2%）
+                    rcd: { cogsRatio: 0.40, personnelRatio: 0.10, expensesRatio: 0.15 }    // RCD社（外部委託）
+                };
+                return ratios[dept] || { cogsRatio: 0.6, personnelRatio: 0.2, expensesRatio: 0.1 };
+            },
                             {
                                 label: '統合費用 (万円)', 
                                 data: costsData,
