@@ -1039,21 +1039,27 @@
                 if (combinedData) {
                     const parsed = JSON.parse(combinedData);
                     
+                    // 各事業部の仕入データ（COGS）を読み込み
                     ['sr', 'w', 'rc', 'rcd'].forEach(dept => {
                         if (parsed[dept] && parsed[dept].monthly) {
                             departmentData[dept].cogsData = parsed[dept].monthly.map(m => {
-                                const cogsValue = m.cogs || m.purchases || 0;
-                                return Math.round(cogsValue / 10000);
+                                const cogsValue = m.cogs || 0;
+                                return Math.round(cogsValue);
                             });
                         }
                     });
 
+                    // 人件費統合データを読み込み
                     if (parsed.personnel && parsed.personnel.monthly) {
-                        combinedPersonnelData = parsed.personnel.monthly.map(value => Math.round(value / 10000));
+                        combinedPersonnelData = parsed.personnel.monthly.map(value => Math.round(value));
+                    } else {
+                        // 人件費データが存在しない場合は初期化
+                        combinedPersonnelData = new Array(12).fill(0);
                     }
                 }
             } catch (error) {
                 console.error('統合PLデータ読み込みエラー:', error);
+                combinedPersonnelData = new Array(12).fill(0);
             }
         }
 
@@ -1222,7 +1228,7 @@
             
             if (hasData) {
                 statusElement.className = 'linkage-status linkage-success';
-                statusElement.innerHTML = `✔ ${loadedCount}/4事業部データ連携完了`;
+                statusElement.innerHTML = `✓ ${loadedCount}/4事業部データ連携完了`;
             } else if (loadedCount > 0) {
                 statusElement.className = 'linkage-status linkage-warning';
                 statusElement.innerHTML = `⚠ ${loadedCount}/4事業部データ読み込み済み（売上未入力）`;
