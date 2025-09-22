@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RC店事業部PLシミュレーター（連携機能付）</title>
+    <title>RC卸事業部PLシミュレーター（連携機能付）</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -350,18 +350,18 @@
     <div class="container">
         <header class="header">
             <div class="header-row1">
-                <h1 class="main-title">RC店事業部PLシミュレーター（連携機能付）</h1>
+                <h1 class="main-title">RC卸事業部PLシミュレーター（連携機能付）</h1>
             </div>
 
             <div class="header-row2">
                 <div class="nav-buttons">
-                    <a href="dashboard.html" class="btn">ダッシュボード</a>
-                    <a href="budget-input.html" class="btn">予算入力</a>
+                    <a href="../index.html" class="btn">ダッシュボード</a>
+                    <a href="../budget-input.html" class="btn">予算入力</a>
                     <a href="sr-pl.html" class="btn">SR事業部PL</a>
                     <a href="w-pl.html" class="btn">W事業部PL</a>
-                    <a href="#" class="btn active">RC店事業部PL</a>
+                    <a href="#" class="btn active">RC卸事業部PL</a>
                     <a href="rcd-pl.html" class="btn">RCD社事業部PL</a>
-                    <a href="integrated-pl.html" class="btn">全体PLシミュレーター</a>
+                    <a href="../combined-dashboard/index.html" class="btn">統合PLシステム</a>
                 </div>
             </div>
 
@@ -395,7 +395,7 @@
         </header>
 
         <main class="main-content">
-            <h2 class="section-title">RC店事業部 月次PL表示（連携機能付）</h2>
+            <h2 class="section-title">RC卸事業部 月次PL表示（連携機能付）</h2>
             
             <div class="chart-container">
                 <canvas id="monthlyChart"></canvas>
@@ -450,8 +450,8 @@
             </div>
 
             <div class="spec-info">
-                <strong>RC店事業部計算仕様・項目ID体系</strong><br>
-                基準売上1,500万円+月次増減方式 • 仕入原価率35.2%（RC店事業部仕入修正モデル） • 固定人件費50万円/月（売上変動なし） • 支払手数料70万円/月（固定額） • 展示会費用：5月90万円・12月90万円
+                <strong>RC卸事業部計算仕様・項目ID体系</strong><br>
+                基準売上1,500万円+月次増減方式 • 仕入原価率35.2%（RC卸事業部仕入修正モデル） • 固定人件費50万円/月（売上変動なし） • 支払手数料70万円/月（固定額） • 展示会費用：5月90万円・12月90万円
                 
                 <div class="spec-detail">
                     <strong>その他固定費内訳（月額260万円）：</strong><br>
@@ -475,7 +475,7 @@
             compression: true
         };
 
-        // RC店事業部データ構造（v3.0対応）
+        // RC卸事業部データ構造（v3.0対応）
         let rcData = {
             sales: new Array(12).fill(0),
             cogs: new Array(12).fill(0), 
@@ -483,7 +483,7 @@
             expenses: new Array(12).fill(0), // 新規追加：販管費配列
             metadata: {
                 lastUpdate: new Date().toISOString(),
-                dataSource: "RC店事業部",
+                dataSource: "RC卸事業部",
                 version: "3.0",
                 calculationEngine: "dynamic"
             }
@@ -663,23 +663,30 @@
                 
                 if (rcDataStr) {
                     const parsedData = JSON.parse(rcDataStr);
-                    console.log('RC店連携データ受信:', parsedData);
+                    console.log('RC卸連携データ受信:', parsedData);
                     
                     // baseSalesとvariations形式のデータ（budget-input.htmlから）
                     if (parsedData.baseSales !== undefined && parsedData.variations && Array.isArray(parsedData.variations)) {
                         CALCULATION_ENGINE.baseSales = parsedData.baseSales;
                         CALCULATION_ENGINE.variations = parsedData.variations;
                         
-                        // 設定データの読み込み
+                        // 設定データの読み込み（修正版）
                         if (rcSettingsStr) {
                             const settings = JSON.parse(rcSettingsStr);
                             if (settings.advertising !== undefined) {
                                 CALCULATION_ENGINE.expenses.advertising = settings.advertising;
                             }
+                            // 12月の展示会費用
                             if (settings.decemberExhibition !== undefined) {
                                 CALCULATION_ENGINE.expenses.exhibition = settings.decemberExhibition;
-                            } else if (settings.aprilBoothFee !== undefined) {
-                                CALCULATION_ENGINE.expenses.exhibition = settings.aprilBoothFee;
+                            }
+                            // 4月の展示会費用も設定
+                            if (settings.aprilBoothFee !== undefined) {
+                                CALCULATION_ENGINE.expenses.promotion.exhibition.april = settings.aprilBoothFee;
+                                // 両月同じ金額を使用
+                                if (!settings.decemberExhibition) {
+                                    CALCULATION_ENGINE.expenses.exhibition = settings.aprilBoothFee;
+                                }
                             }
                         }
                         
@@ -690,7 +697,7 @@
                             `<strong>✔</strong> 連携成功: ${new Date(parsedData.timestamp || new Date()).toLocaleString('ja-JP')} にデータ受信`;
                         document.getElementById('linkage-status').className = 'linkage-status';
                         
-                        console.log('RC店連携データ読み込み成功');
+                        console.log('RC卸連携データ読み込み成功');
                     }
                     // sales配列形式のデータ（既存のv3.0形式）
                     else if (parsedData.sales && Array.isArray(parsedData.sales)) {
@@ -704,7 +711,7 @@
                             `<strong>✔</strong> 連携成功: ${new Date(parsedData.metadata?.lastUpdate || new Date()).toLocaleString('ja-JP')} にデータ受信`;
                         document.getElementById('linkage-status').className = 'linkage-status';
                         
-                        console.log('RC店連携データ読み込み成功（v3.0形式）');
+                        console.log('RC卸連携データ読み込み成功（v3.0形式）');
                     } else {
                         throw new Error('データ形式が不正です');
                     }
@@ -740,7 +747,7 @@
             }
         }
 
-        // RC店事業部固有の計算処理
+        // RC卸事業部固有の計算処理
         function calculateRCData() {
             // 売上計算（基準売上 + 月次変動）
             for (let i = 0; i < 12; i++) {
@@ -802,7 +809,7 @@
                 
                 localStorage.setItem(STORAGE_KEYS.integration_status, JSON.stringify(integrationStatus));
                 
-                console.log('RC店事業部データ自動送信完了', rcData);
+                console.log('RC卸事業部データ自動送信完了', rcData);
                 
             } catch (error) {
                 console.error('データ送信エラー:', error);
