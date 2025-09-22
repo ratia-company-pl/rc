@@ -402,62 +402,10 @@
             </div>
         </div>
 
-        <!-- 統合グラフ・分析セクション -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 10px; background: white; border-top: 1px solid #eee;">
-            <!-- 月次利益推移グラフ -->
-            <div>
-                <div class="chart-title">月次利益推移（事業部利益 vs 最終利益）</div>
-                <div style="position: relative; width: 100%; height: 200px;">
-                    <canvas id="monthly-profit-chart"></canvas>
-                </div>
-            </div>
-            
-            <!-- 前年対比サマリー -->
-            <div style="background: #f8f9fa; padding: 8px; border-radius: 4px;">
-                <div style="font-size: 0.75em; font-weight: 700; margin-bottom: 6px; color: #2c3e50;">全社前年対比分析</div>
-                
-                <!-- 全社実績比較 -->
-                <div style="background: white; padding: 6px; border-radius: 4px; margin-bottom: 6px; border-left: 3px solid #3498db;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.65em;">
-                        <div>
-                            <div style="font-weight: bold; color: #2c3e50; margin-bottom: 2px;">売上高（万円）</div>
-                            <div style="color: #666;">前年: 231,460 → 今年: 273,310</div>
-                            <div style="color: #27ae60; font-weight: bold;">差額: +41,850 (+18.1%)</div>
-                        </div>
-                        <div>
-                            <div style="font-weight: bold; color: #2c3e50; margin-bottom: 2px;">営業利益（万円）</div>
-                            <div style="color: #666;">前年: 892 → 今年: 1,761</div>
-                            <div style="color: #27ae60; font-weight: bold;">差額: +869 (+97.4%)</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 事業部別サマリー -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 0.6em;">
-                    <div style="background: white; padding: 4px; border-radius: 3px; border-left: 2px solid #e74c3c;">
-                        <div style="font-weight: bold; color: #e74c3c;">SR事業部</div>
-                        <div>売上: +8.2% | 利益: -9.1%</div>
-                    </div>
-                    <div style="background: white; padding: 4px; border-radius: 3px; border-left: 2px solid #3498db;">
-                        <div style="font-weight: bold; color: #3498db;">W事業部</div>
-                        <div>売上: +8.8% | 利益: +12.9%</div>
-                    </div>
-                    <div style="background: white; padding: 4px; border-radius: 3px; border-left: 2px solid #27ae60;">
-                        <div style="font-weight: bold; color: #27ae60;">RC卸事業部</div>
-                        <div>売上: +7.2% | 利益: +7.9%</div>
-                    </div>
-                    <div style="background: white; padding: 4px; border-radius: 3px; border-left: 2px solid #9b59b6;">
-                        <div style="font-weight: bold; color: #9b59b6;">RCD社事業部</div>
-                        <div>売上: +3.5% | 利益: +11.5%</div>
-                    </div>
-                </div>
-                
-                <!-- 分析サマリー -->
-                <div style="background: #e8f4fd; padding: 4px; border-radius: 3px; margin-top: 4px; font-size: 0.55em; text-align: center;">
-                    <strong>総括:</strong> <span style="color: #27ae60;">全社売上+18.1%、営業利益ほぼ倍増</span> | 
-                    <span style="color: #3498db;">3事業部増益</span> | 
-                    <span style="color: #e74c3c;">SR改善要</span>
-                </div>
+        <div class="chart-section">
+            <div class="chart-title">月次利益推移（事業部利益 vs 最終利益）</div>
+            <div class="chart-wrapper">
+                <canvas id="monthly-profit-chart"></canvas>
             </div>
         </div>
 
@@ -488,7 +436,7 @@
                 <div style="background: #f8f9fa; padding: 6px; border-radius: 4px;">
                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                         <span style="font-size: 0.65em;">予算ソース:</span>
-                        <label style="font-size: 0.65em;"><input type="radio" name="budget-source" value="simulation" checked> 現在のシミュレーション</label>
+                        <label style="font-size: 0.65em;"><input type="radio" name="budget-source" value="simulation" checked> ✓ 現在のシミュレーション</label>
                         <button onclick="setBudgetFromSource()" style="padding: 3px 8px; background: #3498db; color: white; border: none; border-radius: 3px; font-size: 0.65em; cursor: pointer;">予算設定</button>
                     </div>
                 </div>
@@ -537,6 +485,125 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <div style="background: #f8f9fa; padding: 8px; border-radius: 4px; margin-bottom: 8px;">
+                <div id="department-comparison-section">
+                    <div style="font-size: 0.75em; font-weight: 700; margin-bottom: 4px;">4事業部前年対比分析</div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;" id="department-comparison-grid">
+                        <!-- SR事業部 -->
+                        <div style="background: white; padding: 4px; border-radius: 4px; border-left: 3px solid #e74c3c;">
+                            <div style="font-size: 0.6em; font-weight: bold; margin-bottom: 2px; color: #e74c3c;">SR事業部 - 前年対比</div>
+                            <table class="micro-table" style="font-size: 0.45em;">
+                                <thead>
+                                    <tr><th>項目</th><th>前年実績</th><th>今年予算</th><th>増減額</th><th>増減率</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr id="sr-comparison-revenue">
+                                        <td style="text-align: left; font-weight: bold;">売上</td>
+                                        <td id="sr-prev-revenue">30,000</td>
+                                        <td id="sr-curr-revenue">32,450</td>
+                                        <td id="sr-diff-revenue" class="positive">+2,450</td>
+                                        <td id="sr-rate-revenue" class="positive">+8.2%</td>
+                                    </tr>
+                                    <tr id="sr-comparison-profit">
+                                        <td style="text-align: left; font-weight: bold;">営業利益</td>
+                                        <td id="sr-prev-profit">-2,800</td>
+                                        <td id="sr-curr-profit">-3,054</td>
+                                        <td id="sr-diff-profit" class="negative">-254</td>
+                                        <td id="sr-rate-profit" class="negative">-9.1%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- W事業部 -->
+                        <div style="background: white; padding: 4px; border-radius: 4px; border-left: 3px solid #3498db;">
+                            <div style="font-size: 0.6em; font-weight: bold; margin-bottom: 2px; color: #3498db;">W事業部 - 前年対比</div>
+                            <table class="micro-table" style="font-size: 0.45em;">
+                                <thead>
+                                    <tr><th>項目</th><th>前年実績</th><th>今年予算</th><th>増減額</th><th>増減率</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr id="w-comparison-revenue">
+                                        <td style="text-align: left; font-weight: bold;">売上</td>
+                                        <td id="w-prev-revenue">14,500</td>
+                                        <td id="w-curr-revenue">15,780</td>
+                                        <td id="w-diff-revenue" class="positive">+1,280</td>
+                                        <td id="w-rate-revenue" class="positive">+8.8%</td>
+                                    </tr>
+                                    <tr id="w-comparison-profit">
+                                        <td style="text-align: left; font-weight: bold;">営業利益</td>
+                                        <td id="w-prev-profit">2,100</td>
+                                        <td id="w-curr-profit">2,370</td>
+                                        <td id="w-diff-profit" class="positive">+270</td>
+                                        <td id="w-rate-profit" class="positive">+12.9%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- RC卸事業部 -->
+                        <div style="background: white; padding: 4px; border-radius: 4px; border-left: 3px solid #27ae60;">
+                            <div style="font-size: 0.6em; font-weight: bold; margin-bottom: 2px; color: #27ae60;">RC卸事業部 - 前年対比</div>
+                            <table class="micro-table" style="font-size: 0.45em;">
+                                <thead>
+                                    <tr><th>項目</th><th>前年実績</th><th>今年予算</th><th>増減額</th><th>増減率</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr id="rc-comparison-revenue">
+                                        <td style="text-align: left; font-weight: bold;">売上</td>
+                                        <td id="rc-prev-revenue">19,200</td>
+                                        <td id="rc-curr-revenue">20,580</td>
+                                        <td id="rc-diff-revenue" class="positive">+1,380</td>
+                                        <td id="rc-rate-revenue" class="positive">+7.2%</td>
+                                    </tr>
+                                    <tr id="rc-comparison-profit">
+                                        <td style="text-align: left; font-weight: bold;">営業利益</td>
+                                        <td id="rc-prev-profit">1,400</td>
+                                        <td id="rc-curr-profit">1,510</td>
+                                        <td id="rc-diff-profit" class="positive">+110</td>
+                                        <td id="rc-rate-profit" class="positive">+7.9%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- RCD社事業部 -->
+                        <div style="background: white; padding: 4px; border-radius: 4px; border-left: 3px solid #9b59b6;">
+                            <div style="font-size: 0.6em; font-weight: bold; margin-bottom: 2px; color: #9b59b6;">RCD社事業部 - 前年対比</div>
+                            <table class="micro-table" style="font-size: 0.45em;">
+                                <thead>
+                                    <tr><th>項目</th><th>前年実績</th><th>今年予算</th><th>増減額</th><th>増減率</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr id="rcd-comparison-revenue">
+                                        <td style="text-align: left; font-weight: bold;">売上</td>
+                                        <td id="rcd-prev-revenue">195,000</td>
+                                        <td id="rcd-curr-revenue">201,900</td>
+                                        <td id="rcd-diff-revenue" class="positive">+6,900</td>
+                                        <td id="rcd-rate-revenue" class="positive">+3.5%</td>
+                                    </tr>
+                                    <tr id="rcd-comparison-profit">
+                                        <td style="text-align: left; font-weight: bold;">営業利益</td>
+                                        <td id="rcd-prev-profit">1,000</td>
+                                        <td id="rcd-curr-profit">1,115</td>
+                                        <td id="rcd-diff-profit" class="positive">+115</td>
+                                        <td id="rcd-rate-profit" class="positive">+11.5%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div style="background: #e8f4fd; padding: 4px; border-radius: 4px; margin-top: 6px; font-size: 0.55em;">
+                        <strong>分析サマリー:</strong>
+                        <span style="color: #27ae60;">増収増益事業部</span>: W(+12.9%), RC卸(+7.9%), RCD社(+11.5%) | 
+                        <span style="color: #e74c3c;">改善が必要</span>: SR(-9.1%) | 
+                        <span style="color: #3498db;">全体売上増加</span>: +11.01%
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -695,14 +762,14 @@
     </div>
 
     <script>
-        // localStorageの統一ルール - 新プレフィックス対応
+        // localStorageキー定義
         const LOCAL_STORAGE_KEYS = {
             sr_data: 'pl_system_sr_data',
             w_data: 'pl_system_w_data', 
             rc_data: 'pl_system_rc_data',
             rcd_data: 'pl_system_rcd_data',
             combined_data: 'pl_system_combined_data',
-            executive_data: 'pl_system_executive_data'  // 追加: 役員報酬データ用
+            executive_data: 'pl_system_executive_data'
         };
 
         // 旧キーから新キーへの移行処理
@@ -746,25 +813,59 @@
             welfareRate: 0.13002
         };
 
-        // 前年実績データ（CSVから取得した実際の数値）
-        const actualPreviousYearData = {
-            totalRevenue: 231460,  // 万円
-            totalProfit: 892,      // 万円
+        // 前年実績データ（A2506決算明細から取得・万円単位）
+        const previousYearData = {
+            // 全社合計の前年実績（CSVデータより）
+            total: {
+                monthlyRevenue: {
+                    '7月': 16108, '8月': 19359, '9月': 18747, '10月': 18625,
+                    '11月': 19320, '12月': 19862, '1月': 19420, '2月': 18826,
+                    '3月': 19953, '4月': 19862, '5月': 19384, '6月': 19993
+                },
+                monthlyProfit: {
+                    '7月': -481, '8月': 160, '9月': 185, '10月': -87,
+                    '11月': 223, '12月': 98, '1月': 43, '2月': -62,
+                    '3月': 289, '4月': 168, '5月': -34, '6月': 390
+                },
+                annualRevenue: 231460,  // 年間売上高
+                annualProfit: 892       // 年間営業利益
+            },
+            // 各事業部の前年実績（推定値）
             SR: {
-                revenue: 32450,    // 推定値（現在の32,450から逆算）
-                profit: -2800      // 仮定値
+                revenue: 30000,
+                profit: -2800,
+                monthlyProfit: {
+                    '7月': -240, '8月': -230, '9月': -235, '10月': -232,
+                    '11月': -234, '12月': -233, '1月': -233, '2月': -234,
+                    '3月': -233, '4月': -233, '5月': -235, '6月': -234
+                }
             },
             W: {
                 revenue: 14500,
-                profit: 2100
+                profit: 2100,
+                monthlyProfit: {
+                    '7月': 170, '8月': 175, '9月': 173, '10月': 176,
+                    '11月': 175, '12月': 177, '1月': 175, '2月': 174,
+                    '3月': 176, '4月': 176, '5月': 174, '6月': 179
+                }
             },
             RC: {
                 revenue: 19200,
-                profit: 1400
+                profit: 1400,
+                monthlyProfit: {
+                    '7月': 115, '8月': 118, '9月': 116, '10月': 117,
+                    '11月': 117, '12月': 118, '1月': 117, '2月': 116,
+                    '3月': 117, '4月': 117, '5月': 116, '6月': 118
+                }
             },
             RCD: {
                 revenue: 195000,
-                profit: 1000
+                profit: 1000,
+                monthlyProfit: {
+                    '7月': 80, '8月': 85, '9月': 83, '10月': 84,
+                    '11月': 84, '12月': 85, '1月': 83, '2月': 82,
+                    '3月': 84, '4月': 84, '5月': 82, '6月': 84
+                }
             }
         };
 
@@ -841,12 +942,6 @@
             variance: {}
         };
 
-        // 新規追加: Coming Soon機能
-        function showComingSoon(pageName) {
-            alert(`${pageName}画面は開発中です。\n\n次期アップデートで実装予定:\n- ${pageName}画面\n- ナビゲーション機能\n- ページ間連携`);
-        }
-
-        // 新規追加: 役員報酬データの保存機能
         function saveExecutiveData() {
             const executiveData = {
                 adjustment: executiveAdjustment,
@@ -865,7 +960,6 @@
             }
         }
 
-        // 新規追加: 役員報酬データの読み込み機能
         function loadExecutiveData() {
             try {
                 const savedData = localStorage.getItem(LOCAL_STORAGE_KEYS.executive_data);
@@ -873,11 +967,9 @@
                     const executiveData = JSON.parse(savedData);
                     console.log('役員報酬データを読み込み:', executiveData);
                     
-                    // データの復元
                     executiveAdjustment = executiveData.adjustment || 0;
                     executiveBonusAmount = executiveData.bonusAmount || 300;
                     
-                    // UIの更新
                     document.getElementById('executive-bonus').value = executiveBonusAmount;
                     
                     return true;
@@ -888,29 +980,25 @@
             return false;
         }
 
-        // 前年対比分析を更新する関数
         function updateDepartmentComparison() {
-            // 現在の事業部データから年間合計を計算
             const currentYearData = {};
             
             Object.entries(systemData.departments).forEach(([deptId, dept]) => {
-                // 売上は別途計算が必要（現在はダミーデータ）
                 let currentRevenue = 0;
                 let currentProfit = Object.values(dept.forecastData).reduce((sum, val) => sum + val, 0);
                 
-                // 売上データの計算（各事業部の月次売上から）
                 switch(deptId) {
                     case 'SR':
-                        currentRevenue = 32450; // SRの年間売上合計
+                        currentRevenue = 32450;
                         break;
                     case 'W':
-                        currentRevenue = 15780; // Wの年間売上合計
+                        currentRevenue = 15780;
                         break;
                     case 'RC_OROSHI':
-                        currentRevenue = 20580; // RCの年間売上合計
+                        currentRevenue = 20580;
                         break;
                     case 'RCD_COMPANY':
-                        currentRevenue = 201900; // RCDの年間売上合計
+                        currentRevenue = 201900;
                         break;
                 }
                 
@@ -920,29 +1008,23 @@
                 };
             });
 
-            // 各事業部の比較データを更新
-            updateComparisonDisplay('sr', 'SR', currentYearData.SR, actualPreviousYearData.SR);
-            updateComparisonDisplay('w', 'W', currentYearData.W, actualPreviousYearData.W);
-            updateComparisonDisplay('rc', 'RC_OROSHI', currentYearData.RC_OROSHI, actualPreviousYearData.RC);
-            updateComparisonDisplay('rcd', 'RCD_COMPANY', currentYearData.RCD_COMPANY, actualPreviousYearData.RCD);
+            updateComparisonDisplay('sr', 'SR', currentYearData.SR, previousYearData.SR);
+            updateComparisonDisplay('w', 'W', currentYearData.W, previousYearData.W);
+            updateComparisonDisplay('rc', 'RC_OROSHI', currentYearData.RC_OROSHI, previousYearData.RC);
+            updateComparisonDisplay('rcd', 'RCD_COMPANY', currentYearData.RCD_COMPANY, previousYearData.RCD);
             
-            // 全体サマリーの更新
-            updateOverallSummary(currentYearData, actualPreviousYearData);
+            updateOverallSummary(currentYearData, previousYearData);
         }
 
-        // 個別事業部の比較表示を更新
         function updateComparisonDisplay(prefix, deptId, currentData, prevData) {
             if (!currentData || !prevData) return;
             
-            // 売上の比較
             const revenueDiff = currentData.revenue - prevData.revenue;
             const revenueRate = ((revenueDiff / prevData.revenue) * 100);
             
-            // 営業利益の比較
             const profitDiff = currentData.profit - prevData.profit;
             const profitRate = prevData.profit !== 0 ? ((profitDiff / Math.abs(prevData.profit)) * 100) : 0;
             
-            // HTMLの更新
             updateElement(`${prefix}-prev-revenue`, prevData.revenue.toLocaleString());
             updateElement(`${prefix}-curr-revenue`, currentData.revenue.toLocaleString());
             updateElement(`${prefix}-diff-revenue`, (revenueDiff >= 0 ? '+' : '') + revenueDiff.toLocaleString());
@@ -952,16 +1034,13 @@
             updateElement(`${prefix}-curr-profit`, currentData.profit.toLocaleString());
             updateElement(`${prefix}-diff-profit`, (profitDiff >= 0 ? '+' : '') + profitDiff.toLocaleString());
             
-            // 営業利益の増減率は特別処理（赤字の場合）
             if (prevData.profit < 0 && currentData.profit < 0) {
-                // 両方赤字の場合は改善度で表示
                 const improvementRate = ((Math.abs(prevData.profit) - Math.abs(currentData.profit)) / Math.abs(prevData.profit)) * 100;
                 updateElement(`${prefix}-rate-profit`, (improvementRate >= 0 ? '+' : '') + improvementRate.toFixed(1) + '%改善');
             } else {
                 updateElement(`${prefix}-rate-profit`, (profitRate >= 0 ? '+' : '') + profitRate.toFixed(1) + '%');
             }
             
-            // クラスの設定（正負で色分け）
             ['revenue', 'profit'].forEach(metric => {
                 const diffElement = document.getElementById(`${prefix}-diff-${metric}`);
                 const rateElement = document.getElementById(`${prefix}-rate-${metric}`);
@@ -974,7 +1053,6 @@
             });
         }
 
-        // 全体サマリーの更新
         function updateOverallSummary(currentData, prevData) {
             let totalCurrentRevenue = 0, totalPrevRevenue = 0;
             let improvingDepts = [], decliningDepts = [];
@@ -1002,8 +1080,7 @@
             
             const overallRevenueGrowth = ((totalCurrentRevenue - totalPrevRevenue) / totalPrevRevenue) * 100;
             
-            // サマリーテキストの更新
-            const summaryElement = document.querySelector('#department-comparison-section .bg-e8f4fd');
+            const summaryElement = document.querySelector('#department-comparison-section div[style*="background: #e8f4fd"]');
             if (summaryElement) {
                 summaryElement.innerHTML = `
                     <strong>分析サマリー:</strong>
@@ -1014,43 +1091,13 @@
             }
         }
 
-        // 外部から前年実績データを受け取る関数（予算入力画面から呼ばれる予定）
-        function receivePreviousYearData(data) {
-            Object.assign(actualPreviousYearData, data);
-            updateDepartmentComparison();
-            console.log('前年実績データを更新しました:', data);
-        }
-
-        // 外部から現在年度の予算データを受け取る関数
-        function receiveCurrentYearBudget(data) {
-            // systemDataを更新
-            if (data.departments) {
-                Object.entries(data.departments).forEach(([deptId, deptData]) => {
-                    if (systemData.departments[deptId]) {
-                        if (deptData.forecastData) {
-                            Object.assign(systemData.departments[deptId].forecastData, deptData.forecastData);
-                        }
-                    }
-                });
-            }
-            
-            // 表示を更新
-            updateDepartmentComparison();
-            calculateAndUpdateKPIs();
-            console.log('現在年度予算データを更新しました:', data);
-        }
-
         document.addEventListener('DOMContentLoaded', function() {
-            // localStorage移行処理を最初に実行
             migrateLocalStorageKeys();
-            
-            // 役員報酬データの読み込み
             loadExecutiveData();
-            
             updateCommonExpensesDisplay();
             updatePLSummaryTable();
             calculateAndUpdateKPIs();
-            updateDepartmentComparison(); // 前年対比分析の初期化
+            updateDepartmentComparison();
             initializeChart();
             initializeProfitComparisonChart();
         });
@@ -1119,7 +1166,6 @@
             updateElement('common-total', totalCommon.toLocaleString());
             updateElement('common-expenses-total', `-${totalCommon.toLocaleString()}万円`);
             
-            // 役員報酬データの保存（変更があった場合）
             saveExecutiveData();
         }
 
@@ -1534,28 +1580,36 @@
                 return departmentProfits[index] - commonExpensesMonthly;
             });
 
+            // 前年実績の最終利益データ
+            const previousYearFinalProfits = monthNames.map(month => {
+                return previousYearData.total.monthlyProfit[month] || 0;
+            });
+
             new Chart(ctx, {
-                type: 'line',
+                type: 'bar',
                 data: {
                     labels: monthNames,
                     datasets: [
                         {
+                            label: '前年実績',
+                            data: previousYearFinalProfits,
+                            backgroundColor: 'rgba(255, 193, 7, 0.7)',
+                            borderColor: '#ffc107',
+                            borderWidth: 1
+                        },
+                        {
                             label: '事業部営業利益合計',
                             data: departmentProfits,
+                            backgroundColor: 'rgba(52, 152, 219, 0.7)',
                             borderColor: '#3498db',
-                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                            borderWidth: 2,
-                            fill: false,
-                            tension: 0.4
+                            borderWidth: 1
                         },
                         {
                             label: '最終営業利益（共通経費控除後）',
                             data: finalProfits,
+                            backgroundColor: 'rgba(231, 76, 60, 0.7)',
                             borderColor: '#e74c3c',
-                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
-                            borderWidth: 2,
-                            fill: false,
-                            tension: 0.4
+                            borderWidth: 1
                         }
                     ]
                 },
@@ -1568,16 +1622,33 @@
                             labels: {
                                 font: { size: 10 }
                             }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += context.parsed.y.toLocaleString() + '万円';
+                                    return label;
+                                }
+                            }
                         }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
                             grid: { color: 'rgba(0, 0, 0, 0.1)' },
-                            ticks: { font: { size: 9 } }
+                            ticks: { 
+                                font: { size: 9 },
+                                callback: function(value) {
+                                    return value.toLocaleString() + '万円';
+                                }
+                            }
                         },
                         x: {
-                            grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                            grid: { display: false },
                             ticks: { font: { size: 9 } }
                         }
                     }
@@ -1623,16 +1694,6 @@
             alert(`予算が${source}から設定されました。`);
         }
 
-        function reloadAllData() {
-            updateCommonExpensesDisplay();
-            calculateAndUpdateKPIs();
-            alert('全データを再読み込みしました。');
-        }
-
-        function exportTotalPL() {
-            alert('統合PLエクスポート機能を実行します。');
-        }
-
         function updateElement(elementId, value) {
             const element = document.getElementById(elementId);
             if (element) {
@@ -1640,9 +1701,7 @@
             }
         }
 
-        // 新規追加: loadAllData関数（PL合算ページでデータ更新時に使用）
         function loadAllData() {
-            // 役員報酬データの再読み込み
             loadExecutiveData();
             updateCommonExpensesDisplay();
             calculateAndUpdateKPIs();
