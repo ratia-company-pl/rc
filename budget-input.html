@@ -373,7 +373,7 @@
             color: #1e40af;
         }
         
-        /* RC用の特別設定 - 超コンパクト版 */
+        /* RC卸用の特別設定 - 超コンパクト版 */
         .rc-target-setting {
             background: #ebf8ff;
             padding: 6px;
@@ -622,10 +622,10 @@
             </div>
         </div>
 
-        <!-- RC店事業部 -->
+        <!-- RC卸事業部 -->
         <div class="department-section" style="--dept-color: #38a169;">
             <div class="department-header">
-                <div class="department-title">RC店</div>
+                <div class="department-title">RC卸</div>
                 <div class="annual-summary" id="rc-annual">
                     年間合計: 0万円　前年増減: +0万円
                 </div>
@@ -698,8 +698,12 @@
                         <input type="number" id="rc-advertising" value="40" onchange="updateRCSettings(); calculateRC()">
                     </div>
                     <div class="setting-item">
-                        <label>展示会関連費</label>
-                        <input type="number" id="rc-exhibition" value="20" onchange="updateRCSettings(); calculateRC()">
+                        <label>12月展示会費</label>
+                        <input type="number" id="rc-december-exhibition" value="20" onchange="updateRCSettings(); calculateRC()">
+                    </div>
+                    <div class="setting-item">
+                        <label>4月ブース料</label>
+                        <input type="number" id="rc-april-booth" value="20" onchange="updateRCSettings(); calculateRC()">
                     </div>
                 </div>
             </div>
@@ -767,7 +771,7 @@
     </div>
 
     <script>
-        // localStorage統一ルール
+        // localStorageキー定義
         const LOCAL_STORAGE_KEYS = {
             sr_data: 'pl_system_sr_data',
             w_data: 'pl_system_w_data',
@@ -790,6 +794,7 @@
             RCD: [11037, 14297, 11504, 14664, 12507, 14920, 13661, 15455, 14439, 15857, 15478, 16360]
         };
 
+        // 修正版: RC卸の展示会費用を分離
         let currentData = {
             sr: {
                 stores: {
@@ -797,7 +802,7 @@
                     '静岡店': [369, 386, 600, 535, 285, 437, 351, 270, 369, 391, 256, 242],
                     '掛川店': [284, 375, 508, 278, 394, 394, 377, 309, 248, 469, 448, 535],
                     '市野店': [328, 547, 723, 520, 528, 607, 574, 318, 714, 657, 700, 600],
-                    '佐佐小店': [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
+                    '佐佐木店': [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
                     '広島店': [490, 493, 427, 542, 558, 416, 622, 641, 496, 385, 253, 620]
                 },
                 variables: {
@@ -819,7 +824,8 @@
                 targetRate: 0,
                 variables: {
                     advertising: 40,
-                    exhibition: 20
+                    decemberExhibition: 20,  // 12月展示会費用を分離
+                    aprilBoothFee: 20         // 4月ブース料を分離
                 }
             },
             rcd: {
@@ -854,6 +860,15 @@
                     const inputValues = JSON.parse(saved);
                     if (inputValues.currentData) {
                         currentData = inputValues.currentData;
+                        
+                        // RC卸のレガシーデータ対応
+                        if (currentData.rc && currentData.rc.variables) {
+                            if (!currentData.rc.variables.decemberExhibition && currentData.rc.variables.exhibition) {
+                                currentData.rc.variables.decemberExhibition = currentData.rc.variables.exhibition;
+                                currentData.rc.variables.aprilBoothFee = currentData.rc.variables.exhibition;
+                            }
+                        }
+                        
                         return true;
                     }
                 }
@@ -877,6 +892,7 @@
             }
         }
 
+        // 修正版: UI要素更新関数
         function updateAllUIElements() {
             const elements = {
                 'sr-commission': currentData.sr.variables.commission,
@@ -885,7 +901,8 @@
                 'sr-advertising': currentData.sr.variables.advertising,
                 'w-advertising': currentData.w.variables.advertising,
                 'rc-advertising': currentData.rc.variables.advertising,
-                'rc-exhibition': currentData.rc.variables.exhibition,
+                'rc-december-exhibition': currentData.rc.variables.decemberExhibition,
+                'rc-april-booth': currentData.rc.variables.aprilBoothFee,
                 'rc-target-rate': currentData.rc.targetRate
             };
 
@@ -935,9 +952,11 @@
             saveInputValues();
         }
 
+        // 修正版: RC設定更新関数
         function updateRCSettings() {
             currentData.rc.variables.advertising = parseInt(document.getElementById('rc-advertising').value) || 0;
-            currentData.rc.variables.exhibition = parseInt(document.getElementById('rc-exhibition').value) || 0;
+            currentData.rc.variables.decemberExhibition = parseInt(document.getElementById('rc-december-exhibition').value) || 0;
+            currentData.rc.variables.aprilBoothFee = parseInt(document.getElementById('rc-april-booth').value) || 0;
             saveInputValues();
         }
 
@@ -1367,7 +1386,7 @@
 
         function updateRCChart() {
             const totals = currentData.rc.variations.map(variation => currentData.rc.baseSales + variation);
-            createDepartmentChart('rc-chart', referenceData.RC, totals, 'RC店事業部');
+            createDepartmentChart('rc-chart', referenceData.RC, totals, 'RC卸事業部');
         }
 
         function updateRCDChart() {
@@ -1519,7 +1538,6 @@
             }
         }
 
-        // ⭐️ 修正版送信機能群
         // サイレント送信関数（アラートなし）
         function sendSRDataSilent() {
             const monthlySales = months.map((_, i) => {
@@ -1560,6 +1578,7 @@
             return currentData.w.sales.reduce((sum, val) => sum + val, 0);
         }
 
+        // 修正版: RC卸データ送信関数
         function sendRCDataSilent() {
             const rcSalesData = {
                 baseSales: currentData.rc.baseSales,
@@ -1569,8 +1588,8 @@
 
             const rcSettings = {
                 advertising: currentData.rc.variables.advertising,
-                decemberExhibition: currentData.rc.variables.exhibition,
-                aprilBoothFee: currentData.rc.variables.exhibition
+                decemberExhibition: currentData.rc.variables.decemberExhibition,  // 個別の値
+                aprilBoothFee: currentData.rc.variables.aprilBoothFee            // 個別の値
             };
 
             localStorage.setItem(LOCAL_STORAGE_KEYS.rc_data, JSON.stringify(rcSalesData));
@@ -1670,7 +1689,7 @@
             }
         }
 
-        // ⭐️ 修正版一括送信機能
+        // 一括送信機能
         function sendAllDataAndNavigateToPL() {
             try {
                 // サイレント送信実行（アラートなし）
@@ -1699,9 +1718,9 @@
                                `【送信結果】\n` +
                                `SR事業部: ${formatNumber(srTotal)}万円\n` +
                                `W事業部: ${formatNumber(wTotal)}万円\n` +
-                               `RC店: ${formatNumber(rcTotal)}万円\n` +
+                               `RC卸: ${formatNumber(rcTotal)}万円\n` +
                                `RCD社: ${formatNumber(rcdTotal)}万円\n` +
-                               `━━━━━━━━━━━━\n` +
+                               `━━━━━━━━━\n` +
                                `合計: ${formatNumber(grandTotal)}万円\n\n` +
                                `OKを押すと事業部合計PLページへ移動します。`;
                 
