@@ -551,29 +551,21 @@
         function loadLinkageData() {
             try {
                 const srSalesData = localStorage.getItem('pl_system_sr_data');
-                const srSettings = localStorage.getItem('pl_system_sr_settings');
                 
-                if (srSalesData && srSettings) {
+                if (srSalesData) {
                     const salesData = JSON.parse(srSalesData);
-                    const settings = JSON.parse(srSettings);
                     
                     // データ検証
-                    if (Array.isArray(salesData.monthlySales) && salesData.monthlySales.length === 12) {
-                        
+                    if (salesData.monthly && Array.isArray(salesData.monthly) && salesData.monthly.length === 12) {
                         // データを適用
-                        currentData.sr.monthlySales = salesData.monthlySales;
+                        currentData.sr.monthlySales = salesData.monthly.map(m => m.sales || 0);
                         
-                        if (settings.commission !== undefined) {
-                            currentData.sr.commission = settings.commission;
-                        }
-                        if (settings.bonus6 !== undefined) {
-                            currentData.sr.bonus6 = settings.bonus6;
-                        }
-                        if (settings.bonus12 !== undefined) {
-                            currentData.sr.bonus12 = settings.bonus12;
-                        }
-                        if (settings.advertising !== undefined) {
-                            currentData.sr.advertising = settings.advertising;
+                        // メタデータから設定を取得
+                        if (salesData.metadata) {
+                            currentData.sr.commission = salesData.metadata.commission || 100;
+                            currentData.sr.bonus6 = salesData.metadata.bonus6 || 100;
+                            currentData.sr.bonus12 = salesData.metadata.bonus12 || 0;
+                            currentData.sr.advertising = salesData.metadata.advertising || 30;
                         }
                         
                         linkageActive = true;
@@ -582,13 +574,13 @@
                         // 計算実行
                         calculateSR();
                         
-                        console.log('SR連携データ読み込み成功:', { salesData, settings });
+                        console.log('SR連携データ読み込み成功:', salesData);
                     } else {
                         throw new Error('データ形式が不正です');
                     }
                 } else {
                     linkageActive = false;
-                    updateLinkageStatus('warning', '連携データが見つかりません。手動入力モードです。');
+                    updateLinkageStatus('warning', '連携データが見つかりません。入力システムでデータを送信してください。');
                 }
             } catch (error) {
                 linkageActive = false;
@@ -989,7 +981,7 @@
             }
         }
 
-        // 修正版updateDashboard関数
+        // ダッシュボード更新
         function updateDashboard() {
             if (!window.srCurrentResults) return;
             const { monthlyResults, annual } = window.srCurrentResults;
@@ -998,9 +990,12 @@
                 department: 'SR事業部',
                 annual: {
                     sales: annual.sales,
+                    cogs: annual.cogs,
                     grossProfit: annual.grossProfit,
                     totalExpenses: annual.totalExpenses,
                     operatingProfit: annual.operatingProfit,
+                    personnel: annual.personnel,
+                    welfare: annual.welfare,
                     expenses: {
                         personnel: annual.personnel || 0,
                         welfare: annual.welfare || 0,
@@ -1011,9 +1006,12 @@
                 },
                 monthly: monthlyResults.map(month => ({
                     sales: month.sales,
+                    cogs: month.cogs,
                     grossProfit: month.grossProfit,
                     totalExpenses: month.totalExpenses,
                     operatingProfit: month.operatingProfit,
+                    personnel: month.personnel,
+                    welfare: month.welfare,
                     expenses: {
                         personnel: month.personnel || 0,
                         welfare: month.welfare || 0,
@@ -1088,9 +1086,8 @@
         function clearLinkageData() {
             if (confirm('連携データをクリアしますか？')) {
                 localStorage.removeItem('pl_system_sr_data');
-                localStorage.removeItem('pl_system_sr_settings');
                 linkageActive = false;
-                updateLinkageStatus('warning', '連携データをクリアしました。手動入力モードです。');
+                updateLinkageStatus('warning', '連携データをクリアしました。入力システムでデータを送信してください。');
                 
                 // デフォルト値にリセット
                 currentData.sr.monthlySales = [2236, 2917, 2927, 2810, 2544, 2664, 3008, 2325, 2403, 2603, 2229, 2722];
