@@ -666,28 +666,28 @@
                 const sales = Math.round(purchaseCount * this.constants.unitPrice * (1 + this.constants.profitRate));
                 
                 // 仕入原価
-                const purchases = purchaseCount * this.constants.unitPrice;
+                const cogs = purchaseCount * this.constants.unitPrice;
                 
                 // 売上総利益
-                const grossProfit = sales - purchases;
+                const grossProfit = sales - cogs;
                 
                 // 支払手数料（RCD社唯一の販管費）
                 const fees = Math.round(feeOccurrences * this.constants.feePerOccurrence);
                 
                 // 販売管理費計（支払手数料のみ）
-                const totalExpenses = fees;
+                const expenses = fees;
                 
                 // 営業利益
-                const operatingProfit = grossProfit - totalExpenses;
+                const operatingProfit = grossProfit - expenses;
                 
                 return {
                     purchaseCount: purchaseCount,
                     sales: sales,
-                    purchases: purchases,
+                    cogs: cogs,
                     grossProfit: grossProfit,
                     fees: fees,
                     feeOccurrences: feeOccurrences,
-                    totalExpenses: totalExpenses,
+                    expenses: expenses, // 統合システム用expenses項目
                     operatingProfit: operatingProfit
                 };
             }
@@ -862,9 +862,9 @@
                             </tr>
                             <tr class="expense-row">
                                 <td class="item-name">仕入原価</td>
-                                ${monthlyResults.map(m => `<td>${this.formatNumber(m.purchases)}</td>`).join('')}
-                                <td><strong>${this.formatNumber(annualData.purchases)}</strong></td>
-                                <td class="negative">+${this.formatNumber(Math.round(annualData.purchases * 0.03))}</td>
+                                ${monthlyResults.map(m => `<td>${this.formatNumber(m.cogs)}</td>`).join('')}
+                                <td><strong>${this.formatNumber(annualData.cogs)}</strong></td>
+                                <td class="negative">+${this.formatNumber(Math.round(annualData.cogs * 0.03))}</td>
                             </tr>
                             <tr class="profit-row">
                                 <td class="item-name">売上総利益</td>
@@ -881,9 +881,9 @@
                             </tr>
                             <tr class="total-row">
                                 <td class="item-name">販売管理費計</td>
-                                ${monthlyResults.map(m => `<td>${this.formatNumber(m.totalExpenses)}</td>`).join('')}
-                                <td><strong>${this.formatNumber(annualData.totalExpenses)}</strong></td>
-                                <td>${annualData.totalExpenses > 0 ? '+' : ''}${this.formatNumber(Math.round(annualData.totalExpenses * 0.05))}</td>
+                                ${monthlyResults.map(m => `<td>${this.formatNumber(m.expenses)}</td>`).join('')}
+                                <td><strong>${this.formatNumber(annualData.expenses)}</strong></td>
+                                <td>${annualData.expenses > 0 ? '+' : ''}${this.formatNumber(Math.round(annualData.expenses * 0.05))}</td>
                             </tr>
                             <tr class="profit-row">
                                 <td class="item-name">営業利益</td>
@@ -966,11 +966,11 @@
             const annualData = {
                 purchaseCount: monthlyResults.reduce((sum, m) => sum + m.purchaseCount, 0),
                 sales: monthlyResults.reduce((sum, m) => sum + m.sales, 0),
-                purchases: monthlyResults.reduce((sum, m) => sum + m.purchases, 0),
+                cogs: monthlyResults.reduce((sum, m) => sum + m.cogs, 0),
                 grossProfit: monthlyResults.reduce((sum, m) => sum + m.grossProfit, 0),
                 fees: monthlyResults.reduce((sum, m) => sum + m.fees, 0),
                 feeOccurrences: monthlyResults.reduce((sum, m) => sum + m.feeOccurrences, 0),
-                totalExpenses: monthlyResults.reduce((sum, m) => sum + m.totalExpenses, 0),
+                expenses: monthlyResults.reduce((sum, m) => sum + m.expenses, 0), // 統合システム用
                 operatingProfit: monthlyResults.reduce((sum, m) => sum + m.operatingProfit, 0)
             };
 
@@ -979,46 +979,53 @@
             UI_MANAGER.generateRCDTable(monthlyResults, annualData);
             UI_MANAGER.updateChart(monthlyResults);
 
-            // 統合システム用データ生成
-            const rcdDashboardData = {
+            // 統合システム用データ生成（v3.0仕様準拠）
+            const rcdIntegrationData = {
                 department: 'RCD社事業部',
+                // v3.0仕様：完全なデータ構造
+                sales: monthlyResults.map(m => m.sales),
+                cogs: monthlyResults.map(m => m.cogs),
+                personnel: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // 外部委託のため0
+                expenses: monthlyResults.map(m => m.expenses), // 主に支払手数料
+                metadata: {
+                    lastUpdate: new Date().toISOString(),
+                    dataSource: 'RCD社事業部',
+                    version: '3.0',
+                    calculationEngine: 'dynamic'
+                },
                 annual: {
                     sales: annualData.sales,
                     grossProfit: annualData.grossProfit,
-                    totalExpenses: annualData.totalExpenses,
+                    expenses: annualData.expenses, // 統合システムが参照
                     operatingProfit: annualData.operatingProfit,
-                    cogs: annualData.purchases,
-                    expenses: {
-                        fees: annualData.fees || 0,
-                        feeOccurrences: annualData.feeOccurrences || 0,
-                        personnel: 0,
-                        welfare: 0,
-                        othersFixed: 0
-                    }
+                    cogs: annualData.cogs,
+                    personnel: 0 // 外部委託のため0
                 },
                 monthly: monthlyResults.map(month => ({
                     sales: month.sales,
                     grossProfit: month.grossProfit,
-                    totalExpenses: month.totalExpenses,
+                    expenses: month.expenses, // 統合システムが参照
                     operatingProfit: month.operatingProfit,
-                    cogs: month.purchases,
-                    expenses: {
-                        fees: month.fees || 0,
-                        feeOccurrences: month.feeOccurrences || 0,
-                        personnel: 0,
-                        welfare: 0,
-                        othersFixed: 0
-                    }
+                    cogs: month.cogs,
+                    personnel: 0 // 外部委託のため0
                 })),
                 linkageActive: linkageActive,
                 timestamp: new Date().toISOString()
             };
 
+            // LocalStorageに保存（統合システム向け）
+            try {
+                localStorage.setItem(STORAGE_KEYS.rcd, JSON.stringify(rcdIntegrationData));
+                console.log('RCD統合データ保存完了（v3.0仕様）:', rcdIntegrationData);
+            } catch (error) {
+                console.error('RCD統合データ保存エラー:', error);
+            }
+
             // グローバル変数に保存（手動送信用）
-            window.currentRCDResults = rcdDashboardData;
+            window.currentRCDResults = rcdIntegrationData;
 
             // 自動データ送信
-            autoSendData(rcdDashboardData);
+            autoSendData(rcdIntegrationData);
         }
 
         // CSV出力
@@ -1039,10 +1046,10 @@
             const items = [
                 ['仕入本数', monthlyResults.map(m => m.purchaseCount)],
                 ['売上高', monthlyResults.map(m => m.sales)],
-                ['仕入原価', monthlyResults.map(m => m.purchases)],
+                ['仕入原価', monthlyResults.map(m => m.cogs)],
                 ['売上総利益', monthlyResults.map(m => m.grossProfit)],
                 ['支払手数料', monthlyResults.map(m => m.fees)],
-                ['販売管理費計', monthlyResults.map(m => m.totalExpenses)],
+                ['販売管理費計', monthlyResults.map(m => m.expenses)],
                 ['営業利益', monthlyResults.map(m => m.operatingProfit)]
             ];
             
@@ -1061,7 +1068,7 @@
 
         // 初期化処理
         function initialize() {
-            console.log('RCD社事業部PLシステム初期化開始');
+            console.log('RCD社事業部PLシステム初期化開始（v3.0統合対応）');
             
             // 連携データ読み込み（計算も含む）
             loadLinkageData();
