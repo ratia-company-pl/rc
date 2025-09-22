@@ -797,7 +797,7 @@
                     '静岡店': [369, 386, 600, 535, 285, 437, 351, 270, 369, 391, 256, 242],
                     '掛川店': [284, 375, 508, 278, 394, 394, 377, 309, 248, 469, 448, 535],
                     '市野店': [328, 547, 723, 520, 528, 607, 574, 318, 714, 657, 700, 600],
-                    '住吉台店': [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
+                    '佐佐小店': [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
                     '広島店': [490, 493, 427, 542, 558, 416, 622, 641, 496, 385, 253, 620]
                 },
                 variables: {
@@ -1519,135 +1519,200 @@
             }
         }
 
-        // 送信機能群
-        function sendSRDataToPLSystem() {
+        // ⭐️ 修正版送信機能群
+        // サイレント送信関数（アラートなし）
+        function sendSRDataSilent() {
+            const monthlySales = months.map((_, i) => {
+                return Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0);
+            });
+
+            const srSalesData = {
+                monthlySales: monthlySales,
+                timestamp: new Date().toISOString()
+            };
+
+            const srSettings = {
+                commission: currentData.sr.variables.commission,
+                bonus6: currentData.sr.variables.bonus6,
+                bonus12: currentData.sr.variables.bonus12,
+                advertising: currentData.sr.variables.advertising
+            };
+
+            localStorage.setItem(LOCAL_STORAGE_KEYS.sr_data, JSON.stringify(srSalesData));
+            localStorage.setItem(LOCAL_STORAGE_KEYS.sr_settings, JSON.stringify(srSettings));
+            
+            return monthlySales.reduce((sum, val) => sum + val, 0);
+        }
+
+        function sendWDataSilent() {
+            const wSalesData = {
+                monthlySales: currentData.w.sales,
+                timestamp: new Date().toISOString()
+            };
+
+            const wSettings = {
+                advertising: currentData.w.variables.advertising
+            };
+
+            localStorage.setItem(LOCAL_STORAGE_KEYS.w_data, JSON.stringify(wSalesData));
+            localStorage.setItem(LOCAL_STORAGE_KEYS.w_settings, JSON.stringify(wSettings));
+            
+            return currentData.w.sales.reduce((sum, val) => sum + val, 0);
+        }
+
+        function sendRCDataSilent() {
+            const rcSalesData = {
+                baseSales: currentData.rc.baseSales,
+                variations: currentData.rc.variations,
+                timestamp: new Date().toISOString()
+            };
+
+            const rcSettings = {
+                advertising: currentData.rc.variables.advertising,
+                decemberExhibition: currentData.rc.variables.exhibition,
+                aprilBoothFee: currentData.rc.variables.exhibition
+            };
+
+            localStorage.setItem(LOCAL_STORAGE_KEYS.rc_data, JSON.stringify(rcSalesData));
+            localStorage.setItem(LOCAL_STORAGE_KEYS.rc_settings, JSON.stringify(rcSettings));
+            
+            const monthlySales = currentData.rc.variations.map(variation => currentData.rc.baseSales + variation);
+            return monthlySales.reduce((sum, val) => sum + val, 0);
+        }
+
+        function sendRCDDataSilent() {
+            const rcdSalesData = {
+                purchases: currentData.rcd.purchases,
+                timestamp: new Date().toISOString()
+            };
+
+            const rcdSettings = {
+                feeOccurrences: currentData.rcd.fees
+            };
+
+            localStorage.setItem(LOCAL_STORAGE_KEYS.rcd_data, JSON.stringify(rcdSalesData));
+            localStorage.setItem(LOCAL_STORAGE_KEYS.rcd_settings, JSON.stringify(rcdSettings));
+            
+            const monthlySales = currentData.rcd.purchases.map(purchase => Math.round(purchase * 2000 * 1.03));
+            return monthlySales.reduce((sum, val) => sum + val, 0);
+        }
+
+        // 個別送信関数（アラート付き）
+        function sendSRDataToPLSystem(showAlert = true) {
             try {
-                const monthlySales = months.map((_, i) => {
-                    return Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0);
-                });
-
-                const srSalesData = {
-                    monthlySales: monthlySales,
-                    timestamp: new Date().toISOString()
-                };
-
-                const srSettings = {
-                    commission: currentData.sr.variables.commission,
-                    bonus6: currentData.sr.variables.bonus6,
-                    bonus12: currentData.sr.variables.bonus12,
-                    advertising: currentData.sr.variables.advertising
-                };
-
-                localStorage.setItem(LOCAL_STORAGE_KEYS.sr_data, JSON.stringify(srSalesData));
-                localStorage.setItem(LOCAL_STORAGE_KEYS.sr_settings, JSON.stringify(srSettings));
-
-                const annual = monthlySales.reduce((sum, val) => sum + val, 0);
-                alert('SRデータをPLシステムに送信しました！\n\n' +
-                      '年間合計: ' + formatNumber(annual) + '万円\n' +
-                      '送信時刻: ' + new Date().toLocaleTimeString());
-
+                const annual = sendSRDataSilent();
+                
+                if (showAlert) {
+                    alert('SRデータをPLシステムに送信しました！\n\n' +
+                          '年間合計: ' + formatNumber(annual) + '万円\n' +
+                          '送信時刻: ' + new Date().toLocaleTimeString());
+                }
+                return true;
             } catch (error) {
-                alert('データ送信に失敗しました: ' + error.message);
+                if (showAlert) {
+                    alert('データ送信に失敗しました: ' + error.message);
+                }
+                throw error;
             }
         }
 
-        function sendWDataToPLSystem() {
+        function sendWDataToPLSystem(showAlert = true) {
             try {
-                const wSalesData = {
-                    monthlySales: currentData.w.sales,
-                    timestamp: new Date().toISOString()
-                };
-
-                const wSettings = {
-                    advertising: currentData.w.variables.advertising
-                };
-
-                localStorage.setItem(LOCAL_STORAGE_KEYS.w_data, JSON.stringify(wSalesData));
-                localStorage.setItem(LOCAL_STORAGE_KEYS.w_settings, JSON.stringify(wSettings));
-
-                const annual = currentData.w.sales.reduce((sum, val) => sum + val, 0);
-                alert('WデータをPLシステムに送信しました！\n\n' +
-                      '年間合計: ' + formatNumber(annual) + '万円\n' +
-                      '送信時刻: ' + new Date().toLocaleTimeString());
-
+                const annual = sendWDataSilent();
+                
+                if (showAlert) {
+                    alert('WデータをPLシステムに送信しました！\n\n' +
+                          '年間合計: ' + formatNumber(annual) + '万円\n' +
+                          '送信時刻: ' + new Date().toLocaleTimeString());
+                }
+                return true;
             } catch (error) {
-                alert('Wデータ送信に失敗しました: ' + error.message);
+                if (showAlert) {
+                    alert('Wデータ送信に失敗しました: ' + error.message);
+                }
+                throw error;
             }
         }
 
-        function sendRCDataToPLSystem() {
+        function sendRCDataToPLSystem(showAlert = true) {
             try {
-                const rcSalesData = {
-                    baseSales: currentData.rc.baseSales,
-                    variations: currentData.rc.variations,
-                    timestamp: new Date().toISOString()
-                };
-
-                const rcSettings = {
-                    advertising: currentData.rc.variables.advertising,
-                    decemberExhibition: currentData.rc.variables.exhibition,
-                    aprilBoothFee: currentData.rc.variables.exhibition
-                };
-
-                localStorage.setItem(LOCAL_STORAGE_KEYS.rc_data, JSON.stringify(rcSalesData));
-                localStorage.setItem(LOCAL_STORAGE_KEYS.rc_settings, JSON.stringify(rcSettings));
-
-                const monthlySales = currentData.rc.variations.map(variation => currentData.rc.baseSales + variation);
-                const annual = monthlySales.reduce((sum, val) => sum + val, 0);
-                alert('RCデータをPLシステムに送信しました！\n\n' +
-                      '年間合計: ' + formatNumber(annual) + '万円\n' +
-                      '送信時刻: ' + new Date().toLocaleTimeString());
-
+                const annual = sendRCDataSilent();
+                
+                if (showAlert) {
+                    alert('RCデータをPLシステムに送信しました！\n\n' +
+                          '年間合計: ' + formatNumber(annual) + '万円\n' +
+                          '送信時刻: ' + new Date().toLocaleTimeString());
+                }
+                return true;
             } catch (error) {
-                alert('RCデータ送信に失敗しました: ' + error.message);
+                if (showAlert) {
+                    alert('RCデータ送信に失敗しました: ' + error.message);
+                }
+                throw error;
             }
         }
 
-        function sendRCDDataToPLSystem() {
+        function sendRCDDataToPLSystem(showAlert = true) {
             try {
-                const rcdSalesData = {
-                    purchases: currentData.rcd.purchases,
-                    timestamp: new Date().toISOString()
-                };
-
-                const rcdSettings = {
-                    feeOccurrences: currentData.rcd.fees
-                };
-
-                localStorage.setItem(LOCAL_STORAGE_KEYS.rcd_data, JSON.stringify(rcdSalesData));
-                localStorage.setItem(LOCAL_STORAGE_KEYS.rcd_settings, JSON.stringify(rcdSettings));
-
-                const monthlySales = currentData.rcd.purchases.map(purchase => Math.round(purchase * 2000 * 1.03));
-                const annual = monthlySales.reduce((sum, val) => sum + val, 0);
-                alert('RCDデータをPLシステムに送信しました！\n\n' +
-                      '年間合計: ' + formatNumber(annual) + '万円\n' +
-                      '送信時刻: ' + new Date().toLocaleTimeString());
-
+                const annual = sendRCDDataSilent();
+                
+                if (showAlert) {
+                    alert('RCDデータをPLシステムに送信しました！\n\n' +
+                          '年間合計: ' + formatNumber(annual) + '万円\n' +
+                          '送信時刻: ' + new Date().toLocaleTimeString());
+                }
+                return true;
             } catch (error) {
-                alert('RCDデータ送信に失敗しました: ' + error.message);
+                if (showAlert) {
+                    alert('RCDデータ送信に失敗しました: ' + error.message);
+                }
+                throw error;
             }
         }
 
+        // ⭐️ 修正版一括送信機能
         function sendAllDataAndNavigateToPL() {
             try {
-                sendSRDataToPLSystem();
-                sendWDataToPLSystem(); 
-                sendRCDataToPLSystem();
-                sendRCDDataToPLSystem();
+                // サイレント送信実行（アラートなし）
+                const srTotal = sendSRDataSilent();
+                const wTotal = sendWDataSilent(); 
+                const rcTotal = sendRCDataSilent();
+                const rcdTotal = sendRCDDataSilent();
                 
+                // 統合フラグを設定
                 localStorage.setItem('all_data_sync_flag', JSON.stringify({
                     timestamp: new Date().toISOString(),
-                    status: 'completed'
+                    status: 'completed',
+                    departments: {
+                        sr: srTotal,
+                        w: wTotal,
+                        rc: rcTotal,
+                        rcd: rcdTotal
+                    }
                 }));
                 
-                setTimeout(() => {
-                    window.location.href = 'combined-dashboard/index.html';
-                }, 1000);
+                // 合計を計算
+                const grandTotal = srTotal + wTotal + rcTotal + rcdTotal;
                 
-                alert('全事業部データを事業部合計PLに送信しました！\n\n1秒後に事業部合計PLページに移動します。');
+                // 確認メッセージを表示（1回のみ）
+                const message = `全事業部データの送信が完了しました！\n\n` +
+                               `【送信結果】\n` +
+                               `SR事業部: ${formatNumber(srTotal)}万円\n` +
+                               `W事業部: ${formatNumber(wTotal)}万円\n` +
+                               `RC店: ${formatNumber(rcTotal)}万円\n` +
+                               `RCD社: ${formatNumber(rcdTotal)}万円\n` +
+                               `━━━━━━━━━━━━\n` +
+                               `合計: ${formatNumber(grandTotal)}万円\n\n` +
+                               `OKを押すと事業部合計PLページへ移動します。`;
+                
+                // ユーザー確認後にページ遷移
+                if (confirm(message)) {
+                    window.location.href = 'combined-dashboard/index.html';
+                }
                 
             } catch (error) {
-                alert('一括送信に失敗しました: ' + error.message);
+                console.error('一括送信エラー:', error);
+                alert('データ送信中にエラーが発生しました。\n\nエラー内容: ' + error.message);
             }
         }
 
@@ -1683,7 +1748,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'budget_input_data.json';
+            a.download = `budget_input_data_${new Date().toISOString().split('T')[0]}.json`;
             a.click();
             URL.revokeObjectURL(url);
         }
