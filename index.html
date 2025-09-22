@@ -305,6 +305,73 @@
             height: 220px;
         }
 
+        .target-section {
+            padding: 10px;
+            background: #f8f9fa;
+            border-top: 1px solid #eee;
+        }
+
+        .target-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .target-toggle {
+            padding: 4px 12px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.7em;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-active {
+            background: #27ae60;
+            color: white;
+        }
+
+        .toggle-inactive {
+            background: #bdc3c7;
+            color: #7f8c8d;
+        }
+
+        .target-input input {
+            padding: 3px 6px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            width: 80px;
+            font-size: 0.75em;
+        }
+
+        .micro-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.65em;
+            margin-bottom: 8px;
+        }
+
+        .micro-table th,
+        .micro-table td {
+            padding: 2px 4px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+
+        .micro-table th {
+            background: #34495e;
+            color: white;
+            font-weight: 600;
+            font-size: 0.6em;
+        }
+
+        .micro-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
         .debug-section {
             background: #f8f9fa;
             border: 1px solid #dee2e6;
@@ -355,7 +422,7 @@
                     最終営業利益 <span id="header-final-profit">---</span>万円（共通経費控除後・目標配分<span id="header-allocation-status">OFF</span>）
                 </td>
                 <td class="header-right">
-                    4事業部統合PLシミュレーター Step1-4完全版
+                    4事業部統合PLシミュレーター Step1-4完全版（目標配分復旧）
                 </td>
             </tr>
         </table>
@@ -417,6 +484,55 @@
             <div style="background: #e8f4fd; padding: 8px; border-radius: 4px; margin-top: 10px; font-size: 0.65em;">
                 <strong>分析サマリー:</strong>
                 <span id="analysis-summary">データ読み込み中...</span>
+            </div>
+        </div>
+
+        <div class="target-section">
+            <div class="section-title">目標配分機能（損失圧縮ロジック）</div>
+            
+            <div class="target-controls">
+                <button id="allocation-toggle-btn" class="target-toggle toggle-inactive" onclick="toggleTargetAllocation()">
+                    目標配分OFF
+                </button>
+                <div class="target-input">
+                    <label style="font-size: 0.7em;">年間目標:</label>
+                    <input type="number" id="total-target" value="6000" step="100" onchange="updateTargetAllocation()">
+                    <span style="font-size: 0.7em;">万円</span>
+                </div>
+            </div>
+
+            <div id="allocation-results" style="display: none;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <table class="micro-table">
+                            <thead>
+                                <tr>
+                                    <th>事業部</th>
+                                    <th>戦略</th>
+                                    <th>現在利益</th>
+                                    <th>目標利益</th>
+                                    <th>改善額</th>
+                                    <th>売上増率</th>
+                                    <th>現実性</th>
+                                </tr>
+                            </thead>
+                            <tbody id="allocation-table">
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div style="background: white; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
+                        <div style="font-size: 0.7em; font-weight: 600; margin-bottom: 8px; text-align: center; color: #2c3e50;">利益比較チャート</div>
+                        <div style="position: relative; height: 200px;">
+                            <canvas id="profit-comparison-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: #fff3cd; padding: 6px; border-radius: 4px; font-size: 0.65em; margin-top: 6px;">
+                    <strong>配分ロジック:</strong>
+                    赤字事業部（SR）:月+100万固定 | 黒字事業部（W・RC卸）:効率配分 | RCD社:計画受注により除外 | 制約:売上増20%上限
+                </div>
             </div>
         </div>
 
@@ -589,6 +705,7 @@
                         <div style="margin-left: 10px;">✓ Step2: データステータス表示</div>
                         <div style="margin-left: 10px;">✓ Step3: 個別事業部データ表示</div>
                         <div style="margin-left: 10px;">✓ Step4: 前年対比分析</div>
+                        <div style="margin-left: 10px;">✓ 目標配分機能復旧</div>
                     `;
                 }
             }
@@ -892,6 +1009,316 @@
             }
         };
 
+        // 目標配分機能（完全復旧）
+        const targetAllocation = {
+            isEnabled: false,
+            totalTarget: 6000
+        };
+
+        let profitComparisonChart = null;
+
+        function calculateTargetAllocation(totalTarget, departmentData) {
+            const result = {};
+            
+            const departmentSettings = {
+                sr: { profitMargin: 0.02, strategicImportance: 0.8, allocatable: true },
+                w: { profitMargin: 0.15, strategicImportance: 0.9, allocatable: true },
+                rc: { profitMargin: 0.08, strategicImportance: 0.7, allocatable: true },
+                rcd: { profitMargin: 0.005, strategicImportance: 0.6, allocatable: false }
+            };
+
+            let remainingTarget = totalTarget;
+            const blackProfitDepartments = [];
+
+            // データがない場合は仮想データを使用
+            const virtualDepartmentData = {
+                sr: { name: 'SR事業部', annualProfit: -3054, dataStatus: 'loaded' },
+                w: { name: 'W事業部', annualProfit: 2370, dataStatus: 'loaded' },
+                rc: { name: 'RC卸事業部', annualProfit: 1510, dataStatus: 'loaded' },
+                rcd: { name: 'RCD社事業部', annualProfit: 1115, dataStatus: 'loaded' }
+            };
+
+            const dataToUse = Object.keys(departmentData).length > 0 ? departmentData : virtualDepartmentData;
+
+            Object.entries(dataToUse).forEach(([deptId, data]) => {
+                if (data.dataStatus !== 'loaded') return;
+                
+                const settings = departmentSettings[deptId];
+                if (!settings) return;
+
+                if (!settings.allocatable) {
+                    result[deptId] = {
+                        name: data.name,
+                        currentProfit: data.annualProfit,
+                        targetProfit: data.annualProfit,
+                        strategyType: '対象外',
+                        improvementEffect: 0,
+                        salesIncreaseRate: '-',
+                        feasibility: 'excluded',
+                        allocationType: 'excluded'
+                    };
+                    return;
+                }
+
+                const currentProfit = data.annualProfit;
+                
+                if (currentProfit < 0) {
+                    const fixedAnnualImprovement = 1200;
+                    
+                    result[deptId] = {
+                        name: data.name,
+                        currentProfit: currentProfit,
+                        targetProfit: currentProfit + fixedAnnualImprovement,
+                        strategyType: '赤字改善',
+                        improvementEffect: fixedAnnualImprovement,
+                        salesIncreaseRate: '固定',
+                        feasibility: 'fixed_improvement',
+                        allocationType: 'red_deficit'
+                    };
+                    
+                    remainingTarget -= fixedAnnualImprovement;
+                } else {
+                    blackProfitDepartments.push([deptId, data, settings]);
+                }
+            });
+
+            if (blackProfitDepartments.length > 0 && remainingTarget > 0) {
+                const totalEfficiencyScore = blackProfitDepartments.reduce((sum, [_, __, settings]) => 
+                    sum + (settings.profitMargin * settings.strategicImportance), 0);
+                
+                blackProfitDepartments.forEach(([deptId, data, settings]) => {
+                    const currentProfit = data.annualProfit;
+                    const efficiencyScore = settings.profitMargin * settings.strategicImportance;
+                    const allocation = Math.max(0, (efficiencyScore / totalEfficiencyScore) * remainingTarget);
+                    
+                    const estimatedSales = currentProfit / settings.profitMargin;
+                    const requiredSalesIncrease = allocation / settings.profitMargin;
+                    const salesIncreaseRate = estimatedSales > 0 ? (requiredSalesIncrease / estimatedSales) * 100 : 0;
+                    
+                    result[deptId] = {
+                        name: data.name,
+                        currentProfit: currentProfit,
+                        targetProfit: Math.round(currentProfit + allocation),
+                        strategyType: '効率成長',
+                        improvementEffect: Math.round(allocation),
+                        salesIncreaseRate: salesIncreaseRate.toFixed(1) + '%',
+                        feasibility: salesIncreaseRate <= 20 ? 'realistic' : 'challenging',
+                        allocationType: 'efficiency_based'
+                    };
+                });
+            }
+            
+            return result;
+        }
+
+        function toggleTargetAllocation() {
+            targetAllocation.isEnabled = !targetAllocation.isEnabled;
+            
+            const toggleBtn = document.getElementById('allocation-toggle-btn');
+            const allocationResults = document.getElementById('allocation-results');
+            
+            if (targetAllocation.isEnabled) {
+                toggleBtn.textContent = '目標配分ON';
+                toggleBtn.className = 'target-toggle toggle-active';
+                allocationResults.style.display = 'block';
+                DataSyncManager.updateElement('header-allocation-status', 'ON');
+                updateTargetAllocation();
+            } else {
+                toggleBtn.textContent = '目標配分OFF';
+                toggleBtn.className = 'target-toggle toggle-inactive';
+                allocationResults.style.display = 'none';
+                DataSyncManager.updateElement('target-achievement', '---%');
+                DataSyncManager.updateElement('target-status', '目標配分OFF');
+                DataSyncManager.updateElement('header-allocation-status', 'OFF');
+            }
+        }
+
+        function updateTargetAllocation() {
+            if (!targetAllocation.isEnabled) return;
+
+            const totalTargetInput = document.getElementById('total-target');
+            targetAllocation.totalTarget = parseInt(totalTargetInput.value) || 6000;
+
+            const { departmentData } = DataSyncManager.updateDataSyncStatus();
+            const allocationData = calculateTargetAllocation(targetAllocation.totalTarget, departmentData);
+            updateAllocationTable(allocationData);
+            updateProfitComparisonChart(allocationData);
+
+            // 目標達成率計算
+            let finalProfit = 0;
+            Object.entries(departmentData).forEach(([dept, data]) => {
+                if (data.dataStatus === 'loaded') {
+                    finalProfit += data.annualProfit;
+                }
+            });
+            finalProfit -= calculateCommonExpensesTotal();
+            
+            const achievementRate = (finalProfit / targetAllocation.totalTarget) * 100;
+            DataSyncManager.updateElement('target-achievement', `${achievementRate.toFixed(1)}%`);
+            DataSyncManager.updateElement('target-status', '目標配分ON');
+        }
+
+        function updateAllocationTable(allocationData) {
+            const tableBody = document.getElementById('allocation-table');
+            if (!tableBody) return;
+
+            tableBody.innerHTML = '';
+            
+            Object.entries(allocationData).forEach(([deptId, data]) => {
+                const row = document.createElement('tr');
+                
+                let feasibilityColor, feasibilityText;
+                switch(data.feasibility) {
+                    case 'fixed_improvement':
+                        feasibilityColor = '#f39c12';
+                        feasibilityText = '固定改善';
+                        break;
+                    case 'realistic':
+                        feasibilityColor = '#27ae60';
+                        feasibilityText = '現実的';
+                        break;
+                    case 'challenging':
+                        feasibilityColor = '#e74c3c';
+                        feasibilityText = '要検討';
+                        break;
+                    case 'excluded':
+                        feasibilityColor = '#95a5a6';
+                        feasibilityText = '対象外';
+                        break;
+                    default:
+                        feasibilityColor = '#3498db';
+                        feasibilityText = data.feasibility;
+                }
+                
+                row.innerHTML = `
+                    <td style="font-weight: bold; font-size: 0.6em;">${data.name}</td>
+                    <td><span style="padding: 1px 4px; border-radius: 6px; font-size: 0.55em; ${
+                        data.allocationType === 'red_deficit' ? 'background: #ffe0e0; color: #c62828;' :
+                        data.allocationType === 'efficiency_based' ? 'background: #e0f2e0; color: #2e7d32;' :
+                        'background: #f0f0f0; color: #616161;'
+                    }">${data.strategyType}</span></td>
+                    <td class="${data.currentProfit >= 0 ? 'positive' : 'negative'}">
+                        ${data.currentProfit.toLocaleString()}
+                    </td>
+                    <td class="${data.targetProfit >= 0 ? 'positive' : 'negative'}">
+                        ${data.targetProfit.toLocaleString()}
+                    </td>
+                    <td class="positive">
+                        +${data.improvementEffect.toLocaleString()}
+                    </td>
+                    <td style="color: ${
+                        data.salesIncreaseRate.includes('%') && parseFloat(data.salesIncreaseRate) > 20 ? '#e74c3c' : 
+                        data.salesIncreaseRate.includes('%') ? '#27ae60' : '#95a5a6'
+                    };">
+                        ${data.salesIncreaseRate}
+                    </td>
+                    <td style="color: ${feasibilityColor}; font-weight: bold; font-size: 0.6em;">
+                        ${feasibilityText}
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function initializeProfitComparisonChart() {
+            const ctx = document.getElementById('profit-comparison-chart');
+            if (!ctx) return;
+
+            profitComparisonChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: '現在利益',
+                            data: [],
+                            backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                            borderColor: '#3498db',
+                            borderWidth: 1
+                        },
+                        {
+                            label: '目標利益',
+                            data: [],
+                            backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                            borderColor: '#2ecc71',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: { size: 10 }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                            ticks: { 
+                                font: { size: 9 },
+                                callback: function(value) {
+                                    return value + '万円';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { size: 9 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateProfitComparisonChart(allocationData) {
+            if (!profitComparisonChart) {
+                initializeProfitComparisonChart();
+            }
+            
+            const labels = [];
+            const currentProfits = [];
+            const targetProfits = [];
+
+            // 部門順序を固定してW事業部を確実に表示
+            const departmentOrder = ['sr', 'w', 'rc', 'rcd'];
+            
+            departmentOrder.forEach(deptId => {
+                if (allocationData[deptId]) {
+                    const data = allocationData[deptId];
+                    labels.push(data.name.replace('事業部', ''));
+                    currentProfits.push(data.currentProfit);
+                    targetProfits.push(data.targetProfit);
+                }
+            });
+
+            // データがない場合のフォールバック
+            if (labels.length === 0) {
+                const fallbackData = {
+                    sr: { name: 'SR', currentProfit: -3054, targetProfit: -1854 },
+                    w: { name: 'W', currentProfit: 2370, targetProfit: 4607 },
+                    rc: { name: 'RC卸', currentProfit: 1510, targetProfit: 1333 },
+                    rcd: { name: 'RCD社', currentProfit: 1115, targetProfit: 1115 }
+                };
+                
+                Object.values(fallbackData).forEach(data => {
+                    labels.push(data.name);
+                    currentProfits.push(data.currentProfit);
+                    targetProfits.push(data.targetProfit);
+                });
+            }
+
+            profitComparisonChart.data.labels = labels;
+            profitComparisonChart.data.datasets[0].data = currentProfits;
+            profitComparisonChart.data.datasets[1].data = targetProfits;
+            profitComparisonChart.update();
+        }
+
         // 共通経費計算（既存ロジック維持）
         const commonExpensesData = {
             executiveSalary: {
@@ -952,6 +1379,11 @@
                 finalCard.className = 'kpi-card ' + (finalProfit >= 0 ? 'final-positive' : 'final-negative');
             }
 
+            // 目標配分が有効な場合は更新
+            if (targetAllocation.isEnabled) {
+                updateTargetAllocation();
+            }
+
             // チャート更新
             updateDynamicChart(departmentData);
 
@@ -1005,6 +1437,7 @@
             console.log('Step1-4統合ダッシュボード初期化開始');
             executeStep1to4Pipeline();
             initializeDynamicChart();
+            initializeProfitComparisonChart();
         });
 
         function initializeDynamicChart() {
@@ -1053,23 +1486,25 @@
 
         // デバッグ関数
         function exportDebugData() {
-            const departmentData = DynamicDataManager.loadDepartmentDataFromStorage();
+            const { departmentData } = DataSyncManager.updateDataSyncStatus();
             const analysisData = YearOverYearAnalysis.analyzeYearOverYear(departmentData);
             
             const debugData = {
                 timestamp: new Date().toISOString(),
-                version: 'Step1-4完全版',
+                version: 'Step1-4完全版（目標配分復旧）',
                 storageKeys: STORAGE_KEYS,
                 departmentData: departmentData,
                 analysisData: analysisData,
                 commonExpenses: calculateCommonExpensesTotal(),
+                targetAllocation: targetAllocation,
                 step1_dataAcquisition: 'completed',
                 step2_statusDisplay: 'completed',
                 step3_individualDisplay: 'completed',
-                step4_yearOverYear: 'completed'
+                step4_yearOverYear: 'completed',
+                targetAllocationFunction: 'restored'
             };
             
-            console.log('Step1-4統合デバッグデータ:', debugData);
+            console.log('Step1-4統合デバッグデータ（目標配分復旧版）:', debugData);
             
             const textarea = document.createElement('textarea');
             textarea.value = JSON.stringify(debugData, null, 2);
