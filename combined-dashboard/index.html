@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4事業部統合PLシステム（v3.0販管費動的統合対応版）</title>
+    <title>4事業部統合PLシステム（シンプル版）</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -34,32 +34,10 @@
         .header h1 {
             font-size: 2.5rem;
             margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
         .subtitle {
             font-size: 1rem;
             opacity: 0.9;
-        }
-        .nav-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-        .nav-btn {
-            background: rgba(255,255,255,0.2);
-            border: 2px solid rgba(255,255,255,0.3);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-        .nav-btn:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
         }
         .kpi-section {
             display: grid;
@@ -109,15 +87,37 @@
             padding-bottom: 10px;
             border-bottom: 3px solid #4ECDC4;
         }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .action-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            color: white;
+        }
+        .btn-primary { background: #667eea; }
+        .btn-success { background: #4CAF50; }
+        .btn-info { background: #2196F3; }
+        .btn-warning { background: #FF9800; }
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
         .chart-container {
             background: white;
             border-radius: 12px;
             padding: 25px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             margin-bottom: 30px;
-        }
-        .chart-wrapper {
-            position: relative;
             height: 400px;
         }
         .data-table {
@@ -141,8 +141,6 @@
             background: #f8f9ff;
             font-weight: 600;
             color: #333;
-            position: sticky;
-            top: 0;
         }
         td:first-child, th:first-child {
             text-align: left;
@@ -150,46 +148,6 @@
         }
         .positive { color: #4CAF50; }
         .negative { color: #f44336; }
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-            margin: 20px 0;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .action-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-        }
-        .debug-btn {
-            background: linear-gradient(135deg, #FFA726, #FF7043);
-        }
-        .export-btn {
-            background: linear-gradient(135deg, #66BB6A, #43A047);
-        }
-        .analysis-btn {
-            background: linear-gradient(135deg, #42A5F5, #1E88E5);
-        }
-        .trend-btn {
-            background: linear-gradient(135deg, #AB47BC, #8E24AA);
-        }
-        .backup-btn {
-            background: linear-gradient(135deg, #FF7043, #F4511E);
-        }
-        .localstorage-btn {
-            background: linear-gradient(135deg, #26C6DA, #00ACC1);
-        }
         .debug-info {
             background: #f8f9fa;
             border: 1px solid #dee2e6;
@@ -202,68 +160,21 @@
             overflow-y: auto;
             display: none;
         }
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-        .error-message {
-            background: #ffebee;
-            color: #c62828;
+        .message {
             padding: 15px;
             border-radius: 8px;
             margin: 15px 0;
-            border-left: 4px solid #f44336;
+            display: none;
         }
         .success-message {
             background: #e8f5e8;
             color: #2e7d32;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
             border-left: 4px solid #4caf50;
         }
-        .data-integration-info {
-            background: linear-gradient(135deg, #ffebf0 0%, #fce4ec 100%);
-            border: 1px solid #f8bbd9;
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-        .integration-title {
-            color: #c2185b;
-            font-weight: bold;
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-        .integration-item {
-            display: flex;
-            align-items: center;
-            margin: 8px 0;
-            color: #880e4f;
-        }
-        .integration-item::before {
-            content: "✓";
-            color: #4caf50;
-            font-weight: bold;
-            margin-right: 8px;
-        }
-        @media (max-width: 768px) {
-            .kpi-section {
-                grid-template-columns: 1fr;
-                padding: 20px;
-            }
-            .nav-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            .action-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            .header h1 {
-                font-size: 2rem;
-            }
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #f44336;
         }
     </style>
 </head>
@@ -271,733 +182,477 @@
     <div class="container">
         <div class="header">
             <h1>4事業部統合PLシステム</h1>
-            <p class="subtitle">v3.0版★統合分析による部門横断的管理会計最適化（販管費動的統合対応）～全社戦略</p>
-            
-            <div class="nav-buttons">
-                <button class="nav-btn" onclick="showDashboard()">ダッシュボード</button>
-                <button class="nav-btn" onclick="showAnalysis()">予算実績</button>
-                <button class="nav-btn" onclick="showForecast()">損益推移</button>
-                <button class="nav-btn" onclick="showKPI()">KPI予算</button>
-                <button class="nav-btn" onclick="showReports()">KPI実績予測</button>
-                <button class="nav-btn" onclick="showSettings()">取引決算対策</button>
-            </div>
+            <p class="subtitle">v3.0版 販管費動的統合対応 シンプル版</p>
         </div>
 
         <div class="kpi-section">
             <div class="kpi-card">
                 <div class="kpi-label">統合年間売上</div>
-                <div class="kpi-value" id="totalRevenue">読み込み中...</div>
+                <div class="kpi-value" id="totalRevenue">0万円</div>
                 <div class="kpi-change">全事業部統合</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-label">統合営業利益</div>
-                <div class="kpi-value" id="totalProfit">読み込み中...</div>
+                <div class="kpi-value" id="totalProfit">0万円</div>
                 <div class="kpi-change">変動費・固定費統合済</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-label">統合利益率</div>
-                <div class="kpi-value" id="totalMargin">読み込み中...</div>
+                <div class="kpi-value" id="totalMargin">0.0%</div>
                 <div class="kpi-change">業界平均5.2%</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-label">データ統合状況</div>
-                <div class="kpi-value" id="dataStatus">読み込み中...</div>
+                <div class="kpi-value" id="dataStatus">0/4</div>
                 <div class="kpi-change">事業部データ統合</div>
             </div>
         </div>
 
         <div class="content-section">
-            <h2 class="section-title">4事業部統合月次PL（販管費動的統合対応）</h2>
+            <h2 class="section-title">4事業部統合月次PL</h2>
             
             <div class="action-buttons">
-                <button class="action-btn" onclick="updateIntegratedData()">データ統合更新</button>
-                <button class="action-btn export-btn" onclick="exportPLData()">統合PLエクスポート</button>
-                <button class="action-btn analysis-btn" onclick="showDetailedAnalysis()">収益構造詳細分析</button>
-                <button class="action-btn trend-btn" onclick="generateTrendAnalysis()">データ統合傾向チェック</button>
-                <button class="action-btn backup-btn" onclick="backupIntegratedData()">バックアップ作成</button>
-                <button class="action-btn localstorage-btn" onclick="inspectLocalStorage()">LocalStorage検査</button>
-                <button class="action-btn debug-btn" onclick="toggleDebugInfo()">デバッグ情報表示</button>
+                <button class="action-btn btn-primary" onclick="updateData()">データ統合更新</button>
+                <button class="action-btn btn-success" onclick="exportCSV()">CSVエクスポート</button>
+                <button class="action-btn btn-info" onclick="inspectData()">データ検査</button>
+                <button class="action-btn btn-warning" onclick="toggleDebug()">デバッグ表示</button>
             </div>
 
-            <div id="debugInfo" class="debug-info" style="display: none;">
-                <strong>デバッグ情報:</strong><br>
-                <span id="debug-content">初期化中...</span>
-            </div>
-            
-            <div id="loadingMessage" class="loading" style="display: none;">データを統合中...</div>
-            <div id="errorMessage" class="error-message" style="display: none;"></div>
-            <div id="successMessage" class="success-message" style="display: none;"></div>
+            <div id="successMsg" class="message success-message"></div>
+            <div id="errorMsg" class="message error-message"></div>
+            <div id="debugInfo" class="debug-info"></div>
 
             <div class="chart-container">
-                <h3>統合収益推移グラフ</h3>
-                <div class="chart-wrapper">
-                    <canvas id="integratedChart"></canvas>
-                </div>
+                <canvas id="plChart"></canvas>
             </div>
 
             <div class="data-table">
                 <h3>統合損益計算書（月次）</h3>
-                <div style="overflow-x: auto;">
-                    <table id="integratedPLTable">
-                        <thead>
-                            <tr id="tableHeader"></tr>
-                        </thead>
-                        <tbody id="tableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="data-integration-info">
-                <div class="integration-title">4事業部統合PLシステムv3.0（販管費動的統合対応）主要機能</div>
-                <div>本システムの主要な統合機能をご紹介いたします。販管費の動的な統合により、より正確なコストセンタ・プロフィットセンタ・レスポンシビリティ・センタ分析を実現いたします。</div>
-                
-                <div class="integration-item">v3.0新機能:</div>
-                <div class="integration-item">収益管理部門とResponse部門の一元的な原価管理対象分析</div>
-                <div class="integration-item">収益管理結果連携: クラスファイルート及び各種情報の確実な確認</div>
-                <div class="integration-item">PDFエクスポート作業: 各種エラーレポーターのV2オプション: 実製</div>
-                <div class="integration-item">統合的ギャップ分析による年方針: 各月における事業統計情報の総合: ス決数額値確認</div>
-                <div class="integration-item">データ時間軸化: イナミック: 信頼のおける分析データの年度末有効化推定</div>
-                <div class="integration-item">テメトリクス統計組織: 各種各セミ分析のためのキュルブ検索統計</div>
-                <div class="integration-item">LocalStorageデータ操作: 年次ビデオ上昇分析の長期データ保存対象推定</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>項目</th>
+                            <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
+                            <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
+                            <th>年間計</th>
+                        </tr>
+                    </thead>
+                    <tbody id="plTableBody">
+                        <tr>
+                            <td>データを読み込み中...</td>
+                            <td colspan="13">統合処理を実行してください</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
-        // ===== グローバル変数 =====
-        let integratedChart = null;
+        // グローバル変数
+        let plChart = null;
         let debugMode = false;
-        let integrationData = {};
+        let integrationData = {
+            sales: new Array(12).fill(0),
+            cogs: new Array(12).fill(0),
+            personnel: new Array(12).fill(0),
+            expenses: new Array(12).fill(0),
+            lastUpdate: null,
+            activeDepartments: 0
+        };
 
-        // ===== ユーティリティ関数 =====
-        function debugLog(message, data = null) {
-            if (debugMode) {
-                console.log(`[統合PL Debug] ${message}`, data || '');
-                const debugDiv = document.getElementById('debugInfo');
-                if (debugDiv) {
-                    const timestamp = new Date().toLocaleTimeString();
-                    debugDiv.innerHTML += `<div>[${timestamp}] ${message}${data ? ': ' + JSON.stringify(data, null, 2) : ''}</div>`;
-                    debugDiv.scrollTop = debugDiv.scrollHeight;
-                }
-            }
-        }
-
-        function safeGetElement(id) {
-            const element = document.getElementById(id);
-            if (!element) {
-                debugLog(`要素が見つかりません: ${id}`);
-            }
-            return element;
-        }
-
+        // ユーティリティ関数
         function formatNumber(num) {
-            if (num === null || num === undefined || isNaN(num)) return '0';
+            if (isNaN(num) || num === null || num === undefined) return '0';
             return Math.round(num).toLocaleString();
         }
 
-        function formatPercentage(num) {
-            if (num === null || num === undefined || isNaN(num)) return '0.0';
-            return num.toFixed(1);
-        }
-
-        // ===== LocalStorage データ読み取り強化版 =====
-        function readDepartmentData(departmentKey) {
-            debugLog(`部門データ読み取り開始: ${departmentKey}`);
+        function showMessage(message, isError = false) {
+            const successEl = document.getElementById('successMsg');
+            const errorEl = document.getElementById('errorMsg');
             
-            // 複数のキー形式を試行
-            const keyVariations = [
-                `pl_system_${departmentKey}_data`,  // v3.0形式
-                `${departmentKey}_dashboard_data`,   // レガシー形式1
-                `${departmentKey}_data`,             // レガシー形式2
-                `${departmentKey}Dashboard`,         // レガシー形式3
-                `${departmentKey}Data`               // レガシー形式4
-            ];
-            
-            let rawData = null;
-            let usedKey = null;
-            
-            // 各キー形式を順番に試行
-            for (const key of keyVariations) {
-                try {
-                    const stored = localStorage.getItem(key);
-                    if (stored && stored !== 'null') {
-                        rawData = JSON.parse(stored);
-                        usedKey = key;
-                        debugLog(`データ取得成功: ${key}`, { size: stored.length, hasData: !!rawData });
-                        break;
-                    }
-                } catch (e) {
-                    debugLog(`キー ${key} の読み取りエラー: ${e.message}`);
-                }
-            }
-            
-            if (!rawData) {
-                debugLog(`${departmentKey} のデータが見つかりませんでした`);
-                return null;
-            }
-            
-            // データ形式の適応的変換
-            let monthlyData = [];
-            
-            try {
-                // パターン1: v3.0形式（配列直接）
-                if (Array.isArray(rawData) && rawData.length === 12) {
-                    monthlyData = rawData;
-                    debugLog(`v3.0形式として処理: ${usedKey}`);
-                }
-                // パターン2: monthly配列がある場合
-                else if (rawData.monthly && Array.isArray(rawData.monthly)) {
-                    monthlyData = rawData.monthly;
-                    debugLog(`monthly配列として処理: ${usedKey}`);
-                }
-                // パターン3: データオブジェクトから月次データを抽出
-                else if (rawData.data && Array.isArray(rawData.data)) {
-                    monthlyData = rawData.data;
-                    debugLog(`data配列として処理: ${usedKey}`);
-                }
-                // パターン4: 年間データを12分割
-                else if (rawData.annual || rawData.revenue) {
-                    const annualRevenue = rawData.annual || rawData.revenue || 0;
-                    const annualProfit = rawData.profit || annualRevenue * 0.1; // デフォルト10%利益率
-                    
-                    monthlyData = Array.from({ length: 12 }, (_, i) => ({
-                        month: i + 1,
-                        revenue: Math.round(annualRevenue / 12 * (0.8 + Math.random() * 0.4)), // ±20%の変動
-                        costs: Math.round(annualRevenue / 12 * 0.6 * (0.8 + Math.random() * 0.4)),
-                        profit: Math.round(annualProfit / 12 * (0.8 + Math.random() * 0.4))
-                    }));
-                    debugLog(`年間データから変換: ${usedKey}`, { annual: annualRevenue });
-                }
-                // パターン5: 単一値の場合
-                else if (typeof rawData === 'number' || rawData.value) {
-                    const value = typeof rawData === 'number' ? rawData : rawData.value;
-                    monthlyData = Array.from({ length: 12 }, (_, i) => ({
-                        month: i + 1,
-                        revenue: Math.round(value / 12 * (0.8 + Math.random() * 0.4)),
-                        costs: Math.round(value / 12 * 0.6 * (0.8 + Math.random() * 0.4)),
-                        profit: Math.round(value / 12 * 0.1 * (0.8 + Math.random() * 0.4))
-                    }));
-                    debugLog(`単一値から変換: ${usedKey}`, { value });
-                }
-                
-                // データの正規化
-                if (monthlyData.length > 0) {
-                    monthlyData = monthlyData.map((item, index) => {
-                        // 既存のフィールドを保持しつつ、必要なフィールドを補完
-                        return {
-                            month: item.month || (index + 1),
-                            revenue: parseFloat(item.revenue || item.売上 || item.sales || 0) || 0,
-                            costs: parseFloat(item.costs || item.原価 || item.cost || item.variable_costs || 0) || 0,
-                            profit: parseFloat(item.profit || item.利益 || item.operating_profit || 0) || 0,
-                            fixed_costs: parseFloat(item.fixed_costs || item.固定費 || item.fixedCosts || 0) || 0,
-                            // 追加フィールドも保持
-                            ...item
-                        };
-                    });
-                    
-                    debugLog(`データ正規化完了: ${departmentKey}`, { 
-                        months: monthlyData.length, 
-                        totalRevenue: monthlyData.reduce((sum, item) => sum + item.revenue, 0)
-                    });
-                    return monthlyData;
-                }
-            } catch (error) {
-                debugLog(`データ変換エラー: ${departmentKey}`, error.message);
-            }
-            
-            debugLog(`${departmentKey} のデータ変換に失敗しました`);
-            return null;
-        }
-
-        // ===== データ統合処理 =====
-        function integrateAllDepartments() {
-            debugLog('=== 4事業部データ統合開始 ===');
-            
-            const departments = ['manufacture', 'sales', 'development', 'management'];
-            const departmentNames = {
-                'manufacture': '製造事業部',
-                'sales': '営業事業部', 
-                'development': '開発事業部',
-                'management': '管理事業部'
-            };
-            
-            let totalIntegratedData = [];
-            let successCount = 0;
-            let integrationSummary = {};
-            
-            // 12ヶ月分の統合データを初期化
-            for (let month = 1; month <= 12; month++) {
-                totalIntegratedData[month - 1] = {
-                    month: month,
-                    revenue: 0,
-                    costs: 0,
-                    profit: 0,
-                    fixed_costs: 0
-                };
-            }
-            
-            // 各部門のデータを統合
-            departments.forEach(dept => {
-                const deptData = readDepartmentData(dept);
-                if (deptData && deptData.length === 12) {
-                    successCount++;
-                    
-                    // 部門別集計
-                    const deptTotal = deptData.reduce((sum, month) => ({
-                        revenue: sum.revenue + month.revenue,
-                        profit: sum.profit + month.profit,
-                        costs: sum.costs + month.costs
-                    }), { revenue: 0, profit: 0, costs: 0 });
-                    
-                    integrationSummary[dept] = {
-                        name: departmentNames[dept],
-                        total: deptTotal,
-                        months: deptData.length
-                    };
-                    
-                    // 月次データを統合
-                    deptData.forEach((monthData, index) => {
-                        if (totalIntegratedData[index]) {
-                            totalIntegratedData[index].revenue += monthData.revenue;
-                            totalIntegratedData[index].costs += monthData.costs;
-                            totalIntegratedData[index].profit += monthData.profit;
-                            totalIntegratedData[index].fixed_costs += monthData.fixed_costs;
-                        }
-                    });
-                    
-                    debugLog(`${departmentNames[dept]} データ統合完了`, deptTotal);
-                } else {
-                    debugLog(`${departmentNames[dept]} データなし`);
-                    integrationSummary[dept] = {
-                        name: departmentNames[dept],
-                        total: { revenue: 0, profit: 0, costs: 0 },
-                        months: 0,
-                        error: 'データなし'
-                    };
-                }
-            });
-            
-            // 固定費の動的統合（v3.0新機能）
-            const totalRevenue = totalIntegratedData.reduce((sum, month) => sum + month.revenue, 0);
-            const estimatedFixedCosts = Math.max(totalRevenue * 0.15, 50000000); // 売上の15%または5000万円の高い方
-            
-            totalIntegratedData.forEach(month => {
-                month.fixed_costs = estimatedFixedCosts / 12;
-                month.profit = month.revenue - month.costs - month.fixed_costs;
-            });
-            
-            debugLog('販管費動的統合完了', { 
-                totalRevenue: totalRevenue,
-                monthlyFixedCosts: estimatedFixedCosts / 12 
-            });
-            
-            // グローバル変数に保存
-            integrationData = {
-                monthly: totalIntegratedData,
-                summary: integrationSummary,
-                successCount: successCount,
-                totalDepartments: departments.length,
-                lastUpdated: new Date().toISOString()
-            };
-            
-            debugLog('=== 統合データ生成完了 ===', {
-                successCount: successCount,
-                totalRevenue: totalRevenue,
-                integrationRate: `${successCount}/${departments.length}`
-            });
-            
-            return integrationData;
-        }
-
-        // ===== UI更新関数 =====
-        function updateKPIDisplay() {
-            try {
-                if (!integrationData.monthly || integrationData.monthly.length === 0) {
-                    debugLog('統合データなし - KPI更新スキップ');
-                    return;
-                }
-                
-                const totalRevenue = integrationData.monthly.reduce((sum, month) => sum + month.revenue, 0);
-                const totalProfit = integrationData.monthly.reduce((sum, month) => sum + month.profit, 0);
-                const profitMargin = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0;
-                
-                // KPI表示更新
-                const revenueEl = safeGetElement('totalRevenue');
-                const profitEl = safeGetElement('totalProfit');
-                const marginEl = safeGetElement('totalMargin');
-                const statusEl = safeGetElement('dataStatus');
-                
-                if (revenueEl) revenueEl.textContent = `${formatNumber(totalRevenue / 10000)}万円`;
-                if (profitEl) profitEl.textContent = `${formatNumber(totalProfit / 10000)}万円`;
-                if (marginEl) marginEl.textContent = `${formatPercentage(profitMargin)}%`;
-                if (statusEl) statusEl.textContent = `${integrationData.successCount}/${integrationData.totalDepartments}`;
-                
-                // スタイリング
-                if (profitEl) {
-                    profitEl.className = totalProfit >= 0 ? 'kpi-value positive' : 'kpi-value negative';
-                }
-                
-                debugLog('KPI表示更新完了', { totalRevenue, totalProfit, profitMargin });
-                
-            } catch (error) {
-                debugLog('KPI更新エラー', error.message);
-            }
-        }
-
-        function updateChartDisplay() {
-            try {
-                const chartCanvas = safeGetElement('integratedChart');
-                if (!chartCanvas) {
-                    debugLog('チャート要素なし');
-                    return;
-                }
-                
-                const ctx = chartCanvas.getContext('2d');
-                
-                // 既存チャートを破棄
-                if (integratedChart) {
-                    integratedChart.destroy();
-                }
-                
-                if (!integrationData.monthly || integrationData.monthly.length === 0) {
-                    debugLog('チャート用データなし');
-                    return;
-                }
-                
-                const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
-                const revenueData = integrationData.monthly.map(m => Math.round(m.revenue / 10000));
-                const profitData = integrationData.monthly.map(m => Math.round(m.profit / 10000));
-                const costsData = integrationData.monthly.map(m => Math.round((m.costs + m.fixed_costs) / 10000));
-                
-                integratedChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: months,
-                        datasets: [
-                            {
-                                label: '統合売上 (万円)',
-                                data: revenueData,
-                                borderColor: '#4CAF50',
-                                backgroundColor: 'rgba(76, 175, 80, 0.1)',
-                                tension: 0.3,
-                                fill: true
-                            },
-
-            // 事業部固有の季節変動パターン
-            getSeasonalPattern: function(dept) {
-                const patterns = {
-                    sr: [0.9, 0.8, 1.2, 1.1, 1.0, 1.3, 0.9, 0.8, 1.1, 1.0, 1.2, 1.1], // 店舗系：年末年始・夏季変動
-                    w: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0],  // W事業部：安定
-                    rc: [0.8, 0.9, 1.1, 1.0, 1.3, 0.9, 0.8, 1.0, 1.2, 1.1, 0.9, 1.4], // 卸売：展示会影響
-                    rcd: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0] // 外部委託：安定
-                };
-                return patterns[dept] || new Array(12).fill(1.0);
-            },
-
-            // 事業部固有の比率設定
-            getDeptRatios: function(dept) {
-                const ratios = {
-                    sr: { cogsRatio: 0.65, personnelRatio: 0.20, expensesRatio: 0.10 },    // 店舗系
-                    w: { cogsRatio: 0.60, personnelRatio: 0.25, expensesRatio: 0.08 },     // W事業部
-                    rc: { cogsRatio: 0.352, personnelRatio: 0.15, expensesRatio: 0.12 },   // RC卸（35.2%）
-                    rcd: { cogsRatio: 0.40, personnelRatio: 0.10, expensesRatio: 0.15 }    // RCD社（外部委託）
-                };
-                return ratios[dept] || { cogsRatio: 0.6, personnelRatio: 0.2, expensesRatio: 0.1 };
-            },
-                            {
-                                label: '統合費用 (万円)', 
-                                data: costsData,
-                                borderColor: '#FF6B6B',
-                                backgroundColor: 'rgba(255, 107, 107, 0.1)',
-                                tension: 0.3,
-                                fill: false
-                            },
-                            {
-                                label: '統合営業利益 (万円)',
-                                data: profitData,
-                                borderColor: '#2196F3',
-                                backgroundColor: 'rgba(33, 150, 243, 0.1)',
-                                tension: 0.3,
-                                fill: false
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: '4事業部統合収益推移 (販管費動的統合)'
-                            },
-                            legend: {
-                                position: 'bottom'
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: '金額 (万円)'
-                                }
-                            }
-                        },
-                        interaction: {
-                            intersect: false,
-                            mode: 'index'
-                        }
-                    }
-                });
-                
-                debugLog('チャート更新完了');
-                
-            } catch (error) {
-                debugLog('チャート更新エラー', error.message);
-            }
-        }
-
-        function updateTableDisplay() {
-            try {
-                const headerEl = safeGetElement('tableHeader');
-                const bodyEl = safeGetElement('tableBody');
-                
-                if (!headerEl || !bodyEl) {
-                    debugLog('テーブル要素なし');
-                    return;
-                }
-                
-                if (!integrationData.monthly || integrationData.monthly.length === 0) {
-                    debugLog('テーブル用データなし');
-                    return;
-                }
-                
-                // ヘッダー生成
-                const months = ['項目', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月', '合計'];
-                headerEl.innerHTML = months.map(month => `<th>${month}</th>`).join('');
-                
-                // データ行生成
-                const rows = [
-                    {
-                        label: '統合売上',
-                        values: integrationData.monthly.map(m => Math.round(m.revenue / 10000)),
-                        className: ''
-                    },
-                    {
-                        label: '統合原価',
-                        values: integrationData.monthly.map(m => Math.round(m.costs / 10000)),
-                        className: 'negative'
-                    },
-                    {
-                        label: '統合粗利',
-                        values: integrationData.monthly.map(m => Math.round((m.revenue - m.costs) / 10000)),
-                        className: ''
-                    },
-                    {
-                        label: '販管費 (動的)',
-                        values: integrationData.monthly.map(m => Math.round(m.fixed_costs / 10000)),
-                        className: 'negative'
-                    },
-                    {
-                        label: '統合営業利益',
-                        values: integrationData.monthly.map(m => Math.round(m.profit / 10000)),
-                        className: ''
-                    }
-                ];
-                
-                bodyEl.innerHTML = rows.map(row => {
-                    const total = row.values.reduce((sum, val) => sum + val, 0);
-                    const cells = [
-                        `<td><strong>${row.label}</strong></td>`,
-                        ...row.values.map(val => `<td class="${row.className}">${formatNumber(val)}</td>`),
-                        `<td class="${row.className}"><strong>${formatNumber(total)}</strong></td>`
-                    ];
-                    return `<tr>${cells.join('')}</tr>`;
-                }).join('');
-                
-                debugLog('テーブル更新完了');
-                
-            } catch (error) {
-                debugLog('テーブル更新エラー', error.message);
-            }
-        }
-
-        // ===== イベントハンドラ =====
-        function updateIntegratedData() {
-            showLoading('データ統合処理中...');
-            
-            setTimeout(() => {
-                try {
-                    const result = integrateAllDepartments();
-                    
-                    updateKPIDisplay();
-                    updateChartDisplay();
-                    updateTableDisplay();
-                    
-                    hideLoading();
-                    showSuccess(`データ統合完了: ${result.successCount}/${result.totalDepartments}事業部のデータを統合しました`);
-                    
-                } catch (error) {
-                    hideLoading();
-                    showError(`統合処理エラー: ${error.message}`);
-                    debugLog('統合処理エラー', error);
-                }
-            }, 500);
-        }
-
-        function toggleDebugInfo() {
-            debugMode = !debugMode;
-            const debugDiv = safeGetElement('debugInfo');
-            if (debugDiv) {
-                debugDiv.style.display = debugMode ? 'block' : 'none';
-                if (debugMode) {
-                    debugDiv.innerHTML = '<div>===== デバッグモード開始 =====</div>';
-                    debugLog('デバッグモード開始');
-                }
-            }
-        }
-
-        function inspectLocalStorage() {
-            debugLog('=== LocalStorage検査開始 ===');
-            
-            const allKeys = Object.keys(localStorage);
-            const relevantKeys = allKeys.filter(key => 
-                key.includes('pl_') || 
-                key.includes('dashboard') || 
-                key.includes('manufacture') || 
-                key.includes('sales') || 
-                key.includes('development') || 
-                key.includes('management')
-            );
-            
-            let report = '=== LocalStorage検査レポート ===\n';
-            report += `総キー数: ${allKeys.length}\n`;
-            report += `関連キー数: ${relevantKeys.length}\n\n`;
-            
-            relevantKeys.forEach(key => {
-                try {
-                    const value = localStorage.getItem(key);
-                    const size = value ? value.length : 0;
-                    let preview = 'empty';
-                    
-                    if (value) {
-                        try {
-                            const parsed = JSON.parse(value);
-                            if (Array.isArray(parsed)) {
-                                preview = `配列[${parsed.length}]`;
-                            } else if (typeof parsed === 'object') {
-                                preview = `オブジェクト{${Object.keys(parsed).join(', ')}}`;
-                            } else {
-                                preview = `値: ${parsed}`;
-                            }
-                        } catch (e) {
-                            preview = `文字列(${size}文字)`;
-                        }
-                    }
-                    
-                    report += `${key}: ${preview} (${size}bytes)\n`;
-                    
-                } catch (error) {
-                    report += `${key}: エラー - ${error.message}\n`;
-                }
-            });
-            
-            debugLog(report);
-            alert(report);
-        }
-
-        // ===== メッセージ表示ユーティリティ =====
-        function showLoading(message) {
-            const loadingEl = safeGetElement('loadingMessage');
-            if (loadingEl) {
-                loadingEl.textContent = message;
-                loadingEl.style.display = 'block';
-            }
-        }
-
-        function hideLoading() {
-            const loadingEl = safeGetElement('loadingMessage');
-            if (loadingEl) {
-                loadingEl.style.display = 'none';
-            }
-        }
-
-        function showError(message) {
-            const errorEl = safeGetElement('errorMessage');
-            if (errorEl) {
+            if (isError) {
                 errorEl.textContent = message;
                 errorEl.style.display = 'block';
+                successEl.style.display = 'none';
                 setTimeout(() => { errorEl.style.display = 'none'; }, 5000);
-            }
-        }
-
-        function showSuccess(message) {
-            const successEl = safeGetElement('successMessage');
-            if (successEl) {
+            } else {
                 successEl.textContent = message;
                 successEl.style.display = 'block';
+                errorEl.style.display = 'none';
                 setTimeout(() => { successEl.style.display = 'none'; }, 3000);
             }
         }
 
-        // ===== ダミー関数（既存機能保持用） =====
-        function showDashboard() { debugLog('ダッシュボード表示'); }
-        function showAnalysis() { debugLog('分析表示'); }
-        function showForecast() { debugLog('予測表示'); }
-        function showKPI() { debugLog('KPI表示'); }
-        function showReports() { debugLog('レポート表示'); }
-        function showSettings() { debugLog('設定表示'); }
-        function exportPLData() { 
-            debugLog('PLデータエクスポート');
-            showSuccess('統合PLデータをエクスポートしました');
-        }
-        function showDetailedAnalysis() {
-            debugLog('詳細分析表示');
-            showSuccess('収益構造詳細分析を表示しました');
-        }
-        function generateTrendAnalysis() {
-            debugLog('傾向分析生成');
-            showSuccess('データ統合傾向チェックを実行しました');
-        }
-        function backupIntegratedData() {
-            debugLog('バックアップ作成');
-            showSuccess('統合データのバックアップを作成しました');
+        function logDebug(message, data = null) {
+            console.log(`[統合PL] ${message}`, data || '');
+            if (debugMode) {
+                const debugEl = document.getElementById('debugInfo');
+                if (debugEl) {
+                    const time = new Date().toLocaleTimeString();
+                    debugEl.innerHTML += `<div>[${time}] ${message}${data ? ': ' + JSON.stringify(data, null, 2) : ''}</div>`;
+                    debugEl.scrollTop = debugEl.scrollHeight;
+                }
+            }
         }
 
-        // ===== 初期化処理 =====
-        function initializeSystem() {
-            debugLog('=== システム初期化開始 ===');
+        // データ読み込み関数
+        function loadDepartmentData(deptKey) {
+            logDebug(`${deptKey}事業部データ読み込み開始`);
             
+            const possibleKeys = [
+                `pl_system_${deptKey}_data`,
+                `${deptKey}_dashboard_data`,
+                `${deptKey}_data`,
+                `${deptKey}Data`,
+                `${deptKey}Dashboard`
+            ];
+            
+            for (const key of possibleKeys) {
+                try {
+                    const stored = localStorage.getItem(key);
+                    if (stored && stored !== 'null') {
+                        const data = JSON.parse(stored);
+                        logDebug(`${deptKey}: データ取得成功 (${key})`, { hasData: !!data });
+                        return convertDataStructure(data, deptKey);
+                    }
+                } catch (e) {
+                    logDebug(`${deptKey}: ${key} 読み取りエラー`, e.message);
+                }
+            }
+            
+            logDebug(`${deptKey}: データなし`);
+            return null;
+        }
+
+        function convertDataStructure(rawData, dept) {
             try {
-                // Chart.js の可用性チェック
+                const result = {
+                    sales: new Array(12).fill(0),
+                    cogs: new Array(12).fill(0),
+                    personnel: new Array(12).fill(0),
+                    expenses: new Array(12).fill(0)
+                };
+
+                // パターン1: 完全なv3.0形式
+                if (rawData.sales && Array.isArray(rawData.sales) && rawData.sales.length === 12) {
+                    result.sales = rawData.sales.map(v => parseFloat(v) || 0);
+                    result.cogs = rawData.cogs ? rawData.cogs.map(v => parseFloat(v) || 0) : result.cogs;
+                    result.personnel = rawData.personnel ? rawData.personnel.map(v => parseFloat(v) || 0) : result.personnel;
+                    result.expenses = rawData.expenses ? rawData.expenses.map(v => parseFloat(v) || 0) : result.expenses;
+                    return result;
+                }
+
+                // パターン2: monthly配列
+                if (rawData.monthly && Array.isArray(rawData.monthly)) {
+                    rawData.monthly.slice(0, 12).forEach((month, i) => {
+                        if (month && typeof month === 'object') {
+                            result.sales[i] = parseFloat(month.sales || month.売上 || month.revenue || 0);
+                            result.cogs[i] = parseFloat(month.cogs || month.原価 || month.cost || 0);
+                            result.personnel[i] = parseFloat(month.personnel || month.人件費 || 0);
+                            result.expenses[i] = parseFloat(month.expenses || month.経費 || 0);
+                        }
+                    });
+                    return result;
+                }
+
+                // パターン3: 年間データ分割
+                if (typeof rawData.sales === 'number' || rawData.annual) {
+                    const annualSales = parseFloat(rawData.annual?.sales || rawData.sales || 0);
+                    const annualCogs = parseFloat(rawData.annual?.cogs || rawData.cogs || 0);
+                    const annualPersonnel = parseFloat(rawData.annual?.personnel || rawData.personnel || 0);
+                    const annualExpenses = parseFloat(rawData.annual?.expenses || rawData.expenses || 0);
+                    
+                    if (annualSales > 0) {
+                        for (let i = 0; i < 12; i++) {
+                            result.sales[i] = Math.round(annualSales / 12);
+                            result.cogs[i] = Math.round(annualCogs / 12);
+                            result.personnel[i] = Math.round(annualPersonnel / 12);
+                            result.expenses[i] = Math.round(annualExpenses / 12);
+                        }
+                        return result;
+                    }
+                }
+
+                logDebug(`${dept}: データ構造変換失敗`);
+                return null;
+            } catch (error) {
+                logDebug(`${dept}: データ変換エラー`, error.message);
+                return null;
+            }
+        }
+
+        // データ統合処理
+        function integrateAllData() {
+            logDebug('=== データ統合開始 ===');
+            
+            const departments = ['sr', 'w', 'rc', 'rcd'];
+            let successCount = 0;
+            
+            // 初期化
+            integrationData.sales.fill(0);
+            integrationData.cogs.fill(0);
+            integrationData.personnel.fill(0);
+            integrationData.expenses.fill(0);
+            
+            departments.forEach(dept => {
+                const deptData = loadDepartmentData(dept);
+                if (deptData) {
+                    successCount++;
+                    for (let i = 0; i < 12; i++) {
+                        integrationData.sales[i] += deptData.sales[i];
+                        integrationData.cogs[i] += deptData.cogs[i];
+                        integrationData.personnel[i] += deptData.personnel[i];
+                        integrationData.expenses[i] += deptData.expenses[i];
+                    }
+                    logDebug(`${dept}事業部: 統合完了`);
+                } else {
+                    logDebug(`${dept}事業部: データなし`);
+                }
+            });
+            
+            integrationData.activeDepartments = successCount;
+            integrationData.lastUpdate = new Date();
+            
+            logDebug('=== データ統合完了 ===', { successCount, totalDepartments: departments.length });
+            return successCount > 0;
+        }
+
+        // UI更新関数
+        function updateKPIs() {
+            const totalSales = integrationData.sales.reduce((sum, val) => sum + val, 0);
+            const totalCogs = integrationData.cogs.reduce((sum, val) => sum + val, 0);
+            const totalPersonnel = integrationData.personnel.reduce((sum, val) => sum + val, 0);
+            const totalExpenses = integrationData.expenses.reduce((sum, val) => sum + val, 0);
+            
+            const grossProfit = totalSales - totalCogs;
+            const operatingProfit = grossProfit - totalPersonnel - totalExpenses;
+            const profitRate = totalSales > 0 ? (operatingProfit / totalSales * 100) : 0;
+            
+            document.getElementById('totalRevenue').textContent = `${formatNumber(totalSales)}万円`;
+            document.getElementById('totalProfit').textContent = `${formatNumber(operatingProfit)}万円`;
+            document.getElementById('totalMargin').textContent = `${profitRate.toFixed(1)}%`;
+            document.getElementById('dataStatus').textContent = `${integrationData.activeDepartments}/4`;
+            
+            // 色分け
+            const profitEl = document.getElementById('totalProfit');
+            profitEl.className = operatingProfit >= 0 ? 'kpi-value positive' : 'kpi-value negative';
+            
+            logDebug('KPI更新完了', { totalSales, operatingProfit, profitRate });
+        }
+
+        function updateChart() {
+            const ctx = document.getElementById('plChart');
+            if (!ctx) return;
+            
+            if (plChart) {
+                plChart.destroy();
+            }
+            
+            const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
+            const monthlyProfit = integrationData.sales.map((sales, i) => {
+                return sales - integrationData.cogs[i] - integrationData.personnel[i] - integrationData.expenses[i];
+            });
+            
+            plChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: '月次売上',
+                            data: integrationData.sales,
+                            borderColor: '#4CAF50',
+                            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                            tension: 0.3
+                        },
+                        {
+                            label: '月次営業利益',
+                            data: monthlyProfit,
+                            borderColor: '#2196F3',
+                            backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: '4事業部統合PL推移'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '金額（万円）'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            logDebug('チャート更新完了');
+        }
+
+        function updateTable() {
+            const tbody = document.getElementById('plTableBody');
+            if (!tbody) return;
+            
+            const monthlyProfit = integrationData.sales.map((sales, i) => {
+                return sales - integrationData.cogs[i] - integrationData.personnel[i] - integrationData.expenses[i];
+            });
+            
+            const rows = [
+                { label: '売上高', values: integrationData.sales, className: '' },
+                { label: '売上原価', values: integrationData.cogs, className: 'negative' },
+                { label: '人件費', values: integrationData.personnel, className: 'negative' },
+                { label: '販管費', values: integrationData.expenses, className: 'negative' },
+                { label: '営業利益', values: monthlyProfit, className: '' }
+            ];
+            
+            tbody.innerHTML = rows.map(row => {
+                const annual = row.values.reduce((sum, val) => sum + val, 0);
+                const cells = [
+                    `<td><strong>${row.label}</strong></td>`,
+                    ...row.values.map(val => `<td class="${row.className}">${formatNumber(val)}</td>`),
+                    `<td class="${row.className}"><strong>${formatNumber(annual)}</strong></td>`
+                ];
+                return `<tr>${cells.join('')}</tr>`;
+            }).join('');
+            
+            logDebug('テーブル更新完了');
+        }
+
+        // ボタンアクション関数
+        function updateData() {
+            try {
+                logDebug('手動データ更新開始');
+                const success = integrateAllData();
+                if (success) {
+                    updateKPIs();
+                    updateChart();
+                    updateTable();
+                    showMessage(`データ統合完了: ${integrationData.activeDepartments}/4事業部`);
+                } else {
+                    showMessage('データが見つかりません。各事業部のPLページでデータを保存してください。', true);
+                }
+            } catch (error) {
+                logDebug('データ更新エラー', error.message);
+                showMessage(`エラー: ${error.message}`, true);
+            }
+        }
+
+        function exportCSV() {
+            try {
+                showMessage('CSV出力機能は開発中です。');
+                logDebug('CSV出力要求');
+            } catch (error) {
+                showMessage(`CSV出力エラー: ${error.message}`, true);
+            }
+        }
+
+        function inspectData() {
+            try {
+                let report = 'LocalStorage検査結果\n\n';
+                const departments = ['sr', 'w', 'rc', 'rcd'];
+                let totalKeys = 0;
+                
+                departments.forEach(dept => {
+                    const possibleKeys = [
+                        `pl_system_${dept}_data`,
+                        `${dept}_dashboard_data`,
+                        `${dept}_data`
+                    ];
+                    
+                    let found = false;
+                    possibleKeys.forEach(key => {
+                        const data = localStorage.getItem(key);
+                        if (data && data !== 'null') {
+                            try {
+                                const parsed = JSON.parse(data);
+                                report += `✓ ${dept.toUpperCase()}事業部 (${key}): データあり (${(data.length/1024).toFixed(1)}KB)\n`;
+                                found = true;
+                                totalKeys++;
+                            } catch (e) {
+                                report += `✗ ${dept.toUpperCase()}事業部 (${key}): 解析エラー\n`;
+                            }
+                        }
+                    });
+                    
+                    if (!found) {
+                        report += `- ${dept.toUpperCase()}事業部: データなし\n`;
+                    }
+                });
+                
+                report += `\n統合可能事業部: ${totalKeys}/4`;
+                alert(report);
+                logDebug('データ検査完了', { totalKeys });
+            } catch (error) {
+                showMessage(`データ検査エラー: ${error.message}`, true);
+            }
+        }
+
+        function toggleDebug() {
+            try {
+                debugMode = !debugMode;
+                const debugEl = document.getElementById('debugInfo');
+                if (debugEl) {
+                    debugEl.style.display = debugMode ? 'block' : 'none';
+                    if (debugMode) {
+                        debugEl.innerHTML = '<div>デバッグモード開始</div>';
+                    }
+                }
+                showMessage(debugMode ? 'デバッグモードを開始しました' : 'デバッグモードを終了しました');
+                logDebug('デバッグモード切り替え', debugMode);
+            } catch (error) {
+                showMessage(`デバッグ切り替えエラー: ${error.message}`, true);
+            }
+        }
+
+        // 初期化処理
+        function initialize() {
+            try {
+                logDebug('=== システム初期化開始 ===');
+                
+                // Chart.js確認
                 if (typeof Chart === 'undefined') {
-                    throw new Error('Chart.js ライブラリが読み込まれていません');
+                    logDebug('Chart.js未読み込み');
                 }
                 
-                debugLog('Chart.js 読み込み確認');
-                
                 // データ統合実行
-                updateIntegratedData();
+                const success = integrateAllData();
+                if (success) {
+                    updateKPIs();
+                    updateChart();
+                    updateTable();
+                } else {
+                    logDebug('初期データなし - デフォルト表示');
+                    updateKPIs();
+                    updateTable();
+                }
                 
-                debugLog('=== システム初期化完了 ===');
-                
+                logDebug('=== システム初期化完了 ===');
             } catch (error) {
-                debugLog('初期化エラー', error.message);
-                showError(`システム初期化エラー: ${error.message}`);
+                logDebug('初期化エラー', error.message);
+                console.error('初期化エラー:', error);
             }
         }
 
-        // ===== イベントリスナー設定 =====
+        // ページ読み込み時の初期化
         document.addEventListener('DOMContentLoaded', function() {
-            debugLog('DOM読み込み完了');
-            setTimeout(initializeSystem, 100);
+            logDebug('DOM読み込み完了');
+            setTimeout(initialize, 100);
         });
 
-        window.addEventListener('load', function() {
-            debugLog('ページ読み込み完了');
-            if (!integrationData.monthly) {
-                setTimeout(initializeSystem, 200);
-            }
+        // エラーキャッチ
+        window.addEventListener('error', function(event) {
+            logDebug('JavaScript Error:', event.error?.message || event.message);
+            console.error('Global error:', event.error);
         });
     </script>
 </body>
