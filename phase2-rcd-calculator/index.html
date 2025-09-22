@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RCD社事業部 - 損益計算シミュレーター（フェーズ2-1）</title>
+    <title>RCD社事業部 損益計算シミュレーター v2.0</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -13,9 +14,19 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+        }
+
+        /* RCD社事業部専用カラーテーマ（青・水色系） */
+        .rcd-theme {
+            --primary: #3498db;
+            --secondary: #2980b9;
+            --accent: #5dade2;
+            --success: #27ae60;
+            --error: #e74c3c;
+            --warning: #f39c12;
         }
 
         .container {
@@ -23,12 +34,12 @@
             margin: 0 auto;
             background: white;
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             overflow: hidden;
         }
 
         .header {
-            background: linear-gradient(135deg, #C477CC 0%, #B366BD 100%);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             padding: 30px;
             text-align: center;
@@ -37,628 +48,650 @@
         .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
-            font-weight: 300;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
-        .header p {
+        .subtitle {
+            font-size: 1.2em;
             opacity: 0.9;
-            font-size: 1.1em;
         }
 
-        .main-content {
+        .content {
             padding: 30px;
         }
 
         .section {
-            margin-bottom: 30px;
-            padding: 25px;
-            border: 2px solid #f0f0f0;
+            background: #f8f9fa;
             border-radius: 10px;
-            background: #fafafa;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--primary);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
         .section h2 {
-            color: #C477CC;
+            color: var(--primary);
             margin-bottom: 20px;
-            font-size: 1.8em;
-            border-bottom: 2px solid #C477CC;
+            font-size: 1.5em;
+            border-bottom: 2px solid var(--primary);
             padding-bottom: 10px;
         }
 
+        /* ステータス表示 */
+        .status-indicators {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .status-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--primary);
+        }
+
+        .status-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .status-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* 入力セクション */
         .input-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
-            margin-bottom: 20px;
         }
 
-        .input-group {
+        .input-card {
             background: white;
-            border: 2px solid #e0e0e0;
             border-radius: 10px;
             padding: 20px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
         }
 
-        .input-group h3 {
-            color: #C477CC;
+        .input-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+        }
+
+        .input-card h3 {
+            color: var(--primary);
             margin-bottom: 15px;
-            font-size: 1.2em;
         }
 
-        .form-row {
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .month-input {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            margin-bottom: 10px;
         }
 
-        .form-row label {
-            min-width: 80px;
-            font-weight: 500;
-            color: #555;
+        .month-input label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
         }
 
-        .form-row input {
-            flex: 1;
-            padding: 8px 12px;
+        .month-input input {
+            width: 70px;
+            padding: 8px;
             border: 1px solid #ddd;
             border-radius: 5px;
-            font-size: 16px;
-            margin-left: 10px;
+            text-align: center;
+            font-size: 0.9em;
         }
 
-        .form-row input:focus {
+        .month-input input:focus {
+            border-color: var(--primary);
             outline: none;
-            border-color: #C477CC;
-            box-shadow: 0 0 5px rgba(196, 119, 204, 0.3);
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
         }
 
-        .form-row .unit {
-            margin-left: 8px;
-            color: #777;
-            font-weight: 500;
-        }
-
-        .btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            margin: 5px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #C477CC 0%, #B366BD 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(196, 119, 204, 0.3);
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-            color: white;
-        }
-
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
-        }
-
-        .result-table {
+        /* 結果表示テーブル */
+        .results-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
             background: white;
-            border-radius: 10px;
+            border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .result-table th,
-        .result-table td {
+        .results-table th {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .results-table td {
             padding: 12px;
             text-align: right;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid #eee;
         }
 
-        .result-table th {
-            background: linear-gradient(135deg, #C477CC 0%, #B366BD 100%);
+        .results-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .results-table tr:hover {
+            background: #e8f4f8;
+        }
+
+        .total-row {
+            background: #e6f3ff !important;
+            font-weight: bold;
+        }
+
+        .profit-positive {
+            color: var(--success);
+        }
+
+        .profit-negative {
+            color: var(--error);
+        }
+
+        /* ボタン */
+        .btn {
+            background: var(--primary);
             color: white;
-            font-weight: 500;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            margin: 5px;
         }
 
-        .result-table th:first-child {
-            text-align: left;
+        .btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
         }
 
-        .result-table td:first-child {
-            text-align: left;
-            font-weight: 500;
-            color: #555;
+        .btn-success {
+            background: var(--success);
         }
 
-        .result-table .profit-row {
-            background: #f8f9fa;
-            font-weight: bold;
+        .btn-success:hover {
+            background: #219a52;
         }
 
-        .result-table .total-row {
-            background: #e3f2fd;
-            font-weight: bold;
-            border-top: 2px solid #C477CC;
+        .btn-secondary {
+            background: #6c757d;
         }
 
-        .controls {
-            text-align: center;
-            margin: 20px 0;
+        .btn-secondary:hover {
+            background: #5a6268;
         }
 
-        .status-display {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 20px;
-            border-left: 5px solid #27ae60;
-        }
-
-        .status-success {
-            color: #27ae60;
-            font-weight: bold;
-        }
-
-        .status-error {
-            color: #e74c3c;
-            font-weight: bold;
-        }
-
-        .formula-display {
-            background: #f8f9fa;
-            border: 1px solid #e0e0e0;
-            border-radius: 5px;
-            padding: 15px;
-            margin: 10px 0;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-        }
-
-        .formula-display h4 {
-            color: #C477CC;
-            margin-bottom: 10px;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
+        /* グラフコンテナ */
         .chart-container {
             background: white;
-            border-radius: 10px;
             padding: 20px;
-            margin-top: 20px;
-            height: 200px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+
+        /* データ送信ステータス */
+        .data-status {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .data-status.error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        /* レスポンシブ対応 */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .month-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .status-indicators {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* アニメーション */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* RCD特有の説明ボックス */
+        .rcd-info {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .rcd-info h4 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .rcd-info ul {
+            margin-left: 20px;
+            color: #0d47a1;
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 </head>
-<body>
+<body class="rcd-theme">
     <div class="container">
         <div class="header">
-            <h1>RCD社事業部</h1>
-            <p>損益計算シミュレーター - フェーズ2-1実装</p>
+            <h1>RCD社事業部 損益計算シミュレーター</h1>
+            <div class="subtitle">外部委託型・シンプル計算モデル | v2.0 自動送信対応</div>
         </div>
 
-        <div class="main-content">
-            <!-- 計算式表示セクション -->
-            <div class="section">
-                <h2>💡 RCD社事業部計算ロジック</h2>
-                <div class="formula-display">
-                    <h4>基本計算式</h4>
-                    <p><strong>売上高</strong> = 購入本数 × 2,000万円 × 1.03（利益率3%）</p>
-                    <p><strong>売上原価</strong> = 購入本数 × 2,000万円</p>
-                    <p><strong>粗利益</strong> = 売上高 - 売上原価</p>
-                    <p><strong>支払手数料</strong> = 手数料発生回数 × 90.6万円</p>
-                    <p><strong>営業利益</strong> = 粗利益 - 支払手数料</p>
+        <div class="content">
+            <!-- ステータス表示 -->
+            <div class="status-indicators">
+                <div class="status-card">
+                    <div class="status-value" id="totalSalesDisplay">0</div>
+                    <div class="status-label">年間売上（万円）</div>
                 </div>
-                <div class="formula-display">
-                    <h4>特徴</h4>
-                    <p>• 外部委託型のため人件費・経費は0円</p>
-                    <p>• 仕入単価固定（2,000万円/本）</p>
-                    <p>• 利益率固定（3%）</p>
-                    <p>• 支払手数料のみが変動費</p>
+                <div class="status-card">
+                    <div class="status-value" id="operatingProfitDisplay">0</div>
+                    <div class="status-label">営業利益（万円）</div>
+                </div>
+                <div class="status-card">
+                    <div class="status-value" id="profitRateDisplay">0%</div>
+                    <div class="status-label">利益率</div>
+                </div>
+                <div class="status-card">
+                    <div class="status-value" id="dataStatusDisplay">未送信</div>
+                    <div class="status-label">データ送信状況</div>
                 </div>
             </div>
 
-            <!-- 入力セクション -->
+            <!-- RCD事業部の特徴説明 -->
             <div class="section">
-                <h2>📝 月次データ入力</h2>
+                <h2>🏢 RCD社事業部の特徴</h2>
+                <div class="rcd-info">
+                    <h4>📊 計算ロジック</h4>
+                    <ul>
+                        <li><strong>売上高</strong> = 購入本数 × 2,000万円 × 1.03（利益率3%）</li>
+                        <li><strong>売上原価</strong> = 購入本数 × 2,000万円</li>
+                        <li><strong>支払手数料</strong> = 手数料発生回数 × 90.6万円</li>
+                        <li><strong>人件費・経費</strong> = 0円（外部委託のため）</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 月次データ入力セクション -->
+            <div class="section">
+                <h2>📊 月次データ入力</h2>
                 <div class="input-grid">
-                    <div class="input-group">
-                        <h3>📅 7月 (開始月)</h3>
-                        <div class="form-row">
-                            <label>購入本数:</label>
-                            <input type="number" id="purchase-7" min="0" step="1" value="5">
-                            <span class="unit">本</span>
+                    <!-- 購入本数入力 -->
+                    <div class="input-card">
+                        <h3>🛒 月次購入本数</h3>
+                        <div class="month-grid" id="purchaseInputs">
+                            <!-- JavaScriptで生成 -->
                         </div>
-                        <div class="form-row">
-                            <label>手数料回数:</label>
-                            <input type="number" id="fee-7" min="0" step="1" value="2">
-                            <span class="unit">回</span>
-                        </div>
-                    </div>
-                    
-                    <div class="input-group">
-                        <h3>📅 8月</h3>
-                        <div class="form-row">
-                            <label>購入本数:</label>
-                            <input type="number" id="purchase-8" min="0" step="1" value="6">
-                            <span class="unit">本</span>
-                        </div>
-                        <div class="form-row">
-                            <label>手数料回数:</label>
-                            <input type="number" id="fee-8" min="0" step="1" value="3">
-                            <span class="unit">回</span>
+                        <div style="text-align: center; margin-top: 15px;">
+                            <strong>年間合計: <span id="totalPurchases">0</span>本</strong>
                         </div>
                     </div>
 
-                    <div class="input-group">
-                        <h3>📅 9月</h3>
-                        <div class="form-row">
-                            <label>購入本数:</label>
-                            <input type="number" id="purchase-9" min="0" step="1" value="7">
-                            <span class="unit">本</span>
+                    <!-- 手数料発生回数入力 -->
+                    <div class="input-card">
+                        <h3>💸 月次手数料発生回数</h3>
+                        <div class="month-grid" id="feeInputs">
+                            <!-- JavaScriptで生成 -->
                         </div>
-                        <div class="form-row">
-                            <label>手数料回数:</label>
-                            <input type="number" id="fee-9" min="0" step="1" value="3">
-                            <span class="unit">回</span>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <h3>📅 10月</h3>
-                        <div class="form-row">
-                            <label>購入本数:</label>
-                            <input type="number" id="purchase-10" min="0" step="1" value="8">
-                            <span class="unit">本</span>
-                        </div>
-                        <div class="form-row">
-                            <label>手数料回数:</label>
-                            <input type="number" id="fee-10" min="0" step="1" value="4">
-                            <span class="unit">回</span>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <h3>📅 11月</h3>
-                        <div class="form-row">
-                            <label>購入本数:</label>
-                            <input type="number" id="purchase-11" min="0" step="1" value="9">
-                            <span class="unit">本</span>
-                        </div>
-                        <div class="form-row">
-                            <label>手数料回数:</label>
-                            <input type="number" id="fee-11" min="0" step="1" value="4">
-                            <span class="unit">回</span>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <h3>📅 12月</h3>
-                        <div class="form-row">
-                            <label>購入本数:</label>
-                            <input type="number" id="purchase-12" min="0" step="1" value="10">
-                            <span class="unit">本</span>
-                        </div>
-                        <div class="form-row">
-                            <label>手数料回数:</label>
-                            <input type="number" id="fee-12" min="0" step="1" value="5">
-                            <span class="unit">回</span>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <h3>📅 1月</h3>
-                        <div class="form-row">
-                            <label>購入本数:</label>
-                            <input type="number" id="purchase-1" min="0" step="1" value="8">
-                            <span class="unit">本</span>
-                        </div>
-                        <div class="form-row">
-                            <label>手数料回数:</label>
-                            <input type="number" id="fee-1" min="0" step="1" value="4">
-                            <span class="unit">回</span>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <h3>📅 2月</h3>
-                        <div class="form-row">
-                            <label>購入本数:</label>
-                            <input type="number" id="purchase-2" min="0" step="1" value="7">
-                            <span class="unit">本</span>
-                        </div>
-                        <div class="form-row">
-                            <label>手数料回数:</label>
-                            <input type="number" id="fee-2" min="0" step="1" value="3">
-                            <span class="unit">回</span>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <h3>📅 3月</h3>
-                        <div class="form-row">
-                            <label>購入本数:</label>
-                            <input type="number" id="purchase-3" min="0" step="1" value="9">
-                            <span class="unit">本</span>
-                        </div>
-                        <div class="form-row">
-                            <label>手数料回数:</label>
-                            <input type="number" id="fee-3" min="0" step="1" value="4">
-                            <span class="unit">回</span>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <h3>📅 4月</h3>
-                        <div class="form-row">
-                            <label>購入本数:</label>
-                            <input type="number" id="purchase-4" min="0" step="1" value="6">
-                            <span class="unit">本</span>
-                        </div>
-                        <div class="form-row">
-                            <label>手数料回数:</label>
-                            <input type="number" id="fee-4" min="0" step="1" value="3">
-                            <span class="unit">回</span>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <h3>📅 5月</h3>
-                        <div class="form-row">
-                            <label>購入本数:</label>
-                            <input type="number" id="purchase-5" min="0" step="1" value="8">
-                            <span class="unit">本</span>
-                        </div>
-                        <div class="form-row">
-                            <label>手数料回数:</label>
-                            <input type="number" id="fee-5" min="0" step="1" value="4">
-                            <span class="unit">回</span>
-                        </div>
-                    </div>
-
-                    <div class="input-group">
-                        <h3>📅 6月</h3>
-                        <div class="form-row">
-                            <label>購入本数:</label>
-                            <input type="number" id="purchase-6" min="0" step="1" value="7">
-                            <span class="unit">本</span>
-                        </div>
-                        <div class="form-row">
-                            <label>手数料回数:</label>
-                            <input type="number" id="fee-6" min="0" step="1" value="3">
-                            <span class="unit">回</span>
+                        <div style="text-align: center; margin-top: 15px;">
+                            <strong>年間合計: <span id="totalFees">0</span>回</strong>
                         </div>
                     </div>
                 </div>
 
-                <div class="controls">
-                    <button class="btn btn-primary" onclick="calculatePL()">🧮 損益計算実行</button>
-                    <button class="btn btn-success" onclick="sendToIntegratedPL()">📤 統合PLへ送信</button>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn" onclick="loadSampleData()">📝 サンプルデータ読込</button>
+                    <button class="btn btn-secondary" onclick="clearAllData()">🗑️ 全クリア</button>
+                    <button class="btn btn-success" onclick="manualDataSend()">📤 手動データ送信</button>
                 </div>
             </div>
 
             <!-- 計算結果セクション -->
             <div class="section">
-                <h2>📊 月次損益計算結果</h2>
-                <table class="result-table" id="resultTable">
+                <h2>📊 月次損益計算書</h2>
+                <table class="results-table" id="resultsTable">
                     <thead>
                         <tr>
                             <th>項目</th>
-                            <th>7月</th>
-                            <th>8月</th>
-                            <th>9月</th>
-                            <th>10月</th>
-                            <th>11月</th>
-                            <th>12月</th>
                             <th>1月</th>
                             <th>2月</th>
                             <th>3月</th>
                             <th>4月</th>
                             <th>5月</th>
                             <th>6月</th>
+                            <th>7月</th>
+                            <th>8月</th>
+                            <th>9月</th>
+                            <th>10月</th>
+                            <th>11月</th>
+                            <th>12月</th>
                             <th>年間合計</th>
                         </tr>
                     </thead>
-                    <tbody id="resultTableBody">
-                        <tr>
-                            <td colspan="14" style="text-align: center; color: #777; padding: 40px;">
-                                「損益計算実行」ボタンをクリックして計算を開始してください
-                            </td>
-                        </tr>
+                    <tbody id="resultsTableBody">
+                        <!-- 計算結果をJSで挿入 -->
                     </tbody>
                 </table>
             </div>
 
             <!-- グラフ表示セクション -->
             <div class="section">
-                <h2>📈 月次推移グラフ</h2>
+                <h2>📈 視覚分析</h2>
                 <div class="chart-container">
-                    <canvas id="plChart" width="400" height="140"></canvas>
+                    <h3>月次売上・利益推移</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <h3>購入本数・手数料推移</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="operationChart"></canvas>
+                    </div>
                 </div>
             </div>
 
-            <!-- 送信ステータスセクション -->
+            <!-- データ管理セクション -->
             <div class="section">
-                <h2>📡 統合PLシステム連携</h2>
-                <div class="status-display" id="sendStatus">
-                    <p>計算完了後、統合PLシステムにデータを送信できます。</p>
+                <h2>💾 データ管理・統合連携</h2>
+                <div id="dataStatus" class="data-status">
+                    自動送信: 計算時に統合システムへ自動送信されます
+                </div>
+                <div style="text-align: center;">
+                    <button class="btn" onclick="saveData()">💾 ローカル保存</button>
+                    <button class="btn btn-secondary" onclick="loadData()">📂 ローカル読込</button>
+                    <button class="btn btn-secondary" onclick="exportCSV()">📄 CSV出力</button>
+                    <button class="btn" onclick="checkIntegrationStatus()">🔍 統合システム確認</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // RCD社事業部の固定値
-        const RCD_CONFIG = {
-            unitPrice: 2000,      // 万円/本
-            profitRate: 0.03,     // 3%
-            feePerTransaction: 90.6  // 万円/回
+        // グローバル変数
+        const STORAGE_KEY = 'pl_system_rcd_data';
+        const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+        let salesChart, operationChart;
+
+        // RCD社事業部の計算定数
+        const RCD_CONSTANTS = {
+            unitPrice: 2000,        // 1本あたり2000万円
+            profitRate: 0.03,       // 利益率3%
+            feePerOccurrence: 90.6  // 手数料90.6万円/回
         };
 
-        // LocalStorageキー
-        const STORAGE_KEYS = {
-            rcd_data: 'pl_system_rcd_data'
-        };
+        // ページ初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeInputs();
+            loadData();
+            calculate();
+            updateCharts();
+        });
 
-        // 月名配列（7月開始）
-        const MONTHS = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
-        const MONTH_NUMBERS = [7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6];
+        // 入力フィールド初期化
+        function initializeInputs() {
+            // 購入本数入力フィールド生成
+            const purchaseContainer = document.getElementById('purchaseInputs');
+            months.forEach((month, index) => {
+                const monthInput = document.createElement('div');
+                monthInput.className = 'month-input';
+                monthInput.innerHTML = `
+                    <label>${month}</label>
+                    <input type="number" 
+                           id="purchase-month${index + 1}" 
+                           min="0" 
+                           step="1" 
+                           value="0"
+                           oninput="updateTotals(); calculate(); updateCharts(); autoSendData();">
+                `;
+                purchaseContainer.appendChild(monthInput);
+            });
 
-        // RCD社事業部の月次損益計算
-        function calculateRCDMonthlyPL(purchaseCount, feeOccurrences) {
-            const sales = Math.round(purchaseCount * RCD_CONFIG.unitPrice * (1 + RCD_CONFIG.profitRate));
-            const cogs = purchaseCount * RCD_CONFIG.unitPrice;
-            const grossProfit = sales - cogs;
-            const fees = Math.round(feeOccurrences * RCD_CONFIG.feePerTransaction * 10) / 10; // 小数点1位まで
-            const operatingProfit = Math.round((grossProfit - fees) * 10) / 10;
-            
+            // 手数料発生回数入力フィールド生成
+            const feeContainer = document.getElementById('feeInputs');
+            months.forEach((month, index) => {
+                const monthInput = document.createElement('div');
+                monthInput.className = 'month-input';
+                monthInput.innerHTML = `
+                    <label>${month}</label>
+                    <input type="number" 
+                           id="fee-month${index + 1}" 
+                           min="0" 
+                           step="1" 
+                           value="0"
+                           oninput="updateTotals(); calculate(); updateCharts(); autoSendData();">
+                `;
+                feeContainer.appendChild(monthInput);
+            });
+        }
+
+        // 合計値更新
+        function updateTotals() {
+            let totalPurchases = 0;
+            let totalFees = 0;
+
+            for (let i = 1; i <= 12; i++) {
+                const purchases = parseFloat(document.getElementById(`purchase-month${i}`).value) || 0;
+                const fees = parseFloat(document.getElementById(`fee-month${i}`).value) || 0;
+                totalPurchases += purchases;
+                totalFees += fees;
+            }
+
+            document.getElementById('totalPurchases').textContent = totalPurchases.toLocaleString();
+            document.getElementById('totalFees').textContent = totalFees.toLocaleString();
+        }
+
+        // 月次計算
+        function calculateMonthlyPL(monthIndex) {
+            const purchases = parseFloat(document.getElementById(`purchase-month${monthIndex + 1}`).value) || 0;
+            const feeOccurrences = parseFloat(document.getElementById(`fee-month${monthIndex + 1}`).value) || 0;
+
+            // RCD社事業部の計算ロジック
+            const salesRevenue = purchases * RCD_CONSTANTS.unitPrice * (1 + RCD_CONSTANTS.profitRate);
+            const cogs = purchases * RCD_CONSTANTS.unitPrice;
+            const grossProfit = salesRevenue - cogs;
+            const paymentFees = feeOccurrences * RCD_CONSTANTS.feePerOccurrence;
+            const operatingProfit = grossProfit - paymentFees;
+
             return {
-                sales: sales,
+                purchases: purchases,
+                feeOccurrences: feeOccurrences,
+                salesRevenue: salesRevenue,
                 cogs: cogs,
                 grossProfit: grossProfit,
-                fees: fees,
-                operatingProfit: operatingProfit
+                paymentFees: paymentFees,
+                operatingProfit: operatingProfit,
+                profitRate: salesRevenue > 0 ? (operatingProfit / salesRevenue * 100) : 0
             };
         }
 
-        // 損益計算実行
-        function calculatePL() {
-            try {
-                const results = [];
-                let totalSales = 0, totalCogs = 0, totalGrossProfit = 0, totalFees = 0, totalOperatingProfit = 0;
+        // 全体計算実行
+        function calculate() {
+            const results = [];
+            let totalSales = 0, totalOperatingProfit = 0;
 
-                // 各月の計算
-                for (let i = 0; i < 12; i++) {
-                    const monthNum = MONTH_NUMBERS[i];
-                    const purchaseCount = parseInt(document.getElementById(`purchase-${monthNum}`).value) || 0;
-                    const feeOccurrences = parseInt(document.getElementById(`fee-${monthNum}`).value) || 0;
-                    
-                    const monthResult = calculateRCDMonthlyPL(purchaseCount, feeOccurrences);
-                    results.push(monthResult);
-                    
-                    totalSales += monthResult.sales;
-                    totalCogs += monthResult.cogs;
-                    totalGrossProfit += monthResult.grossProfit;
-                    totalFees += monthResult.fees;
-                    totalOperatingProfit += monthResult.operatingProfit;
-                }
-
-                // 結果テーブル更新
-                updateResultTable(results, {
-                    totalSales,
-                    totalCogs,
-                    totalGrossProfit,
-                    totalFees,
-                    totalOperatingProfit
-                });
-
-                // グラフ更新
-                updateChart(results);
-
-                // 送信ボタン有効化
-                document.querySelector('[onclick="sendToIntegratedPL()"]').disabled = false;
-                
-                console.log('RCD社事業部 計算完了:', results);
-
-            } catch (error) {
-                alert(`計算エラーが発生しました: ${error.message}`);
-                console.error('計算エラー:', error);
+            // 月次計算
+            for (let i = 0; i < 12; i++) {
+                const monthResult = calculateMonthlyPL(i);
+                results.push(monthResult);
+                totalSales += monthResult.salesRevenue;
+                totalOperatingProfit += monthResult.operatingProfit;
             }
+
+            // 結果表示更新
+            updateResultsTable(results);
+            updateStatusDisplay(totalSales, totalOperatingProfit);
+            updateTotals();
         }
 
         // 結果テーブル更新
-        function updateResultTable(monthlyResults, totals) {
-            const tbody = document.getElementById('resultTableBody');
-            
-            const rows = [
-                {
-                    label: '売上高',
-                    values: monthlyResults.map(r => r.sales),
-                    total: totals.totalSales,
-                    className: ''
-                },
-                {
-                    label: '売上原価',
-                    values: monthlyResults.map(r => r.cogs),
-                    total: totals.totalCogs,
-                    className: ''
-                },
-                {
-                    label: '粗利益',
-                    values: monthlyResults.map(r => r.grossProfit),
-                    total: totals.totalGrossProfit,
-                    className: 'profit-row'
-                },
-                {
-                    label: '支払手数料',
-                    values: monthlyResults.map(r => r.fees),
-                    total: totals.totalFees,
-                    className: ''
-                },
-                {
-                    label: '営業利益',
-                    values: monthlyResults.map(r => r.operatingProfit),
-                    total: totals.totalOperatingProfit,
-                    className: 'total-row'
-                }
+        function updateResultsTable(results) {
+            const tbody = document.getElementById('resultsTableBody');
+            tbody.innerHTML = '';
+
+            const items = [
+                { label: '購入本数', key: 'purchases', format: 'number', unit: '本' },
+                { label: '手数料発生回数', key: 'feeOccurrences', format: 'number', unit: '回' },
+                { label: '売上高', key: 'salesRevenue', format: 'currency' },
+                { label: '売上原価', key: 'cogs', format: 'currency' },
+                { label: '粗利益', key: 'grossProfit', format: 'currency' },
+                { label: '支払手数料', key: 'paymentFees', format: 'currency' },
+                { label: '営業利益', key: 'operatingProfit', format: 'profit' }
             ];
 
-            tbody.innerHTML = rows.map(row => `
-                <tr class="${row.className}">
-                    <td>${row.label}</td>
-                    ${row.values.map(value => `<td>${value.toLocaleString()}</td>`).join('')}
-                    <td>${row.total.toLocaleString()}</td>
-                </tr>
-            `).join('');
+            items.forEach(item => {
+                const row = document.createElement('tr');
+                let html = `<td style="text-align: left; font-weight: bold;">${item.label}</td>`;
+
+                let total = 0;
+                results.forEach(result => {
+                    const value = result[item.key] || 0;
+                    total += value;
+
+                    if (item.format === 'profit') {
+                        const className = value >= 0 ? 'profit-positive' : 'profit-negative';
+                        html += `<td class="${className}">${Math.round(value).toLocaleString()}</td>`;
+                    } else if (item.format === 'currency') {
+                        html += `<td>${Math.round(value).toLocaleString()}</td>`;
+                    } else {
+                        html += `<td>${Math.round(value).toLocaleString()}${item.unit || ''}</td>`;
+                    }
+                });
+
+                // 年間合計
+                if (item.format === 'profit') {
+                    const className = total >= 0 ? 'profit-positive' : 'profit-negative';
+                    html += `<td class="${className}" style="font-weight: bold;">${Math.round(total).toLocaleString()}</td>`;
+                } else if (item.format === 'currency') {
+                    html += `<td style="font-weight: bold;">${Math.round(total).toLocaleString()}</td>`;
+                } else {
+                    html += `<td style="font-weight: bold;">${Math.round(total).toLocaleString()}${item.unit || ''}</td>`;
+                }
+
+                if (item.key === 'operatingProfit') {
+                    row.className = 'total-row';
+                }
+
+                row.innerHTML = html;
+                tbody.appendChild(row);
+            });
+        }
+
+        // ステータス表示更新
+        function updateStatusDisplay(totalSales, totalOperatingProfit) {
+            document.getElementById('totalSalesDisplay').textContent = Math.round(totalSales).toLocaleString();
+            document.getElementById('operatingProfitDisplay').textContent = Math.round(totalOperatingProfit).toLocaleString();
+            
+            const profitRate = totalSales > 0 ? (totalOperatingProfit / totalSales * 100) : 0;
+            document.getElementById('profitRateDisplay').textContent = profitRate.toFixed(1) + '%';
         }
 
         // グラフ更新
-        let plChart = null;
+        function updateCharts() {
+            updateSalesChart();
+            updateOperationChart();
+        }
 
-        function updateChart(monthlyResults) {
-            const ctx = document.getElementById('plChart').getContext('2d');
+        // 売上・利益推移グラフ
+        function updateSalesChart() {
+            const ctx = document.getElementById('salesChart').getContext('2d');
             
-            if (plChart) {
-                plChart.destroy();
+            if (salesChart) {
+                salesChart.destroy();
             }
 
-            plChart = new Chart(ctx, {
+            const salesData = [];
+            const profitData = [];
+            
+            for (let i = 0; i < 12; i++) {
+                const result = calculateMonthlyPL(i);
+                salesData.push(Math.round(result.salesRevenue));
+                profitData.push(Math.round(result.operatingProfit));
+            }
+
+            salesChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: MONTHS,
+                    labels: months,
                     datasets: [
                         {
                             label: '売上高',
-                            data: monthlyResults.map(r => r.sales),
-                            borderColor: '#C477CC',
-                            backgroundColor: 'rgba(196, 119, 204, 0.1)',
-                            tension: 0.4
-                        },
-                        {
-                            label: '粗利益',
-                            data: monthlyResults.map(r => r.grossProfit),
-                            borderColor: '#27ae60',
-                            backgroundColor: 'rgba(39, 174, 96, 0.1)',
-                            tension: 0.4
+                            data: salesData,
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            tension: 0.4,
+                            fill: true
                         },
                         {
                             label: '営業利益',
-                            data: monthlyResults.map(r => r.operatingProfit),
-                            borderColor: '#3498db',
-                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                            tension: 0.4
+                            data: profitData,
+                            borderColor: '#27ae60',
+                            backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                            tension: 0.4,
+                            fill: false
                         }
                     ]
                 },
@@ -667,7 +700,7 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'bottom'
+                            position: 'top'
                         }
                     },
                     scales: {
@@ -684,123 +717,289 @@
             });
         }
 
-        // 統合PLシステムへ送信
-        function sendToIntegratedPL() {
+        // 購入本数・手数料推移グラフ
+        function updateOperationChart() {
+            const ctx = document.getElementById('operationChart').getContext('2d');
+            
+            if (operationChart) {
+                operationChart.destroy();
+            }
+
+            const purchaseData = [];
+            const feeData = [];
+            
+            for (let i = 0; i < 12; i++) {
+                const result = calculateMonthlyPL(i);
+                purchaseData.push(result.purchases);
+                feeData.push(result.feeOccurrences);
+            }
+
+            operationChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: '購入本数',
+                            data: purchaseData,
+                            backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: '手数料発生回数',
+                            data: feeData,
+                            type: 'line',
+                            borderColor: '#e74c3c',
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: '購入本数'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                            title: {
+                                display: true,
+                                text: '手数料発生回数'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 🔄 自動データ送信機能（Step 2の核心）
+        function autoSendData() {
             try {
-                // 現在の入力値を取得
-                const inputData = {};
-                const calculatedData = {};
-                let totalSales = 0, totalCogs = 0, totalFees = 0;
+                const results = [];
+                let totalSales = 0, totalOperatingProfit = 0;
 
+                // 月次データ収集
                 for (let i = 0; i < 12; i++) {
-                    const monthNum = MONTH_NUMBERS[i];
-                    const purchaseCount = parseInt(document.getElementById(`purchase-${monthNum}`).value) || 0;
-                    const feeOccurrences = parseInt(document.getElementById(`fee-${monthNum}`).value) || 0;
-                    
-                    inputData[`month_${monthNum}`] = {
-                        purchaseCount,
-                        feeOccurrences
-                    };
-
-                    const monthResult = calculateRCDMonthlyPL(purchaseCount, feeOccurrences);
-                    calculatedData[`month_${monthNum}`] = monthResult;
-                    
-                    totalSales += monthResult.sales;
-                    totalCogs += monthResult.cogs;
-                    totalFees += monthResult.fees;
+                    const monthResult = calculateMonthlyPL(i);
+                    results.push({
+                        month: i + 1,
+                        sales: Math.round(monthResult.salesRevenue),
+                        profit: Math.round(monthResult.operatingProfit),
+                        profitRate: monthResult.profitRate
+                    });
+                    totalSales += monthResult.salesRevenue;
+                    totalOperatingProfit += monthResult.operatingProfit;
                 }
 
-                // 標準データ構造に変換
-                const standardPLData = {
-                    department: "RCD社事業部",
+                // 統合システム用データ構造
+                const integrationData = {
+                    department: 'RCD社事業部',
                     timestamp: new Date().toISOString(),
+                    monthly: results,
+                    annual: {
+                        sales: Math.round(totalSales),
+                        profit: Math.round(totalOperatingProfit),
+                        profitRate: totalSales > 0 ? (totalOperatingProfit / totalSales * 100) : 0
+                    },
                     metadata: {
-                        source: "rcd_simulator_phase2",
-                        version: "2.0",
-                        checksum: generateChecksum("rcd" + Date.now())
-                    },
-                    sales: {
-                        monthly: MONTH_NUMBERS.map(monthNum => calculatedData[`month_${monthNum}`].sales),
-                        annual: totalSales
-                    },
-                    cogs: {
-                        monthly: MONTH_NUMBERS.map(monthNum => calculatedData[`month_${monthNum}`].cogs),
-                        annual: totalCogs
-                    },
-                    expenses: {
-                        personnel: { monthly: new Array(12).fill(0), annual: 0 },
-                        welfare: { monthly: new Array(12).fill(0), annual: 0 },
-                        rent: { monthly: new Array(12).fill(0), annual: 0 },
-                        utilities: { monthly: new Array(12).fill(0), annual: 0 },
-                        communication: { monthly: new Array(12).fill(0), annual: 0 },
-                        fees: { 
-                            monthly: MONTH_NUMBERS.map(monthNum => calculatedData[`month_${monthNum}`].fees), 
-                            annual: totalFees 
-                        }
-                    },
-                    inputData: inputData,
-                    calculatedData: calculatedData,
-                    validation: {
-                        errors: [],
-                        warnings: [],
-                        status: "success"
+                        source: 'rcd_calculator_v2',
+                        version: '2.0',
+                        calculationMethod: 'external_outsourcing',
+                        lastUpdated: new Date().toISOString()
                     }
                 };
 
                 // LocalStorageに保存
-                localStorage.setItem(STORAGE_KEYS.rcd_data, JSON.stringify(standardPLData));
-
-                // 送信ステータス更新
-                document.getElementById('sendStatus').innerHTML = `
-                    <h3 class="status-success">✅ 送信完了</h3>
-                    <p>RCD社事業部のデータが統合PLシステムに送信されました。</p>
-                    <p><strong>送信日時:</strong> ${new Date().toLocaleString('ja-JP')}</p>
-                    <p><strong>年間売上:</strong> ${totalSales.toLocaleString()}万円</p>
-                    <p><strong>年間営業利益:</strong> ${(totalSales - totalCogs - totalFees).toLocaleString()}万円</p>
-                `;
-
-                console.log('RCD社事業部データ送信完了:', standardPLData);
-
-            } catch (error) {
-                document.getElementById('sendStatus').innerHTML = `
-                    <h3 class="status-error">❌ 送信失敗</h3>
-                    <p>エラーが発生しました: ${error.message}</p>
-                `;
-                console.error('送信エラー:', error);
-            }
-        }
-
-        // チェックサム生成（簡易版）
-        function generateChecksum(str) {
-            let hash = 0;
-            for (let i = 0; i < str.length; i++) {
-                const char = str.charCodeAt(i);
-                hash = ((hash << 5) - hash) + char;
-                hash = hash & hash;
-            }
-            return Math.abs(hash).toString(16);
-        }
-
-        // 入力値変更時の自動計算
-        document.addEventListener('DOMContentLoaded', function() {
-            // 初期計算実行
-            calculatePL();
-            
-            // 入力フィールドにイベントリスナー追加
-            MONTH_NUMBERS.forEach(monthNum => {
-                const purchaseInput = document.getElementById(`purchase-${monthNum}`);
-                const feeInput = document.getElementById(`fee-${monthNum}`);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(integrationData));
                 
-                if (purchaseInput) {
-                    purchaseInput.addEventListener('input', calculatePL);
+                // ステータス更新
+                document.getElementById('dataStatusDisplay').textContent = '送信完了';
+                document.getElementById('dataStatusDisplay').style.color = '#27ae60';
+                
+                // ログ出力
+                console.log('RCD社事業部データ自動送信完了:', integrationData);
+                
+                return true;
+            } catch (error) {
+                console.error('データ送信エラー:', error);
+                document.getElementById('dataStatusDisplay').textContent = '送信エラー';
+                document.getElementById('dataStatusDisplay').style.color = '#e74c3c';
+                return false;
+            }
+        }
+
+        // 手動データ送信
+        function manualDataSend() {
+            const success = autoSendData();
+            if (success) {
+                showStatus('データを統合システムに送信しました', 'success');
+            } else {
+                showStatus('データ送信に失敗しました', 'error');
+            }
+        }
+
+        // 統合システム確認
+        function checkIntegrationStatus() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            if (data) {
+                const parsed = JSON.parse(data);
+                const lastUpdate = new Date(parsed.timestamp).toLocaleString();
+                showStatus(`最終送信: ${lastUpdate}`, 'success');
+            } else {
+                showStatus('送信データが見つかりません', 'error');
+            }
+        }
+
+        // サンプルデータ読込
+        function loadSampleData() {
+            // 引継ぎ書の実績例を参考にサンプルデータ設定
+            // 年間売上195,400万円、営業利益3,065万円を目標
+            const samplePurchases = [8, 7, 9, 8, 7, 8, 9, 8, 7, 8, 9, 8]; // 年間97本
+            const sampleFees = [2, 2, 3, 2, 2, 2, 3, 2, 2, 3, 2, 2]; // 年間27回
+
+            for (let i = 1; i <= 12; i++) {
+                document.getElementById(`purchase-month${i}`).value = samplePurchases[i-1];
+                document.getElementById(`fee-month${i}`).value = sampleFees[i-1];
+            }
+
+            calculate();
+            updateCharts();
+            autoSendData();
+            showStatus('サンプルデータを読み込みました', 'success');
+        }
+
+        // 全データクリア
+        function clearAllData() {
+            if (!confirm('全てのデータをクリアしますか？')) return;
+
+            for (let i = 1; i <= 12; i++) {
+                document.getElementById(`purchase-month${i}`).value = 0;
+                document.getElementById(`fee-month${i}`).value = 0;
+            }
+
+            calculate();
+            updateCharts();
+            autoSendData();
+            showStatus('データをクリアしました', 'info');
+        }
+
+        // データ保存
+        function saveData() {
+            const data = {
+                department: "RCD社事業部",
+                timestamp: new Date().toISOString(),
+                inputData: {},
+                version: "2.0"
+            };
+
+            // 入力データ収集
+            for (let i = 1; i <= 12; i++) {
+                data.inputData[`purchase_month${i}`] = parseFloat(document.getElementById(`purchase-month${i}`).value) || 0;
+                data.inputData[`fee_month${i}`] = parseFloat(document.getElementById(`fee-month${i}`).value) || 0;
+            }
+
+            localStorage.setItem(STORAGE_KEY + '_local', JSON.stringify(data));
+            showStatus('ローカルデータを保存しました', 'success');
+        }
+
+        // データ読込
+        function loadData() {
+            const savedData = localStorage.getItem(STORAGE_KEY + '_local');
+            if (!savedData) {
+                showStatus('保存されたローカルデータがありません', 'warning');
+                return;
+            }
+
+            try {
+                const data = JSON.parse(savedData);
+                
+                // 入力データ復元
+                if (data.inputData) {
+                    for (let i = 1; i <= 12; i++) {
+                        const purchaseValue = data.inputData[`purchase_month${i}`] || 0;
+                        const feeValue = data.inputData[`fee_month${i}`] || 0;
+                        
+                        document.getElementById(`purchase-month${i}`).value = purchaseValue;
+                        document.getElementById(`fee-month${i}`).value = feeValue;
+                    }
                 }
-                if (feeInput) {
-                    feeInput.addEventListener('input', calculatePL);
-                }
+
+                calculate();
+                updateCharts();
+                autoSendData();
+                showStatus('ローカルデータを読み込みました', 'success');
+            } catch (error) {
+                showStatus('データの読み込みに失敗しました', 'error');
+                console.error('Load error:', error);
+            }
+        }
+
+        // CSV出力
+        function exportCSV() {
+            const results = [];
+            for (let i = 0; i < 12; i++) {
+                results.push(calculateMonthlyPL(i));
+            }
+
+            let csv = 'RCD社事業部 損益計算書\n\n';
+            csv += '項目,' + months.join(',') + ',年間合計\n';
+
+            const items = [
+                { label: '購入本数', key: 'purchases' },
+                { label: '手数料発生回数', key: 'feeOccurrences' },
+                { label: '売上高', key: 'salesRevenue' },
+                { label: '売上原価', key: 'cogs' },
+                { label: '粗利益', key: 'grossProfit' },
+                { label: '支払手数料', key: 'paymentFees' },
+                { label: '営業利益', key: 'operatingProfit' }
+            ];
+
+            items.forEach(item => {
+                let row = item.label;
+                let total = 0;
+                results.forEach(result => {
+                    const value = Math.round(result[item.key] || 0);
+                    row += ',' + value;
+                    total += value;
+                });
+                row += ',' + Math.round(total);
+                csv += row + '\n';
             });
 
-            console.log('RCD社事業部シミュレーター初期化完了');
-        });
+            // ダウンロード実行
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `RCD社事業部_損益計算書_${new Date().toISOString().slice(0, 10)}.csv`;
+            link.click();
+
+            showStatus('CSVファイルをダウンロードしました', 'success');
+        }
+
+        // ステータス表示
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('dataStatus');
+            statusDiv.textContent = message;
+            statusDiv.className = 'data-status ' + (type === 'error' ? 'error' : '');
+            
+            setTimeout(() => {
+                statusDiv.textContent = '自動送信: 計算時に統合システムへ自動送信されます';
+                statusDiv.className = 'data-status';
+            }, 3000);
+        }
     </script>
 </body>
 </html>
