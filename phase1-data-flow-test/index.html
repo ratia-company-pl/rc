@@ -1,1 +1,736 @@
 
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PL統合システム - データ送受信テストページ（フェーズ1）</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #C477CC 0%, #B366BD 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 2px solid #f0f0f0;
+            border-radius: 10px;
+            background: #fafafa;
+        }
+
+        .section h2 {
+            color: #C477CC;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 2px solid #C477CC;
+            padding-bottom: 10px;
+        }
+
+        .department-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .department-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .department-card:hover {
+            border-color: #C477CC;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(196, 119, 204, 0.2);
+        }
+
+        .department-card h3 {
+            color: #C477CC;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 5px;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #C477CC 0%, #B366BD 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(196, 119, 204, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .status-display {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 5px solid #C477CC;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-success {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .status-error {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            color: #f39c12;
+            font-weight: bold;
+        }
+
+        .log-area {
+            background: #2c3e50;
+            color: #ecf0f1;
+            border-radius: 10px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .validation-results {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .validation-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 4px solid #ddd;
+        }
+
+        .validation-success {
+            background: #d4edda;
+            border-left-color: #27ae60;
+            color: #155724;
+        }
+
+        .validation-warning {
+            background: #fff3cd;
+            border-left-color: #f39c12;
+            color: #856404;
+        }
+
+        .validation-error {
+            background: #f8d7da;
+            border-left-color: #e74c3c;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>PL統合システム</h1>
+            <p>データ送受信テストページ - フェーズ1</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 事業部データ送信セクション -->
+            <div class="section">
+                <h2>📤 事業部データ送信テスト</h2>
+                <div class="department-grid">
+                    <div class="department-card">
+                        <h3>SR事業部</h3>
+                        <button class="btn btn-primary" onclick="sendDepartmentData('sr')">ダミーデータ送信</button>
+                        <button class="btn btn-success" onclick="validateDepartmentData('sr')">データ検証</button>
+                    </div>
+                    <div class="department-card">
+                        <h3>W事業部</h3>
+                        <button class="btn btn-primary" onclick="sendDepartmentData('w')">ダミーデータ送信</button>
+                        <button class="btn btn-success" onclick="validateDepartmentData('w')">データ検証</button>
+                    </div>
+                    <div class="department-card">
+                        <h3>RC卸事業部</h3>
+                        <button class="btn btn-primary" onclick="sendDepartmentData('rc')">ダミーデータ送信</button>
+                        <button class="btn btn-success" onclick="validateDepartmentData('rc')">データ検証</button>
+                    </div>
+                    <div class="department-card">
+                        <h3>RCD社事業部</h3>
+                        <button class="btn btn-primary" onclick="sendDepartmentData('rcd')">ダミーデータ送信</button>
+                        <button class="btn btn-success" onclick="validateDepartmentData('rcd')">データ検証</button>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="sendAllData()">🚀 全事業部一括送信</button>
+                    <button class="btn btn-danger" onclick="clearAllData()">🗑️ 全データクリア</button>
+                </div>
+            </div>
+
+            <!-- データ受信・統合セクション -->
+            <div class="section">
+                <h2>📥 データ受信・統合テスト</h2>
+                <div class="controls">
+                    <button class="btn btn-success" onclick="receiveAndCombineData()">データ受信・統合実行</button>
+                    <button class="btn btn-primary" onclick="showCombinedData()">統合データ表示</button>
+                </div>
+                <div class="status-display" id="dataStatus">
+                    <h3>📊 データ送受信ステータス</h3>
+                    <div class="status-item">
+                        <span>SR事業部:</span>
+                        <span id="status-sr" class="status-pending">未送信</span>
+                    </div>
+                    <div class="status-item">
+                        <span>W事業部:</span>
+                        <span id="status-w" class="status-pending">未送信</span>
+                    </div>
+                    <div class="status-item">
+                        <span>RC卸事業部:</span>
+                        <span id="status-rc" class="status-pending">未送信</span>
+                    </div>
+                    <div class="status-item">
+                        <span>RCD社事業部:</span>
+                        <span id="status-rcd" class="status-pending">未送信</span>
+                    </div>
+                    <div class="status-item">
+                        <span>統合データ:</span>
+                        <span id="status-combined" class="status-pending">未作成</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- バリデーション結果セクション -->
+            <div class="section">
+                <h2>✅ バリデーション結果</h2>
+                <div class="validation-results" id="validationResults">
+                    <p>バリデーションを実行してください...</p>
+                </div>
+            </div>
+
+            <!-- システムログセクション -->
+            <div class="section">
+                <h2>📋 システムログ</h2>
+                <div class="log-area" id="systemLog">
+                    <div>システム初期化完了...</div>
+                    <div>データ送受信テストページ準備完了</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // LocalStorageキー管理（引継ぎ書に基づく）
+        const STORAGE_KEYS = {
+            sr_data: 'pl_system_sr_data',
+            w_data: 'pl_system_w_data',
+            rc_data: 'pl_system_rc_data',
+            rcd_data: 'pl_system_rcd_data',
+            combined_data: 'pl_system_combined_data',
+            test_mode: 'pl_system_test_mode'
+        };
+
+        // 標準データ構造テンプレート
+        function createStandardPLData(department) {
+            const now = new Date().toISOString();
+            return {
+                department: department,
+                timestamp: now,
+                metadata: {
+                    source: `${department}_simulator`,
+                    version: "1.0",
+                    checksum: generateChecksum(department + now)
+                },
+                sales: {
+                    monthly: new Array(12).fill(0).map(() => Math.floor(Math.random() * 10000) + 5000),
+                    annual: 0
+                },
+                cogs: {
+                    monthly: new Array(12).fill(0).map(() => Math.floor(Math.random() * 3000) + 1500),
+                    annual: 0
+                },
+                expenses: {
+                    personnel: { 
+                        monthly: new Array(12).fill(0).map(() => Math.floor(Math.random() * 1000) + 500), 
+                        annual: 0 
+                    },
+                    welfare: { 
+                        monthly: new Array(12).fill(0).map(() => Math.floor(Math.random() * 200) + 100), 
+                        annual: 0 
+                    },
+                    rent: { 
+                        monthly: new Array(12).fill(0).map(() => Math.floor(Math.random() * 300) + 200), 
+                        annual: 0 
+                    },
+                    utilities: { 
+                        monthly: new Array(12).fill(0).map(() => Math.floor(Math.random() * 150) + 50), 
+                        annual: 0 
+                    },
+                    communication: { 
+                        monthly: new Array(12).fill(0).map(() => Math.floor(Math.random() * 100) + 30), 
+                        annual: 0 
+                    },
+                    // 他の販管費項目も同様に定義
+                },
+                validation: {
+                    errors: [],
+                    warnings: [],
+                    status: "success"
+                }
+            };
+        }
+
+        // チェックサム生成（簡易版）
+        function generateChecksum(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return Math.abs(hash).toString(16);
+        }
+
+        // データバリデーション機能
+        function validatePLData(data) {
+            const errors = [];
+            const warnings = [];
+
+            // 必須項目チェック
+            if (!data.department) errors.push("事業部名が未設定です");
+            if (!data.timestamp) errors.push("タイムスタンプが未設定です");
+            if (!data.sales || !data.sales.monthly) errors.push("売上データが不正です");
+            if (!data.cogs || !data.cogs.monthly) errors.push("売上原価データが不正です");
+
+            // 月次データ配列長チェック
+            if (data.sales.monthly && data.sales.monthly.length !== 12) {
+                errors.push(`売上月次データが12項目ではありません（${data.sales.monthly.length}項目）`);
+            }
+            if (data.cogs.monthly && data.cogs.monthly.length !== 12) {
+                errors.push(`売上原価月次データが12項目ではありません（${data.cogs.monthly.length}項目）`);
+            }
+
+            // 数値範囲チェック
+            if (data.sales.monthly) {
+                data.sales.monthly.forEach((value, index) => {
+                    if (typeof value !== 'number' || value < 0) {
+                        errors.push(`売上データ${index + 1}月目が不正な値です: ${value}`);
+                    }
+                });
+            }
+
+            // 年間合計チェック
+            if (data.sales.monthly) {
+                const calculatedAnnual = data.sales.monthly.reduce((sum, value) => sum + value, 0);
+                if (Math.abs(calculatedAnnual - data.sales.annual) > 1) {
+                    warnings.push(`売上年間合計が月次合計と一致しません（差額: ${Math.abs(calculatedAnnual - data.sales.annual)}）`);
+                }
+            }
+
+            return {
+                errors,
+                warnings,
+                isValid: errors.length === 0,
+                status: errors.length === 0 ? (warnings.length === 0 ? "success" : "warning") : "error"
+            };
+        }
+
+        // 事業部データ送信
+        function sendDepartmentData(department) {
+            try {
+                logMessage(`📤 ${department.toUpperCase()}事業部のデータ送信を開始...`);
+                
+                const data = createStandardPLData(department);
+                
+                // 年間合計を計算
+                data.sales.annual = data.sales.monthly.reduce((sum, val) => sum + val, 0);
+                data.cogs.annual = data.cogs.monthly.reduce((sum, val) => sum + val, 0);
+                
+                // 各費用項目の年間合計も計算
+                Object.keys(data.expenses).forEach(key => {
+                    if (data.expenses[key].monthly) {
+                        data.expenses[key].annual = data.expenses[key].monthly.reduce((sum, val) => sum + val, 0);
+                    }
+                });
+
+                // LocalStorageに保存
+                const storageKey = STORAGE_KEYS[`${department}_data`];
+                const jsonData = JSON.stringify(data);
+                
+                // データサイズチェック
+                if (jsonData.length > 5000000) { // 5MB制限
+                    throw new Error("データサイズが大きすぎます");
+                }
+                
+                localStorage.setItem(storageKey, jsonData);
+                
+                // ステータス更新
+                updateStatus(department, "success", "送信完了");
+                logMessage(`✅ ${department.toUpperCase()}事業部のデータ送信完了`);
+                
+            } catch (error) {
+                updateStatus(department, "error", "送信失敗");
+                logMessage(`❌ ${department.toUpperCase()}事業部のデータ送信失敗: ${error.message}`);
+            }
+        }
+
+        // 事業部データ検証
+        function validateDepartmentData(department) {
+            try {
+                const storageKey = STORAGE_KEYS[`${department}_data`];
+                const storedData = localStorage.getItem(storageKey);
+                
+                if (!storedData) {
+                    showValidationResults([{
+                        type: 'error',
+                        message: `${department.toUpperCase()}事業部のデータが見つかりません`
+                    }]);
+                    return;
+                }
+
+                const data = JSON.parse(storedData);
+                const validation = validatePLData(data);
+                
+                const results = [];
+                
+                if (validation.isValid) {
+                    results.push({
+                        type: 'success',
+                        message: `${department.toUpperCase()}事業部: データ検証成功`
+                    });
+                }
+                
+                validation.errors.forEach(error => {
+                    results.push({
+                        type: 'error',
+                        message: `${department.toUpperCase()}事業部エラー: ${error}`
+                    });
+                });
+                
+                validation.warnings.forEach(warning => {
+                    results.push({
+                        type: 'warning',
+                        message: `${department.toUpperCase()}事業部警告: ${warning}`
+                    });
+                });
+                
+                showValidationResults(results);
+                logMessage(`🔍 ${department.toUpperCase()}事業部のデータ検証完了: ${validation.status}`);
+                
+            } catch (error) {
+                showValidationResults([{
+                    type: 'error',
+                    message: `${department.toUpperCase()}事業部の検証中にエラーが発生しました: ${error.message}`
+                }]);
+                logMessage(`❌ ${department.toUpperCase()}事業部の検証失敗: ${error.message}`);
+            }
+        }
+
+        // 全事業部データ送信
+        function sendAllData() {
+            logMessage("🚀 全事業部データ一括送信を開始...");
+            const departments = ['sr', 'w', 'rc', 'rcd'];
+            
+            departments.forEach((dept, index) => {
+                setTimeout(() => {
+                    sendDepartmentData(dept);
+                }, index * 500); // 0.5秒間隔で実行
+            });
+        }
+
+        // データ受信・統合
+        function receiveAndCombineData() {
+            try {
+                logMessage("📥 データ受信・統合処理を開始...");
+                
+                const departments = ['sr', 'w', 'rc', 'rcd'];
+                const combinedData = {
+                    timestamp: new Date().toISOString(),
+                    departments: {},
+                    totals: {
+                        sales: { monthly: new Array(12).fill(0), annual: 0 },
+                        cogs: { monthly: new Array(12).fill(0), annual: 0 },
+                        grossProfit: { monthly: new Array(12).fill(0), annual: 0 }
+                    },
+                    validation: {
+                        errors: [],
+                        warnings: [],
+                        status: "success"
+                    }
+                };
+
+                let allDataValid = true;
+
+                departments.forEach(dept => {
+                    const storageKey = STORAGE_KEYS[`${dept}_data`];
+                    const storedData = localStorage.getItem(storageKey);
+                    
+                    if (storedData) {
+                        try {
+                            const data = JSON.parse(storedData);
+                            const validation = validatePLData(data);
+                            
+                            if (validation.isValid) {
+                                combinedData.departments[dept] = data;
+                                
+                                // 合計値に加算
+                                for (let i = 0; i < 12; i++) {
+                                    combinedData.totals.sales.monthly[i] += data.sales.monthly[i] || 0;
+                                    combinedData.totals.cogs.monthly[i] += data.cogs.monthly[i] || 0;
+                                    combinedData.totals.grossProfit.monthly[i] = 
+                                        combinedData.totals.sales.monthly[i] - combinedData.totals.cogs.monthly[i];
+                                }
+                                
+                                logMessage(`✅ ${dept.toUpperCase()}事業部データを統合に追加`);
+                            } else {
+                                allDataValid = false;
+                                combinedData.validation.errors.push(`${dept}事業部のデータが無効です`);
+                                logMessage(`❌ ${dept.toUpperCase()}事業部データに問題があります`);
+                            }
+                        } catch (error) {
+                            allDataValid = false;
+                            combinedData.validation.errors.push(`${dept}事業部のデータ解析に失敗`);
+                            logMessage(`❌ ${dept.toUpperCase()}事業部データの解析失敗: ${error.message}`);
+                        }
+                    } else {
+                        allDataValid = false;
+                        combinedData.validation.errors.push(`${dept}事業部のデータが見つかりません`);
+                        logMessage(`⚠️ ${dept.toUpperCase()}事業部のデータが見つかりません`);
+                    }
+                });
+
+                // 年間合計計算
+                combinedData.totals.sales.annual = combinedData.totals.sales.monthly.reduce((sum, val) => sum + val, 0);
+                combinedData.totals.cogs.annual = combinedData.totals.cogs.monthly.reduce((sum, val) => sum + val, 0);
+                combinedData.totals.grossProfit.annual = combinedData.totals.grossProfit.monthly.reduce((sum, val) => sum + val, 0);
+
+                // 統合データ保存
+                localStorage.setItem(STORAGE_KEYS.combined_data, JSON.stringify(combinedData));
+                
+                if (allDataValid) {
+                    updateStatus('combined', 'success', '統合完了');
+                    logMessage("✅ データ統合処理完了");
+                } else {
+                    updateStatus('combined', 'error', '統合失敗');
+                    logMessage("❌ データ統合処理中にエラーが発生しました");
+                }
+
+            } catch (error) {
+                updateStatus('combined', 'error', '統合失敗');
+                logMessage(`❌ データ統合処理失敗: ${error.message}`);
+            }
+        }
+
+        // 統合データ表示
+        function showCombinedData() {
+            try {
+                const combinedData = localStorage.getItem(STORAGE_KEYS.combined_data);
+                if (!combinedData) {
+                    alert("統合データが見つかりません。先にデータ統合を実行してください。");
+                    return;
+                }
+
+                const data = JSON.parse(combinedData);
+                const results = [];
+
+                results.push({
+                    type: 'success',
+                    message: `統合データ作成日時: ${new Date(data.timestamp).toLocaleString('ja-JP')}`
+                });
+
+                results.push({
+                    type: 'success',
+                    message: `統合対象事業部数: ${Object.keys(data.departments).length}部門`
+                });
+
+                results.push({
+                    type: 'success',
+                    message: `年間売上合計: ${data.totals.sales.annual.toLocaleString()}万円`
+                });
+
+                results.push({
+                    type: 'success',
+                    message: `年間売上原価合計: ${data.totals.cogs.annual.toLocaleString()}万円`
+                });
+
+                results.push({
+                    type: 'success',
+                    message: `年間粗利合計: ${data.totals.grossProfit.annual.toLocaleString()}万円`
+                });
+
+                if (data.validation.errors.length > 0) {
+                    data.validation.errors.forEach(error => {
+                        results.push({
+                            type: 'error',
+                            message: `統合エラー: ${error}`
+                        });
+                    });
+                }
+
+                showValidationResults(results);
+                logMessage("📊 統合データ表示完了");
+
+            } catch (error) {
+                logMessage(`❌ 統合データ表示失敗: ${error.message}`);
+            }
+        }
+
+        // 全データクリア
+        function clearAllData() {
+            if (confirm("全てのテストデータを削除しますか？")) {
+                Object.values(STORAGE_KEYS).forEach(key => {
+                    localStorage.removeItem(key);
+                });
+                
+                // ステータスリセット
+                const departments = ['sr', 'w', 'rc', 'rcd', 'combined'];
+                departments.forEach(dept => {
+                    updateStatus(dept, 'pending', dept === 'combined' ? '未作成' : '未送信');
+                });
+                
+                // バリデーション結果クリア
+                document.getElementById('validationResults').innerHTML = '<p>バリデーションを実行してください...</p>';
+                
+                logMessage("🗑️ 全データクリア完了");
+            }
+        }
+
+        // ステータス更新
+        function updateStatus(department, status, message) {
+            const statusElement = document.getElementById(`status-${department}`);
+            if (statusElement) {
+                statusElement.textContent = message;
+                statusElement.className = `status-${status}`;
+            }
+        }
+
+        // バリデーション結果表示
+        function showValidationResults(results) {
+            const container = document.getElementById('validationResults');
+            container.innerHTML = '';
+            
+            if (results.length === 0) {
+                container.innerHTML = '<p>バリデーション結果はありません</p>';
+                return;
+            }
+
+            results.forEach(result => {
+                const div = document.createElement('div');
+                div.className = `validation-item validation-${result.type}`;
+                div.textContent = result.message;
+                container.appendChild(div);
+            });
+        }
+
+        // ログメッセージ追加
+        function logMessage(message) {
+            const logArea = document.getElementById('systemLog');
+            const now = new Date().toLocaleTimeString('ja-JP');
+            const logEntry = document.createElement('div');
+            logEntry.textContent = `[${now}] ${message}`;
+            logArea.appendChild(logEntry);
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            logMessage("🚀 PL統合システム データ送受信テストページ初期化完了");
+            
+            // テストモード設定
+            localStorage.setItem(STORAGE_KEYS.test_mode, 'true');
+            logMessage("🧪 テストモード有効化");
+        });
+    </script>
+</body>
+</html>
