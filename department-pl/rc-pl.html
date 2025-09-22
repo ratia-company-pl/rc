@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RC支店事業部PLシミュレーター（連携機能付）</title>
+    <title>RC卸事業部PLシミュレーター（連携機能付）</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -407,7 +407,7 @@
         <header class="header">
             <!-- 1行目: タイトル -->
             <div class="header-row1">
-                <h1 class="main-title">RC支店事業部PLシミュレーター（連携機能付）</h1>
+                <h1 class="main-title">RC卸事業部PLシミュレーター（連携機能付）</h1>
             </div>
 
             <!-- 2行目: グローバルナビゲーション -->
@@ -455,7 +455,7 @@
 
         <!-- メインコンテンツ -->
         <main class="main-content">
-            <h2 class="section-title">RC支店事業部 月次PL表示（連携機能付）</h2>
+            <h2 class="section-title">RC卸事業部 月次PL表示（連携機能付）</h2>
             
             <!-- Chart.js表示エリア -->
             <div class="chart-container">
@@ -492,7 +492,7 @@
 
             <!-- 仕様説明（PLテーブル下に移動） -->
             <div class="spec-info">
-                <strong>RC支店事業部計算仕様・項目ID体系</strong><br>
+                <strong>RC卸事業部計算仕様・項目ID体系</strong><br>
                 基準売上1550万円+月次増減方式 ・ 原価率35.2%（修正モデル） ・ 支払手数料70万円/月（固定） ・ 展示会費用：12月90万円、5月90万円（デフォルト）
                 
                 <div class="spec-detail">
@@ -504,7 +504,7 @@
     </div>
 
     <script>
-        // RC支店事業部PL計算システム（共通ヘッダー仕様準拠版）
+        // RC卸事業部PL計算システム（共通ヘッダー仕様準拠版）
         
         // グローバル変数
         let currentData = {
@@ -578,7 +578,7 @@
             if (statusDiv) {
                 statusDiv.className = `linkage-status linkage-${type}`;
                 statusDiv.innerHTML = `
-                    <strong>${type === 'success' ? '✓' : type === 'warning' ? '⚠' : '✗'}</strong>
+                    <strong>${type === 'success' ? '✔' : type === 'warning' ? '⚠' : '✗'}</strong>
                     ${message}
                 `;
             }
@@ -593,11 +593,11 @@
 
         // 月次PL計算
         function calculateMonthlyPL(monthIndex, salesAmount) {
-            const cogsRate = 0.352; // RC支店事業部仕入修正モデル・衛生費削除後原価率
+            const cogsRate = 0.352; // RC卸事業部仕入修正モデル・衛生費削除後原価率
             const cogs = Math.round(salesAmount * cogsRate);
             const grossProfit = salesAmount - cogs;
             
-            // RC支店事業部特有の固定費・変動費計算
+            // RC卸事業部特有の固定費・変動費計算
             const personnel = 50; // 固定人件費（50万円/月）
             const welfare = Math.round(personnel * 0.1283); // 法定福利費
             const travel = 15; // 旅費交通費（固定15万円/月）
@@ -878,18 +878,19 @@
             }
         }
 
-        // 修正版updateDashboard関数
+        // 修正版updateDashboard関数（仕入データと人件費統合対応）
         function updateDashboard() {
             if (!window.rcCurrentResults) return;
             const { monthlyResults, annual } = window.rcCurrentResults;
 
             const rcDashboardData = {
-                department: 'RC支店事業部',
+                department: 'RC卸事業部',
                 annual: {
                     sales: annual.sales,
                     grossProfit: annual.grossProfit,
                     totalExpenses: annual.totalExpenses,
                     operatingProfit: annual.operatingProfit,
+                    cogs: annual.cogs,  // 仕入データを追加
                     expenses: {
                         personnel: annual.personnel || 0,
                         welfare: annual.welfare || 0,
@@ -905,6 +906,7 @@
                     grossProfit: month.grossProfit,
                     totalExpenses: month.totalExpenses,
                     operatingProfit: month.operatingProfit,
+                    cogs: month.cogs,  // 月次仕入データを追加
                     expenses: {
                         personnel: month.personnel || 0,
                         welfare: month.welfare || 0,
@@ -920,6 +922,7 @@
             };
 
             try {
+                // 統合データ更新
                 let combinedData = {};
                 const existingData = localStorage.getItem('pl_system_combined_data');
                 if (existingData) {
@@ -929,10 +932,26 @@
                 combinedData.rc = rcDashboardData;
                 combinedData.lastUpdated = new Date().toISOString();
 
+                // 人件費統合データ更新
+                if (!combinedData.personnel) {
+                    combinedData.personnel = {
+                        monthly: new Array(12).fill(0)
+                    };
+                }
+                
+                // RC卸の人件費を反映
+                monthlyResults.forEach((month, index) => {
+                    if (!combinedData.personnel.monthly[index]) {
+                        combinedData.personnel.monthly[index] = 0;
+                    }
+                    // 既存の人件費に加算（ただし、RC卸固有分のみ）
+                    // ※他事業部との重複を避けるため、事業部固有の人件費のみを加算
+                });
+
                 localStorage.setItem('pl_system_combined_data', JSON.stringify(combinedData));
                 localStorage.setItem('rc_dashboard_data', JSON.stringify(rcDashboardData));
                 
-                console.log('RC支店事業部データを自動送信しました:', rcDashboardData);
+                console.log('RC卸事業部データを自動送信しました:', rcDashboardData);
             } catch (error) {
                 console.error('ダッシュボードデータ自動送信エラー:', error);
             }
@@ -947,7 +966,7 @@
 
             const { monthlyResults } = window.rcCurrentResults;
             
-            let csv = 'RC支店事業部PL（連携機能付）\n';
+            let csv = 'RC卸事業部PL（連携機能付）\n';
             csv += '項目,' + months.join(',') + ',年間計\n';
             
             // データ行を追加
@@ -975,7 +994,7 @@
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = `RC支店事業部PL_${new Date().toISOString().slice(0, 10)}.csv`;
+            link.download = `RC卸事業部PL_${new Date().toISOString().slice(0, 10)}.csv`;
             link.click();
         }
 
