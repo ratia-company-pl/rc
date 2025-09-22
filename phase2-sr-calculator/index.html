@@ -1,1 +1,1241 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SR事業部 損益計算シミュレーター - PL統合システム</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* SR事業部専用カラーテーマ（赤系） */
+        .sr-theme {
+            --primary: #e74c3c;
+            --secondary: #c0392b;
+            --accent: #ff6b6b;
+            --success: #27ae60;
+            --error: #e74c3c;
+            --warning: #f39c12;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--primary);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .section h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+        }
+
+        /* 6店舗入力グリッド */
+        .store-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .store-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .store-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.2);
+        }
+
+        .store-card h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        .store-inputs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .month-input {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .month-input label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .month-input input {
+            width: 80px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .month-input input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 5px rgba(231, 76, 60, 0.3);
+        }
+
+        /* 設定セクション */
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .config-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .config-item label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        .config-item input, .config-item select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        /* 結果表示テーブル */
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .results-table th {
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .results-table td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid #eee;
+        }
+
+        .results-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .results-table tr:hover {
+            background: #e8f4f8;
+        }
+
+        .total-row {
+            background: #ffe6e6 !important;
+            font-weight: bold;
+        }
+
+        .profit-positive {
+            color: var(--success);
+        }
+
+        .profit-negative {
+            color: var(--error);
+        }
+
+        /* ボタン */
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        /* グラフコンテナ */
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+
+        /* ステータス表示 */
+        .status-indicators {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .status-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--primary);
+        }
+
+        .status-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .status-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* レスポンシブ対応 */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .store-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .store-inputs {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .month-input input {
+                width: 70px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .config-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* アニメーション */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* 人件費係数表示 */
+        .personnel-rate-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .personnel-rate-info h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .rate-table {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 0.9em;
+        }
+
+        .rate-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px;
+            background: white;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="sr-theme">
+    <div class="container">
+        <div class="header">
+            <h1>SR事業部 損益計算シミュレーター</h1>
+            <div class="subtitle">6店舗統合管理 | 売上レンジ別人件費係数対応</div>
+        </div>
+
+        <div class="content">
+            <!-- ステータス表示 -->
+            <div class="status-indicators">
+                <div class="status-card">
+                    <div class="status-value" id="totalSalesDisplay">0</div>
+                    <div class="status-label">年間売上（万円）</div>
+                </div>
+                <div class="status-card">
+                    <div class="status-value" id="operatingProfitDisplay">0</div>
+                    <div class="status-label">営業利益（万円）</div>
+                </div>
+                <div class="status-card">
+                    <div class="status-value" id="profitRateDisplay">0%</div>
+                    <div class="status-label">利益率</div>
+                </div>
+                <div class="status-card">
+                    <div class="status-value" id="personnelRateDisplay">0%</div>
+                    <div class="status-label">人件費率</div>
+                </div>
+            </div>
+
+            <!-- 6店舗売上入力セクション -->
+            <div class="section">
+                <h2>📊 6店舗別売上入力</h2>
+                <div class="store-grid">
+                    <!-- 店舗A -->
+                    <div class="store-card" data-store="A">
+                        <h3>🏪 店舗A（主力店）</h3>
+                        <div class="store-inputs" id="storeA-inputs">
+                            <!-- 12ヶ月分の入力フィールドをJSで生成 -->
+                        </div>
+                        <div style="text-align: center; margin-top: 15px;">
+                            <strong>年間売上: <span id="storeA-total">0</span>万円</strong>
+                        </div>
+                    </div>
+
+                    <!-- 店舗B -->
+                    <div class="store-card" data-store="B">
+                        <h3>🏬 店舗B（中堅店）</h3>
+                        <div class="store-inputs" id="storeB-inputs">
+                        </div>
+                        <div style="text-align: center; margin-top: 15px;">
+                            <strong>年間売上: <span id="storeB-total">0</span>万円</strong>
+                        </div>
+                    </div>
+
+                    <!-- 店舗C -->
+                    <div class="store-card" data-store="C">
+                        <h3>🏢 店舗C（中堅店）</h3>
+                        <div class="store-inputs" id="storeC-inputs">
+                        </div>
+                        <div style="text-align: center; margin-top: 15px;">
+                            <strong>年間売上: <span id="storeC-total">0</span>万円</strong>
+                        </div>
+                    </div>
+
+                    <!-- 店舗D -->
+                    <div class="store-card" data-store="D">
+                        <h3>🏪 店舗D（小規模店）</h3>
+                        <div class="store-inputs" id="storeD-inputs">
+                        </div>
+                        <div style="text-align: center; margin-top: 15px;">
+                            <strong>年間売上: <span id="storeD-total">0</span>万円</strong>
+                        </div>
+                    </div>
+
+                    <!-- 店舗E -->
+                    <div class="store-card" data-store="E">
+                        <h3>🏬 店舗E（小規模店）</h3>
+                        <div class="store-inputs" id="storeE-inputs">
+                        </div>
+                        <div style="text-align: center; margin-top: 15px;">
+                            <strong>年間売上: <span id="storeE-total">0</span>万円</strong>
+                        </div>
+                    </div>
+
+                    <!-- 店舗F -->
+                    <div class="store-card" data-store="F">
+                        <h3>🆕 店舗F（新規店）</h3>
+                        <div class="store-inputs" id="storeF-inputs">
+                        </div>
+                        <div style="text-align: center; margin-top: 15px;">
+                            <strong>年間売上: <span id="storeF-total">0</span>万円</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn" onclick="loadSampleData()">📝 サンプルデータ読込</button>
+                    <button class="btn btn-secondary" onclick="clearAllData()">🗑️ 全クリア</button>
+                </div>
+            </div>
+
+            <!-- 計算設定セクション -->
+            <div class="section">
+                <h2>⚙️ 計算設定</h2>
+                <div class="config-grid">
+                    <div class="config-item">
+                        <label>商品仕入率</label>
+                        <input type="number" id="cogsRate" value="27.2" step="0.1" min="0" max="100">
+                        <small>%（デフォルト: 27.2%）</small>
+                    </div>
+                    <div class="config-item">
+                        <label>貨物運賃率</label>
+                        <input type="number" id="freightRate" value="1.5" step="0.1" min="0" max="10">
+                        <small>%（デフォルト: 1.5%）</small>
+                    </div>
+                    <div class="config-item">
+                        <label>水道光熱費率</label>
+                        <input type="number" id="utilitiesRate" value="0.8" step="0.1" min="0" max="10">
+                        <small>%（デフォルト: 0.8%）</small>
+                    </div>
+                    <div class="config-item">
+                        <label>支払手数料率</label>
+                        <input type="number" id="paymentFeeRate" value="2.5" step="0.1" min="0" max="10">
+                        <small>%（デフォルト: 2.5%）</small>
+                    </div>
+                    <div class="config-item">
+                        <label>月次売上目標</label>
+                        <input type="number" id="monthlyTarget" value="10000" step="100" min="0">
+                        <small>万円（コミッション計算用）</small>
+                    </div>
+                    <div class="config-item">
+                        <label>基本給月額</label>
+                        <input type="number" id="baseSalary" value="400" step="10" min="0">
+                        <small>万円</small>
+                    </div>
+                </div>
+
+                <!-- 人件費係数説明 -->
+                <div class="personnel-rate-info">
+                    <h4>📈 売上レンジ別人件費係数</h4>
+                    <div class="rate-table">
+                        <div class="rate-item">
+                            <span>0 - 8,000万円</span>
+                            <strong>33.8%</strong>
+                        </div>
+                        <div class="rate-item">
+                            <span>8,001 - 12,000万円</span>
+                            <strong>29.5%</strong>
+                        </div>
+                        <div class="rate-item">
+                            <span>12,001 - 16,000万円</span>
+                            <strong>27.5%</strong>
+                        </div>
+                        <div class="rate-item">
+                            <span>16,001 - 20,000万円</span>
+                            <strong>25.5%</strong>
+                        </div>
+                        <div class="rate-item">
+                            <span>20,001万円以上</span>
+                            <strong>24.5%</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 計算結果セクション -->
+            <div class="section">
+                <h2>📊 月次損益計算書</h2>
+                <table class="results-table" id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>項目</th>
+                            <th>1月</th>
+                            <th>2月</th>
+                            <th>3月</th>
+                            <th>4月</th>
+                            <th>5月</th>
+                            <th>6月</th>
+                            <th>7月</th>
+                            <th>8月</th>
+                            <th>9月</th>
+                            <th>10月</th>
+                            <th>11月</th>
+                            <th>12月</th>
+                            <th>年間合計</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody">
+                        <!-- 計算結果をJSで挿入 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- グラフ表示セクション -->
+            <div class="section">
+                <h2>📈 視覚分析</h2>
+                <div class="chart-container">
+                    <h3>月次売上推移</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <h3>店舗別売上構成</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="storeChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <h3>損益推移</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="profitChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- データ管理セクション -->
+            <div class="section">
+                <h2>💾 データ管理</h2>
+                <div style="text-align: center;">
+                    <button class="btn" onclick="saveData()">💾 データ保存</button>
+                    <button class="btn btn-secondary" onclick="loadData()">📂 データ読込</button>
+                    <button class="btn btn-secondary" onclick="exportCSV()">📄 CSV出力</button>
+                    <button class="btn btn-secondary" onclick="sendToIntegratedSystem()">🔄 統合システムへ送信</button>
+                </div>
+                <div id="dataStatus" style="margin-top: 15px; text-align: center; color: #666;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // グローバル変数
+        const STORAGE_KEY = 'pl_system_sr_data';
+        const stores = ['A', 'B', 'C', 'D', 'E', 'F'];
+        const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+        let salesChart, storeChart, profitChart;
+
+        // 売上レンジ別人件費係数
+        const personnelRates = {
+            "0-8000": 0.338,      // 33.8%
+            "8001-12000": 0.295,  // 29.5%
+            "12001-16000": 0.275, // 27.5%
+            "16001-20000": 0.255, // 25.5%
+            "20001以上": 0.245    // 24.5%
+        };
+
+        // ページ初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeInputs();
+            loadData();
+            calculate();
+            updateCharts();
+        });
+
+        // 入力フィールド初期化
+        function initializeInputs() {
+            stores.forEach(store => {
+                const container = document.getElementById(`store${store}-inputs`);
+                months.forEach((month, index) => {
+                    const monthInput = document.createElement('div');
+                    monthInput.className = 'month-input';
+                    monthInput.innerHTML = `
+                        <label>${month}</label>
+                        <input type="number" 
+                               id="store${store}-month${index + 1}" 
+                               min="0" 
+                               step="1" 
+                               value="0"
+                               oninput="updateStoreTotal('${store}'); calculate(); updateCharts();">
+                    `;
+                    container.appendChild(monthInput);
+                });
+            });
+        }
+
+        // 店舗別売上合計更新
+        function updateStoreTotal(store) {
+            let total = 0;
+            for (let i = 1; i <= 12; i++) {
+                const value = parseFloat(document.getElementById(`store${store}-month${i}`).value) || 0;
+                total += value;
+            }
+            document.getElementById(`store${store}-total`).textContent = total.toLocaleString();
+        }
+
+        // 人件費係数計算
+        function calculatePersonnelRate(monthlySales) {
+            if (monthlySales <= 8000) return 0.338;
+            if (monthlySales <= 12000) return 0.295;
+            if (monthlySales <= 16000) return 0.275;
+            if (monthlySales <= 20000) return 0.255;
+            return 0.245;
+        }
+
+        // 営業コミッション計算
+        function calculateCommission(sales, target) {
+            const achievementRate = sales / target;
+            if (achievementRate >= 1.1) return sales * 0.02;  // 110%以上: 2%
+            if (achievementRate >= 1.0) return sales * 0.01;  // 100%以上: 1%
+            return 0;  // 100%未満: なし
+        }
+
+        // 月次計算
+        function calculateMonthlyPL(monthIndex) {
+            let monthlySales = 0;
+            
+            // 6店舗の売上合計
+            stores.forEach(store => {
+                const value = parseFloat(document.getElementById(`store${store}-month${monthIndex + 1}`).value) || 0;
+                monthlySales += value;
+            });
+
+            // 基本計算
+            const cogsRate = parseFloat(document.getElementById('cogsRate').value) / 100;
+            const freightRate = parseFloat(document.getElementById('freightRate').value) / 100;
+            const utilitiesRate = parseFloat(document.getElementById('utilitiesRate').value) / 100;
+            const paymentFeeRate = parseFloat(document.getElementById('paymentFeeRate').value) / 100;
+            const monthlyTarget = parseFloat(document.getElementById('monthlyTarget').value);
+
+            const cogs = monthlySales * cogsRate;
+            const grossProfit = monthlySales - cogs;
+
+            // 人件費計算（売上レンジ別係数）
+            const personnelRate = calculatePersonnelRate(monthlySales);
+            const personnelCost = monthlySales * personnelRate;
+
+            // 変動費計算
+            const freight = monthlySales * freightRate;
+            const utilities = monthlySales * utilitiesRate;
+            const paymentFee = monthlySales * paymentFeeRate;
+
+            // 営業コミッション
+            const commission = calculateCommission(monthlySales, monthlyTarget);
+
+            // 営業利益
+            const operatingProfit = grossProfit - personnelCost - freight - utilities - paymentFee - commission;
+
+            return {
+                sales: monthlySales,
+                cogs: cogs,
+                grossProfit: grossProfit,
+                personnelCost: personnelCost,
+                personnelRate: personnelRate,
+                freight: freight,
+                utilities: utilities,
+                paymentFee: paymentFee,
+                commission: commission,
+                operatingProfit: operatingProfit
+            };
+        }
+
+        // 全体計算実行
+        function calculate() {
+            const results = [];
+            let totalSales = 0, totalOperatingProfit = 0;
+
+            // 月次計算
+            for (let i = 0; i < 12; i++) {
+                const monthResult = calculateMonthlyPL(i);
+                results.push(monthResult);
+                totalSales += monthResult.sales;
+                totalOperatingProfit += monthResult.operatingProfit;
+            }
+
+            // 結果表示更新
+            updateResultsTable(results);
+            updateStatusDisplay(totalSales, totalOperatingProfit, results);
+            updateStoresTotals();
+        }
+
+        // 結果テーブル更新
+        function updateResultsTable(results) {
+            const tbody = document.getElementById('resultsTableBody');
+            tbody.innerHTML = '';
+
+            const items = [
+                { label: '売上高', key: 'sales', format: 'number' },
+                { label: '売上原価', key: 'cogs', format: 'number' },
+                { label: '粗利益', key: 'grossProfit', format: 'number' },
+                { label: '人件費', key: 'personnelCost', format: 'number' },
+                { label: '人件費率', key: 'personnelRate', format: 'percent' },
+                { label: '貨物運賃', key: 'freight', format: 'number' },
+                { label: '水道光熱費', key: 'utilities', format: 'number' },
+                { label: '支払手数料', key: 'paymentFee', format: 'number' },
+                { label: '営業コミッション', key: 'commission', format: 'number' },
+                { label: '営業利益', key: 'operatingProfit', format: 'profit' }
+            ];
+
+            items.forEach(item => {
+                const row = document.createElement('tr');
+                let html = `<td style="text-align: left; font-weight: bold;">${item.label}</td>`;
+
+                let total = 0;
+                results.forEach(result => {
+                    const value = result[item.key] || 0;
+                    total += value;
+
+                    if (item.format === 'percent') {
+                        html += `<td>${(value * 100).toFixed(1)}%</td>`;
+                    } else if (item.format === 'profit') {
+                        const className = value >= 0 ? 'profit-positive' : 'profit-negative';
+                        html += `<td class="${className}">${Math.round(value).toLocaleString()}</td>`;
+                    } else {
+                        html += `<td>${Math.round(value).toLocaleString()}</td>`;
+                    }
+                });
+
+                // 年間合計
+                if (item.format === 'percent') {
+                    const avgRate = total / results.length;
+                    html += `<td style="font-weight: bold;">${(avgRate * 100).toFixed(1)}%</td>`;
+                } else if (item.format === 'profit') {
+                    const className = total >= 0 ? 'profit-positive' : 'profit-negative';
+                    html += `<td class="${className}" style="font-weight: bold;">${Math.round(total).toLocaleString()}</td>`;
+                } else {
+                    html += `<td style="font-weight: bold;">${Math.round(total).toLocaleString()}</td>`;
+                }
+
+                if (item.key === 'operatingProfit') {
+                    row.className = 'total-row';
+                }
+
+                row.innerHTML = html;
+                tbody.appendChild(row);
+            });
+        }
+
+        // ステータス表示更新
+        function updateStatusDisplay(totalSales, totalOperatingProfit, results) {
+            document.getElementById('totalSalesDisplay').textContent = Math.round(totalSales).toLocaleString();
+            document.getElementById('operatingProfitDisplay').textContent = Math.round(totalOperatingProfit).toLocaleString();
+            
+            const profitRate = totalSales > 0 ? (totalOperatingProfit / totalSales * 100) : 0;
+            document.getElementById('profitRateDisplay').textContent = profitRate.toFixed(1) + '%';
+
+            const avgPersonnelRate = results.reduce((sum, r) => sum + (r.personnelRate || 0), 0) / results.length;
+            document.getElementById('personnelRateDisplay').textContent = (avgPersonnelRate * 100).toFixed(1) + '%';
+        }
+
+        // 店舗合計更新
+        function updateStoresTotals() {
+            stores.forEach(store => {
+                updateStoreTotal(store);
+            });
+        }
+
+        // グラフ更新
+        function updateCharts() {
+            updateSalesChart();
+            updateStoreChart();
+            updateProfitChart();
+        }
+
+        // 売上推移グラフ
+        function updateSalesChart() {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            
+            if (salesChart) {
+                salesChart.destroy();
+            }
+
+            const salesData = [];
+            for (let i = 0; i < 12; i++) {
+                const result = calculateMonthlyPL(i);
+                salesData.push(Math.round(result.sales));
+            }
+
+            salesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: '月次売上',
+                        data: salesData,
+                        borderColor: '#e74c3c',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString() + '万円';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 店舗別売上構成グラフ
+        function updateStoreChart() {
+            const ctx = document.getElementById('storeChart').getContext('2d');
+            
+            if (storeChart) {
+                storeChart.destroy();
+            }
+
+            const storeData = [];
+            const storeLabels = [];
+            stores.forEach(store => {
+                let total = 0;
+                for (let i = 1; i <= 12; i++) {
+                    total += parseFloat(document.getElementById(`store${store}-month${i}`).value) || 0;
+                }
+                storeData.push(Math.round(total));
+                storeLabels.push(`店舗${store}`);
+            });
+
+            storeChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: storeLabels,
+                    datasets: [{
+                        data: storeData,
+                        backgroundColor: [
+                            '#e74c3c',
+                            '#f39c12',
+                            '#f1c40f',
+                            '#27ae60',
+                            '#3498db',
+                            '#9b59b6'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return `${context.label}: ${context.parsed.toLocaleString()}万円 (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 損益推移グラフ
+        function updateProfitChart() {
+            const ctx = document.getElementById('profitChart').getContext('2d');
+            
+            if (profitChart) {
+                profitChart.destroy();
+            }
+
+            const salesData = [];
+            const profitData = [];
+            
+            for (let i = 0; i < 12; i++) {
+                const result = calculateMonthlyPL(i);
+                salesData.push(Math.round(result.sales));
+                profitData.push(Math.round(result.operatingProfit));
+            }
+
+            profitChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: '売上高',
+                            data: salesData,
+                            backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: '営業利益',
+                            data: profitData,
+                            type: 'line',
+                            borderColor: '#27ae60',
+                            backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString() + '万円';
+                                }
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString() + '万円';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // サンプルデータ読込
+        function loadSampleData() {
+            // 引継ぎ書に記載されている現況を参考にサンプルデータを設定
+            const sampleData = {
+                A: [1200, 1150, 1300, 1250, 1100, 1350, 1400, 1300, 1200, 1250, 1180, 1220], // 主力店40%
+                B: [600, 580, 650, 620, 550, 680, 700, 650, 600, 620, 590, 610],   // 中堅店20%
+                C: [450, 430, 490, 470, 410, 510, 520, 490, 450, 470, 440, 460],   // 中堅店15%
+                D: [300, 290, 320, 310, 270, 340, 350, 320, 300, 310, 290, 300],   // 小規模店10%
+                E: [240, 230, 260, 250, 220, 270, 280, 260, 240, 250, 230, 240],   // 小規模店8%
+                F: [210, 200, 230, 220, 190, 240, 250, 230, 210, 220, 200, 210]    // 新規店7%
+            };
+
+            stores.forEach(store => {
+                for (let i = 1; i <= 12; i++) {
+                    document.getElementById(`store${store}-month${i}`).value = sampleData[store][i-1];
+                }
+                updateStoreTotal(store);
+            });
+
+            calculate();
+            updateCharts();
+            showStatus('サンプルデータを読み込みました', 'success');
+        }
+
+        // 全データクリア
+        function clearAllData() {
+            if (!confirm('全てのデータをクリアしますか？')) return;
+
+            stores.forEach(store => {
+                for (let i = 1; i <= 12; i++) {
+                    document.getElementById(`store${store}-month${i}`).value = 0;
+                }
+                updateStoreTotal(store);
+            });
+
+            calculate();
+            updateCharts();
+            showStatus('データをクリアしました', 'info');
+        }
+
+        // データ保存
+        function saveData() {
+            const data = {
+                department: "SR事業部",
+                timestamp: new Date().toISOString(),
+                metadata: {
+                    source: "sr_simulator_phase2",
+                    version: "2.0",
+                    checksum: Date.now().toString()
+                },
+                storesData: {},
+                config: {
+                    cogsRate: parseFloat(document.getElementById('cogsRate').value),
+                    freightRate: parseFloat(document.getElementById('freightRate').value),
+                    utilitiesRate: parseFloat(document.getElementById('utilitiesRate').value),
+                    paymentFeeRate: parseFloat(document.getElementById('paymentFeeRate').value),
+                    monthlyTarget: parseFloat(document.getElementById('monthlyTarget').value),
+                    baseSalary: parseFloat(document.getElementById('baseSalary').value)
+                }
+            };
+
+            // 店舗データ収集
+            stores.forEach(store => {
+                const monthlyData = [];
+                for (let i = 1; i <= 12; i++) {
+                    monthlyData.push(parseFloat(document.getElementById(`store${store}-month${i}`).value) || 0);
+                }
+                data.storesData[store] = {
+                    monthly: monthlyData,
+                    annual: monthlyData.reduce((sum, val) => sum + val, 0)
+                };
+            });
+
+            // 計算結果も保存
+            data.calculatedResults = [];
+            for (let i = 0; i < 12; i++) {
+                data.calculatedResults.push(calculateMonthlyPL(i));
+            }
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            showStatus('データを保存しました', 'success');
+        }
+
+        // データ読込
+        function loadData() {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            if (!savedData) {
+                showStatus('保存されたデータがありません', 'warning');
+                return;
+            }
+
+            try {
+                const data = JSON.parse(savedData);
+                
+                // 店舗データ復元
+                if (data.storesData) {
+                    stores.forEach(store => {
+                        if (data.storesData[store] && data.storesData[store].monthly) {
+                            for (let i = 1; i <= 12; i++) {
+                                const value = data.storesData[store].monthly[i-1] || 0;
+                                document.getElementById(`store${store}-month${i}`).value = value;
+                            }
+                            updateStoreTotal(store);
+                        }
+                    });
+                }
+
+                // 設定データ復元
+                if (data.config) {
+                    document.getElementById('cogsRate').value = data.config.cogsRate || 27.2;
+                    document.getElementById('freightRate').value = data.config.freightRate || 1.5;
+                    document.getElementById('utilitiesRate').value = data.config.utilitiesRate || 0.8;
+                    document.getElementById('paymentFeeRate').value = data.config.paymentFeeRate || 2.5;
+                    document.getElementById('monthlyTarget').value = data.config.monthlyTarget || 10000;
+                    document.getElementById('baseSalary').value = data.config.baseSalary || 400;
+                }
+
+                calculate();
+                updateCharts();
+                showStatus('データを読み込みました', 'success');
+            } catch (error) {
+                showStatus('データの読み込みに失敗しました', 'error');
+                console.error('Load error:', error);
+            }
+        }
+
+        // CSV出力
+        function exportCSV() {
+            const results = [];
+            for (let i = 0; i < 12; i++) {
+                results.push(calculateMonthlyPL(i));
+            }
+
+            let csv = 'SR事業部 損益計算書\n\n';
+            csv += '項目,' + months.join(',') + ',年間合計\n';
+
+            const items = [
+                { label: '売上高', key: 'sales' },
+                { label: '売上原価', key: 'cogs' },
+                { label: '粗利益', key: 'grossProfit' },
+                { label: '人件費', key: 'personnelCost' },
+                { label: '貨物運賃', key: 'freight' },
+                { label: '水道光熱費', key: 'utilities' },
+                { label: '支払手数料', key: 'paymentFee' },
+                { label: '営業コミッション', key: 'commission' },
+                { label: '営業利益', key: 'operatingProfit' }
+            ];
+
+            items.forEach(item => {
+                let row = item.label;
+                let total = 0;
+                results.forEach(result => {
+                    const value = Math.round(result[item.key] || 0);
+                    row += ',' + value;
+                    total += value;
+                });
+                row += ',' + Math.round(total);
+                csv += row + '\n';
+            });
+
+            // 店舗別データも追加
+            csv += '\n店舗別売上\n';
+            csv += '店舗,' + months.join(',') + ',年間合計\n';
+            stores.forEach(store => {
+                let row = `店舗${store}`;
+                let total = 0;
+                for (let i = 1; i <= 12; i++) {
+                    const value = parseFloat(document.getElementById(`store${store}-month${i}`).value) || 0;
+                    row += ',' + Math.round(value);
+                    total += value;
+                }
+                row += ',' + Math.round(total);
+                csv += row + '\n';
+            });
+
+            // ダウンロード実行
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `SR事業部_損益計算書_${new Date().toISOString().slice(0, 10)}.csv`;
+            link.click();
+
+            showStatus('CSVファイルをダウンロードしました', 'success');
+        }
+
+        // 統合システムへ送信
+        function sendToIntegratedSystem() {
+            const data = {
+                department: "SR事業部",
+                timestamp: new Date().toISOString(),
+                metadata: {
+                    source: "sr_simulator_phase2",
+                    version: "2.0",
+                    checksum: Date.now().toString()
+                }
+            };
+
+            // 計算結果収集
+            const results = [];
+            let totalSales = 0, totalOperatingProfit = 0;
+            
+            for (let i = 0; i < 12; i++) {
+                const monthResult = calculateMonthlyPL(i);
+                results.push(monthResult);
+                totalSales += monthResult.sales;
+                totalOperatingProfit += monthResult.operatingProfit;
+            }
+
+            data.sales = {
+                monthly: results.map(r => Math.round(r.sales)),
+                annual: Math.round(totalSales)
+            };
+
+            data.operatingProfit = {
+                monthly: results.map(r => Math.round(r.operatingProfit)),
+                annual: Math.round(totalOperatingProfit)
+            };
+
+            data.expenses = {
+                personnel: {
+                    monthly: results.map(r => Math.round(r.personnelCost)),
+                    annual: Math.round(results.reduce((sum, r) => sum + r.personnelCost, 0))
+                },
+                cogs: {
+                    monthly: results.map(r => Math.round(r.cogs)),
+                    annual: Math.round(results.reduce((sum, r) => sum + r.cogs, 0))
+                }
+            };
+
+            // 統合システム用のキーで保存
+            localStorage.setItem('pl_system_combined_data_sr', JSON.stringify(data));
+            
+            showStatus('統合システムへデータを送信しました', 'success');
+        }
+
+        // ステータス表示
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('dataStatus');
+            statusDiv.textContent = message;
+            statusDiv.className = type === 'success' ? 'profit-positive' : 
+                                 type === 'error' ? 'profit-negative' : '';
+            
+            setTimeout(() => {
+                statusDiv.textContent = '';
+                statusDiv.className = '';
+            }, 3000);
+        }
+
+        // 設定変更時の再計算
+        document.getElementById('cogsRate').addEventListener('input', () => { calculate(); updateCharts(); });
+        document.getElementById('freightRate').addEventListener('input', () => { calculate(); updateCharts(); });
+        document.getElementById('utilitiesRate').addEventListener('input', () => { calculate(); updateCharts(); });
+        document.getElementById('paymentFeeRate').addEventListener('input', () => { calculate(); updateCharts(); });
+        document.getElementById('monthlyTarget').addEventListener('input', () => { calculate(); updateCharts(); });
+        document.getElementById('baseSalary').addEventListener('input', () => { calculate(); updateCharts(); });
+    </script>
+</body>
+</html>
