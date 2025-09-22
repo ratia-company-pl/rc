@@ -411,6 +411,59 @@
             .kpi-grid { grid-template-columns: repeat(2, 1fr); }
             .dept-grid { grid-template-columns: 1fr; }
             .comparison-grid { grid-template-columns: 1fr; }
+            
+            /* Step2-3モバイル対応 */
+            .individual-dept-section > div[style*="grid-template-columns"] {
+                grid-template-columns: 1fr !important;
+                gap: 10px;
+            }
+            
+            .individual-dept-section .dept-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            /* モバイル時のグラフ高さ調整 */
+            .individual-dept-section canvas {
+                height: 100px !important;
+            }
+            
+            /* モバイル時の全体パフォーマンス指標を2列維持 */
+            .individual-dept-section div[style*="grid-template-columns: 1fr 1fr"] {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 4px;
+            }
+            
+            /* KPIカードのフォントサイズ微調整 */
+            .individual-dept-section .dept-card {
+                font-size: 0.9em;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .kpi-grid { 
+                grid-template-columns: 1fr; 
+                gap: 6px;
+            }
+            
+            /* 極小画面での追加調整 */
+            .individual-dept-section canvas {
+                height: 80px !important;
+            }
+            
+            .individual-dept-section > div[style*="grid-template-columns"] {
+                gap: 8px;
+            }
+            
+            /* 全体パフォーマンス指標を1列に */
+            .individual-dept-section div[style*="grid-template-columns: 1fr 1fr"] {
+                grid-template-columns: 1fr !important;
+                gap: 3px;
+            }
+            
+            /* フォントサイズをさらに調整 */
+            .section-title {
+                font-size: 0.8em;
+            }
         }
     </style>
 </head>
@@ -440,6 +493,13 @@
         </table>
 
         <div class="data-warning" id="data-warning"></div>
+
+        <div class="chart-section">
+            <div class="chart-title">月次利益推移（動的データ対応）</div>
+            <div class="chart-wrapper">
+                <canvas id="monthly-profit-chart"></canvas>
+            </div>
+        </div>
 
         <div class="kpi-grid">
             <div class="kpi-card dept">
@@ -471,19 +531,82 @@
 
         <div class="individual-dept-section">
             <div class="section-title">Step2-3: 各事業部個別データ表示・分析</div>
-            <div class="dept-grid" id="department-grid">
-                <!-- 動的生成される事業部カード -->
-            </div>
-        </div>
-
-        <div class="comparison-section">
-            <div class="section-title">Step4: 前年対比分析（動的データ版）</div>
-            <div class="comparison-grid" id="comparison-grid">
-                <!-- 動的生成される前年対比データ -->
-            </div>
-            <div style="background: #e8f4fd; padding: 8px; border-radius: 4px; margin-top: 10px; font-size: 0.65em;">
-                <strong>分析サマリー:</strong>
-                <span id="analysis-summary">データ読み込み中...</span>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <!-- 左側：主要3事業部月次グラフ -->
+                <div style="background: white; padding: 10px; border-radius: 6px; border: 1px solid #dee2e6;">
+                    <div style="font-size: 0.75em; font-weight: 700; margin-bottom: 8px; color: #2c3e50;">主要3事業部 月次推移（前年実績 vs 設定予算）</div>
+                    
+                    <!-- SR事業部グラフ -->
+                    <div style="margin-bottom: 12px;">
+                        <div style="font-size: 0.7em; font-weight: bold; color: #e74c3c; margin-bottom: 4px;">SR事業部</div>
+                        <div style="position: relative; height: 120px; background: #f8f9fa; border-radius: 4px;">
+                            <canvas id="sr-monthly-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- W事業部グラフ -->
+                    <div style="margin-bottom: 12px;">
+                        <div style="font-size: 0.7em; font-weight: bold; color: #3498db; margin-bottom: 4px;">W事業部</div>
+                        <div style="position: relative; height: 120px; background: #f8f9fa; border-radius: 4px;">
+                            <canvas id="w-monthly-chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- RC卸事業部グラフ -->
+                    <div style="margin-bottom: 8px;">
+                        <div style="font-size: 0.7em; font-weight: bold; color: #27ae60; margin-bottom: 4px;">RC卸事業部</div>
+                        <div style="position: relative; height: 120px; background: #f8f9fa; border-radius: 4px;">
+                            <canvas id="rc-monthly-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 右側：KPI指標まとめ＋RCD社グラフ -->
+                <div style="background: white; padding: 10px; border-radius: 6px; border: 1px solid #dee2e6;">
+                    <div style="font-size: 0.75em; font-weight: 700; margin-bottom: 8px; color: #2c3e50;">KPI指標サマリー</div>
+                    
+                    <div class="dept-grid" id="department-kpi-grid">
+                        <!-- 動的生成されるKPI指標カード -->
+                    </div>
+                    
+                    <!-- 全体パフォーマンス指標 -->
+                    <div style="background: #f8f9fa; padding: 8px; border-radius: 4px; margin-bottom: 12px;">
+                        <div style="font-size: 0.7em; font-weight: bold; margin-bottom: 4px; color: #495057;">全体パフォーマンス</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.6em;">
+                            <div style="background: white; padding: 4px; border-radius: 3px; text-align: center;">
+                                <div style="color: #666;">データ取得率</div>
+                                <div id="overall-data-rate" style="font-weight: bold; color: #3498db;">--%</div>
+                            </div>
+                            <div style="background: white; padding: 4px; border-radius: 3px; text-align: center;">
+                                <div style="color: #666;">平均利益率</div>
+                                <div id="overall-profit-margin" style="font-weight: bold; color: #27ae60;">--%</div>
+                            </div>
+                            <div style="background: white; padding: 4px; border-radius: 3px; text-align: center;">
+                                <div style="color: #666;">前年比成長</div>
+                                <div id="overall-growth-rate" style="font-weight: bold; color: #9b59b6;">--%</div>
+                            </div>
+                            <div style="background: white; padding: 4px; border-radius: 3px; text-align: center;">
+                                <div style="color: #666;">黒字部門数</div>
+                                <div id="profitable-dept-count" style="font-weight: bold; color: #e74c3c;">-/-</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- RCD社グラフ（補助） -->
+                    <div style="background: #f8f9fa; padding: 8px; border-radius: 4px; border: 1px solid #e0e0e0;">
+                        <div style="font-size: 0.65em; font-weight: bold; color: #9b59b6; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between;">
+                            <span>RCD社事業部（計画受注）</span>
+                            <span style="font-size: 0.9em; background: #9b59b6; color: white; padding: 1px 4px; border-radius: 6px;">補助</span>
+                        </div>
+                        <div style="position: relative; height: 80px; background: white; border-radius: 4px;">
+                            <canvas id="rcd-monthly-chart"></canvas>
+                        </div>
+                        <div style="font-size: 0.55em; color: #666; margin-top: 2px; text-align: center;">
+                            ※計画受注のため予算変動は少なめ
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -533,13 +656,6 @@
                     <strong>配分ロジック:</strong>
                     赤字事業部（SR）:月+100万固定 | 黒字事業部（W・RC卸）:効率配分 | RCD社:計画受注により除外 | 制約:売上増20%上限
                 </div>
-            </div>
-        </div>
-
-        <div class="chart-section">
-            <div class="chart-title">月次利益推移（動的データ対応）</div>
-            <div class="chart-wrapper">
-                <canvas id="monthly-profit-chart"></canvas>
             </div>
         </div>
 
@@ -703,9 +819,9 @@
                         <div style="margin-top: 8px;"><strong>処理完了機能:</strong></div>
                         <div style="margin-left: 10px;">✓ Step1: 動的データ取得</div>
                         <div style="margin-left: 10px;">✓ Step2: データステータス表示</div>
-                        <div style="margin-left: 10px;">✓ Step3: 個別事業部データ表示</div>
-                        <div style="margin-left: 10px;">✓ Step4: 前年対比分析</div>
+                        <div style="margin-left: 10px;">✓ Step3: 事業部月次グラフ＋KPI表示</div>
                         <div style="margin-left: 10px;">✓ 目標配分機能復旧</div>
+                        <div style="margin-left: 10px;">✓ 月次利益推移グラフ</div>
                     `;
                 }
             }
@@ -795,70 +911,225 @@
             }
         };
 
-        // Step3実装: 個別事業部データ表示
+        // Step3改良版: 個別事業部データ表示（グラフ＋KPI）
         const IndividualDepartmentDisplay = {
+            departmentCharts: {},
+
             displayDepartmentCards: function(departmentData) {
-                const gridElement = document.getElementById('department-grid');
+                // KPI指標カード表示
+                this.displayKPICards(departmentData);
+                // 月次グラフ初期化・更新
+                this.initializeDepartmentCharts();
+                this.updateDepartmentCharts(departmentData);
+                // 全体パフォーマンス更新
+                this.updateOverallPerformance(departmentData);
+            },
+
+            displayKPICards: function(departmentData) {
+                const gridElement = document.getElementById('department-kpi-grid');
                 if (!gridElement) return;
 
                 gridElement.innerHTML = '';
                 
                 Object.entries(departmentData).forEach(([dept, data]) => {
-                    const card = this.createDepartmentCard(dept, data);
+                    const card = this.createKPICard(dept, data);
                     gridElement.appendChild(card);
                 });
             },
 
-            createDepartmentCard: function(dept, data) {
+            createKPICard: function(dept, data) {
                 const card = document.createElement('div');
                 card.className = `dept-card ${data.dataStatus}`;
+                card.style.cssText = 'background: white; border: 1px solid #dee2e6; border-radius: 4px; padding: 6px; margin-bottom: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);';
                 
                 if (data.dataStatus === 'loaded') {
+                    const profitClass = data.annualProfit >= 0 ? 'profit-positive' : 'profit-negative';
                     card.innerHTML = `
-                        <div class="dept-header">
-                            <div class="dept-name">${data.name}</div>
-                            <div class="dept-status status-loaded">データ取得済み</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+                            <div style="font-size: 0.7em; font-weight: bold; color: #2c3e50;">${data.name}</div>
+                            <div style="font-size: 0.55em; padding: 1px 4px; border-radius: 8px; background: #27ae60; color: white;">取得済</div>
                         </div>
-                        <div class="dept-metrics">
-                            年間売上: ${data.annualRevenue ? data.annualRevenue.toLocaleString() : '---'}万円 | 
-                            利益率: ${data.profitMargin ? data.profitMargin.toFixed(1) : '--'}%
+                        <div style="font-size: 0.6em; color: #666; margin-bottom: 2px;">
+                            年間売上: ${data.annualRevenue ? data.annualRevenue.toLocaleString() : '---'}万円
                         </div>
-                        <div class="dept-profit ${data.annualProfit >= 0 ? 'profit-positive' : 'profit-negative'}">
-                            営業利益: ${data.annualProfit ? data.annualProfit.toLocaleString() : '---'}万円
-                        </div>
-                        <div style="font-size: 0.6em; color: #666; margin-top: 4px;">
-                            更新: ${data.lastUpdated ? new Date(data.lastUpdated).toLocaleString() : '不明'}
+                        <div style="display: flex; justify-content: space-between; font-size: 0.6em;">
+                            <span>利益率: ${data.profitMargin ? data.profitMargin.toFixed(1) : '--'}%</span>
+                            <span class="${profitClass}" style="font-weight: bold;">
+                                ${data.annualProfit ? data.annualProfit.toLocaleString() : '---'}万円
+                            </span>
                         </div>
                     `;
                 } else if (data.dataStatus === 'no_data') {
                     card.innerHTML = `
-                        <div class="dept-header">
-                            <div class="dept-name">${data.name}</div>
-                            <div class="dept-status status-no-data">未取得</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+                            <div style="font-size: 0.7em; font-weight: bold; color: #2c3e50;">${data.name}</div>
+                            <div style="font-size: 0.55em; padding: 1px 4px; border-radius: 8px; background: #e74c3c; color: white;">未取得</div>
                         </div>
-                        <div class="dept-metrics">
-                            ${data.name}PLページでデータ送信を実行してください
-                        </div>
-                        <div class="dept-profit neutral">
-                            営業利益: データなし
+                        <div style="font-size: 0.6em; color: #666;">
+                            PLページでデータ送信が必要
                         </div>
                     `;
                 } else {
                     card.innerHTML = `
-                        <div class="dept-header">
-                            <div class="dept-name">${data.name}</div>
-                            <div class="dept-status status-error">エラー</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+                            <div style="font-size: 0.7em; font-weight: bold; color: #2c3e50;">${data.name}</div>
+                            <div style="font-size: 0.55em; padding: 1px 4px; border-radius: 8px; background: #fd7e14; color: white;">エラー</div>
                         </div>
-                        <div class="dept-metrics">
-                            エラー: ${data.errorMessage || '不明なエラー'}
-                        </div>
-                        <div class="dept-profit neutral">
-                            営業利益: 取得不可
+                        <div style="font-size: 0.6em; color: #666;">
+                            ${data.errorMessage || '不明なエラー'}
                         </div>
                     `;
                 }
                 
                 return card;
+            },
+
+            initializeDepartmentCharts: function() {
+                const departments = [
+                    { id: 'sr', name: 'SR事業部', color: '#e74c3c', height: 120 },
+                    { id: 'w', name: 'W事業部', color: '#3498db', height: 120 },
+                    { id: 'rc', name: 'RC卸事業部', color: '#27ae60', height: 120 },
+                    { id: 'rcd', name: 'RCD社事業部', color: '#9b59b6', height: 80 }
+                ];
+
+                departments.forEach(dept => {
+                    const ctx = document.getElementById(`${dept.id}-monthly-chart`);
+                    if (!ctx || this.departmentCharts[dept.id]) return;
+
+                    // RCD社は補助グラフとして簡素化
+                    const isRcd = dept.id === 'rcd';
+                    
+                    this.departmentCharts[dept.id] = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: isRcd ? ['7', '8', '9', '10', '11', '12', '1', '2', '3', '4', '5', '6'] : ['7', '8', '9', '10', '11', '12', '1', '2', '3', '4', '5', '6'],
+                            datasets: [
+                                {
+                                    label: '前年実績',
+                                    data: this.getPreviousYearData(dept.id),
+                                    backgroundColor: isRcd ? 'rgba(149, 165, 166, 0.4)' : 'rgba(149, 165, 166, 0.6)',
+                                    borderColor: '#95a5a6',
+                                    borderWidth: isRcd ? 0.5 : 1
+                                },
+                                {
+                                    label: isRcd ? '計画予算' : '設定予算',
+                                    data: Array(12).fill(0),
+                                    backgroundColor: isRcd ? `${dept.color}60` : `${dept.color}80`,
+                                    borderColor: dept.color,
+                                    borderWidth: isRcd ? 0.5 : 1
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { 
+                                    display: isRcd ? false : false  // 全グラフで非表示に統一
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        title: function(context) {
+                                            return context[0].label + '月';
+                                        },
+                                        label: function(context) {
+                                            return context.dataset.label + ': ' + context.parsed.y.toLocaleString() + '万円';
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    display: true,
+                                    grid: { display: false },
+                                    ticks: { 
+                                        font: { size: isRcd ? 7 : 8 },
+                                        maxTicksLimit: isRcd ? 2 : 3,
+                                        callback: function(value) {
+                                            return value.toLocaleString();
+                                        }
+                                    }
+                                },
+                                x: {
+                                    display: true,
+                                    grid: { display: false },
+                                    ticks: { font: { size: isRcd ? 7 : 8 } }
+                                }
+                            }
+                        }
+                    });
+                });
+            },
+
+            getPreviousYearData: function(deptId) {
+                const previousData = {
+                    sr: [-240, -230, -235, -232, -234, -233, -233, -234, -233, -233, -235, -234],
+                    w: [170, 175, 173, 176, 175, 177, 175, 174, 176, 176, 174, 179],
+                    rc: [115, 118, 116, 117, 117, 118, 117, 116, 117, 117, 116, 118],
+                    rcd: [80, 85, 83, 84, 84, 85, 83, 82, 84, 84, 82, 84]
+                };
+                return previousData[deptId] || Array(12).fill(0);
+            },
+
+            updateDepartmentCharts: function(departmentData) {
+                Object.entries(departmentData).forEach(([dept, data]) => {
+                    const chart = this.departmentCharts[dept];
+                    if (!chart || data.dataStatus !== 'loaded') return;
+
+                    const monthlyData = this.extractMonthlyData(data);
+                    chart.data.datasets[1].data = monthlyData;
+                    chart.update('none');
+                });
+            },
+
+            extractMonthlyData: function(data) {
+                const monthNames = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
+                return monthNames.map(month => {
+                    if (data.monthlyProfit && data.monthlyProfit[month] !== undefined) {
+                        return data.monthlyProfit[month];
+                    }
+                    return 0;
+                });
+            },
+
+            updateOverallPerformance: function(departmentData) {
+                let loadedCount = 0;
+                let totalCount = 0;
+                let totalProfitMargin = 0;
+                let profitableCount = 0;
+                let totalGrowth = 0;
+                let validGrowthCount = 0;
+
+                Object.entries(departmentData).forEach(([dept, data]) => {
+                    totalCount++;
+                    if (data.dataStatus === 'loaded') {
+                        loadedCount++;
+                        if (data.profitMargin) {
+                            totalProfitMargin += data.profitMargin;
+                        }
+                        if (data.annualProfit >= 0) {
+                            profitableCount++;
+                        }
+                        
+                        // 前年対比成長率計算
+                        const prevData = YearOverYearAnalysis.previousYearData[dept.toUpperCase()];
+                        if (prevData && data.annualRevenue) {
+                            const growth = ((data.annualRevenue - prevData.revenue) / prevData.revenue) * 100;
+                            totalGrowth += growth;
+                            validGrowthCount++;
+                        }
+                    }
+                });
+
+                const dataRate = totalCount > 0 ? (loadedCount / totalCount) * 100 : 0;
+                const avgProfitMargin = loadedCount > 0 ? totalProfitMargin / loadedCount : 0;
+                const avgGrowth = validGrowthCount > 0 ? totalGrowth / validGrowthCount : 0;
+
+                DataSyncManager.updateElement('overall-data-rate', `${dataRate.toFixed(0)}%`);
+                DataSyncManager.updateElement('overall-profit-margin', `${avgProfitMargin.toFixed(1)}%`);
+                DataSyncManager.updateElement('overall-growth-rate', `${avgGrowth >= 0 ? '+' : ''}${avgGrowth.toFixed(1)}%`);
+                DataSyncManager.updateElement('profitable-dept-count', `${profitableCount}/${totalCount}`);
             }
         };
 
@@ -1346,12 +1617,8 @@
             const syncResult = DataSyncManager.updateDataSyncStatus();
             const { loadedCount, totalCount, departmentData } = syncResult;
             
-            // Step3: 個別事業部表示
+            // Step3: 個別事業部表示（改良版）
             IndividualDepartmentDisplay.displayDepartmentCards(departmentData);
-            
-            // Step4: 前年対比分析
-            const analysisData = YearOverYearAnalysis.analyzeYearOverYear(departmentData);
-            YearOverYearAnalysis.displayComparison(analysisData);
             
             // KPI計算・更新
             let departmentTotalProfit = 0;
@@ -1389,7 +1656,7 @@
 
             console.log(`Step1-4処理完了: 部門利益=${departmentTotalProfit}, 最終利益=${finalProfit}, 有効データ数=${validDataCount}`);
             
-            return { departmentTotalProfit, finalProfit, validDataCount, analysisData };
+            return { departmentTotalProfit, finalProfit, validDataCount };
         }
 
         function calculateCommonExpensesTotal() {
