@@ -351,6 +351,7 @@
         .btn-primary { background: #C477CC; color: white; }
         .btn-success { background: #27ae60; color: white; }
         .btn-danger { background: #e74c3c; color: white; }
+        .btn-info { background: #3498db; color: white; }
 
         .action-btn:hover {
             transform: translateY(-2px);
@@ -457,7 +458,7 @@
 
         <!-- メインコンテンツ -->
         <main class="main-content">
-            <h2 class="section-title">SR事業部 月次PL表示（連携機能付）</h2>
+            <h2 class="section-title">SR事業部 月次PL表示（統合PL対応版）</h2>
             
             <!-- Chart.js表示エリア -->
             <div class="chart-container">
@@ -481,6 +482,7 @@
             <!-- アクションボタン -->
             <div class="action-buttons">
                 <button class="action-btn btn-primary" onclick="loadLinkageData()">連携データ再読み込み</button>
+                <button class="action-btn btn-info" onclick="sendIntegrationData()">統合PLへデータ送信</button>
                 <button class="action-btn btn-success" onclick="exportToCSV()">データエクスポート</button>
                 <button class="action-btn btn-danger" onclick="clearLinkageData()">入力システムに戻る</button>
             </div>
@@ -494,10 +496,11 @@
 
             <!-- 仕様説明（PLテーブル下に移動） -->
             <div class="spec-info">
-                <strong>SR事業部計算仕様・項目ID体系</strong><br>
+                <strong>SR事業部計算仕様・項目ID体系（統合PL対応版v3.0）</strong><br>
                 商品仕入率27.2%・売上レンジ別人件費係数（24.5-33.8%）・営業コミッション・6月賞与・12月賞与対応・8項目販管費表示版（少額項目は統合処理）
                 
                 <div class="spec-detail">
+                    <strong>統合PL連携機能追加:</strong> 各月の販管費データを統合PLシステムに送信・LocalStorageキー「pl_system_sr_data」・expenses配列による月次販管費動的統合対応・メタデータによるバージョン管理v3.0対応<br>
                     <strong>表示項目（8項目）:</strong> 人件費統合、法定福利費、物流管理費、地代家賃、外注費、貨物運賃（変動）、広告宣伝費、販売促進費(紹介報酬)、水道光熱費（変動）、支払手数料（変動）<br>
                     <strong>統合処理済み少額項目:</strong> 衛生費14万円、旅費交通費31万円、通信費19万円、消耗品費4万円、事務用品費11万円、リース料1万円、保険料6万円、支払報酬料34万円、減価償却費19万円（年額計137万円を販管費計に含む）<br>
                     <strong>変動費係数:</strong> 貨物運賃（0.07-1.82）、水道光熱費（0.82-1.41）、支払手数料（0.70-1.51）
@@ -507,7 +510,7 @@
     </div>
 
     <script>
-        // SR事業部PL計算システム（共通ヘッダー仕様準拠版）
+        // SR事業部PL計算システム（統合PL対応版v3.0）
         
         // グローバル変数
         let currentData = {
@@ -518,6 +521,12 @@
                 bonus12: 0,
                 advertising: 30
             }
+        };
+
+        // 統合PLシステム用ストレージキー
+        const STORAGE_KEYS = {
+            sr: 'pl_system_sr_data',
+            sr_legacy: 'sr_dashboard_data'
         };
 
         // 売上レンジ別人件費係数
@@ -550,7 +559,7 @@
         // 連携データ読み込み機能
         function loadLinkageData() {
             try {
-                const srSalesData = localStorage.getItem('pl_system_sr_data');
+                const srSalesData = localStorage.getItem(STORAGE_KEYS.sr);
                 
                 if (srSalesData) {
                     const salesData = JSON.parse(srSalesData);
@@ -667,10 +676,15 @@
             
             const advertising = currentData.sr.advertising; // 月額広告宣伝費
             
-            // 販売管理費計
-            const totalExpenses = personnel + welfare + hygiene + logistics + rent + outsourcing + 
-                                 freight + advertising + travel + communication + promotion + supplies + 
-                                 office + utilities + fees + lease + insurance + consulting + depreciation;
+            // 販売管理費計（統合PL用に分離）
+            const expensesDetails = {
+                hygiene, logistics, rent, outsourcing, freight, advertising,
+                travel, communication, promotion, supplies, office, utilities,
+                fees, lease, insurance, consulting, depreciation
+            };
+            
+            // 販管費合計（人件費・法定福利費除く）
+            const totalExpenses = personnel + welfare + Object.values(expensesDetails).reduce((sum, val) => sum + val, 0);
             
             const operatingProfit = grossProfit - totalExpenses;
             
@@ -680,26 +694,74 @@
                 grossProfit: grossProfit,
                 personnel: personnel,
                 welfare: welfare,
-                hygiene: hygiene,
-                logistics: logistics,
-                rent: rent,
-                outsourcing: outsourcing,
-                freight: freight,
-                advertising: advertising,
-                travel: travel,
-                communication: communication,
-                promotion: promotion,
-                supplies: supplies,
-                office: office,
-                utilities: utilities,
-                fees: fees,
-                lease: lease,
-                insurance: insurance,
-                consulting: consulting,
-                depreciation: depreciation,
+                ...expensesDetails,
                 totalExpenses: Math.round(totalExpenses),
-                operatingProfit: Math.round(operatingProfit)
+                operatingProfit: Math.round(operatingProfit),
+                expensesSummary: Math.round(Object.values(expensesDetails).reduce((sum, val) => sum + val, 0)) // 統合PL用
             };
+        }
+
+        // 統合PLシステム用データ送信（新規追加）
+        function sendIntegrationData() {
+            if (!window.srCurrentResults) {
+                alert('計算結果が生成されていません。');
+                return;
+            }
+
+            try {
+                const { monthlyResults, annual } = window.srCurrentResults;
+                
+                // 統合PLシステムが期待するデータ構造（引き継ぎ書仕様準拠）
+                const integrationData = {
+                    sales: monthlyResults.map(m => m.sales),
+                    cogs: monthlyResults.map(m => m.cogs),
+                    personnel: monthlyResults.map(m => m.personnel),
+                    expenses: monthlyResults.map(m => m.expensesSummary), // 販管費（人件費・法定福利費除く）
+                    metadata: {
+                        lastUpdate: new Date().toISOString(),
+                        dataSource: "SR事業部",
+                        version: "3.0",
+                        calculationEngine: "dynamic"
+                    }
+                };
+
+                // 統合PLシステム用キーで保存
+                localStorage.setItem(STORAGE_KEYS.sr, JSON.stringify(integrationData));
+                
+                // レガシー互換性のため既存形式も保持
+                const legacyData = {
+                    department: 'SR事業部',
+                    annual: {
+                        sales: annual.sales,
+                        cogs: annual.cogs,
+                        grossProfit: annual.grossProfit,
+                        totalExpenses: annual.totalExpenses,
+                        operatingProfit: annual.operatingProfit,
+                        personnel: annual.personnel,
+                        welfare: annual.welfare
+                    },
+                    monthly: monthlyResults,
+                    linkageActive: linkageActive,
+                    timestamp: new Date().toISOString()
+                };
+                
+                localStorage.setItem(STORAGE_KEYS.sr_legacy, JSON.stringify(legacyData));
+                
+                // 成功通知
+                updateLinkageStatus('success', `統合PLへデータ送信完了: ${new Date().toLocaleString()}`);
+                
+                console.log('統合PLシステム用データ送信完了:', {
+                    integration: integrationData,
+                    legacy: legacyData
+                });
+                
+                alert('統合PLシステムへのデータ送信が完了しました。');
+                
+            } catch (error) {
+                updateLinkageStatus('error', `データ送信エラー: ${error.message}`);
+                console.error('統合PLデータ送信エラー:', error);
+                alert(`データ送信に失敗しました: ${error.message}`);
+            }
         }
 
         // SR計算実行
@@ -707,7 +769,6 @@
             generateSRTable();
             updateChart();
             updateKPICards();
-            updateDashboard();
         }
 
         // SRテーブル生成
@@ -981,68 +1042,6 @@
             }
         }
 
-        // ダッシュボード更新
-        function updateDashboard() {
-            if (!window.srCurrentResults) return;
-            const { monthlyResults, annual } = window.srCurrentResults;
-
-            const srDashboardData = {
-                department: 'SR事業部',
-                annual: {
-                    sales: annual.sales,
-                    cogs: annual.cogs,
-                    grossProfit: annual.grossProfit,
-                    totalExpenses: annual.totalExpenses,
-                    operatingProfit: annual.operatingProfit,
-                    personnel: annual.personnel,
-                    welfare: annual.welfare,
-                    expenses: {
-                        personnel: annual.personnel || 0,
-                        welfare: annual.welfare || 0,
-                        logistics: annualExpenses.logistics || 0,
-                        rent: annualExpenses.rent || 0,
-                        advertising: (currentData.sr.advertising * 12) || 0
-                    }
-                },
-                monthly: monthlyResults.map(month => ({
-                    sales: month.sales,
-                    cogs: month.cogs,
-                    grossProfit: month.grossProfit,
-                    totalExpenses: month.totalExpenses,
-                    operatingProfit: month.operatingProfit,
-                    personnel: month.personnel,
-                    welfare: month.welfare,
-                    expenses: {
-                        personnel: month.personnel || 0,
-                        welfare: month.welfare || 0,
-                        logistics: month.logistics || 0,
-                        rent: month.rent || 0,
-                        advertising: month.advertising || 0
-                    }
-                })),
-                linkageActive: linkageActive,
-                timestamp: new Date().toISOString()
-            };
-
-            try {
-                let combinedData = {};
-                const existingData = localStorage.getItem('pl_system_combined_data');
-                if (existingData) {
-                    combinedData = JSON.parse(existingData);
-                }
-
-                combinedData.sr = srDashboardData;
-                combinedData.lastUpdated = new Date().toISOString();
-
-                localStorage.setItem('pl_system_combined_data', JSON.stringify(combinedData));
-                localStorage.setItem('sr_dashboard_data', JSON.stringify(srDashboardData));
-                
-                console.log('SR事業部データを自動送信しました:', srDashboardData);
-            } catch (error) {
-                console.error('ダッシュボードデータ自動送信エラー:', error);
-            }
-        }
-
         // CSV出力
         function exportToCSV() {
             if (!window.srCurrentResults) {
@@ -1052,7 +1051,7 @@
 
             const { monthlyResults } = window.srCurrentResults;
             
-            let csv = 'SR事業部PL（連携機能付）\n';
+            let csv = 'SR事業部PL（統合PL対応版）\n';
             csv += '項目,' + months.join(',') + ',年間計\n';
             
             // データ行を追加
@@ -1078,14 +1077,15 @@
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = `SR事業部PL_${new Date().toISOString().slice(0, 10)}.csv`;
+            link.download = `SR事業部PL_統合PL対応版_${new Date().toISOString().slice(0, 10)}.csv`;
             link.click();
         }
 
         // 連携データクリア
         function clearLinkageData() {
             if (confirm('連携データをクリアしますか？')) {
-                localStorage.removeItem('pl_system_sr_data');
+                localStorage.removeItem(STORAGE_KEYS.sr);
+                localStorage.removeItem(STORAGE_KEYS.sr_legacy);
                 linkageActive = false;
                 updateLinkageStatus('warning', '連携データをクリアしました。入力システムでデータを送信してください。');
                 
@@ -1112,6 +1112,13 @@
             
             // 連携データ読み込み
             loadLinkageData();
+            
+            // 自動統合PL送信（計算後）
+            setTimeout(() => {
+                if (window.srCurrentResults) {
+                    sendIntegrationData();
+                }
+            }, 1000);
         }
 
         // ページ読み込み時に初期化実行
