@@ -319,7 +319,11 @@
                 <button class="action-btn debug-btn" onclick="toggleDebugInfo()">デバッグ情報表示</button>
             </div>
 
-            <div id="debugInfo" class="debug-info"></div>
+            <div id="debugInfo" class="debug-info" style="display: none;">
+                <strong>デバッグ情報:</strong><br>
+                <span id="debug-content">初期化中...</span>
+            </div>
+            
             <div id="loadingMessage" class="loading" style="display: none;">データを統合中...</div>
             <div id="errorMessage" class="error-message" style="display: none;"></div>
             <div id="successMessage" class="success-message" style="display: none;"></div>
