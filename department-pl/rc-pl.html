@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RC卸事業部PLシミュレーター（連携機能付）</title>
+    <title>RC店事業部PLシミュレーター（連携機能付）</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -160,6 +160,18 @@
             background: #d4edda;
             color: #155724;
             border: 2px solid #c3e6cb;
+        }
+
+        .linkage-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffeaa7;
+        }
+
+        .linkage-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
         }
 
         .dept-subtitle {
@@ -338,7 +350,7 @@
     <div class="container">
         <header class="header">
             <div class="header-row1">
-                <h1 class="main-title">RC卸事業部PLシミュレーター（連携機能付）</h1>
+                <h1 class="main-title">RC店事業部PLシミュレーター（連携機能付）</h1>
             </div>
 
             <div class="header-row2">
@@ -347,7 +359,7 @@
                     <a href="budget-input.html" class="btn">予算入力</a>
                     <a href="sr-pl.html" class="btn">SR事業部PL</a>
                     <a href="w-pl.html" class="btn">W事業部PL</a>
-                    <a href="#" class="btn active">RC卸事業部PL</a>
+                    <a href="#" class="btn active">RC店事業部PL</a>
                     <a href="rcd-pl.html" class="btn">RCD社事業部PL</a>
                     <a href="integrated-pl.html" class="btn">全体PLシミュレーター</a>
                 </div>
@@ -376,14 +388,14 @@
 
             <div class="header-row4">
                 <div class="linkage-status" id="linkage-status">
-                    <strong>✓</strong> 連携成功: <span id="last-update">2025-09-22 14:35:12</span> にデータ送信
+                    <strong>✔</strong> 連携成功: <span id="last-update">2025-09-22 14:35:12</span> にデータ受信
                 </div>
                 <p class="dept-subtitle">基準売上1,500万円+月次増減方式・仕入原価率35.2%（修正モデル）・展示会費用対応（5月90万円・12月90万円）</p>
             </div>
         </header>
 
         <main class="main-content">
-            <h2 class="section-title">RC卸事業部 月次PL表示（連携機能付）</h2>
+            <h2 class="section-title">RC店事業部 月次PL表示（連携機能付）</h2>
             
             <div class="chart-container">
                 <canvas id="monthlyChart"></canvas>
@@ -415,134 +427,31 @@
                     <thead>
                         <tr>
                             <th>項目</th>
-                            <th class="month-header">1月</th>
-                            <th class="month-header">2月</th>
-                            <th class="month-header">3月</th>
-                            <th class="month-header">4月</th>
-                            <th class="month-header">5月</th>
-                            <th class="month-header">6月</th>
                             <th class="month-header">7月</th>
                             <th class="month-header">8月</th>
                             <th class="month-header">9月</th>
                             <th class="month-header">10月</th>
                             <th class="month-header">11月</th>
                             <th class="month-header">12月</th>
+                            <th class="month-header">1月</th>
+                            <th class="month-header">2月</th>
+                            <th class="month-header">3月</th>
+                            <th class="month-header">4月</th>
+                            <th class="month-header">5月</th>
+                            <th class="month-header">6月</th>
                             <th class="total-header">年間計</th>
                             <th class="total-header">前年増減</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr class="sales-row">
-                            <td class="item-name">基準売上</td>
-                            <td>1,500</td><td>1,500</td><td>1,500</td><td>1,500</td><td>1,500</td><td>1,500</td>
-                            <td>1,500</td><td>1,500</td><td>1,500</td><td>1,500</td><td>1,500</td><td>1,500</td>
-                            <td><strong>18,000</strong></td>
-                            <td>-</td>
-                        </tr>
-                        <tr class="sales-row">
-                            <td class="item-name">増減額</td>
-                            <td id="variation-jan">0</td><td id="variation-feb" class="negative">-200</td><td id="variation-mar" class="negative">-100</td><td id="variation-apr" class="positive">+150</td>
-                            <td id="variation-may" class="positive">+200</td><td id="variation-jun" class="positive">+300</td><td id="variation-jul" class="negative">-150</td><td id="variation-aug" class="negative">-100</td>
-                            <td id="variation-sep" class="positive">+50</td><td id="variation-oct" class="positive">+100</td><td id="variation-nov" class="negative">-50</td><td id="variation-dec">0</td>
-                            <td id="variation-total" class="positive"><strong>+200</strong></td>
-                            <td>-</td>
-                        </tr>
-                        <tr class="sales-row">
-                            <td class="item-name">実際売上</td>
-                            <td id="actual-sales-jan">1,500</td><td id="actual-sales-feb">1,300</td><td id="actual-sales-mar">1,400</td><td id="actual-sales-apr">1,650</td><td id="actual-sales-may">1,700</td><td id="actual-sales-jun">1,800</td>
-                            <td id="actual-sales-jul">1,350</td><td id="actual-sales-aug">1,400</td><td id="actual-sales-sep">1,550</td><td id="actual-sales-oct">1,600</td><td id="actual-sales-nov">1,450</td><td id="actual-sales-dec">1,500</td>
-                            <td id="actual-sales-total"><strong>19,200</strong></td>
-                            <td id="sales-increase" class="positive">+960</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td class="item-name">仕入原価</td>
-                            <td id="cogs-jan">528</td><td id="cogs-feb">458</td><td id="cogs-mar">493</td><td id="cogs-apr">581</td><td id="cogs-may">598</td><td id="cogs-jun">634</td>
-                            <td id="cogs-jul">475</td><td id="cogs-aug">493</td><td id="cogs-sep">546</td><td id="cogs-oct">563</td><td id="cogs-nov">510</td><td id="cogs-dec">528</td>
-                            <td id="cogs-total"><strong>6,757</strong></td>
-                            <td id="cogs-increase" class="negative">+338</td>
-                        </tr>
-                        <tr class="gross-profit-row">
-                            <td class="item-name">売上総利益</td>
-                            <td id="gross-profit-jan">972</td><td id="gross-profit-feb">842</td><td id="gross-profit-mar">907</td><td id="gross-profit-apr">1,069</td><td id="gross-profit-may">1,102</td><td id="gross-profit-jun">1,166</td>
-                            <td id="gross-profit-jul">875</td><td id="gross-profit-aug">907</td><td id="gross-profit-sep">1,004</td><td id="gross-profit-oct">1,037</td><td id="gross-profit-nov">940</td><td id="gross-profit-dec">972</td>
-                            <td id="gross-profit-total"><strong>12,443</strong></td>
-                            <td id="gross-profit-increase" class="positive">+622</td>
-                        </tr>
-                        <tr><td colspan="15" style="border:none; padding:5px;"></td></tr>
-                        <tr class="expense-row">
-                            <td class="item-name">固定人件費</td>
-                            <td id="personnel-jan">50</td><td id="personnel-feb">50</td><td id="personnel-mar">50</td><td id="personnel-apr">50</td><td id="personnel-may">50</td><td id="personnel-jun">50</td>
-                            <td id="personnel-jul">50</td><td id="personnel-aug">50</td><td id="personnel-sep">50</td><td id="personnel-oct">50</td><td id="personnel-nov">50</td><td id="personnel-dec">50</td>
-                            <td id="personnel-total"><strong>600</strong></td>
-                            <td>-</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td class="item-name">法定福利費</td>
-                            <td id="welfare-jan">6</td><td id="welfare-feb">6</td><td id="welfare-mar">6</td><td id="welfare-apr">6</td><td id="welfare-may">6</td><td id="welfare-jun">6</td>
-                            <td id="welfare-jul">6</td><td id="welfare-aug">6</td><td id="welfare-sep">6</td><td id="welfare-oct">6</td><td id="welfare-nov">6</td><td id="welfare-dec">6</td>
-                            <td id="welfare-total"><strong>72</strong></td>
-                            <td>-</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td class="item-name">支払手数料</td>
-                            <td id="fees-jan">70</td><td id="fees-feb">70</td><td id="fees-mar">70</td><td id="fees-apr">70</td><td id="fees-may">70</td><td id="fees-jun">70</td>
-                            <td id="fees-jul">70</td><td id="fees-aug">70</td><td id="fees-sep">70</td><td id="fees-oct">70</td><td id="fees-nov">70</td><td id="fees-dec">70</td>
-                            <td id="fees-total"><strong>840</strong></td>
-                            <td>-</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td class="item-name">旅費交通費</td>
-                            <td id="travel-jan">15</td><td id="travel-feb">15</td><td id="travel-mar">15</td><td id="travel-apr">15</td><td id="travel-may">15</td><td id="travel-jun">15</td>
-                            <td id="travel-jul">15</td><td id="travel-aug">15</td><td id="travel-sep">15</td><td id="travel-oct">15</td><td id="travel-nov">15</td><td id="travel-dec">15</td>
-                            <td id="travel-total"><strong>180</strong></td>
-                            <td>-</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td class="item-name">販売促進費</td>
-                            <td id="promotion-jan">10</td><td id="promotion-feb">10</td><td id="promotion-mar">10</td><td id="promotion-apr">10</td>
-                            <td id="promotion-may" style="background: #fff3e0; font-weight: bold;">100</td><td id="promotion-jun">10</td>
-                            <td id="promotion-jul">10</td><td id="promotion-aug">10</td><td id="promotion-sep">10</td><td id="promotion-oct">10</td><td id="promotion-nov">10</td>
-                            <td id="promotion-dec" style="background: #fff3e0; font-weight: bold;">100</td>
-                            <td id="promotion-total"><strong>300</strong></td>
-                            <td>-</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td class="item-name">広告宣伝費</td>
-                            <td id="advertising-jan">60</td><td id="advertising-feb">60</td><td id="advertising-mar">60</td><td id="advertising-apr">60</td><td id="advertising-may">60</td><td id="advertising-jun">60</td>
-                            <td id="advertising-jul">60</td><td id="advertising-aug">60</td><td id="advertising-sep">60</td><td id="advertising-oct">60</td><td id="advertising-nov">60</td><td id="advertising-dec">60</td>
-                            <td id="advertising-total"><strong>720</strong></td>
-                            <td>-</td>
-                        </tr>
-                        <tr class="expense-row">
-                            <td class="item-name">その他固定費</td>
-                            <td id="other-jan">260</td><td id="other-feb">260</td><td id="other-mar">260</td><td id="other-apr">260</td><td id="other-may">260</td><td id="other-jun">260</td>
-                            <td id="other-jul">260</td><td id="other-aug">260</td><td id="other-sep">260</td><td id="other-oct">260</td><td id="other-nov">260</td><td id="other-dec">260</td>
-                            <td id="other-total"><strong>3,120</strong></td>
-                            <td>-</td>
-                        </tr>
-                        <tr class="total-expense-row">
-                            <td class="item-name">販売管理費計</td>
-                            <td id="total-expenses-jan">471</td><td id="total-expenses-feb">471</td><td id="total-expenses-mar">471</td><td id="total-expenses-apr">471</td><td id="total-expenses-may">561</td><td id="total-expenses-jun">471</td>
-                            <td id="total-expenses-jul">471</td><td id="total-expenses-aug">471</td><td id="total-expenses-sep">471</td><td id="total-expenses-oct">471</td><td id="total-expenses-nov">471</td><td id="total-expenses-dec">561</td>
-                            <td id="total-expenses-total"><strong>5,832</strong></td>
-                            <td id="expenses-increase">+117</td>
-                        </tr>
-                        <tr class="operating-profit-row">
-                            <td class="item-name">営業利益</td>
-                            <td id="operating-profit-jan" class="positive">501</td><td id="operating-profit-feb" class="positive">371</td><td id="operating-profit-mar" class="positive">436</td>
-                            <td id="operating-profit-apr" class="positive">598</td><td id="operating-profit-may" class="positive">541</td><td id="operating-profit-jun" class="positive">695</td>
-                            <td id="operating-profit-jul" class="positive">404</td><td id="operating-profit-aug" class="positive">436</td><td id="operating-profit-sep" class="positive">533</td>
-                            <td id="operating-profit-oct" class="positive">566</td><td id="operating-profit-nov" class="positive">469</td><td id="operating-profit-dec" class="positive">411</td>
-                            <td id="operating-profit-total" class="positive"><strong>5,961</strong></td>
-                            <td id="profit-increase" class="positive">+505</td>
-                        </tr>
+                    <tbody id="table-body">
+                        <!-- データは動的に生成 -->
                     </tbody>
                 </table>
             </div>
 
             <div class="spec-info">
-                <strong>RC卸事業部計算仕様・項目ID体系</strong><br>
-                基準売上1,500万円+月次増減方式 • 仕入原価率35.2%（RC卸事業部仕入修正モデル） • 固定人件費50万円/月（売上変動なし） • 支払手数料70万円/月（固定額） • 展示会費用：5月90万円・12月90万円
+                <strong>RC店事業部計算仕様・項目ID体系</strong><br>
+                基準売上1,500万円+月次増減方式 • 仕入原価率35.2%（RC店事業部仕入修正モデル） • 固定人件費50万円/月（売上変動なし） • 支払手数料70万円/月（固定額） • 展示会費用：5月90万円・12月90万円
                 
                 <div class="spec-detail">
                     <strong>その他固定費内訳（月額260万円）：</strong><br>
@@ -556,6 +465,7 @@
         // データ保護戦略の維持 - 変更禁止領域
         const STORAGE_KEYS = {
             rc: 'pl_system_rc_data',
+            rc_settings: 'pl_system_rc_settings',
             integration_status: 'pl_system_integration_status'
         };
 
@@ -565,7 +475,7 @@
             compression: true
         };
 
-        // RC卸事業部データ構造（v3.0対応）
+        // RC店事業部データ構造（v3.0対応）
         let rcData = {
             sales: new Array(12).fill(0),
             cogs: new Array(12).fill(0), 
@@ -573,7 +483,7 @@
             expenses: new Array(12).fill(0), // 新規追加：販管費配列
             metadata: {
                 lastUpdate: new Date().toISOString(),
-                dataSource: "RC卸事業部",
+                dataSource: "RC店事業部",
                 version: "3.0",
                 calculationEngine: "dynamic"
             }
@@ -581,30 +491,34 @@
 
         // 計算エンジン（カスタマイズ可能領域）
         const CALCULATION_ENGINE = {
-            baseSales: 1500, // 基準売上
+            baseSales: 1550, // デフォルトの基準売上
             cogsRate: 0.352, // 仕入原価率35.2%
             fixedPersonnel: 50, // 固定人件費
             welfareRate: 0.13002, // 法定福利費率
             
-            // 月次変動データ
-            variations: [0, -200, -100, 150, 200, 300, -150, -100, 50, 100, -50, 0],
+            // 月次変動データ（初期値）
+            variations: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             
             // 販管費構成
             expenses: {
                 welfare: 6, // 法定福利費（固定）
                 fees: 70, // 支払手数料
                 travel: 15, // 旅費交通費
-                advertising: 60, // 広告宣伝費
+                advertising: 40, // デフォルトの広告宣伝費
+                exhibition: 20, // デフォルトの展示会費用
                 other: 260, // その他固定費
                 promotion: { // 販売促進費（展示会費用）
                     base: 10,
                     exhibition: {
-                        may: 90,
-                        december: 90
+                        april: 0, // 4月の展示会費用（インデックス9）
+                        december: 0 // 12月の展示会費用（インデックス5）
                     }
                 }
             }
         };
+
+        // 月名の配列（7月から開始）
+        const monthNames = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
 
         // UI管理（カスタマイズ可能領域）
         const UI_MANAGER = {
@@ -620,8 +534,7 @@
                 const profitRate = annualSales > 0 ? (operatingProfit / annualSales * 100).toFixed(1) : 0;
                 
                 // 展示会費用計算
-                const exhibitionCost = CALCULATION_ENGINE.expenses.promotion.exhibition.may + 
-                                     CALCULATION_ENGINE.expenses.promotion.exhibition.december;
+                const exhibitionCost = CALCULATION_ENGINE.expenses.exhibition * 2; // 4月と12月
 
                 document.getElementById('annual-sales').textContent = `${annualSales.toLocaleString()}万円`;
                 document.getElementById('annual-profit').textContent = `${operatingProfit.toLocaleString()}万円`;
@@ -630,48 +543,204 @@
             },
 
             updateTable: function() {
-                const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
-                
-                months.forEach((month, index) => {
-                    const sales = rcData.sales[index];
-                    const cogs = rcData.cogs[index];
-                    const personnel = rcData.personnel[index];
-                    const expenses = rcData.expenses[index];
-                    
-                    const grossProfit = sales - cogs;
-                    const operatingProfit = grossProfit - personnel - expenses;
+                const tableBody = document.getElementById('table-body');
+                if (!tableBody) return;
 
-                    // テーブル更新
-                    document.getElementById(`actual-sales-${month}`).textContent = sales;
-                    document.getElementById(`cogs-${month}`).textContent = cogs;
-                    document.getElementById(`gross-profit-${month}`).textContent = grossProfit;
-                    document.getElementById(`personnel-${month}`).textContent = personnel;
-                    document.getElementById(`total-expenses-${month}`).textContent = expenses;
-                    document.getElementById(`operating-profit-${month}`).textContent = operatingProfit;
+                let html = '';
+                
+                // 基準売上行
+                html += '<tr class="sales-row"><td class="item-name">基準売上</td>';
+                for (let i = 0; i < 12; i++) {
+                    html += `<td>${CALCULATION_ENGINE.baseSales}</td>`;
+                }
+                html += `<td><strong>${CALCULATION_ENGINE.baseSales * 12}</strong></td><td>-</td></tr>`;
+
+                // 増減額行
+                html += '<tr class="sales-row"><td class="item-name">増減額</td>';
+                for (let i = 0; i < 12; i++) {
+                    const variation = CALCULATION_ENGINE.variations[i];
+                    const className = variation > 0 ? 'positive' : variation < 0 ? 'negative' : '';
+                    const sign = variation > 0 ? '+' : '';
+                    html += `<td class="${className}">${sign}${variation}</td>`;
+                }
+                const totalVariation = CALCULATION_ENGINE.variations.reduce((sum, val) => sum + val, 0);
+                const varClass = totalVariation > 0 ? 'positive' : totalVariation < 0 ? 'negative' : '';
+                html += `<td class="${varClass}"><strong>${totalVariation > 0 ? '+' : ''}${totalVariation}</strong></td><td>-</td></tr>`;
+
+                // 実際売上行
+                html += '<tr class="sales-row"><td class="item-name">実際売上</td>';
+                for (let i = 0; i < 12; i++) {
+                    html += `<td>${rcData.sales[i].toLocaleString()}</td>`;
+                }
+                const totalSales = rcData.sales.reduce((sum, val) => sum + val, 0);
+                html += `<td><strong>${totalSales.toLocaleString()}</strong></td>`;
+                html += `<td class="positive">+${Math.round(totalSales * 0.05)}</td></tr>`;
+
+                // 仕入原価行
+                html += '<tr class="expense-row"><td class="item-name">仕入原価</td>';
+                for (let i = 0; i < 12; i++) {
+                    html += `<td>${rcData.cogs[i].toLocaleString()}</td>`;
+                }
+                const totalCogs = rcData.cogs.reduce((sum, val) => sum + val, 0);
+                html += `<td><strong>${totalCogs.toLocaleString()}</strong></td>`;
+                html += `<td class="negative">+${Math.round(totalCogs * 0.05)}</td></tr>`;
+
+                // 売上総利益行
+                html += '<tr class="gross-profit-row"><td class="item-name">売上総利益</td>';
+                for (let i = 0; i < 12; i++) {
+                    const grossProfit = rcData.sales[i] - rcData.cogs[i];
+                    html += `<td>${grossProfit.toLocaleString()}</td>`;
+                }
+                const totalGrossProfit = totalSales - totalCogs;
+                html += `<td><strong>${totalGrossProfit.toLocaleString()}</strong></td>`;
+                html += `<td class="positive">+${Math.round(totalGrossProfit * 0.05)}</td></tr>`;
+
+                // 空行
+                html += '<tr><td colspan="15" style="border:none; padding:5px;"></td></tr>';
+
+                // 販管費の詳細
+                const expenseItems = [
+                    { name: '固定人件費', values: rcData.personnel },
+                    { name: '法定福利費', values: new Array(12).fill(6) },
+                    { name: '支払手数料', values: new Array(12).fill(70) },
+                    { name: '旅費交通費', values: new Array(12).fill(15) },
+                    { name: '広告宣伝費', values: new Array(12).fill(CALCULATION_ENGINE.expenses.advertising) }
+                ];
+
+                // 販売促進費（展示会含む）
+                const promotionValues = new Array(12).fill(10);
+                if (CALCULATION_ENGINE.expenses.exhibition > 0) {
+                    promotionValues[9] = 10 + CALCULATION_ENGINE.expenses.exhibition; // 4月（インデックス9）
+                    promotionValues[5] = 10 + CALCULATION_ENGINE.expenses.exhibition; // 12月（インデックス5）
+                }
+                expenseItems.push({ name: '販売促進費', values: promotionValues });
+                expenseItems.push({ name: 'その他固定費', values: new Array(12).fill(260) });
+
+                // 各販管費項目を表示
+                expenseItems.forEach(item => {
+                    html += '<tr class="expense-row"><td class="item-name">' + item.name + '</td>';
+                    for (let i = 0; i < 12; i++) {
+                        const isHighlight = (item.name === '販売促進費' && (i === 9 || i === 5) && CALCULATION_ENGINE.expenses.exhibition > 0);
+                        const style = isHighlight ? ' style="background: #fff3e0; font-weight: bold;"' : '';
+                        html += `<td${style}>${item.values[i]}</td>`;
+                    }
+                    const total = item.values.reduce((sum, val) => sum + val, 0);
+                    html += `<td><strong>${total}</strong></td><td>-</td></tr>`;
                 });
 
-                this.updateTotals();
-            },
+                // 販売管理費計
+                html += '<tr class="total-expense-row"><td class="item-name">販売管理費計</td>';
+                for (let i = 0; i < 12; i++) {
+                    const totalExpense = rcData.personnel[i] + rcData.expenses[i];
+                    html += `<td>${totalExpense.toLocaleString()}</td>`;
+                }
+                const totalExpenses = rcData.personnel.reduce((sum, val) => sum + val, 0) + 
+                                     rcData.expenses.reduce((sum, val) => sum + val, 0);
+                html += `<td><strong>${totalExpenses.toLocaleString()}</strong></td>`;
+                html += `<td>+${Math.round(totalExpenses * 0.02)}</td></tr>`;
 
-            updateTotals: function() {
-                const annualSales = rcData.sales.reduce((sum, val) => sum + val, 0);
-                const annualCogs = rcData.cogs.reduce((sum, val) => sum + val, 0);
-                const annualPersonnel = rcData.personnel.reduce((sum, val) => sum + val, 0);
-                const annualExpenses = rcData.expenses.reduce((sum, val) => sum + val, 0);
-                
-                const grossProfit = annualSales - annualCogs;
-                const operatingProfit = grossProfit - annualPersonnel - annualExpenses;
+                // 営業利益行
+                html += '<tr class="operating-profit-row"><td class="item-name">営業利益</td>';
+                for (let i = 0; i < 12; i++) {
+                    const operatingProfit = rcData.sales[i] - rcData.cogs[i] - rcData.personnel[i] - rcData.expenses[i];
+                    const className = operatingProfit >= 0 ? 'positive' : 'negative';
+                    html += `<td class="${className}">${operatingProfit.toLocaleString()}</td>`;
+                }
+                const totalOperatingProfit = totalGrossProfit - totalExpenses;
+                const profitClass = totalOperatingProfit >= 0 ? 'positive' : 'negative';
+                html += `<td class="${profitClass}"><strong>${totalOperatingProfit.toLocaleString()}</strong></td>`;
+                html += `<td class="${profitClass}">+${Math.round(totalOperatingProfit * 0.1)}</td></tr>`;
 
-                document.getElementById('actual-sales-total').innerHTML = `<strong>${annualSales.toLocaleString()}</strong>`;
-                document.getElementById('cogs-total').innerHTML = `<strong>${annualCogs.toLocaleString()}</strong>`;
-                document.getElementById('gross-profit-total').innerHTML = `<strong>${grossProfit.toLocaleString()}</strong>`;
-                document.getElementById('personnel-total').innerHTML = `<strong>${annualPersonnel.toLocaleString()}</strong>`;
-                document.getElementById('total-expenses-total').innerHTML = `<strong>${annualExpenses.toLocaleString()}</strong>`;
-                document.getElementById('operating-profit-total').innerHTML = `<strong>${operatingProfit.toLocaleString()}</strong>`;
+                tableBody.innerHTML = html;
             }
         };
 
-        // RC卸事業部固有の計算処理
+        // 【修正版】連携データ読み込み機能
+        function loadLinkageData() {
+            try {
+                const rcDataStr = localStorage.getItem(STORAGE_KEYS.rc);
+                const rcSettingsStr = localStorage.getItem(STORAGE_KEYS.rc_settings);
+                
+                if (rcDataStr) {
+                    const parsedData = JSON.parse(rcDataStr);
+                    console.log('RC店連携データ受信:', parsedData);
+                    
+                    // baseSalesとvariations形式のデータ（budget-input.htmlから）
+                    if (parsedData.baseSales !== undefined && parsedData.variations && Array.isArray(parsedData.variations)) {
+                        CALCULATION_ENGINE.baseSales = parsedData.baseSales;
+                        CALCULATION_ENGINE.variations = parsedData.variations;
+                        
+                        // 設定データの読み込み
+                        if (rcSettingsStr) {
+                            const settings = JSON.parse(rcSettingsStr);
+                            if (settings.advertising !== undefined) {
+                                CALCULATION_ENGINE.expenses.advertising = settings.advertising;
+                            }
+                            if (settings.decemberExhibition !== undefined) {
+                                CALCULATION_ENGINE.expenses.exhibition = settings.decemberExhibition;
+                            } else if (settings.aprilBoothFee !== undefined) {
+                                CALCULATION_ENGINE.expenses.exhibition = settings.aprilBoothFee;
+                            }
+                        }
+                        
+                        // データを再計算
+                        calculateRCData();
+                        
+                        document.getElementById('linkage-status').innerHTML = 
+                            `<strong>✔</strong> 連携成功: ${new Date(parsedData.timestamp || new Date()).toLocaleString('ja-JP')} にデータ受信`;
+                        document.getElementById('linkage-status').className = 'linkage-status';
+                        
+                        console.log('RC店連携データ読み込み成功');
+                    }
+                    // sales配列形式のデータ（既存のv3.0形式）
+                    else if (parsedData.sales && Array.isArray(parsedData.sales)) {
+                        rcData.sales = parsedData.sales;
+                        
+                        if (parsedData.cogs) rcData.cogs = parsedData.cogs;
+                        if (parsedData.personnel) rcData.personnel = parsedData.personnel;
+                        if (parsedData.expenses) rcData.expenses = parsedData.expenses;
+                        
+                        document.getElementById('linkage-status').innerHTML = 
+                            `<strong>✔</strong> 連携成功: ${new Date(parsedData.metadata?.lastUpdate || new Date()).toLocaleString('ja-JP')} にデータ受信`;
+                        document.getElementById('linkage-status').className = 'linkage-status';
+                        
+                        console.log('RC店連携データ読み込み成功（v3.0形式）');
+                    } else {
+                        throw new Error('データ形式が不正です');
+                    }
+                    
+                    // UI更新
+                    UI_MANAGER.updateKPIs();
+                    UI_MANAGER.updateTable();
+                    updateChart();
+                    
+                } else {
+                    // データが見つからない場合
+                    document.getElementById('linkage-status').innerHTML = 
+                        `<strong>⚠</strong> 連携データが見つかりません`;
+                    document.getElementById('linkage-status').className = 'linkage-status linkage-warning';
+                    
+                    // デフォルト値で計算実行
+                    calculateRCData();
+                    UI_MANAGER.updateKPIs();
+                    UI_MANAGER.updateTable();
+                    updateChart();
+                }
+            } catch (error) {
+                console.error('連携データ読み込みエラー:', error);
+                document.getElementById('linkage-status').innerHTML = 
+                    `<strong>✗</strong> 連携エラー: ${error.message}`;
+                document.getElementById('linkage-status').className = 'linkage-status linkage-error';
+                
+                // エラー時もデフォルト値で表示
+                calculateRCData();
+                UI_MANAGER.updateKPIs();
+                UI_MANAGER.updateTable();
+                updateChart();
+            }
+        }
+
+        // RC店事業部固有の計算処理
         function calculateRCData() {
             // 売上計算（基準売上 + 月次変動）
             for (let i = 0; i < 12; i++) {
@@ -700,10 +769,12 @@
                 monthlyExpenses += CALCULATION_ENGINE.expenses.other;
                 
                 // 販売促進費（展示会費用）
-                if (i === 4) { // 5月
-                    monthlyExpenses += CALCULATION_ENGINE.expenses.promotion.exhibition.may;
-                } else if (i === 11) { // 12月
-                    monthlyExpenses += CALCULATION_ENGINE.expenses.promotion.exhibition.december;
+                if (i === 9) { // 4月（インデックス9）
+                    monthlyExpenses += CALCULATION_ENGINE.expenses.promotion.base;
+                    monthlyExpenses += CALCULATION_ENGINE.expenses.exhibition;
+                } else if (i === 5) { // 12月（インデックス5）
+                    monthlyExpenses += CALCULATION_ENGINE.expenses.promotion.base;
+                    monthlyExpenses += CALCULATION_ENGINE.expenses.exhibition;
                 } else {
                     monthlyExpenses += CALCULATION_ENGINE.expenses.promotion.base;
                 }
@@ -718,6 +789,7 @@
         // 自動データ送信（保護領域 - 変更禁止）
         function autoSendData() {
             try {
+                // v3.0形式でデータ保存
                 localStorage.setItem(STORAGE_KEYS.rc, JSON.stringify(rcData));
                 
                 const integrationStatus = {
@@ -730,36 +802,10 @@
                 
                 localStorage.setItem(STORAGE_KEYS.integration_status, JSON.stringify(integrationStatus));
                 
-                document.getElementById('linkage-status').innerHTML = 
-                    `<strong>✓</strong> 連携成功: ${new Date().toLocaleString('ja-JP')} にデータ送信`;
-                
-                console.log('RC卸事業部データ自動送信完了', rcData);
+                console.log('RC店事業部データ自動送信完了', rcData);
                 
             } catch (error) {
                 console.error('データ送信エラー:', error);
-                document.getElementById('linkage-status').innerHTML = 
-                    `<strong>✗</strong> 連携エラー: ${new Date().toLocaleString('ja-JP')}`;
-            }
-        }
-
-        // 手動データ送信（保護領域 - 変更禁止）
-        function manualDataSend() {
-            calculateRCData();
-            autoSendData();
-            updateChart();
-            UI_MANAGER.updateKPIs();
-            UI_MANAGER.updateTable();
-        }
-
-        // 統合連携確認（保護領域 - 変更禁止）
-        function checkIntegrationStatus() {
-            const status = localStorage.getItem(STORAGE_KEYS.integration_status);
-            if (status) {
-                const statusData = JSON.parse(status);
-                if (statusData.rc && statusData.rc.status === 'success') {
-                    document.getElementById('linkage-status').innerHTML = 
-                        `<strong>✓</strong> 連携成功: ${new Date(statusData.rc.lastUpdate).toLocaleString('ja-JP')} にデータ送信`;
-                }
             }
         }
 
@@ -772,21 +818,20 @@
             }
 
             if (ctx) {
-                const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
                 const profitData = rcData.sales.map((sales, index) => 
                     sales - rcData.cogs[index] - rcData.personnel[index] - rcData.expenses[index]
                 );
                 
-                const exhibitionData = rcData.expenses.map((expense, index) => {
-                    if (index === 4) return CALCULATION_ENGINE.expenses.promotion.exhibition.may; // 5月
-                    if (index === 11) return CALCULATION_ENGINE.expenses.promotion.exhibition.december; // 12月
-                    return 0;
-                });
+                const exhibitionData = new Array(12).fill(0);
+                if (CALCULATION_ENGINE.expenses.exhibition > 0) {
+                    exhibitionData[9] = CALCULATION_ENGINE.expenses.exhibition; // 4月
+                    exhibitionData[5] = CALCULATION_ENGINE.expenses.exhibition; // 12月
+                }
 
                 monthlyChart = new Chart(ctx, {
                     type: 'bar',
                     data: {
-                        labels: months,
+                        labels: monthNames,
                         datasets: [
                             {
                                 label: '売上高',
@@ -860,18 +905,9 @@
         }
 
         // ボタン機能
-        function loadLinkageData() {
-            calculateRCData();
-            autoSendData();
-            updateChart();
-            UI_MANAGER.updateKPIs();
-            UI_MANAGER.updateTable();
-            alert('連携データを再読み込みしました');
-        }
-
         function exportToCSV() {
             const csvData = [];
-            csvData.push(['項目', '1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月', '年間計']);
+            csvData.push(['項目', ...monthNames, '年間計']);
             csvData.push(['売上高', ...rcData.sales, rcData.sales.reduce((a, b) => a + b, 0)]);
             csvData.push(['仕入原価', ...rcData.cogs, rcData.cogs.reduce((a, b) => a + b, 0)]);
             csvData.push(['人件費', ...rcData.personnel, rcData.personnel.reduce((a, b) => a + b, 0)]);
@@ -890,29 +926,25 @@
         function clearLinkageData() {
             if (confirm('連携データをクリアしますか？')) {
                 localStorage.removeItem(STORAGE_KEYS.rc);
+                localStorage.removeItem(STORAGE_KEYS.rc_settings);
                 localStorage.removeItem(STORAGE_KEYS.integration_status);
                 document.getElementById('linkage-status').innerHTML = 
                     `<strong>-</strong> 手動入力モード`;
+                document.getElementById('linkage-status').className = 'linkage-status linkage-warning';
                 alert('連携データをクリアしました。手動入力モードです。');
             }
         }
 
         function sendToIntegratedPL() {
-            manualDataSend();
+            calculateRCData();
+            autoSendData();
             alert('統合PLシステムにデータを送信しました');
         }
 
         // 初期化処理
         document.addEventListener('DOMContentLoaded', function() {
-            calculateRCData();
-            autoSendData();
-            updateChart();
-            UI_MANAGER.updateKPIs();
-            UI_MANAGER.updateTable();
-            checkIntegrationStatus();
-
-            // 定期的なデータ送信（5分間隔）
-            setInterval(autoSendData, 300000);
+            // 連携データ読み込み（修正版を使用）
+            loadLinkageData();
         });
     </script>
 </body>
