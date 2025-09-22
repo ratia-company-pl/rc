@@ -480,6 +480,7 @@
             <div class="table-header">
                 <h2 class="table-title">RCD社事業部 月次PL表示（統合システム連携版）</h2>
                 <div class="table-actions">
+                    <button class="btn btn-action" onclick="loadLinkageData()">連携データ再読み込み</button>
                     <button class="btn btn-action" onclick="manualDataSend()">手動データ送信</button>
                     <button class="btn btn-success" onclick="exportToCSV()">CSV出力</button>
                     <button class="btn btn-action" onclick="checkIntegrationStatus()">統合システム確認</button>
@@ -708,7 +709,7 @@
                 if (statusElement) {
                     statusElement.className = `linkage-status linkage-${type}`;
                     statusElement.innerHTML = `
-                        <strong>${type === 'success' ? '✓' : type === 'warning' ? '⚠' : '✗'}</strong>
+                        <strong>${type === 'success' ? '✓' : type === 'warning' ? '⚠ ' : '✗'}</strong>
                         ${message}
                     `;
                 }
@@ -912,31 +913,36 @@
 
         let linkageActive = false;
 
-        // 連携データ読み込み機能
+        // 連携データ読み込み機能（修正版）
         function loadLinkageData() {
             try {
-                const rcdSalesData = localStorage.getItem(STORAGE_KEYS.rcd + '_sales');
-                const rcdSettings = localStorage.getItem(STORAGE_KEYS.rcd + '_settings');
+                // 修正: 正しいキー名での読み取り
+                const rcdData = localStorage.getItem(STORAGE_KEYS.rcd);
                 
-                if (rcdSalesData && rcdSettings) {
-                    const salesData = JSON.parse(rcdSalesData);
-                    const settings = JSON.parse(rcdSettings);
+                if (rcdData) {
+                    const parsedData = JSON.parse(rcdData);
                     
-                    // データ検証
-                    if (Array.isArray(salesData.purchases) && salesData.purchases.length === 12 &&
-                        Array.isArray(settings.feeOccurrences) && settings.feeOccurrences.length === 12) {
+                    // データ検証（v3.0仕様対応）
+                    if (parsedData.sales && Array.isArray(parsedData.sales) && parsedData.sales.length === 12 &&
+                        parsedData.expenses && Array.isArray(parsedData.expenses) && parsedData.expenses.length === 12) {
                         
-                        // データを適用
-                        currentData.rcd.purchases = salesData.purchases;
-                        currentData.rcd.fees = settings.feeOccurrences;
+                        // 売上データから仕入本数を逆算（売上 ÷ (単価 × 1.03) = 本数）
+                        currentData.rcd.purchases = parsedData.sales.map(sales => {
+                            return Math.round(sales / (CALCULATION_ENGINE.constants.unitPrice * (1 + CALCULATION_ENGINE.constants.profitRate)));
+                        });
+                        
+                        // 手数料発生回数を販管費から逆算（expenses ÷ 90.6 = 回数）
+                        currentData.rcd.fees = parsedData.expenses.map(expense => {
+                            return Math.round(expense / CALCULATION_ENGINE.constants.feePerOccurrence);
+                        });
                         
                         linkageActive = true;
-                        UI_MANAGER.updateLinkageStatus('success', `連携成功: ${salesData.timestamp ? new Date(salesData.timestamp).toLocaleString() : '不明'} にデータ受信`);
+                        UI_MANAGER.updateLinkageStatus('success', `連携成功: ${parsedData.metadata?.lastUpdate ? new Date(parsedData.metadata.lastUpdate).toLocaleString() : '不明'} にデータ受信`);
                         
                         // 計算実行
                         executeCalculation();
                         
-                        console.log('RCD連携データ読み込み成功:', { salesData, settings });
+                        console.log('RCD連携データ読み込み成功:', parsedData);
                     } else {
                         throw new Error('データ形式が不正です');
                     }
@@ -982,7 +988,7 @@
             // 統合システム用データ生成（v3.0仕様準拠）
             const rcdIntegrationData = {
                 department: 'RCD社事業部',
-                // v3.0仕様：完全なデータ構造
+                // v3.0仕様：完全なデータ構造 
                 sales: monthlyResults.map(m => m.sales),
                 cogs: monthlyResults.map(m => m.cogs),
                 personnel: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // 外部委託のため0
