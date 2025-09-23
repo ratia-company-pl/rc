@@ -419,12 +419,12 @@
             <!-- 2行目: ナビゲーション（Phase 3修正: リンク先修正） -->
             <div class="header-row2">
                 <div class="nav-buttons">
-                    <a href="../index.html" class="btn">ダッシュボード</a>
-                    <a href="../budget-input.html" class="btn">予算入力</a>
-                    <a href="../department-pl/sr-pl.html" class="btn">SR事業部</a>
-                    <a href="../department-pl/w-pl.html" class="btn">W事業部</a>
-                    <a href="../department-pl/rc-pl.html" class="btn">RC卸事業部</a>
-                    <a href="../department-pl/rcd-pl.html" class="btn">RCD社事業部</a>
+                    <a href="./index.html" class="btn">ダッシュボード</a>
+                    <a href="./budget-input.html" class="btn">予算入力</a>
+                    <a href="./department-pl/sr-pl.html" class="btn">SR事業部</a>
+                    <a href="./department-pl/w-pl.html" class="btn">W事業部</a>
+                    <a href="./department-pl/rc-pl.html" class="btn">RC卸事業部</a>
+                    <a href="./department-pl/rcd-pl.html" class="btn">RCD社事業部</a>
                 </div>
             </div>
 
@@ -545,20 +545,22 @@
                 
                 <div class="spec-highlight">
                     <strong>Phase 3完全修正: RC卸・RCD社エラー解決</strong><br>
-                    ✓ RC卸事業部: baseSales + variations形式の完全対応<br>
-                    ✓ RCD社事業部: purchases配列からsales変換の完全対応<br>
-                    ✓ データ形式判定ロジックの強化と自動変換機能<br>
-                    ✓ 4/4事業部完全統合の実現<br>
-                    ✓ 全販管費詳細項目表示の実装（32項目対応）<br>
-                    ✓ カラーコード付き販管費区分表示<br><br>
+                    ✔ RC卸事業部: baseSales + variations形式の完全対応<br>
+                    ✔ RCD社事業部: purchases配列からsales変換の完全対応<br>
+                    ✔ データ形式判定ロジックの強化と自動変換機能<br>
+                    ✔ 4/4事業部完全統合の実現<br>
+                    ✔ 全販管費詳細項目表示の実装（32項目対応）<br>
+                    ✔ カラーコード付き販管費区分表示<br>
+                    ✔ ダッシュボード月次データ連携機能追加<br><br>
                     
                     <strong>Phase 3完全修正項目:</strong><br>
-                    ✓ RC卸・RCD社が「待機中」のまま停止する問題を完全解決<br>
-                    ✓ processDepartmentData関数のRC・RCDケース修正<br>
-                    ✓ loadDepartmentData関数のデータ形式判定強化<br>
-                    ✓ 全販管費表示機能の完全実装<br>
-                    ✓ ナビゲーション誤字修正（RC卸市→RC卸）<br>
-                    ✓ 統合データ整合性の確保
+                    ✔ RC卸・RCD社が「待機中」のまま停止する問題を完全解決<br>
+                    ✔ processDepartmentData関数のRC・RCDケース修正<br>
+                    ✔ loadDepartmentData関数のデータ形式判定強化<br>
+                    ✔ 全販管費表示機能の完全実装<br>
+                    ✔ ナビゲーション誤字修正（RC卸市→RC卸）<br>
+                    ✔ 統合データ整合性の確保<br>
+                    ✔ ダッシュボードへの月次売上データ送信機能
                 </div>
             </div>
         </main>
@@ -1389,15 +1391,15 @@
                                     const baseSales = parsedData.baseSales || 1550;
                                     const variations = parsedData.variations || [];
                                     const annual = (baseSales * 12) + variations.reduce((a, b) => a + b, 0);
-                                    status = `✓ 正常-baseSales+variations（${formatNumber(annual)}万円）`;
+                                    status = `✔ 正常-baseSales+variations（${formatNumber(annual)}万円）`;
                                     validCount++;
                                 } else if (parsedData.monthlySales && Array.isArray(parsedData.monthlySales)) {
                                     const annual = parsedData.monthlySales.reduce((a, b) => a + b, 0);
-                                    status = `✓ 正常-monthlySales（${formatNumber(annual)}万円）`;
+                                    status = `✔ 正常-monthlySales（${formatNumber(annual)}万円）`;
                                     validCount++;
                                 } else if (parsedData.sales && Array.isArray(parsedData.sales)) {
                                     const annual = parsedData.sales.reduce((a, b) => a + b, 0);
-                                    status = `✓ 正常-sales（${formatNumber(annual)}万円）`;
+                                    status = `✔ 正常-sales（${formatNumber(annual)}万円）`;
                                     validCount++;
                                 } else {
                                     status = '✗ RC卸データ形式不正';
@@ -1406,15 +1408,15 @@
                                 if (parsedData.purchases && Array.isArray(parsedData.purchases)) {
                                     const purchases = parsedData.purchases.reduce((a, b) => a + b, 0);
                                     const annual = Math.round(purchases * 2000 * 1.03);
-                                    status = `✓ 正常-purchases（${formatNumber(annual)}万円）`;
+                                    status = `✔ 正常-purchases（${formatNumber(annual)}万円）`;
                                     validCount++;
                                 } else if (parsedData.sales && Array.isArray(parsedData.sales)) {
                                     const annual = parsedData.sales.reduce((a, b) => a + b, 0);
-                                    status = `✓ 正常-sales（${formatNumber(annual)}万円）`;
+                                    status = `✔ 正常-sales（${formatNumber(annual)}万円）`;
                                     validCount++;
                                 } else if (parsedData.monthlySales && Array.isArray(parsedData.monthlySales)) {
                                     const annual = parsedData.monthlySales.reduce((a, b) => a + b, 0);
-                                    status = `✓ 正常-monthlySales（${formatNumber(annual)}万円）`;
+                                    status = `✔ 正常-monthlySales（${formatNumber(annual)}万円）`;
                                     validCount++;
                                 } else {
                                     status = '✗ RCD社データ形式不正';
@@ -1423,11 +1425,11 @@
                                 // SR・W事業部
                                 if (parsedData.monthlySales && Array.isArray(parsedData.monthlySales)) {
                                     const annual = parsedData.monthlySales.reduce((a, b) => a + b, 0);
-                                    status = `✓ 正常（${formatNumber(annual)}万円）`;
+                                    status = `✔ 正常（${formatNumber(annual)}万円）`;
                                     validCount++;
                                 } else if (parsedData.sales && Array.isArray(parsedData.sales)) {
                                     const annual = parsedData.sales.reduce((a, b) => a + b, 0);
-                                    status = `✓ 正常-legacy（${formatNumber(annual)}万円）`;
+                                    status = `✔ 正常-legacy（${formatNumber(annual)}万円）`;
                                     validCount++;
                                 } else {
                                     status = '✗ データ形式不正';
@@ -1443,11 +1445,11 @@
 
                 report += `\n統合可能事業部: ${validCount}/4`;
                 report += '\n\n【Phase 3完全修正内容】';
-                report += '\n✓ RC卸・RCD社データ取り込みエラーの完全解決';
-                report += '\n✓ 事業部別データ形式判定の強化';
-                report += '\n✓ baseSales+variations / purchases形式の完全対応';
-                report += '\n✓ 全販管費詳細項目表示の実装';
-                report += '\n✓ 4/4事業部完全統合の実現';
+                report += '\n✔ RC卸・RCD社データ取り込みエラーの完全解決';
+                report += '\n✔ 事業部別データ形式判定の強化';
+                report += '\n✔ baseSales+variations / purchases形式の完全対応';
+                report += '\n✔ 全販管費詳細項目表示の実装';
+                report += '\n✔ 4/4事業部完全統合の実現';
                 
                 alert(report);
             } catch (error) {
@@ -1506,7 +1508,7 @@
                                     }
                                 })()
                             };
-                            report += `✓ ${keyName}: ${JSON.stringify(dataInfo)}\n\n`;
+                            report += `✔ ${keyName}: ${JSON.stringify(dataInfo)}\n\n`;
                         } catch (error) {
                             report += `✗ ${keyName}: 解析エラー\n\n`;
                         }
@@ -1530,6 +1532,7 @@
             }
         }
 
+        // 🔴 修正版: sendDashboardIntegration関数（月次売上データ追加）
         function sendDashboardIntegration() {
             try {
                 const annualSales = integratedData.sales.reduce((sum, val) => sum + (val || 0), 0);
@@ -1545,6 +1548,34 @@
                 const operatingProfit = grossProfit - totalExpenses;
                 const profitRate = annualSales > 0 ? (operatingProfit / annualSales * 100).toFixed(1) : '0.0';
 
+                // 各事業部の月次売上データを追加
+                const monthlyDeptData = {};
+                
+                // 各事業部のデータを取得
+                ['sr', 'w', 'rc', 'rcd'].forEach(dept => {
+                    const deptData = localStorage.getItem(STORAGE_KEYS[dept]);
+                    if (deptData) {
+                        const parsed = JSON.parse(deptData);
+                        
+                        // 月次売上データを抽出
+                        if (dept === 'rc' && parsed.baseSales !== undefined && parsed.variations) {
+                            // RC卸: baseSales + variations形式
+                            const baseSales = parsed.baseSales || 1550;
+                            const variations = parsed.variations || new Array(12).fill(0);
+                            monthlyDeptData[dept] = variations.map(v => baseSales + v);
+                        } else if (dept === 'rcd' && parsed.purchases) {
+                            // RCD社: purchases形式
+                            monthlyDeptData[dept] = parsed.purchases.map(p => Math.round(p * 2000 * 1.03));
+                        } else if (parsed.monthlySales) {
+                            // SR・W: monthlySales形式
+                            monthlyDeptData[dept] = parsed.monthlySales;
+                        } else if (parsed.sales) {
+                            // 旧形式のsalesデータ
+                            monthlyDeptData[dept] = parsed.sales;
+                        }
+                    }
+                });
+
                 const dashboardData = {
                     summary: {
                         totalSales: annualSales,
@@ -1556,6 +1587,7 @@
                         activeCount: integratedData.metadata.activeDepartments.length,
                         list: integratedData.metadata.activeDepartments
                     },
+                    monthlyData: monthlyDeptData, // 月次売上データを追加
                     lastUpdate: new Date().toISOString(),
                     version: 'Phase3-Complete'
                 };
