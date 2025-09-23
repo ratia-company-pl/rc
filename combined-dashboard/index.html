@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>全体PLanalysis - PLシミュレーター</title>
+    <title>4事業部統合PLシステム（v3.0販管費動的統合対応版）</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -13,1153 +13,1250 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            color: #333;
+            padding: 10px;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
-            background: white;
+        }
+
+        /* ヘッダー（統合PLシステム専用デザイン） */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
             overflow: hidden;
         }
 
-        .header {
-            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+        .header-row1 {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
             color: white;
-        }
-
-        .title-section {
-            padding: 30px 20px 25px;
+            padding: 20px;
             text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
         .main-title {
-            font-size: 36px;
+            font-size: 2.2em;
             font-weight: 800;
-            color: white;
-            text-align: center;
-            letter-spacing: 2px;
+            margin: 0;
+            letter-spacing: 1px;
         }
 
-        .nav-section {
-            padding: 20px 30px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            text-align: center;
+        .subtitle {
+            font-size: 1.1em;
+            margin-top: 8px;
+            opacity: 0.9;
+        }
+
+        .header-row2 {
+            background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+            padding: 12px 20px;
         }
 
         .nav-buttons {
-            display: inline-flex;
-            flex-wrap: wrap;
-            gap: 12px;
+            display: flex;
             justify-content: center;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
-        .btn-nav {
-            padding: 12px 20px;
-            border: 2px solid rgba(255,255,255,0.25);
-            border-radius: 10px;
-            background: rgba(255,255,255,0.15);
+        .btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
             color: white;
             text-decoration: none;
-            font-weight: 700;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .btn-nav:hover {
-            background: rgba(255,255,255,0.25);
-            transform: translateY(-2px);
-        }
-
-        .btn-nav.active {
-            background: #3498db;
-            border-color: #3498db;
-        }
-
-        .control-section {
-            padding: 15px 30px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .control-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .control-table td {
-            padding: 8px 0;
-            vertical-align: middle;
-        }
-
-        .status-cell {
-            width: 30%;
-            text-align: left;
-        }
-
-        .controls-cell {
-            width: 70%;
-            text-align: right;
-        }
-
-        .linkage-status {
-            display: inline-block;
-            padding: 10px 18px;
             border-radius: 25px;
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
-        .linkage-warning {
-            background: rgba(243, 156, 18, 0.25);
-            color: #f39c12;
-            border: 2px solid rgba(243, 156, 18, 0.5);
-        }
-
-        .linkage-success {
-            background: rgba(39, 174, 96, 0.25);
-            color: #27ae60;
-            border: 2px solid rgba(39, 174, 96, 0.5);
-        }
-
-        .linkage-error {
-            background: rgba(231, 76, 60, 0.25);
-            color: #e74c3c;
-            border: 2px solid rgba(231, 76, 60, 0.5);
-        }
-
-        .control-group {
-            display: inline-flex;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: nowrap;
-        }
-
-        .control-item {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            color: white;
-            white-space: nowrap;
-        }
-
-        .control-item select {
-            padding: 5px 10px;
-            border: none;
-            border-radius: 5px;
-            font-size: 11px;
-            font-weight: 500;
-            background: white;
-            color: #2c3e50;
-            width: 110px;
-        }
-
-        .control-item input {
-            padding: 4px 6px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            width: 80px;
-            font-size: 11px;
-        }
-
-        .btn-action {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
             font-weight: 600;
-            font-size: 12px;
-            cursor: pointer;
+            font-size: 0.9em;
             transition: all 0.3s ease;
-            white-space: nowrap;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            min-width: 140px;
+            text-align: center;
         }
 
-        .btn-update {
-            background: #27ae60;
-            color: white;
-        }
-
-        .btn-update:hover {
-            background: #219a52;
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
         }
 
-        .btn-csv {
-            background: #e67e22;
-            color: white;
+        /* KPIセクション（4事業部統合表示） */
+        .header-row3 {
+            background: #f8f9fa;
+            padding: 20px;
         }
 
-        .btn-csv:hover {
-            background: #d35400;
-            transform: translateY(-2px);
+        .kpi-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        .btn-test {
-            background: #9b59b6;
-            color: white;
+        .kpi-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border: 3px solid #e74c3c;
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
         }
 
-        .btn-test:hover {
-            background: #8e44ad;
-            transform: translateY(-2px);
+        .kpi-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
         }
 
+        .kpi-card.positive {
+            border-color: #27ae60;
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+        }
+
+        .kpi-card.negative {
+            border-color: #e74c3c;
+            background: linear-gradient(135deg, #fdf2f2 0%, #fef5f5 100%);
+        }
+
+        .kpi-label {
+            font-size: 0.85em;
+            color: #7f8c8d;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 1.6em;
+            font-weight: 800;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .kpi-value.positive { color: #27ae60; }
+        .kpi-value.negative { color: #e74c3c; }
+
+        .kpi-detail {
+            font-size: 0.75em;
+            color: #95a5a6;
+        }
+
+        /* ステータス表示 */
+        .header-row4 {
+            background: #ecf0f1;
+            padding: 15px 20px;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .dept-status {
+            padding: 8px 12px;
+            border-radius: 20px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.8em;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffeaa7;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        /* メインコンテンツ */
         .main-content {
-            padding: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }
 
         .section-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 25px;
             color: #2c3e50;
-            border-bottom: 3px solid #34495e;
+            font-size: 1.6em;
+            font-weight: 800;
+            margin-bottom: 20px;
+            border-bottom: 4px solid #e74c3c;
             padding-bottom: 10px;
         }
 
-        .chart-section {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-            margin-bottom: 25px;
-        }
-
+        /* チャート */
         .chart-container {
             position: relative;
-            height: 220px;
-            margin-top: 20px;
-        }
-
-        .table-section {
+            height: 200px;
+            margin: 25px 0;
             background: #f8f9fa;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+            border-radius: 10px;
+            padding: 15px;
         }
 
-        .pl-table {
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+            font-size: 0.9em;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+
+        /* アクションボタン */
+        .action-section {
+            display: flex;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .action-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary { background: #e74c3c; color: white; }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-info { background: #3498db; color: white; }
+        .btn-warning { background: #f39c12; color: white; }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* テーブル */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 25px;
+        }
+
+        table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 11px;
-            margin-top: 15px;
+            min-width: 1400px;
+            font-size: 0.85em;
+            background: white;
         }
 
-        .pl-table th,
-        .pl-table td {
-            padding: 6px 5px;
-            text-align: right;
+        th, td {
+            padding: 12px 8px;
+            text-align: center;
             border: 1px solid #ddd;
-            line-height: 1.3;
         }
 
-        .pl-table th {
+        th {
             background: #34495e;
             color: white;
             font-weight: 700;
             position: sticky;
             top: 0;
-            font-size: 12px;
-            padding: 8px 5px;
+            z-index: 10;
         }
 
-        .pl-table th:first-child,
-        .pl-table td:first-child {
+        .dept-header { background: #e74c3c !important; }
+        .month-header { background: #3498db !important; }
+        .total-header { background: #27ae60 !important; }
+
+        .item-name {
             text-align: left;
             font-weight: 700;
+            background: #ecf0f1;
+            padding-left: 15px;
+            min-width: 200px;
         }
 
-        .pl-table tr:hover {
-            background: rgba(52, 73, 94, 0.08);
+        .sales-row { background: rgba(52, 152, 219, 0.1); }
+        .cogs-row { background: rgba(231, 76, 60, 0.1); }
+        .gross-profit-row { background: rgba(39, 174, 96, 0.1); font-weight: 700; }
+        .personnel-row { background: rgba(155, 89, 182, 0.1); }
+        .expenses-row { background: rgba(243, 156, 18, 0.1); }
+        .others-fixed-row { background: rgba(255, 152, 0, 0.1); }
+        .total-expenses-row { background: rgba(231, 76, 60, 0.15); font-weight: 700; }
+        .operating-profit-row { background: rgba(39, 174, 96, 0.15); font-weight: 800; }
+
+        .positive { color: #27ae60; font-weight: 700; }
+        .negative { color: #e74c3c; font-weight: 700; }
+
+        /* 仕様情報 */
+        .spec-info {
+            background: linear-gradient(135deg, #fdf2f2 0%, #fef5f5 100%);
+            border: 3px solid #e74c3c;
+            border-left: 8px solid #c0392b;
+            padding: 20px;
+            margin-top: 25px;
+            border-radius: 10px;
+            font-size: 0.95em;
+            line-height: 1.7;
         }
 
-        .sales-row { background: rgba(39, 174, 96, 0.12); }
-        .expense-row { background: rgba(231, 76, 60, 0.12); }
-        .profit-row { background: rgba(52, 152, 219, 0.12); font-weight: 700; }
-        .total-row { background: rgba(52, 73, 94, 0.25); font-weight: 700; }
-
-        .status-indicator {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 8px;
-            vertical-align: middle;
+        .spec-info strong {
+            color: #2c3e50;
+            font-weight: 800;
         }
 
-        .status-ok { background: #27ae60; }
-        .status-warning { background: #f39c12; }
-        .status-error { background: #e74c3c; }
+        .spec-highlight {
+            background: rgba(231, 76, 60, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #e74c3c;
+        }
 
+        /* デバッグ情報表示 */
+        .debug-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 0.8em;
+            color: #495057;
+        }
+
+        /* レスポンシブ */
         @media (max-width: 768px) {
-            .main-title {
-                font-size: 28px;
-            }
-
-            .nav-buttons {
-                gap: 8px;
-            }
-
-            .btn-nav {
-                padding: 10px 15px;
-                font-size: 12px;
-            }
-
-            .control-table td {
-                display: block;
-                width: 100%;
-                text-align: center;
-                padding: 5px 0;
-            }
-
-            .control-group {
-                justify-content: center;
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-
-            .control-item {
-                font-size: 12px;
-            }
-
-            .control-item select {
-                width: 90px;
-                font-size: 10px;
-            }
-
-            .btn-action {
-                padding: 6px 12px;
-                font-size: 11px;
-            }
-
-            .pl-table {
-                font-size: 10px;
-            }
-
-            .pl-table th,
-            .pl-table td {
-                padding: 6px 4px;
-            }
+            .main-title { font-size: 1.8em; }
+            .nav-buttons { flex-direction: column; }
+            .kpi-section { grid-template-columns: 1fr; }
+            .status-grid { grid-template-columns: 1fr; }
+            .chart-legend { flex-direction: column; gap: 10px; }
+            .action-section { flex-direction: column; }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- ヘッダー -->
         <header class="header">
-            <div class="title-section">
-                <h1 class="main-title">全体PLanalysis システム（4事業部統合）</h1>
+            <!-- 1行目: タイトル -->
+            <div class="header-row1">
+                <h1 class="main-title">4事業部統合PLシステム</h1>
+                <p class="subtitle">v3.0販管費動的統合対応版・役員報酬自動連携・前年実績データ更新</p>
             </div>
 
-            <div class="nav-section">
+            <!-- 2行目: ナビゲーション -->
+            <div class="header-row2">
                 <div class="nav-buttons">
-                    <a href="../index.html" class="btn-nav">メインダッシュボード</a>
-                    <a href="../budget-input.html" class="btn-nav">予算入力</a>
-                    <a href="../department-pl/sr-pl.html" class="btn-nav">SR事業部PL</a>
-                    <a href="../department-pl/w-pl.html" class="btn-nav">W事業部PL</a>
-                    <a href="../department-pl/rc-pl.html" class="btn-nav">RC支店事業部PL</a>
-                    <a href="../department-pl/rcd-pl.html" class="btn-nav">RCD社事業部PL</a>
-                    <a href="index.html" class="btn-nav active">全体PL分析</a>
+                    <a href="../index.html" class="btn">ダッシュボード</a>
+                    <a href="../budget-input.html" class="btn">予算入力</a>
+                    <a href="../departments/sr-pl.html" class="btn">SR事業部</a>
+                    <a href="../departments/w-pl.html" class="btn">W事業部</a>
+                    <a href="../departments/rc-pl.html" class="btn">RC市事業部</a>
+                    <a href="../departments/rcd-pl.html" class="btn">RCD社事業部</a>
                 </div>
             </div>
 
-            <div class="control-section">
-                <table class="control-table">
-                    <tr>
-                        <td class="status-cell">
-                            <div id="linkage-status" class="linkage-status linkage-error">
-                                <span class="status-indicator status-error"></span>
-                                データが見つかりません
-                            </div>
-                        </td>
-                        <td class="controls-cell">
-                            <div class="control-group">
-                                <div class="control-item">
-                                    <span>役員報酬:</span>
-                                    <input type="number" id="executive-salary" value="6755" min="0" max="10000" step="100">
-                                    <span style="font-size: 11px;">万円/月</span>
-                                </div>
-                                <div class="control-item">
-                                    <span>役員賞与:</span>
-                                    <input type="number" id="executive-bonus" value="300" min="0" max="2000" step="50">
-                                    <span style="font-size: 11px;">万円</span>
-                                </div>
-                                <div class="control-item">
-                                    <span>表示期間:</span>
-                                    <select id="period-select">
-                                        <option value="12">年間（12ヶ月）</option>
-                                        <option value="6">半期（6ヶ月）</option>
-                                        <option value="3">四半期（3ヶ月）</option>
-                                    </select>
-                                </div>
-                                <div class="control-item">
-                                    <span>最終更新:</span>
-                                    <span id="last-update">未取得</span>
-                                </div>
-                                <button class="btn-action btn-update" onclick="loadAllData()">データ再読み込み</button>
-                                <button class="btn-action btn-csv" onclick="exportCSV()">📊 CSV出力</button>
-                                <button class="btn-action btn-test" onclick="loadTestData()">🧪 テストデータ</button>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
+            <!-- 3行目: KPI表示 -->
+            <div class="header-row3">
+                <div class="kpi-section">
+                    <div class="kpi-card" id="total-sales-card">
+                        <div class="kpi-label">統合年間売上</div>
+                        <div class="kpi-value" id="total-sales">---万円</div>
+                        <div class="kpi-detail">4事業部合計</div>
+                    </div>
+                    <div class="kpi-card" id="total-profit-card">
+                        <div class="kpi-label">統合営業利益</div>
+                        <div class="kpi-value" id="total-profit">---万円</div>
+                        <div class="kpi-detail">販管費動的統合</div>
+                    </div>
+                    <div class="kpi-card" id="profit-rate-card">
+                        <div class="kpi-label">統合利益率</div>
+                        <div class="kpi-value" id="profit-rate">---%</div>
+                        <div class="kpi-detail">前年比較対応</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">データ統合状況</div>
+                        <div class="kpi-value" id="integration-count">-/4</div>
+                        <div class="kpi-detail">事業部連携完了</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4行目: 各事業部ステータス -->
+            <div class="header-row4">
+                <div class="status-grid">
+                    <div id="sr-status" class="dept-status status-warning">SR事業部: 待機中</div>
+                    <div id="w-status" class="dept-status status-warning">W事業部: 待機中</div>
+                    <div id="rc-status" class="dept-status status-warning">RC市: 待機中</div>
+                    <div id="rcd-status" class="dept-status status-warning">RCD社: 待機中</div>
+                </div>
             </div>
         </header>
 
+        <!-- メインコンテンツ -->
         <main class="main-content">
-            <div class="chart-section">
-                <h3 class="section-title">📈 前期比較推移（売上・営業利益）</h3>
-                <div class="chart-container">
-                    <canvas id="comparisonChart"></canvas>
+            <h2 class="section-title">4事業部統合月次PL（販管費動的統合対応）</h2>
+            
+            <!-- デバッグ情報（開発用） -->
+            <div class="debug-info" id="debug-info" style="display: none;">
+                <strong>デバッグ情報:</strong><br>
+                <span id="debug-content">初期化中...</span>
+            </div>
+            
+            <!-- チャート表示 -->
+            <div class="chart-container">
+                <canvas id="integratedChart"></canvas>
+            </div>
+            <div class="chart-legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #e74c3c;"></div>
+                    <span>統合売上高</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #27ae60;"></div>
+                    <span>統合営業利益</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #f39c12;"></div>
+                    <span>統合販管費（動的）</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #9b59b6;"></div>
+                    <span>役員報酬（自動連携）</span>
                 </div>
             </div>
 
-            <div class="table-section">
-                <h3 class="section-title">📊 月次損益計算書（4事業部統合）</h3>
-                <table class="pl-table">
+            <!-- アクションボタン -->
+            <div class="action-section">
+                <button class="action-btn btn-primary" onclick="refreshIntegrationData()">データ統合更新</button>
+                <button class="action-btn btn-success" onclick="exportIntegratedCSV()">統合PLエクスポート</button>
+                <button class="action-btn btn-info" onclick="checkDashboardLink()">役員報酬連携確認</button>
+                <button class="action-btn btn-warning" onclick="validateAllData()">データ整合性チェック</button>
+                <button class="action-btn btn-info" onclick="toggleDebugInfo()">デバッグ情報表示</button>
+                <button class="action-btn btn-warning" onclick="inspectLocalStorage()">LocalStorage検査</button>
+            </div>
+
+            <!-- 統合PLテーブル -->
+            <div class="table-container">
+                <table id="integrated-table">
                     <thead>
                         <tr>
-                            <th style="width: 120px;">項目</th>
-                            <th>7月</th>
-                            <th>8月</th>
-                            <th>9月</th>
-                            <th>10月</th>
-                            <th>11月</th>
-                            <th>12月</th>
-                            <th>1月</th>
-                            <th>2月</th>
-                            <th>3月</th>
-                            <th>4月</th>
-                            <th>5月</th>
-                            <th>6月</th>
-                            <th>年間合計</th>
+                            <th>統合PL項目</th>
+                            <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
+                            <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
+                            <th>年間計</th>
                         </tr>
                     </thead>
-                    <tbody id="pl-table-body">
-                        <!-- データはJavaScriptで動的に生成 -->
+                    <tbody id="integrated-tbody">
+                        <tr>
+                            <td class="item-name">データ読み込み中...</td>
+                            <td colspan="13">統合処理を実行中です</td>
+                        </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- システム仕様説明 -->
+            <div class="spec-info">
+                <strong>4事業部統合PLシステム v3.0（販管費動的統合対応版）主要機能</strong><br>
+                各事業部の実際の販管費変動を動的に統合し、高精度なシミュレーション結果を提供します。
+                
+                <div class="spec-highlight">
+                    <strong>v3.0新機能:</strong><br>
+                    ✓ 販管費動的統合: 各事業部のexpenses配列から実際の変動を反映 <br>
+                    ✓ 役員報酬自動連携: ダッシュボードから最新データを取得<br>
+                    ✓ 前年実績更新: 正確な前年比較データに更新<br>
+                    ✓ リアルタイム統合: LocalStorageキー「pl_system_*_data」で自動連携<br>
+                    ✓ データ検証機能: 4事業部データの整合性を自動チェック<br>
+                    ✓ エラーハンドリング強化: 安定動作とデバッグ機能追加 <br>
+                    ✓ LocalStorage検査機能: データ取り込み問題を詳細診断<br>
+                    ✓ その他固定費統合対応: SR事業部の詳細費目を正確に反映
+                </div>
             </div>
         </main>
     </div>
 
     <script>
-        // システム設定
-        const SYSTEM_CONFIG = {
-            departments: ['sr', 'w', 'rc', 'rcd'],
-            departmentNames: {
-                sr: 'SR事業部',
-                w: 'W事業部', 
-                rc: 'RC卸事業部',
-                rcd: 'RCD社事業部'
-            },
-            months: ['jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'jan', 'feb', 'mar', 'apr', 'may', 'jun'],
-            monthNames: ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月']
+        // 4事業部統合PLシステム v3.0 データ取り込み修正版
+        
+        // グローバル変数
+        let integratedChart = null;
+        let debugMode = false;
+        
+        // LocalStorageキー（既存システムとの互換性を重視）
+        const STORAGE_KEYS = {
+            // v3.0統合用キー（優先）
+            sr: 'pl_system_sr_data',
+            w: 'pl_system_w_data',
+            rc: 'pl_system_rc_data',
+            rcd: 'pl_system_rcd_data',
+            
+            // レガシーキー（フォールバック用）
+            sr_legacy: 'sr_dashboard_data',
+            w_legacy: 'w_dashboard_data',
+            rc_legacy: 'rc_dashboard_data',
+            rcd_legacy: 'rcd_dashboard_data',
+            
+            // ダッシュボード系
+            dashboard: 'dashboard_data',
+            executive_compensation: 'executive_compensation_data'
         };
 
-        // データストレージ
-        let systemData = {
-            departments: {},
-            combined: {
-                personnel: new Array(12).fill(0),
+        const INTEGRATION_CONFIG = {
+            requiredFields: ['sales', 'cogs', 'personnel', 'expenses'],
+            monthCount: 12,
+            validationLevel: 'flexible', // strictから変更
+            autoRefresh: false,
+            refreshInterval: 30000
+        };
+
+        // UI管理機能
+        const UI_MANAGER = {
+            months: ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'],
+            
+            // ★修正: 統合データ構造拡張（othersFixed等を追加）
+            integratedData: {
+                sales: new Array(12).fill(0),
                 cogs: new Array(12).fill(0),
-                executive: {
-                    salary: 6755,
-                    bonus: 300
+                personnel: new Array(12).fill(0),
+                expenses: new Array(12).fill(0),
+                
+                // ★新規追加: 個別費用項目
+                logistics: new Array(12).fill(0),
+                rent: new Array(12).fill(0),
+                outsourcing: new Array(12).fill(0),
+                freight: new Array(12).fill(0),
+                advertising: new Array(12).fill(0),
+                utilities: new Array(12).fill(0),
+                fees: new Array(12).fill(0),
+                othersFixed: new Array(12).fill(0), // ★SR事業部のその他固定費統合
+                
+                executiveComp: new Array(12).fill(2537),
+                legalWelfare: new Array(12).fill(0),
+                otherFixedCosts: new Array(12).fill(137),
+                metadata: {
+                    lastUpdate: null,
+                    activeDepartments: [],
+                    version: '3.0'
                 }
             },
-            lastUpdate: null
-        };
 
-        // Chart.js インスタンス
-        let comparisonChart;
-
-        // 前期実績データ（固定値）
-        const previousYearData = {
-            sales: [161079, 193592, 166322, 203795, 174747, 217615, 188572, 201380, 189491, 204567, 199178, 214260],
-            operatingProfit: [-4811, 1597, 40, 3972, 3205, 5866, 3011, -1386, -759, 791, 644, -3255]
-        };
-
-        // 固定費データ（月次）
-        const fixedExpenses = {
-            welfare: [1072, 1072, 1072, 877, 877, 877, 877, 877, 877, 877, 877, 916],
-            others: [2537, 2537, 2537, 2537, 2537, 2537, 2537, 2537, 2537, 2537, 2537, 2537]
-        };
-
-        // 初期化
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('PC合計ページ初期化開始...');
-            initializeChart();
-            initializeInputListeners();
-            loadAllData();
-            updateDisplay();
-            console.log('PC合計ページ初期化完了');
-        });
-
-        // チャート初期化
-        function initializeChart() {
-            const ctx = document.getElementById('comparisonChart').getContext('2d');
-            comparisonChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: SYSTEM_CONFIG.monthNames,
-                    datasets: [
-                        {
-                            label: '前期売上高',
-                            data: previousYearData.sales,
-                            borderColor: '#95a5a6',
-                            borderDash: [5, 5],
-                            fill: false,
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: '当期売上高',
-                            data: new Array(12).fill(0),
-                            borderColor: '#3498db',
-                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                            fill: false,
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: '前期営業利益',
-                            data: previousYearData.operatingProfit,
-                            borderColor: '#e74c3c',
-                            borderDash: [5, 5],
-                            fill: false,
-                            yAxisID: 'y1'
-                        },
-                        {
-                            label: '当期営業利益',
-                            data: new Array(12).fill(0),
-                            borderColor: '#27ae60',
-                            backgroundColor: 'rgba(39, 174, 96, 0.1)',
-                            fill: false,
-                            yAxisID: 'y1'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                            labels: { font: { size: 12 }, padding: 15, usePointStyle: true }
-                        }
-                    },
-                    scales: {
-                        x: { ticks: { font: { size: 11 } } },
-                        y: {
-                            type: 'linear',
-                            display: true,
-                            position: 'left',
-                            title: { display: true, text: '売上高（千円）', color: '#3498db' },
-                            ticks: { color: '#3498db' },
-                            grid: { drawOnChartArea: true }
-                        },
-                        y1: {
-                            type: 'linear',
-                            display: true,
-                            position: 'right',
-                            title: { display: true, text: '営業利益（千円）', color: '#27ae60' },
-                            ticks: { color: '#27ae60' },
-                            grid: { drawOnChartArea: false }
+            // デバッグログ
+            logDebug: function(message, data = null) {
+                console.log(`[統合PLシステム] ${message}`, data || '');
+                if (debugMode) {
+                    const debugElement = document.getElementById('debug-content');
+                    if (debugElement) {
+                        const timestamp = new Date().toLocaleTimeString();
+                        debugElement.innerHTML += `<br>[${timestamp}] ${message}`;
+                        if (data) {
+                            debugElement.innerHTML += `<br>　　　　　　${JSON.stringify(data, null, 2)}`;
                         }
                     }
                 }
-            });
-        }
+            },
 
-        // 入力フィールドリスナー設定
-        function initializeInputListeners() {
-            document.getElementById('executive-salary').addEventListener('change', function() {
-                systemData.combined.executive.salary = parseInt(this.value) || 6755;
-                updateDisplay();
-            });
-
-            document.getElementById('executive-bonus').addEventListener('change', function() {
-                systemData.combined.executive.bonus = parseInt(this.value) || 300;
-                updateDisplay();
-            });
-        }
-
-        // 全データ読み込み
-        function loadAllData() {
-            console.log('全データ読み込み開始...');
-            
-            // LocalStorageから各事業部データを読み込み
-            let loadedDepartments = 0;
-            let hasValidData = false;
-
-            SYSTEM_CONFIG.departments.forEach(dept => {
-                const data = loadDepartmentData(dept);
-                if (data) {
-                    systemData.departments[dept] = data;
-                    loadedDepartments++;
-                    if (data.hasValidSales) {
-                        hasValidData = true;
-                    }
-                }
-            });
-
-            // 統合人件費データ読み込み
-            loadCombinedPersonnelData();
-            
-            // 役員報酬データ読み込み
-            loadExecutiveData();
+            // 数値フォーマット
+            formatNumber: function(num) {
+                if (isNaN(num) || num === null || num === undefined) return '0';
+                return Math.round(num).toLocaleString();
+            },
 
             // ステータス更新
-            updateLinkageStatus(loadedDepartments, hasValidData);
-            
-            // 表示更新
-            updateDisplay();
-            
-            systemData.lastUpdate = new Date().toLocaleString();
-            document.getElementById('last-update').textContent = systemData.lastUpdate;
-            
-            console.log('全データ読み込み完了:', systemData);
-        }
-
-        // 事業部データ読み込み
-        function loadDepartmentData(dept) {
-            try {
-                console.log(`${dept}事業部データ読み込み開始...`);
-                
-                // SR・W事業部の統合PL用データ読み込み
-                if (dept === 'sr' || dept === 'w') {
-                    const storageKeys = [
-                        `pl_system_${dept}_data`, // 統合PL用キー（優先）
-                        `${dept}_dashboard_data`,
-                        `${dept}_sales_data`
-                    ];
-                    
-                    let data = null;
-                    let usedKey = '';
-                    for (const key of storageKeys) {
-                        const stored = localStorage.getItem(key);
-                        if (stored) {
-                            data = JSON.parse(stored);
-                            usedKey = key;
-                            console.log(`${dept}データを${key}から読み込み:`, data);
-                            break;
-                        }
+            updateDeptStatus: function(dept, status, message) {
+                try {
+                    const statusElement = document.getElementById(`${dept}-status`);
+                    if (statusElement) {
+                        statusElement.className = `dept-status status-${status}`;
+                        statusElement.textContent = `${dept.toUpperCase()}事業部: ${message}`;
                     }
-                    
-                    if (!data) return null;
-                    
-                    const result = {
-                        name: SYSTEM_CONFIG.departmentNames[dept],
-                        sales: new Array(12).fill(0),
-                        cogs: new Array(12).fill(0),
-                        personnel: new Array(12).fill(0),
-                        hasValidSales: false,
-                        lastUpdate: data.metadata?.lastUpdate || data.timestamp
-                    };
-
-                    // 統合PL用データ構造（各事業部のsendIntegrationData対応）
-                    if (usedKey === `pl_system_${dept}_data` && data.sales && Array.isArray(data.sales)) {
-                        result.sales = data.sales.map(val => Math.round(Number(val) || 0));
-                        
-                        // 仕入データ
-                        if (data.cogs && Array.isArray(data.cogs)) {
-                            result.cogs = data.cogs.map(val => Math.round(Number(val) || 0));
-                        }
-                        
-                        // 人件費データ
-                        if (data.personnel && Array.isArray(data.personnel)) {
-                            result.personnel = data.personnel.map(val => Math.round(Number(val) || 0));
-                        }
-                        
-                        console.log(`${dept}統合PL用データ読み込み成功:`, {
-                            sales: result.sales,
-                            cogs: result.cogs,
-                            personnel: result.personnel
-                        });
-                    } else {
-                        // レガシー形式のデータ読み込み
-                        if (data.monthlySales && Array.isArray(data.monthlySales)) {
-                            result.sales = data.monthlySales.map(val => Math.round(Number(val) || 0));
-                        } else if (data.monthly && Array.isArray(data.monthly)) {
-                            result.sales = data.monthly.map(m => Math.round(Number(m.sales || m.revenue) || 0));
-                        }
-                        
-                        if (data.monthly && Array.isArray(data.monthly)) {
-                            result.cogs = data.monthly.map(m => Math.round(Number(m.cogs || m.cost) || 0));
-                            result.personnel = data.monthly.map(m => Math.round(Number(m.personnel) || 0));
-                        }
-                    }
-                    
-                    result.hasValidSales = result.sales.some(val => val > 0);
-                    return result;
+                    this.logDebug(`${dept}事業部ステータス更新: ${status} - ${message}`);
+                } catch (error) {
+                    this.logDebug(`ステータス更新エラー(${dept})`, error.message);
                 }
-                
-                // RC卸事業部の特別処理
-                if (dept === 'rc') {
-                    const storageKeys = [
-                        'pl_system_rc_data',
-                        'rc_dashboard_data',
-                        'rc_sales_data',
-                        'rc_linkage_data'
-                    ];
-                    
-                    let data = null;
-                    for (const key of storageKeys) {
-                        const stored = localStorage.getItem(key);
-                        if (stored) {
-                            data = JSON.parse(stored);
-                            console.log(`RC卸データを${key}から読み込み:`, data);
-                            break;
-                        }
-                    }
-                    
-                    if (!data) return null;
-                    
-                    const result = {
-                        name: SYSTEM_CONFIG.departmentNames[dept],
-                        sales: new Array(12).fill(0),
-                        cogs: new Array(12).fill(0),
-                        personnel: new Array(12).fill(0),
-                        hasValidSales: false,
-                        lastUpdate: data.metadata?.lastUpdate || data.timestamp
-                    };
-                    
-                    // 統合PL用データ構造対応
-                    if (data.sales && Array.isArray(data.sales)) {
-                        result.sales = data.sales.map(val => Math.round(Number(val) || 0));
-                        if (data.cogs && Array.isArray(data.cogs)) {
-                            result.cogs = data.cogs.map(val => Math.round(Number(val) || 0));
-                        }
-                        if (data.personnel && Array.isArray(data.personnel)) {
-                            result.personnel = data.personnel.map(val => Math.round(Number(val) || 0));
-                        }
-                    } else {
-                        // RC卸固有計算（基準売上+変動方式）
-                        const baseSales = 1500;
-                        const variations = [0, -200, -100, 150, 200, 300, -150, -100, 50, 100, -50, 0];
-                        result.sales = variations.map(variation => baseSales + variation);
-                        result.cogs = result.sales.map(sales => Math.round(sales * 0.352));
-                        result.personnel = new Array(12).fill(50);
-                    }
-                    
-                    result.hasValidSales = result.sales.some(val => val > 0);
-                    return result;
-                }
-                
-                // RCD社事業部の特別処理
-                if (dept === 'rcd') {
-                    const storageKeys = [
-                        'pl_system_rcd_data',
-                        'rcd_dashboard_data',
-                        'rcd_sales_data',
-                        'rcd_linkage_data'
-                    ];
-                    
-                    let data = null;
-                    for (const key of storageKeys) {
-                        const stored = localStorage.getItem(key);
-                        if (stored) {
-                            data = JSON.parse(stored);
-                            console.log(`RCD社データを${key}から読み込み:`, data);
-                            break;
-                        }
-                    }
-                    
-                    if (!data) return null;
-                    
-                    const result = {
-                        name: SYSTEM_CONFIG.departmentNames[dept],
-                        sales: new Array(12).fill(0),
-                        cogs: new Array(12).fill(0),
-                        personnel: new Array(12).fill(0), // 外部委託のため0
-                        hasValidSales: false,
-                        lastUpdate: data.metadata?.lastUpdate || data.timestamp
-                    };
-                    
-                    // 統合PL用データ構造対応
-                    if (data.sales && Array.isArray(data.sales)) {
-                        result.sales = data.sales.map(val => Math.round(Number(val) || 0));
-                        if (data.cogs && Array.isArray(data.cogs)) {
-                            result.cogs = data.cogs.map(val => Math.round(Number(val) || 0));
-                        }
-                    } else {
-                        // RCD社固有計算（8本/月 × 2000万円 × 1.03）
-                        const purchaseCount = 8;
-                        const unitPrice = 2000;
-                        const profitRate = 0.03;
-                        
-                        result.sales = new Array(12).fill(Math.round(purchaseCount * unitPrice * (1 + profitRate)));
-                        result.cogs = new Array(12).fill(purchaseCount * unitPrice);
-                    }
-                    
-                    // RCD社は外部委託のため人件費0
-                    result.personnel = new Array(12).fill(0);
-                    
-                    result.hasValidSales = result.sales.some(val => val > 0);
-                    return result;
-                }
-                
-                return null;
-                
-            } catch (error) {
-                console.error(`${dept}事業部データ読み込みエラー:`, error);
-                return null;
-            }
-        }
+            },
 
-        // 統合人件費データ読み込み
-        function loadCombinedPersonnelData() {
-            try {
-                const combinedData = localStorage.getItem('pl_system_combined_data');
-                if (combinedData) {
-                    const parsed = JSON.parse(combinedData);
-                    if (parsed.personnel && parsed.personnel.monthly) {
-                        systemData.combined.personnel = parsed.personnel.monthly.map(val => Math.round(Number(val) || 0));
+            // KPI更新
+            updateKPIs: function() {
+                try {
+                    const annualSales = this.integratedData.sales.reduce((sum, val) => sum + (val || 0), 0);
+                    const annualCogs = this.integratedData.cogs.reduce((sum, val) => sum + (val || 0), 0);
+                    const annualPersonnel = this.integratedData.personnel.reduce((sum, val) => sum + (val || 0), 0);
+                    const annualExpenses = this.integratedData.expenses.reduce((sum, val) => sum + (val || 0), 0);
+                    const annualExecComp = this.integratedData.executiveComp.reduce((sum, val) => sum + (val || 0), 0);
+                    const annualLegalWelfare = this.integratedData.legalWelfare.reduce((sum, val) => sum + (val || 0), 0);
+                    const annualOtherFixed = this.integratedData.otherFixedCosts.reduce((sum, val) => sum + (val || 0), 0);
+                    
+                    // ★修正: その他固定費統合を加算
+                    const annualOthersFixed = this.integratedData.othersFixed.reduce((sum, val) => sum + (val || 0), 0);
+                    
+                    const grossProfit = annualSales - annualCogs;
+                    const totalExpenses = annualPersonnel + annualExpenses + annualExecComp + annualLegalWelfare + annualOtherFixed + annualOthersFixed;
+                    const operatingProfit = grossProfit - totalExpenses;
+                    const profitRate = annualSales > 0 ? (operatingProfit / annualSales * 100).toFixed(1) : '0.0';
+
+                    // KPIカード更新
+                    const salesElement = document.getElementById('total-sales');
+                    const profitElement = document.getElementById('total-profit');
+                    const rateElement = document.getElementById('profit-rate');
+                    const countElement = document.getElementById('integration-count');
+
+                    if (salesElement) salesElement.textContent = `${this.formatNumber(annualSales)}万円`;
+                    if (profitElement) profitElement.textContent = `${this.formatNumber(operatingProfit)}万円`;
+                    if (rateElement) rateElement.textContent = `${profitRate}%`;
+                    if (countElement) countElement.textContent = `${this.integratedData.metadata.activeDepartments.length}/4`;
+
+                    // 動的色分け
+                    const profitCard = document.getElementById('total-profit-card');
+                    const rateCard = document.getElementById('profit-rate-card');
+                    
+                    if (operatingProfit >= 0) {
+                        if (profitCard) profitCard.className = 'kpi-card positive';
+                        if (rateCard) rateCard.className = 'kpi-card positive';
+                        if (profitElement) profitElement.className = 'kpi-value positive';
+                        if (rateElement) rateElement.className = 'kpi-value positive';
+                    } else {
+                        if (profitCard) profitCard.className = 'kpi-card negative';
+                        if (rateCard) rateCard.className = 'kpi-card negative';
+                        if (profitElement) profitElement.className = 'kpi-value negative';
+                        if (rateElement) rateElement.className = 'kpi-value negative';
+                    }
+
+                    this.logDebug('KPI更新完了', {
+                        売上: annualSales,
+                        営業利益: operatingProfit,
+                        利益率: profitRate,
+                        アクティブ事業部: this.integratedData.metadata.activeDepartments.length,
+                        その他固定費統合: annualOthersFixed
+                    });
+                } catch (error) {
+                    this.logDebug('KPI更新エラー', error.message);
+                }
+            },
+
+            // チャート更新
+            updateChart: function() {
+                try {
+                    const ctx = document.getElementById('integratedChart');
+                    if (!ctx) {
+                        this.logDebug('チャート要素が見つかりません');
                         return;
                     }
-                }
-                
-                // 個別事業部から集計
-                systemData.combined.personnel = new Array(12).fill(0);
-                SYSTEM_CONFIG.departments.forEach(dept => {
-                    if (systemData.departments[dept] && systemData.departments[dept].personnel) {
-                        systemData.departments[dept].personnel.forEach((val, index) => {
-                            systemData.combined.personnel[index] += val;
-                        });
-                    }
-                });
-                
-            } catch (error) {
-                console.error('統合人件費データ読み込みエラー:', error);
-            }
-        }
 
-        // 役員データ読み込み
-        function loadExecutiveData() {
-            try {
-                const executiveData = localStorage.getItem('pl_system_executive_data');
-                if (executiveData) {
-                    const parsed = JSON.parse(executiveData);
-                    if (parsed.salary) systemData.combined.executive.salary = parsed.salary;
-                    if (parsed.bonus) systemData.combined.executive.bonus = parsed.bonus;
+                    // 既存チャート破棄
+                    if (integratedChart) {
+                        integratedChart.destroy();
+                        integratedChart = null;
+                    }
+
+                    // ★修正: 月次営業利益計算（その他固定費統合を含む）
+                    const monthlyOperatingProfit = this.integratedData.sales.map((sales, i) => {
+                        const cogs = this.integratedData.cogs[i] || 0;
+                        const personnel = this.integratedData.personnel[i] || 0;
+                        const expenses = this.integratedData.expenses[i] || 0;
+                        const execComp = this.integratedData.executiveComp[i] || 0;
+                        const welfare = this.integratedData.legalWelfare[i] || 0;
+                        const otherFixed = this.integratedData.otherFixedCosts[i] || 0;
+                        const othersFixed = this.integratedData.othersFixed[i] || 0; // ★追加
+                        
+                        const grossProfit = (sales || 0) - cogs;
+                        const totalExpenses = personnel + expenses + execComp + welfare + otherFixed + othersFixed;
+                        return grossProfit - totalExpenses;
+                    });
+
+                    integratedChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: this.months,
+                            datasets: [
+                                {
+                                    label: '統合売上高',
+                                    data: this.integratedData.sales,
+                                    backgroundColor: 'rgba(231, 76, 60, 0.8)',
+                                    borderColor: '#e74c3c',
+                                    borderWidth: 2,
+                                    yAxisID: 'y'
+                                },
+                                {
+                                    label: '統合営業利益',
+                                    data: monthlyOperatingProfit,
+                                    type: 'line',
+                                    backgroundColor: 'rgba(39, 174, 96, 0.8)',
+                                    borderColor: '#27ae60',
+                                    borderWidth: 3,
+                                    fill: false,
+                                    yAxisID: 'y1'
+                                },
+                                {
+                                    label: '統合販管費',
+                                    data: this.integratedData.expenses,
+                                    backgroundColor: 'rgba(243, 156, 18, 0.7)',
+                                    borderColor: '#f39c12',
+                                    borderWidth: 1,
+                                    yAxisID: 'y'
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    type: 'linear',
+                                    display: true,
+                                    position: 'left',
+                                    title: {
+                                        display: true,
+                                        text: '売上・費用（万円）',
+                                        color: '#e74c3c'
+                                    }
+                                },
+                                y1: {
+                                    type: 'linear',
+                                    display: true,
+                                    position: 'right',
+                                    title: {
+                                        display: true,
+                                        text: '営業利益（万円）',
+                                        color: '#27ae60'
+                                    },
+                                    grid: {
+                                        drawOnChartArea: false
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    this.logDebug('チャート更新完了');
+                } catch (error) {
+                    this.logDebug('チャート更新エラー', error.message);
+                }
+            },
+
+            // ★修正: 統合テーブル生成（その他固定費統合行を追加）
+            generateIntegratedTable: function() {
+                try {
+                    // 月次営業利益計算
+                    const monthlyResults = this.integratedData.sales.map((sales, i) => {
+                        const cogs = this.integratedData.cogs[i] || 0;
+                        const personnel = this.integratedData.personnel[i] || 0;
+                        const expenses = this.integratedData.expenses[i] || 0;
+                        const execComp = this.integratedData.executiveComp[i] || 0;
+                        const welfare = this.integratedData.legalWelfare[i] || 0;
+                        const otherFixed = this.integratedData.otherFixedCosts[i] || 0;
+                        const othersFixed = this.integratedData.othersFixed[i] || 0; // ★追加
+                        
+                        const grossProfit = (sales || 0) - cogs;
+                        const totalExpenses = personnel + expenses + execComp + welfare + otherFixed + othersFixed;
+                        const operatingProfit = grossProfit - totalExpenses;
+                        
+                        return {
+                            sales: sales || 0,
+                            cogs,
+                            grossProfit,
+                            personnel,
+                            expenses,
+                            execComp,
+                            welfare,
+                            otherFixed,
+                            othersFixed, // ★追加
+                            totalExpenses,
+                            operatingProfit
+                        };
+                    });
+
+                    // 年間合計計算
+                    const annual = {
+                        sales: monthlyResults.reduce((sum, m) => sum + m.sales, 0),
+                        cogs: monthlyResults.reduce((sum, m) => sum + m.cogs, 0),
+                        grossProfit: monthlyResults.reduce((sum, m) => sum + m.grossProfit, 0),
+                        personnel: monthlyResults.reduce((sum, m) => sum + m.personnel, 0),
+                        expenses: monthlyResults.reduce((sum, m) => sum + m.expenses, 0),
+                        execComp: monthlyResults.reduce((sum, m) => sum + m.execComp, 0),
+                        welfare: monthlyResults.reduce((sum, m) => sum + m.welfare, 0),
+                        otherFixed: monthlyResults.reduce((sum, m) => sum + m.otherFixed, 0),
+                        othersFixed: monthlyResults.reduce((sum, m) => sum + m.othersFixed, 0), // ★追加
+                        totalExpenses: monthlyResults.reduce((sum, m) => sum + m.totalExpenses, 0),
+                        operatingProfit: monthlyResults.reduce((sum, m) => sum + m.operatingProfit, 0)
+                    };
+
+                    // ★修正: テーブルHTML生成（その他固定費統合行を追加）
+                    let html = `
+                        <tr class="sales-row">
+                            <td class="item-name">統合売上高</td>
+                            ${monthlyResults.map(m => `<td>${this.formatNumber(m.sales)}</td>`).join('')}
+                            <td><strong>${this.formatNumber(annual.sales)}</strong></td>
+                        </tr>
+                        <tr class="cogs-row">
+                            <td class="item-name">統合仕入原価</td>
+                            ${monthlyResults.map(m => `<td>${this.formatNumber(m.cogs)}</td>`).join('')}
+                            <td><strong>${this.formatNumber(annual.cogs)}</strong></td>
+                        </tr>
+                        <tr class="gross-profit-row">
+                            <td class="item-name">統合売上総利益</td>
+                            ${monthlyResults.map(m => `<td>${this.formatNumber(m.grossProfit)}</td>`).join('')}
+                            <td><strong>${this.formatNumber(annual.grossProfit)}</strong></td>
+                        </tr>
+                        <tr><td colspan="14" style="border:none; padding:8px;"></td></tr>
+                        <tr class="personnel-row">
+                            <td class="item-name">統合人件費</td>
+                            ${monthlyResults.map(m => `<td>${this.formatNumber(m.personnel)}</td>`).join('')}
+                            <td><strong>${this.formatNumber(annual.personnel)}</strong></td>
+                        </tr>
+                        <tr class="expenses-row">
+                            <td class="item-name">統合販管費（動的）</td>
+                            ${monthlyResults.map(m => `<td>${this.formatNumber(m.expenses)}</td>`).join('')}
+                            <td><strong>${this.formatNumber(annual.expenses)}</strong></td>
+                        </tr>
+                        <tr class="expenses-row">
+                            <td class="item-name">役員報酬（自動連携）</td>
+                            ${monthlyResults.map(m => `<td>${this.formatNumber(m.execComp)}</td>`).join('')}
+                            <td><strong>${this.formatNumber(annual.execComp)}</strong></td>
+                        </tr>
+                        <tr class="expenses-row">
+                            <td class="item-name">法定福利費</td>
+                            ${monthlyResults.map(m => `<td>${this.formatNumber(m.welfare)}</td>`).join('')}
+                            <td><strong>${this.formatNumber(annual.welfare)}</strong></td>
+                        </tr>
+                        <tr class="expenses-row">
+                            <td class="item-name">その他固定費</td>
+                            ${monthlyResults.map(m => `<td>${this.formatNumber(m.otherFixed)}</td>`).join('')}
+                            <td><strong>${this.formatNumber(annual.otherFixed)}</strong></td>
+                        </tr>
+                        <tr class="others-fixed-row">
+                            <td class="item-name">その他固定費統合（SR）</td>
+                            ${monthlyResults.map(m => `<td>${this.formatNumber(m.othersFixed)}</td>`).join('')}
+                            <td><strong>${this.formatNumber(annual.othersFixed)}</strong></td>
+                        </tr>
+                        <tr class="total-expenses-row">
+                            <td class="item-name">販売管理費計</td>
+                            ${monthlyResults.map(m => `<td>${this.formatNumber(m.totalExpenses)}</td>`).join('')}
+                            <td><strong>${this.formatNumber(annual.totalExpenses)}</strong></td>
+                        </tr>
+                        <tr class="operating-profit-row">
+                            <td class="item-name">統合営業利益</td>
+                            ${monthlyResults.map(m => `<td class="${m.operatingProfit >= 0 ? 'positive' : 'negative'}">${this.formatNumber(m.operatingProfit)}</td>`).join('')}
+                            <td class="${annual.operatingProfit >= 0 ? 'positive' : 'negative'}"><strong>${this.formatNumber(annual.operatingProfit)}</strong></td>
+                        </tr>
+                    `;
+
+                    const tbodyElement = document.getElementById('integrated-tbody');
+                    if (tbodyElement) {
+                        tbodyElement.innerHTML = html;
+                    }
+
+                    this.logDebug('テーブル更新完了', { 
+                        年間売上: annual.sales, 
+                        年間利益: annual.operatingProfit,
+                        その他固定費統合: annual.othersFixed
+                    });
+                } catch (error) {
+                    this.logDebug('テーブル更新エラー', error.message);
+                }
+            }
+        };
+
+        // データ統合メインエンジン（修正版）
+        const INTEGRATION_ENGINE = {
+            // 柔軟なデータ読み込み（v3.0とレガシー両対応）
+            loadDepartmentData: function(dept) {
+                try {
+                    UI_MANAGER.logDebug(`${dept}事業部データ読み込み開始`);
                     
-                    // フォーム更新
-                    document.getElementById('executive-salary').value = systemData.combined.executive.salary;
-                    document.getElementById('executive-bonus').value = systemData.combined.executive.bonus;
-                }
-            } catch (error) {
-                console.error('役員データ読み込みエラー:', error);
-            }
-        }
-
-        // 表示更新
-        function updateDisplay() {
-            updatePLTable();
-            updateChart();
-        }
-
-        // PLテーブル更新
-        function updatePLTable() {
-            const tbody = document.getElementById('pl-table-body');
-            tbody.innerHTML = '';
-            
-            const tableData = calculatePLData();
-            
-            // 売上セクション
-            SYSTEM_CONFIG.departments.forEach(dept => {
-                if (systemData.departments[dept]) {
-                    const row = createTableRow(
-                        `${systemData.departments[dept].name}売上`,
-                        systemData.departments[dept].sales,
-                        'sales-row'
-                    );
-                    tbody.appendChild(row);
-                }
-            });
-            
-            // 売上合計
-            tbody.appendChild(createTableRow('A: 売上高 計', tableData.totalSales, 'total-row', true));
-            
-            // 仕入合計
-            tbody.appendChild(createTableRow('B: 仕入高 計', tableData.totalCOGS, 'expense-row', true));
-            
-            // 売上総利益
-            tbody.appendChild(createTableRow('C: 売上総利益', tableData.grossProfit, 'profit-row', true));
-            
-            // 人件費統合
-            tbody.appendChild(createTableRow('1: 人件費統合', systemData.combined.personnel, 'expense-row'));
-            
-            // 法定福利費
-            tbody.appendChild(createTableRow('2: 法定福利費', tableData.welfare, 'expense-row'));
-            
-            // その他固定費項目
-            const otherExpenses = [
-                ['3: 衛生費', 300],
-                ['4: 物流管理費', 2160],
-                ['5: 地代家賃', 5040],
-                ['6: 外注費', 2400],
-                ['7: 運送運賃', 1020],
-                ['8: 広告宣伝費', 1800],
-                ['9: 旅費交通費', 1440],
-                ['10: 通信費', 2160],
-                ['11: 販売促進費', 1140],
-                ['12: 消耗品費', 540],
-                ['13: 事務用品費', 420],
-                ['14: 水道光熱費', 1140],
-                ['15: 支払手数料', 1080],
-                ['16: リース料', 780],
-                ['17: 保険料', 900],
-                ['18: 支払報酬料', 1320],
-                ['19: 減価償却費', 2880],
-                ['21: 管理諸費', 1680],
-                ['22: 修繕費', 780],
-                ['23: 車両費', 1020],
-                ['24: 租税公課', 1440],
-                ['25: 交際費', 960],
-                ['26: 諸会費', 360],
-                ['27: 会議費', 180],
-                ['28: 福利厚生費', 540],
-                ['29: 研修費', 300],
-                ['30: 雑費', 660],
-                ['31: 寄付金', 180],
-                ['32: その他', 900]
-            ];
-            
-            otherExpenses.forEach(([name, annualAmount]) => {
-                const monthlyAmount = Math.round(annualAmount / 12);
-                tbody.appendChild(createTableRow(name, new Array(12).fill(monthlyAmount), 'expense-row'));
-            });
-            
-            // 役員報酬
-            tbody.appendChild(createTableRow('20: 役員報酬', tableData.executiveSalary, 'expense-row'));
-            
-            // 販売管理費計
-            tbody.appendChild(createTableRow('D: 販売管理費 計', tableData.totalExpenses, 'total-row', true));
-            
-            // 営業利益
-            tbody.appendChild(createTableRow('E: 営業利益', tableData.operatingProfit, 'profit-row', true));
-        }
-
-        // PLデータ計算
-        function calculatePLData() {
-            const totalSales = new Array(12).fill(0);
-            const totalCOGS = new Array(12).fill(0);
-            
-            // 各事業部データ集計
-            SYSTEM_CONFIG.departments.forEach(dept => {
-                if (systemData.departments[dept]) {
-                    systemData.departments[dept].sales.forEach((val, index) => {
-                        totalSales[index] += val;
-                    });
-                    systemData.departments[dept].cogs.forEach((val, index) => {
-                        totalCOGS[index] += val;
-                    });
-                }
-            });
-            
-            const grossProfit = totalSales.map((sales, index) => sales - totalCOGS[index]);
-            
-            // 役員報酬計算
-            const executiveSalary = SYSTEM_CONFIG.months.map((month, index) => {
-                let monthlySalary = systemData.combined.executive.salary;
-                if (index <= 2) monthlySalary += 1500; // 前期役員報酬調整
-                if (month === 'jun') monthlySalary += systemData.combined.executive.bonus; // 賞与
-                return monthlySalary;
-            });
-            
-            // 法定福利費計算
-            const welfare = executiveSalary.map(salary => Math.round(salary * 0.13002));
-            
-            // 総経費計算
-            const totalExpenses = SYSTEM_CONFIG.months.map((month, index) => {
-                return systemData.combined.personnel[index] + 
-                       welfare[index] + 
-                       executiveSalary[index] + 
-                       fixedExpenses.others[index];
-            });
-            
-            const operatingProfit = grossProfit.map((profit, index) => profit - totalExpenses[index]);
-            
-            return {
-                totalSales,
-                totalCOGS,
-                grossProfit,
-                welfare,
-                executiveSalary,
-                totalExpenses,
-                operatingProfit
-            };
-        }
-
-        // テーブル行作成
-        function createTableRow(label, data, className = '', isBold = false) {
-            const row = document.createElement('tr');
-            row.className = className;
-            
-            const labelCell = document.createElement('td');
-            labelCell.textContent = label;
-            if (isBold) labelCell.innerHTML = `<strong>${label}</strong>`;
-            row.appendChild(labelCell);
-            
-            // 月次データ
-            data.forEach(value => {
-                const cell = document.createElement('td');
-                const displayValue = Number(value).toLocaleString();
-                cell.textContent = displayValue;
-                if (isBold) cell.innerHTML = `<strong>${displayValue}</strong>`;
-                
-                // 営業利益の色分け
-                if (className === 'profit-row' && value < 0) {
-                    cell.style.color = '#e74c3c';
-                } else if (className === 'profit-row' && value > 0) {
-                    cell.style.color = '#27ae60';
-                }
-                
-                row.appendChild(cell);
-            });
-            
-            // 年間合計
-            const totalCell = document.createElement('td');
-            const total = data.reduce((sum, val) => sum + val, 0);
-            const displayTotal = total.toLocaleString();
-            totalCell.textContent = displayTotal;
-            if (isBold) totalCell.innerHTML = `<strong>${displayTotal}</strong>`;
-            
-            if (className === 'profit-row' && total < 0) {
-                totalCell.style.color = '#e74c3c';
-            } else if (className === 'profit-row' && total > 0) {
-                totalCell.style.color = '#27ae60';
-            }
-            
-            row.appendChild(totalCell);
-            
-            return row;
-        }
-
-        // チャート更新
-        function updateChart() {
-            const tableData = calculatePLData();
-            
-            comparisonChart.data.datasets[1].data = tableData.totalSales;
-            comparisonChart.data.datasets[3].data = tableData.operatingProfit;
-            comparisonChart.update();
-        }
-
-        // ステータス更新
-        function updateLinkageStatus(loadedCount, hasValidData) {
-            const statusElement = document.getElementById('linkage-status');
-            
-            if (hasValidData) {
-                statusElement.className = 'linkage-status linkage-success';
-                statusElement.innerHTML = `<span class="status-indicator status-ok"></span>✓ ${loadedCount}/4事業部データ連携完了`;
-            } else if (loadedCount > 0) {
-                statusElement.className = 'linkage-status linkage-warning';
-                statusElement.innerHTML = `<span class="status-indicator status-warning"></span>⚠ ${loadedCount}/4事業部データ読み込み済み（売上未入力）`;
-            } else {
-                statusElement.className = 'linkage-status linkage-error';
-                statusElement.innerHTML = '<span class="status-indicator status-error"></span>✗ データが見つかりません';
-            }
-        }
-
-        // CSV出力
-        function exportCSV() {
-            try {
-                const tableData = calculatePLData();
-                const csvData = [
-                    ['項目', ...SYSTEM_CONFIG.monthNames, '年間合計']
-                ];
-                
-                // 各事業部売上
-                SYSTEM_CONFIG.departments.forEach(dept => {
-                    if (systemData.departments[dept]) {
-                        const row = [
-                            `${systemData.departments[dept].name}売上`,
-                            ...systemData.departments[dept].sales,
-                            systemData.departments[dept].sales.reduce((sum, val) => sum + val, 0)
-                        ];
-                        csvData.push(row);
+                    // v3.0形式を優先
+                    let data = localStorage.getItem(STORAGE_KEYS[dept]);
+                    let dataSource = 'v3.0';
+                    
+                    // v3.0にデータがない場合はレガシーキーを試行
+                    if (!data) {
+                        data = localStorage.getItem(STORAGE_KEYS[dept + '_legacy']);
+                        dataSource = 'legacy';
+                        UI_MANAGER.logDebug(`${dept}事業部: v3.0データなし、レガシーキーを確認`);
                     }
+                    
+                    if (!data) {
+                        UI_MANAGER.updateDeptStatus(dept, 'warning', 'データなし');
+                        UI_MANAGER.logDebug(`${dept}事業部: すべてのキーでデータなし`);
+                        return null;
+                    }
+
+                    const parsedData = JSON.parse(data);
+                    UI_MANAGER.logDebug(`${dept}事業部データ解析`, {
+                        source: dataSource,
+                        keys: Object.keys(parsedData),
+                        hasMetadata: !!parsedData.metadata
+                    });
+
+                    // データ構造の適応的変換
+                    let adaptedData = this.adaptDataStructure(parsedData, dept, dataSource);
+                    
+                    if (adaptedData) {
+                        UI_MANAGER.updateDeptStatus(dept, 'success', `連携完了 (${dataSource})`);
+                        UI_MANAGER.logDebug(`${dept}事業部データ変換成功`);
+                        return adaptedData;
+                    } else {
+                        throw new Error('データ構造の変換に失敗');
+                    }
+                    
+                } catch (error) {
+                    UI_MANAGER.updateDeptStatus(dept, 'error', `エラー: ${error.message}`);
+                    UI_MANAGER.logDebug(`${dept}事業部読み込みエラー`, error.message);
+                    return null;
+                }
+            },
+
+            // ★修正: データ構造の適応的変換（othersFixed対応）
+            adaptDataStructure: function(rawData, dept, source) {
+                try {
+                    let adaptedData = {
+                        sales: new Array(12).fill(0),
+                        cogs: new Array(12).fill(0),
+                        personnel: new Array(12).fill(0),
+                        expenses: new Array(12).fill(0),
+                        
+                        // ★新規追加: 個別費用項目の受信
+                        logistics: rawData.logistics || new Array(12).fill(0),
+                        rent: rawData.rent || new Array(12).fill(0),
+                        outsourcing: rawData.outsourcing || new Array(12).fill(0),
+                        freight: rawData.freight || new Array(12).fill(0),
+                        advertising: rawData.advertising || new Array(12).fill(0),
+                        utilities: rawData.utilities || new Array(12).fill(0),
+                        fees: rawData.fees || new Array(12).fill(0),
+                        othersFixed: rawData.othersFixed || new Array(12).fill(0) // ★SR事業部の重要項目
+                    };
+
+                    // v3.0形式の場合
+                    if (source === 'v3.0' && rawData.sales && Array.isArray(rawData.sales)) {
+                        adaptedData.sales = rawData.sales.slice(0, 12);
+                        adaptedData.cogs = rawData.cogs ? rawData.cogs.slice(0, 12) : new Array(12).fill(0);
+                        adaptedData.personnel = rawData.personnel ? rawData.personnel.slice(0, 12) : new Array(12).fill(0);
+                        adaptedData.expenses = rawData.expenses ? rawData.expenses.slice(0, 12) : new Array(12).fill(0);
+                        
+                        // ★新規: 個別費用項目の変換
+                        if (rawData.othersFixed && Array.isArray(rawData.othersFixed)) {
+                            adaptedData.othersFixed = rawData.othersFixed.slice(0, 12);
+                        }
+                        
+                        UI_MANAGER.logDebug(`${dept}: v3.0形式で変換完了`, {
+                            othersFixedSum: adaptedData.othersFixed.reduce((a, b) => a + b, 0)
+                        });
+                        return adaptedData;
+                    }
+
+                    // レガシー形式の場合
+                    if (source === 'legacy') {
+                        // 月次データの抽出（monthly配列から）
+                        if (rawData.monthly && Array.isArray(rawData.monthly) && rawData.monthly.length === 12) {
+                            rawData.monthly.forEach((monthData, index) => {
+                                adaptedData.sales[index] = monthData.sales || 0;
+                                adaptedData.cogs[index] = monthData.cogs || 0;
+                                adaptedData.personnel[index] = monthData.personnel || 0;
+                                adaptedData.expenses[index] = monthData.expenses || 0;
+                                
+                                // ★レガシーデータからothersFixed抽出を試行
+                                adaptedData.othersFixed[index] = monthData.othersFixed || 0;
+                            });
+                            
+                            UI_MANAGER.logDebug(`${dept}: レガシー形式(monthly)で変換完了`);
+                            return adaptedData;
+                        }
+
+                        // その他のレガシー形式の処理
+                        if (rawData.annual && rawData.annual.sales) {
+                            // 年間データを12ヶ月に分割
+                            const monthlySales = rawData.annual.sales / 12;
+                            const monthlyCogs = (rawData.annual.cogs || 0) / 12;
+                            const monthlyPersonnel = (rawData.annual.personnel || 0) / 12;
+                            const monthlyExpenses = (rawData.annual.expenses || 0) / 12;
+                            const monthlyOthersFixed = (rawData.annual.othersFixed || 0) / 12; // ★追加
+
+                            adaptedData.sales.fill(monthlySales);
+                            adaptedData.cogs.fill(monthlyCogs);
+                            adaptedData.personnel.fill(monthlyPersonnel);
+                            adaptedData.expenses.fill(monthlyExpenses);
+                            adaptedData.othersFixed.fill(monthlyOthersFixed); // ★追加
+                            
+                            UI_MANAGER.logDebug(`${dept}: レガシー形式(annual)で変換完了`);
+                            return adaptedData;
+                        }
+                    }
+
+                    // 単一値からの推定
+                    if (typeof rawData.sales === 'number') {
+                        adaptedData.sales.fill(rawData.sales / 12);
+                        adaptedData.cogs.fill((rawData.cogs || 0) / 12);
+                        adaptedData.personnel.fill((rawData.personnel || 0) / 12);
+                        adaptedData.expenses.fill((rawData.expenses || 0) / 12);
+                        adaptedData.othersFixed.fill((rawData.othersFixed || 0) / 12); // ★追加
+                        
+                        UI_MANAGER.logDebug(`${dept}: 単一値形式で変換完了`);
+                        return adaptedData;
+                    }
+
+                    UI_MANAGER.logDebug(`${dept}: データ構造変換失敗`, rawData);
+                    return null;
+                    
+                } catch (error) {
+                    UI_MANAGER.logDebug(`${dept}データ変換エラー`, error.message);
+                    return null;
+                }
+            },
+
+            // 役員報酬データ取得
+            loadExecutiveCompensation: function() {
+                try {
+                    const dashboardData = localStorage.getItem(STORAGE_KEYS.dashboard);
+                    if (dashboardData) {
+                        const data = JSON.parse(dashboardData);
+                        if (data.executiveCompensation && Array.isArray(data.executiveCompensation)) {
+                            UI_MANAGER.logDebug('役員報酬: ダッシュボードから取得');
+                            return data.executiveCompensation;
+                        }
+                    }
+                    
+                    // デフォルト値
+                    const baseAmount = 2537;
+                    const defaultComp = [
+                        baseAmount, baseAmount, baseAmount, baseAmount,
+                        baseAmount, baseAmount + 500,
+                        baseAmount, baseAmount, baseAmount, baseAmount, baseAmount,
+                        baseAmount + 500
+                    ];
+                    UI_MANAGER.logDebug('役員報酬: デフォルト値使用', baseAmount);
+                    return defaultComp;
+                } catch (error) {
+                    UI_MANAGER.logDebug('役員報酬取得エラー', error.message);
+                    return new Array(12).fill(2537);
+                }
+            },
+
+            // ★修正: データ統合実行（othersFixed統合処理追加）
+            integrateAllData: function() {
+                try {
+                    UI_MANAGER.logDebug('データ統合開始');
+                    
+                    // 各事業部データ読み込み
+                    const srData = this.loadDepartmentData('sr');
+                    const wData = this.loadDepartmentData('w');
+                    const rcData = this.loadDepartmentData('rc');
+                    const rcdData = this.loadDepartmentData('rcd');
+
+                    // アクティブ事業部リスト更新
+                    const activeDepts = [];
+                    const deptMapping = { sr: 'SR', w: 'W', rc: 'RCå¸', rcd: 'RCDç¤¾' };
+                    
+                    [srData, wData, rcData, rcdData].forEach((data, index) => {
+                        const deptKey = ['sr', 'w', 'rc', 'rcd'][index];
+                        if (data) {
+                            activeDepts.push(deptMapping[deptKey]);
+                        }
+                    });
+
+                    UI_MANAGER.logDebug('アクティブ事業部', activeDepts);
+
+                    // データ統合処理（確実な値でのみ統合）
+                    for (let i = 0; i < 12; i++) {
+                        UI_MANAGER.integratedData.sales[i] = 
+                            (srData?.sales?.[i] || 0) + 
+                            (wData?.sales?.[i] || 0) + 
+                            (rcData?.sales?.[i] || 0) + 
+                            (rcdData?.sales?.[i] || 0);
+
+                        UI_MANAGER.integratedData.cogs[i] = 
+                            (srData?.cogs?.[i] || 0) + 
+                            (wData?.cogs?.[i] || 0) + 
+                            (rcData?.cogs?.[i] || 0) + 
+                            (rcdData?.cogs?.[i] || 0);
+
+                        UI_MANAGER.integratedData.personnel[i] = 
+                            (srData?.personnel?.[i] || 0) + 
+                            (wData?.personnel?.[i] || 0) + 
+                            (rcData?.personnel?.[i] || 0) + 
+                            (rcdData?.personnel?.[i] || 0);
+
+                        UI_MANAGER.integratedData.expenses[i] = 
+                            (srData?.expenses?.[i] || 0) + 
+                            (wData?.expenses?.[i] || 0) + 
+                            (rcData?.expenses?.[i] || 0) + 
+                            (rcdData?.expenses?.[i] || 0);
+
+                        // ★新規追加: その他固定費統合（主にSR事業部から）
+                        UI_MANAGER.integratedData.othersFixed[i] = 
+                            (srData?.othersFixed?.[i] || 0) + 
+                            (wData?.othersFixed?.[i] || 0) + 
+                            (rcData?.othersFixed?.[i] || 0) + 
+                            (rcdData?.othersFixed?.[i] || 0);
+                    }
+
+                    // 役員報酬取得
+                    UI_MANAGER.integratedData.executiveComp = this.loadExecutiveCompensation();
+
+                    // 法定福利費計算
+                    for (let i = 0; i < 12; i++) {
+                        UI_MANAGER.integratedData.legalWelfare[i] = Math.round(UI_MANAGER.integratedData.personnel[i] * 0.13002);
+                    }
+
+                    // その他固定費
+                    UI_MANAGER.integratedData.otherFixedCosts.fill(137);
+
+                    // メタデータ更新
+                    UI_MANAGER.integratedData.metadata = {
+                        lastUpdate: new Date().toISOString(),
+                        activeDepartments: activeDepts,
+                        version: '3.0'
+                    };
+                    
+                    UI_MANAGER.logDebug('データ統合完了', {
+                        アクティブ事業部数: activeDepts.length,
+                        年間売上合計: UI_MANAGER.integratedData.sales.reduce((a, b) => a + b, 0),
+                        その他固定費統合合計: UI_MANAGER.integratedData.othersFixed.reduce((a, b) => a + b, 0),
+                        統合状況: `${activeDepts.length}/4`
+                    });
+                    return true;
+                } catch (error) {
+                    UI_MANAGER.logDebug('データ統合エラー', error.message);
+                    return false;
+                }
+            }
+        };
+
+        // グローバル関数（ボタンアクション）
+        function refreshIntegrationData() {
+            UI_MANAGER.logDebug('手動データ統合更新開始');
+            const success = INTEGRATION_ENGINE.integrateAllData();
+            if (success) {
+                UI_MANAGER.updateKPIs();
+                UI_MANAGER.updateChart();
+                UI_MANAGER.generateIntegratedTable();
+                alert('統合データを更新しました。');
+            } else {
+                alert('データ統合に失敗しました。LocalStorage検査でデータ状況を確認してください。');
+            }
+        }
+
+        function exportIntegratedCSV() {
+            try {
+                const csvData = [];
+                csvData.push(['統合PL項目', ...UI_MANAGER.months, '年間計']);
+                
+                const dataRows = [
+                    ['統合売上高', ...UI_MANAGER.integratedData.sales],
+                    ['統合仕入原価', ...UI_MANAGER.integratedData.cogs],
+                    ['統合人件費', ...UI_MANAGER.integratedData.personnel],
+                    ['統合販管費', ...UI_MANAGER.integratedData.expenses],
+                    ['役員報酬', ...UI_MANAGER.integratedData.executiveComp],
+                    ['法定福利費', ...UI_MANAGER.integratedData.legalWelfare],
+                    ['その他固定費', ...UI_MANAGER.integratedData.otherFixedCosts],
+                    ['その他固定費統合', ...UI_MANAGER.integratedData.othersFixed] // ★追加
+                ];
+
+                dataRows.forEach(row => {
+                    const annual = row.slice(1).reduce((sum, val) => sum + (val || 0), 0);
+                    csvData.push([...row, annual]);
                 });
-                
-                // 主要項目
-                csvData.push(['売上高計', ...tableData.totalSales, tableData.totalSales.reduce((sum, val) => sum + val, 0)]);
-                csvData.push(['営業利益', ...tableData.operatingProfit, tableData.operatingProfit.reduce((sum, val) => sum + val, 0)]);
-                
+
                 const csvContent = csvData.map(row => row.join(',')).join('\n');
-                const bom = '\uFEFF';
-                const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
-                
-                const now = new Date();
-                const timestamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
-                const filename = `統合PL分析_${timestamp}.csv`;
-                
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = filename;
-                document.body.appendChild(link);
+                link.download = `統合PL_v3.0_othersFixed対応_${new Date().toISOString().slice(0, 10)}.csv`;
                 link.click();
-                document.body.removeChild(link);
-                
-                alert(`CSV出力完了\nファイル名: ${filename}`);
-                
+                URL.revokeObjectURL(link.href);
             } catch (error) {
-                console.error('CSV出力エラー:', error);
-                alert('CSV出力中にエラーが発生しました。');
+                UI_MANAGER.logDebug('CSVエクスポートエラー', error.message);
+                alert('CSVエクスポートに失敗しました');
             }
         }
 
-        // テストデータ読み込み
-        function loadTestData() {
-            console.log('テストデータ読み込み開始...');
-            
-            // テスト用売上データ
-            const testSalesData = {
-                sr: [4636, 5317, 5326, 5210, 4944, 5063, 5407, 4725, 4804, 5003, 4628, 5122],
-                w: [886, 500, 669, 1174, 1257, 2331, 712, 772, 865, 824, 608, 923],
-                rc: [1550, 1550, 1550, 1550, 1550, 1550, 1550, 1550, 1550, 1550, 1550, 1550],
-                rcd: [16480, 16480, 16480, 16480, 16480, 16480, 16480, 16480, 16480, 16480, 16480, 16480]
-            };
-            
-            // テスト用COGSデータ
-            const testCOGSData = {
-                sr: [1261, 1446, 1449, 1417, 1345, 1377, 1471, 1285, 1307, 1361, 1259, 1393],
-                w: [265, 150, 200, 352, 377, 698, 213, 231, 259, 247, 182, 277],
-                rc: [546, 546, 546, 546, 546, 546, 546, 546, 546, 546, 546, 546],
-                rcd: [16000, 16000, 16000, 16000, 16000, 16000, 16000, 16000, 16000, 16000, 16000, 16000]
-            };
-            
-            // テスト用人件費データ
-            const testPersonnelData = [1407, 1554, 1564, 1683, 1528, 1674, 1589, 1522, 1449, 1497, 1383, 1676];
-            
-            // データ設定
-            SYSTEM_CONFIG.departments.forEach(dept => {
-                systemData.departments[dept] = {
-                    name: SYSTEM_CONFIG.departmentNames[dept],
-                    sales: testSalesData[dept],
-                    cogs: testCOGSData[dept],
-                    personnel: new Array(12).fill(Math.round(testPersonnelData.reduce((sum, val) => sum + val, 0) / 12 / 4)),
-                    hasValidSales: true,
-                    lastUpdate: new Date().toLocaleString()
-                };
-            });
-            
-            systemData.combined.personnel = testPersonnelData;
-            systemData.lastUpdate = new Date().toLocaleString();
-            
-            // 表示更新
-            updateLinkageStatus(4, true);
-            updateDisplay();
-            document.getElementById('last-update').textContent = systemData.lastUpdate;
-            
-            alert('テストデータを読み込みました。検算用データと照合できます。');
+        function checkDashboardLink() {
+            const dashboardData = localStorage.getItem(STORAGE_KEYS.dashboard);
+            if (dashboardData) {
+                const data = JSON.parse(dashboardData);
+                const lastUpdate = data.lastUpdate ? new Date(data.lastUpdate).toLocaleString() : '不明';
+                alert(`役員報酬連携状況\n最終更新: ${lastUpdate}\n月額基準: 2537万円\n連携状況: アクティブ`);
+            } else {
+                alert('役員報酬連携データが見つかりません。\nダッシュボードからデータを送信してください。');
+            }
         }
-    </script>
-</body>
-</html>
+
+        function validateAllData() {
+            let report = '4事業部データ整合性チェック結果\n\n';
+            let validCount = 0;
+
+            ['sr', 'w', 'rc', 'rcd'].forEach(dept => {
+                const v3Data = localStorage.getItem(STORAGE_KEYS[dept]);
+                const legacyData = localStorage.getItem(STORAGE_KEYS[dept + '_legacy']);
+                
+                let status = '- データなし';
+                if (v3Data || legacyData) {
+                    try {
+                        const testData = INTEGRATION_ENGINE.loadDepartmentData(dept);
+                        if (testData) {
+                            status = '✓ 正常（統合可能）';
+                            // ★othersFixedの確認
+                            const othersFixedSum = testData.othersFixed ? testData.othersFixed.reduce((a, b) => a + b, 0) : 0;
+                            if (dept === 'sr' && othersFixedSum > 0) {
+                                status += ` [その他固定費統合: ${othersFixedSum}万円]`;
+                            }
+                            validCount++;
+                        } else {
+                            status = '✗ 形式不正';
+                        }
+                    } catch (error) {
+                        status = '✗ 解析エラー';
+                    }
+                }
+                
+                report += `${dept.toUpperCase()}事業部: ${status}\n`;
+            });
+
+            report += `\n統合可能事業部: ${validCount}/4`;
+            alert(report);
+        }
+
+        function toggleDebugInfo() {
+            debugMode = !debugMode;
+            const debugElement = document.getElementById('debug-info');
+            if (debugElement) {
+                debugElement.style.display = debugMode ? 'block' : 'none';
+                if (
