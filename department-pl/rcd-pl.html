@@ -710,7 +710,7 @@
                 if (statusElement) {
                     statusElement.className = `linkage-status linkage-${type}`;
                     statusElement.innerHTML = `
-                        <strong>${type === 'success' ? '✔' : type === 'warning' ? '⚠ ' : '✗'}</strong>
+                        <strong>${type === 'success' ? '✓' : type === 'warning' ? '⚠ ' : '✗'}</strong>
                         ${message}
                     `;
                 }
@@ -1022,7 +1022,7 @@
             // 統合システム用データ生成（v3.0仕様準拠）
             const rcdIntegrationData = {
                 department: 'RCD社事業部',
-                // v3.0仕様：完全なデータ構造  
+                // v3.0仕様：完全なデータ構造   
                 sales: monthlyResults.map(m => m.sales),
                 cogs: monthlyResults.map(m => m.cogs),
                 personnel: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // 外部委託のため0
@@ -1064,8 +1064,19 @@
             // グローバル変数に保存（手動送信用）
             window.currentRCDResults = rcdIntegrationData;
 
-            // 自動データ送信
-            autoSendData(rcdIntegrationData);
+            // Phase 2修正: 自動送信タイミング設定
+            setTimeout(() => {
+                if (window.currentRCDResults) {
+                    autoSendData(rcdIntegrationData);
+                    showAutoSendMessage(); // メッセージ表示（新規実装）
+                }
+            }, 1500); // 1.5秒後に自動送信
+        }
+
+        // Phase 2修正: 自動送信メッセージ表示（新規実装）
+        function showAutoSendMessage() {
+            UI_MANAGER.updateLinkageStatus('success', 
+                `統合PLへ自動送信完了: ${new Date().toLocaleString()}`);
         }
 
         // CSV出力
