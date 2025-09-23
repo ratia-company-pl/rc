@@ -392,7 +392,7 @@
 
             <div class="header-row4">
                 <div class="linkage-status" id="linkage-status">
-                    <strong>✔</strong> 連携成功: <span id="last-update">2025-09-22 14:35:12</span> にデータ受信
+                    <strong>✓</strong> 連携成功: <span id="last-update">2025-09-22 14:35:12</span> にデータ受信
                 </div>
                 <p class="dept-subtitle">基準売上1,500万円+月次増減方式・仕入原価率35.2%（修正モデル）・固定人件費50万円/月・販管費合計対応（5月90万円・12月90万円）</p>
             </div>
@@ -458,9 +458,9 @@
                 基準売上1,500万円+月次増減方式 • 仕入原価率35.2%（RC卸事業部仕入修正モデル） • 固定人件費50万円/月（売上変動なし） • 支払手数料70万円/月（固定額） • 販管費合計：5月90万円・12月90万円対応
                 
                 <div class="spec-detail">
-                    <strong>その他固定費内訳（月額106万円）：</strong><br>
-                    通信費0.4万円、事務用品費10万円、オフィス関連費12万円、水道光熱費2万円、保険料0.8万円、支払報酬料10万円、減価償却費7万円、物流管理費74万円<br>
-                    <span style="color: #e74c3c; font-weight: bold;">※会場賃料は削除済み</span>
+                    <strong>その他固定費内訳（月額98万円）：</strong><br>
+                    通信費1万円、事務用品費10万円、水道光熱費2万円、保険料1万円、支払報酬料10万円、減価償却費7万円、物流管理費67万円<br>
+                    <span style="color: #e74c3c; font-weight: bold;">※オフィス関連費は削除済み</span>
                 </div>
             </div>
         </main>
@@ -480,7 +480,7 @@
             compression: true
         };
 
-        // RC市事業部データ構造（v3.0対応）
+        // RC卸事業部データ構造（v3.0対応）
         let rcData = {
             sales: new Array(12).fill(0),
             cogs: new Array(12).fill(0), 
@@ -488,7 +488,7 @@
             expenses: new Array(12).fill(0), // 新規追加：販管費配列
             metadata: {
                 lastUpdate: new Date().toISOString(),
-                dataSource: "RC市事業部",
+                dataSource: "RC卸事業部",
                 version: "3.0",
                 calculationEngine: "dynamic"
             }
@@ -504,14 +504,14 @@
             // 月次変動データ（初期値）
             variations: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             
-            // 販管費構成（会場賃料削除済み）
+            // 販管費構成（修正版）
             expenses: {
                 welfare: 6, // 法定福利費（固定）
                 fees: 70, // 支払手数料
                 travel: 15, // 旅費交通費
-                advertising: 40, // デフォルトの広告宣伝費
+                advertising: 40, // デフォルトの広告宣伝費（営業ソーシング想定費）
                 exhibition: 90, // デフォルトの展示会費用
-                other: 106, // その他固定費（260万円から154万円を削減）
+                other: 98, // その他固定費（106万円から98万円に修正）
                 promotion: { // 販売促進費（展示会費用）
                     base: 10,
                     exhibition: {
@@ -602,29 +602,29 @@
                 // 空行
                 html += '<tr><td colspan="15" style="border:none; padding:5px;"></td></tr>';
 
-                // 販管費の詳細
+                // 販管費の詳細（修正版）
                 const expenseItems = [
                     { name: '固定人件費', values: rcData.personnel },
                     { name: '法定福利費', values: new Array(12).fill(6) },
                     { name: '支払手数料', values: new Array(12).fill(70) },
                     { name: '旅費交通費', values: new Array(12).fill(15) },
-                    { name: '広告宣伝費', values: new Array(12).fill(CALCULATION_ENGINE.expenses.advertising) }
+                    { name: '広告宣伝費（営業ソーシング想定費）', values: new Array(12).fill(CALCULATION_ENGINE.expenses.advertising) }
                 ];
 
-                // Phase 2修正: 販売促進費を販管費合計に変更
-                const adminExpensesValues = new Array(12).fill(116); // 基本販管費（人件費除く）106+10
+                // 修正版: 販売促進費を独立項目として表示
+                const promotionValues = new Array(12).fill(10); // 基本額10万円
                 if (CALCULATION_ENGINE.expenses.exhibition > 0) {
-                    adminExpensesValues[10] = 116 + CALCULATION_ENGINE.expenses.exhibition; // 5月（インデックス10）
-                    adminExpensesValues[5] = 116 + CALCULATION_ENGINE.expenses.exhibition; // 12月（インデックス5）
+                    promotionValues[10] = 10 + CALCULATION_ENGINE.expenses.exhibition; // 5月（インデックス10）
+                    promotionValues[5] = 10 + CALCULATION_ENGINE.expenses.exhibition; // 12月（インデックス5）
                 }
-                expenseItems.push({ name: '販管費合計', values: adminExpensesValues });
-                expenseItems.push({ name: 'その他固定費', values: new Array(12).fill(106) });
+                expenseItems.push({ name: '販売促進費', values: promotionValues });
+                expenseItems.push({ name: 'その他固定費', values: new Array(12).fill(98) }); // 106→98万円に修正
 
                 // 各販管費項目を表示
                 expenseItems.forEach(item => {
                     html += '<tr class="expense-row"><td class="item-name">' + item.name + '</td>';
                     for (let i = 0; i < 12; i++) {
-                        const isHighlight = (item.name === '販管費合計' && (i === 10 || i === 5) && CALCULATION_ENGINE.expenses.exhibition > 0);
+                        const isHighlight = (item.name === '販売促進費' && (i === 10 || i === 5) && CALCULATION_ENGINE.expenses.exhibition > 0);
                         const style = isHighlight ? ' style="background: #fff3e0; font-weight: bold;"' : '';
                         html += `<td${style}>${item.values[i]}</td>`;
                     }
@@ -664,7 +664,7 @@
             const statusElement = document.getElementById('linkage-status');
             if (statusElement) {
                 statusElement.innerHTML = 
-                    `<strong>✔</strong> 統合PLへ自動送信完了: ${new Date().toLocaleString()}`;
+                    `<strong>✓</strong> 統合PLへ自動送信完了: ${new Date().toLocaleString()}`;
                 statusElement.className = 'linkage-status';
             }
         }
@@ -677,7 +677,7 @@
                 
                 if (rcDataStr) {
                     const parsedData = JSON.parse(rcDataStr);
-                    console.log('RC市連携データ受信:', parsedData);
+                    console.log('RC卸連携データ受信:', parsedData);
                     
                     // baseSalesとvariations形式のデータ（budget-input.htmlから）
                     if (parsedData.baseSales !== undefined && parsedData.variations && Array.isArray(parsedData.variations)) {
@@ -708,10 +708,10 @@
                         calculateRCData();
                         
                         document.getElementById('linkage-status').innerHTML = 
-                            `<strong>✔</strong> 連携成功: ${new Date(parsedData.timestamp || new Date()).toLocaleString('ja-JP')} にデータ受信`;
+                            `<strong>✓</strong> 連携成功: ${new Date(parsedData.timestamp || new Date()).toLocaleString('ja-JP')} にデータ受信`;
                         document.getElementById('linkage-status').className = 'linkage-status';
                         
-                        console.log('RC市連携データ読み込み成功');
+                        console.log('RC卸連携データ読み込み成功');
                     }
                     // sales配列形式のデータ（既存のv3.0形式）
                     else if (parsedData.sales && Array.isArray(parsedData.sales)) {
@@ -722,10 +722,10 @@
                         if (parsedData.expenses) rcData.expenses = parsedData.expenses;
                         
                         document.getElementById('linkage-status').innerHTML = 
-                            `<strong>✔</strong> 連携成功: ${new Date(parsedData.metadata?.lastUpdate || new Date()).toLocaleString('ja-JP')} にデータ受信`;
+                            `<strong>✓</strong> 連携成功: ${new Date(parsedData.metadata?.lastUpdate || new Date()).toLocaleString('ja-JP')} にデータ受信`;
                         document.getElementById('linkage-status').className = 'linkage-status';
                         
-                        console.log('RC市連携データ読み込み成功（v3.0形式）');
+                        console.log('RC卸連携データ読み込み成功（v3.0形式）');
                     } else {
                         throw new Error('データ形式が不正です');
                     }
@@ -769,7 +769,7 @@
             }
         }
 
-        // RC市事業部固有の計算処理（会場賃料削除版）
+        // RC卸事業部固有の計算処理（修正版）
         function calculateRCData() {
             // 売上計算（基準売上 + 月次変動）
             for (let i = 0; i < 12; i++) {
@@ -786,16 +786,16 @@
                 rcData.personnel[i] = CALCULATION_ENGINE.fixedPersonnel;
             }
 
-            // 販管費計算（展示会費用含む）
+            // 販管費計算（修正版）
             for (let i = 0; i < 12; i++) {
                 let monthlyExpenses = 0;
                 
-                // 基本販管費（会場賃料削除済み）
-                monthlyExpenses += CALCULATION_ENGINE.expenses.welfare;
-                monthlyExpenses += CALCULATION_ENGINE.expenses.fees;
-                monthlyExpenses += CALCULATION_ENGINE.expenses.travel;
-                monthlyExpenses += CALCULATION_ENGINE.expenses.advertising;
-                monthlyExpenses += CALCULATION_ENGINE.expenses.other; // 106万円に削減
+                // 基本販管費（修正版）
+                monthlyExpenses += CALCULATION_ENGINE.expenses.welfare; // 6万円
+                monthlyExpenses += CALCULATION_ENGINE.expenses.fees; // 70万円
+                monthlyExpenses += CALCULATION_ENGINE.expenses.travel; // 15万円
+                monthlyExpenses += CALCULATION_ENGINE.expenses.advertising; // 40万円（営業ソーシング想定費）
+                monthlyExpenses += CALCULATION_ENGINE.expenses.other; // 98万円（修正）
                 
                 // 販売促進費（展示会費用）
                 if (i === 10) { // 5月（インデックス10）
@@ -834,7 +834,7 @@
                 
                 localStorage.setItem(STORAGE_KEYS.integration_status, JSON.stringify(integrationStatus));
                 
-                console.log('RC市事業部データ自動送信完了', rcData);
+                console.log('RC卸事業部データ自動送信完了', rcData);
                 
             } catch (error) {
                 console.error('データ送信エラー:', error);
