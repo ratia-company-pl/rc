@@ -296,18 +296,19 @@
         
         .data-table input {
             width: 100%;
-            padding: 1px 3px;
+            padding: 2px 4px;
             border: 1px solid #ddd;
             background: rgba(66, 153, 225, 0.1);
             border-radius: 2px;
             text-align: center;
             font-size: 0.6rem;
-            height: 18px;
+            height: 20px;
         }
         
         .data-table input:focus {
             background: rgba(66, 153, 225, 0.2);
             outline: 1px solid #4299e1;
+            border-color: #4299e1;
         }
         
         /* 設定統合エリア - 超コンパクト版 */
@@ -343,11 +344,11 @@
         .setting-item input,
         .setting-item select {
             width: 100%;
-            padding: 1px 3px;
+            padding: 2px 4px;
             border: 1px solid #d2d6dc;
             border-radius: 2px;
             font-size: 0.6rem;
-            height: 18px;
+            height: 20px;
         }
         
         /* 情報表示エリア - 超コンパクト版 */
@@ -658,8 +659,8 @@
             
             <div class="action-buttons-row">
                 <div class="preset-buttons">
+                    <button class="preset-btn green" onclick="applyRCPreset('actual')">実績値</button>
                     <button class="preset-btn blue" onclick="applyRCPreset('standard')">標準設定</button>
-                    <button class="preset-btn green" onclick="applyRCPreset('actual')">実績パターン</button>
                     <button class="preset-btn green" onclick="applyRCPreset('growth')">成長モデル(4%)</button>
                     <button class="preset-btn purple" onclick="applyRCPreset('improvement')">大幅改善(7%)</button>
                 </div>
@@ -734,8 +735,8 @@
             
             <div class="action-buttons-row">
                 <div class="preset-buttons">
+                    <button class="preset-btn green" onclick="applyRCDPreset('actual')">実績値</button>
                     <button class="preset-btn red" onclick="applyRCDPreset('zero')">0設定</button>
-                    <button class="preset-btn green" onclick="applyRCDPreset('actual')">実績パターン</button>
                     <button class="preset-btn blue" onclick="applyRCDPreset('standard')">標準設定(月8本)</button>
                     <button class="preset-btn orange" onclick="applyRCDPreset('seven')">月7本設定</button>
                     <button class="preset-btn purple" onclick="applyRCDPreset('six')">月6本設定</button>
@@ -771,7 +772,7 @@
     </div>
 
     <script>
-        <!-- ===== 【保護領域開始】絶対に変更禁止 ===== -->
+        // ===== 【保護領域開始】絶対に変更禁止 =====
         // localStorageキー定義 - 変更禁止
         const LOCAL_STORAGE_KEYS = {
             sr_data: 'pl_system_sr_data',
@@ -784,9 +785,9 @@
             rcd_settings: 'pl_system_rcd_settings',
             input_values: 'pl_system_input_values'
         };
-        <!-- ===== 【保護領域終了】 ===== -->
+        // ===== 【保護領域終了】 =====
 
-        <!-- ===== 【カスタマイズ領域開始】計算ロジック変更可能 ===== -->
+        // ===== 【カスタマイズ領域開始】計算ロジック変更可能 =====
         // 基本データ
         const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
         
@@ -805,7 +806,7 @@
                     '静岡店': [369, 386, 600, 535, 285, 437, 351, 270, 369, 391, 256, 242],
                     '掛川店': [284, 375, 508, 278, 394, 394, 377, 309, 248, 469, 448, 535],
                     '市野店': [328, 547, 723, 520, 528, 607, 574, 318, 714, 657, 700, 600],
-                    '佐住木店': [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
+                    '佐佐木店': [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
                     '広島店': [490, 493, 427, 542, 558, 416, 622, 641, 496, 385, 253, 620]
                 },
                 variables: {
@@ -836,7 +837,7 @@
                 fees: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
             }
         };
-        <!-- ===== 【カスタマイズ領域終了】 ===== -->
+        // ===== 【カスタマイズ領域終了】 =====
 
         let charts = {};
 
@@ -1004,7 +1005,8 @@
                             ${values.map((val, i) => `
                                 <td>
                                     <input type="number" value="${val}" 
-                                           onchange="updateSRStore('${storeName}', ${i}, this.value)">
+                                           onchange="updateSRStore('${storeName}', ${i}, this.value)"
+                                           style="width: 100%; padding: 2px; border: 1px solid #ddd; text-align: center; font-size: 0.6rem;">
                                 </td>
                             `).join('')}
                         </tr>
@@ -1032,7 +1034,8 @@
                         ${currentData.w.sales.map((val, i) => `
                             <td>
                                 <input type="number" value="${val}" 
-                                       onchange="updateWSales(${i}, this.value)">
+                                       onchange="updateWSales(${i}, this.value)"
+                                       style="width: 100%; padding: 2px; border: 1px solid #ddd; text-align: center; font-size: 0.6rem;">
                             </td>
                         `).join('')}
                     </tr>
@@ -1066,7 +1069,8 @@
                         ${currentData.rc.variations.map((val, i) => `
                             <td>
                                 <input type="number" value="${val}" 
-                                       onchange="updateRCVariation(${i}, this.value)">
+                                       onchange="updateRCVariation(${i}, this.value)"
+                                       style="width: 100%; padding: 2px; border: 1px solid #ddd; text-align: center; font-size: 0.6rem;">
                             </td>
                         `).join('')}
                     </tr>
@@ -1109,7 +1113,8 @@
                         ${currentData.rcd.purchases.map((val, i) => `
                             <td>
                                 <input type="number" step="0.1" value="${val}" 
-                                       onchange="updateRCDPurchase(${i}, this.value)">
+                                       onchange="updateRCDPurchase(${i}, this.value)"
+                                       style="width: 100%; padding: 2px; border: 1px solid #ddd; text-align: center; font-size: 0.6rem;">
                             </td>
                         `).join('')}
                     </tr>
@@ -1135,7 +1140,8 @@
                         ${currentData.rcd.fees.map((val, i) => `
                             <td>
                                 <input type="number" min="0" max="10" value="${val}" 
-                                       onchange="updateRCDFee(${i}, this.value)">
+                                       onchange="updateRCDFee(${i}, this.value)"
+                                       style="width: 100%; padding: 2px; border: 1px solid #ddd; text-align: center; font-size: 0.6rem;">
                                 <div style="font-size: 0.55rem; color: #b45309; text-align: center; line-height: 1;">
                                     ${formatNumber(Math.round(val * 90.6))}万
                                 </div>
@@ -1371,3 +1377,331 @@
                 if (syncStatusElement) {
                     syncStatusElement.textContent = '送信準備完了';
                 }
+
+            } catch (error) {
+                console.error('Error in updateKPIs:', error);
+            }
+        }
+
+        // チャート更新関数群
+        function updateSRChart() {
+            const totals = months.map((_, i) => {
+                return Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0);
+            });
+            createDepartmentChart('sr-chart', referenceData.SR, totals, 'SR事業部');
+        }
+
+        function updateWChart() {
+            createDepartmentChart('w-chart', referenceData.W, currentData.w.sales, 'W事業部');
+        }
+
+        function updateRCChart() {
+            const totals = currentData.rc.variations.map(variation => currentData.rc.baseSales + variation);
+            createDepartmentChart('rc-chart', referenceData.RC, totals, 'RC卸事業部');
+        }
+
+        function updateRCDChart() {
+            const totals = currentData.rcd.purchases.map(purchase => Math.round(purchase * 2000 * 1.03));
+            createDepartmentChart('rcd-chart', referenceData.RCD, totals, 'RCD社事業部');
+        }
+
+        // プリセット機能
+        function applySRPreset(presetType) {
+            switch(presetType) {
+                case 'actual':
+                    // 実績値を適用
+                    Object.keys(currentData.sr.stores).forEach(storeName => {
+                        const storeData = currentData.sr.stores[storeName];
+                        // 参考値をそのまま適用
+                        for (let i = 0; i < 12; i++) {
+                            storeData[i] = Math.round(storeData[i]);
+                        }
+                    });
+                    break;
+                case '50p':
+                    // 各店舗月50万増
+                    Object.keys(currentData.sr.stores).forEach(storeName => {
+                        const storeData = currentData.sr.stores[storeName];
+                        for (let i = 0; i < 12; i++) {
+                            storeData[i] = Math.round(storeData[i] + 50);
+                        }
+                    });
+                    break;
+                case '100p':
+                    // 各店舗月100万増
+                    Object.keys(currentData.sr.stores).forEach(storeName => {
+                        const storeData = currentData.sr.stores[storeName];
+                        for (let i = 0; i < 12; i++) {
+                            storeData[i] = Math.round(storeData[i] + 100);
+                        }
+                    });
+                    break;
+                case '150p':
+                    // 各店舗月150万増
+                    Object.keys(currentData.sr.stores).forEach(storeName => {
+                        const storeData = currentData.sr.stores[storeName];
+                        for (let i = 0; i < 12; i++) {
+                            storeData[i] = Math.round(storeData[i] + 150);
+                        }
+                    });
+                    break;
+            }
+            saveInputValues();
+            generateSRTable();
+            calculateSR();
+            updateSRChart();
+        }
+
+        function applyWPreset(presetType) {
+            switch(presetType) {
+                case 'actual':
+                    currentData.w.sales = [...referenceData.W];
+                    break;
+                case '200':
+                    currentData.w.sales = referenceData.W.map(val => val + 200);
+                    break;
+                case '400':
+                    currentData.w.sales = referenceData.W.map(val => val + 400);
+                    break;
+                case '600':
+                    currentData.w.sales = referenceData.W.map(val => val + 600);
+                    break;
+            }
+            saveInputValues();
+            generateWTable();
+            calculateW();
+            updateWChart();
+        }
+
+        function applyRCPreset(presetType) {
+            switch(presetType) {
+                case 'standard':
+                    currentData.rc.variations = Array(12).fill(0);
+                    currentData.rc.targetRate = 0;
+                    break;
+                case 'actual':
+                    // 実績パターン（参考データ基準）
+                    currentData.rc.variations = referenceData.RC.map(val => val - currentData.rc.baseSales);
+                    currentData.rc.targetRate = 0;
+                    break;
+                case 'growth':
+                    // 4%成長モデル
+                    const growth4 = currentData.rc.baseSales * 0.04;
+                    currentData.rc.variations = Array(12).fill(Math.round(growth4));
+                    currentData.rc.targetRate = 4;
+                    break;
+                case 'improvement':
+                    // 7%大幅改善
+                    const growth7 = currentData.rc.baseSales * 0.07;
+                    currentData.rc.variations = Array(12).fill(Math.round(growth7));
+                    currentData.rc.targetRate = 7;
+                    break;
+            }
+            
+            // UI更新
+            const rcTargetRateElem = document.getElementById('rc-target-rate');
+            const rcCurrentRateElem = document.getElementById('rc-current-rate');
+            if (rcTargetRateElem) rcTargetRateElem.value = currentData.rc.targetRate;
+            if (rcCurrentRateElem) rcCurrentRateElem.textContent = currentData.rc.targetRate;
+            
+            saveInputValues();
+            generateRCTable();
+            calculateRC();
+            updateRCChart();
+        }
+
+        function applyRCTargetRate() {
+            const targetRate = parseFloat(document.getElementById('rc-target-rate').value) || 0;
+            currentData.rc.targetRate = targetRate;
+            
+            if (targetRate > 0) {
+                const growthAmount = Math.round(currentData.rc.baseSales * (targetRate / 100));
+                currentData.rc.variations = Array(12).fill(growthAmount);
+            } else {
+                currentData.rc.variations = Array(12).fill(0);
+            }
+            
+            const rcCurrentRateElem = document.getElementById('rc-current-rate');
+            if (rcCurrentRateElem) rcCurrentRateElem.textContent = targetRate;
+            
+            saveInputValues();
+            generateRCTable();
+            calculateRC();
+            updateRCChart();
+        }
+
+        function applyRCDPreset(presetType) {
+            switch(presetType) {
+                case 'zero':
+                    currentData.rcd.purchases = Array(12).fill(0);
+                    currentData.rcd.fees = Array(12).fill(0);
+                    break;
+                case 'actual':
+                    currentData.rcd.purchases = [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8];
+                    currentData.rcd.fees = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+                    break;
+                case 'standard':
+                    currentData.rcd.purchases = Array(12).fill(8);
+                    currentData.rcd.fees = Array(12).fill(1);
+                    break;
+                case 'seven':
+                    currentData.rcd.purchases = Array(12).fill(7);
+                    currentData.rcd.fees = Array(12).fill(1);
+                    break;
+                case 'six':
+                    currentData.rcd.purchases = Array(12).fill(6);
+                    currentData.rcd.fees = Array(12).fill(1);
+                    break;
+            }
+            saveInputValues();
+            generateRCDTable();
+            calculateRCD();
+            updateRCDChart();
+        }
+
+        // データ送信関数群
+        function sendSRDataToPLSystem() {
+            const srData = {
+                department: 'SR事業部',
+                stores: currentData.sr.stores,
+                variables: currentData.sr.variables,
+                timestamp: new Date().toISOString()
+            };
+            
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEYS.sr_data, JSON.stringify(srData));
+                localStorage.setItem(LOCAL_STORAGE_KEYS.sr_settings, JSON.stringify(currentData.sr.variables));
+                alert('SR事業部データをPLシステムに送信しました');
+            } catch (error) {
+                alert('データ送信に失敗しました: ' + error.message);
+            }
+        }
+
+        function sendWDataToPLSystem() {
+            const wData = {
+                department: 'W事業部',
+                sales: currentData.w.sales,
+                variables: currentData.w.variables,
+                timestamp: new Date().toISOString()
+            };
+            
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEYS.w_data, JSON.stringify(wData));
+                localStorage.setItem(LOCAL_STORAGE_KEYS.w_settings, JSON.stringify(currentData.w.variables));
+                alert('W事業部データをPLシステムに送信しました');
+            } catch (error) {
+                alert('データ送信に失敗しました: ' + error.message);
+            }
+        }
+
+        function sendRCDataToPLSystem() {
+            const rcData = {
+                department: 'RC卸事業部',
+                baseSales: currentData.rc.baseSales,
+                variations: currentData.rc.variations,
+                targetRate: currentData.rc.targetRate,
+                variables: currentData.rc.variables,
+                timestamp: new Date().toISOString()
+            };
+            
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEYS.rc_data, JSON.stringify(rcData));
+                localStorage.setItem(LOCAL_STORAGE_KEYS.rc_settings, JSON.stringify(currentData.rc.variables));
+                alert('RC卸事業部データをPLシステムに送信しました');
+            } catch (error) {
+                alert('データ送信に失敗しました: ' + error.message);
+            }
+        }
+
+        function sendRCDDataToPLSystem() {
+            const rcdData = {
+                department: 'RCD社事業部',
+                purchases: currentData.rcd.purchases,
+                fees: currentData.rcd.fees,
+                timestamp: new Date().toISOString()
+            };
+            
+            // RCD設定データも保存
+            const rcdSettings = {
+                feeOccurrences: currentData.rcd.fees
+            };
+            
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEYS.rcd_data, JSON.stringify(rcdData));
+                localStorage.setItem(LOCAL_STORAGE_KEYS.rcd_settings, JSON.stringify(rcdSettings));
+                alert('RCD社事業部データをPLシステムに送信しました');
+            } catch (error) {
+                alert('データ送信に失敗しました: ' + error.message);
+            }
+        }
+
+        function sendAllDepartmentData() {
+            sendSRDataToPLSystem();
+            sendWDataToPLSystem();
+            sendRCDataToPLSystem();
+            sendRCDDataToPLSystem();
+            alert('全事業部データの一括送信が完了しました！\nダッシュボードで確認してください。');
+        }
+
+        // ナビゲーション関数
+        function navigateToSRPL() { window.open('department-pl/sr-pl.html', '_blank'); }
+        function navigateToWPL() { window.open('department-pl/w-pl.html', '_blank'); }
+        function navigateToRCPL() { window.open('department-pl/rc-pl.html', '_blank'); }
+        function navigateToRCDPL() { window.open('department-pl/rcd-pl.html', '_blank'); }
+
+        // エクスポート関数
+        function exportToJSON() {
+            const exportData = {
+                timestamp: new Date().toISOString(),
+                version: '予算入力システム v1.0',
+                data: currentData,
+                summary: {
+                    srTotal: months.map((_, i) => Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0)).reduce((sum, val) => sum + val, 0),
+                    wTotal: currentData.w.sales.reduce((sum, val) => sum + val, 0),
+                    rcTotal: currentData.rc.variations.map(variation => currentData.rc.baseSales + variation).reduce((sum, val) => sum + val, 0),
+                    rcdTotal: currentData.rcd.purchases.map(purchase => Math.round(purchase * 2000 * 1.03)).reduce((sum, val) => sum + val, 0)
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `budget_data_${new Date().toISOString().slice(0, 10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 初期化処理
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('予算入力システム初期化開始');
+            
+            // 保存データ復元
+            loadInputValues();
+            
+            // テーブル生成
+            generateAllTables();
+            
+            // 計算実行
+            calculateAllDepartments();
+            
+            // チャート初期化
+            setTimeout(() => {
+                updateAllCharts();
+            }, 100);
+            
+            // UI要素更新
+            updateAllUIElements();
+            
+            console.log('予算入力システム初期化完了');
+        });
+
+        // 自動保存（入力時）
+        document.addEventListener('input', function(e) {
+            if (e.target.tagName === 'INPUT' && e.target.type === 'number') {
+                setTimeout(saveInputValues, 500);
+            }
+        });
+    </script>
+</body>
+</html>
