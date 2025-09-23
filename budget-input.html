@@ -676,16 +676,16 @@
                 <div class="settings-grid">
                     <div class="setting-item">
                         <label>広告宣伝費</label>
-                        <input type="number" id="w-advertising" value="50" onchange="updateWSettings(); calculateW()">
+                        <input type="number" id="w-advertising" value="30" onchange="updateWSettings(); calculateW()">
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- RC店事業部 -->
+        <!-- RC卸店事業部 -->
         <div class="department-section" style="--dept-color: #38a169;">
             <div class="department-header">
-                <div class="department-title">RC店</div>
+                <div class="department-title">RC卸店</div>
                 <div class="annual-summary" id="rc-annual">
                     年間合計: 0万円　前年増減: +0万円
                 </div>
@@ -718,8 +718,8 @@
             
             <div class="action-buttons-row">
                 <div class="preset-buttons">
-                    <button class="preset-btn blue" onclick="applyRCPreset('standard')">標準設定</button>
                     <button class="preset-btn green" onclick="applyRCPreset('actual')">実績パターン</button>
+                    <button class="preset-btn blue" onclick="applyRCPreset('standard')">標準設定</button>
                     <button class="preset-btn green" onclick="applyRCPreset('growth')">成長モデル(4%)</button>
                     <button class="preset-btn purple" onclick="applyRCPreset('improvement')">大幅改善(7%)</button>
                 </div>
@@ -754,12 +754,16 @@
             <div class="settings-consolidated">
                 <div class="settings-grid">
                     <div class="setting-item">
-                        <label>広告宣伝費</label>
+                        <label>広告宣伝費（営業ソーシング想定費）</label>
                         <input type="number" id="rc-advertising" value="40" onchange="updateRCSettings(); calculateRC()">
                     </div>
                     <div class="setting-item">
-                        <label>展示会関連費</label>
-                        <input type="number" id="rc-exhibition" value="20" onchange="updateRCSettings(); calculateRC()">
+                        <label>BWJ東京・12月ブース費支払</label>
+                        <input type="number" id="rc-december-booth" value="90" onchange="updateRCSettings(); calculateRC()">
+                    </div>
+                    <div class="setting-item">
+                        <label>5月BWJ施工費支払</label>
+                        <input type="number" id="rc-may-booth" value="90" onchange="updateRCSettings(); calculateRC()">
                     </div>
                 </div>
             </div>
@@ -790,8 +794,8 @@
             
             <div class="action-buttons-row">
                 <div class="preset-buttons">
-                    <button class="preset-btn red" onclick="applyRCDPreset('zero')">0設定</button>
                     <button class="preset-btn green" onclick="applyRCDPreset('actual')">実績パターン</button>
+                    <button class="preset-btn red" onclick="applyRCDPreset('zero')">0設定</button>
                     <button class="preset-btn blue" onclick="applyRCDPreset('standard')">標準設定(月8本)</button>
                     <button class="preset-btn orange" onclick="applyRCDPreset('seven')">月7本設定</button>
                     <button class="preset-btn purple" onclick="applyRCDPreset('six')">月6本設定</button>
@@ -857,7 +861,7 @@
                     '静岡店': [369, 386, 600, 535, 285, 437, 351, 270, 369, 391, 256, 242],
                     '掛川店': [284, 375, 508, 278, 394, 394, 377, 309, 248, 469, 448, 535],
                     '市野店': [328, 547, 723, 520, 528, 607, 574, 318, 714, 657, 700, 600],
-                    '住吉小店': [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
+                    '佐鳴台店': [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
                     '広島店': [490, 493, 427, 542, 558, 416, 622, 641, 496, 385, 253, 620]
                 },
                 variables: {
@@ -870,7 +874,7 @@
             w: {
                 sales: [886, 500, 669, 1174, 1257, 2331, 712, 772, 865, 824, 608, 923],
                 variables: {
-                    advertising: 50
+                    advertising: 30
                 }
             },
             rc: {
@@ -879,7 +883,8 @@
                 targetRate: 0,
                 variables: {
                     advertising: 40,
-                    exhibition: 20
+                    decemberBooth: 90,
+                    mayBooth: 90
                 }
             },
             rcd: {
@@ -945,7 +950,8 @@
                 'sr-advertising': currentData.sr.variables.advertising,
                 'w-advertising': currentData.w.variables.advertising,
                 'rc-advertising': currentData.rc.variables.advertising,
-                'rc-exhibition': currentData.rc.variables.exhibition,
+                'rc-december-booth': currentData.rc.variables.decemberBooth,
+                'rc-may-booth': currentData.rc.variables.mayBooth,
                 'rc-target-rate': currentData.rc.targetRate
             };
 
@@ -997,7 +1003,8 @@
 
         function updateRCSettings() {
             currentData.rc.variables.advertising = parseInt(document.getElementById('rc-advertising').value) || 0;
-            currentData.rc.variables.exhibition = parseInt(document.getElementById('rc-exhibition').value) || 0;
+            currentData.rc.variables.decemberBooth = parseInt(document.getElementById('rc-december-booth').value) || 0;
+            currentData.rc.variables.mayBooth = parseInt(document.getElementById('rc-may-booth').value) || 0;
             saveInputValues();
         }
 
@@ -1427,7 +1434,7 @@
 
         function updateRCChart() {
             const totals = currentData.rc.variations.map(variation => currentData.rc.baseSales + variation);
-            createDepartmentChart('rc-chart', referenceData.RC, totals, 'RC店事業部');
+            createDepartmentChart('rc-chart', referenceData.RC, totals, 'RC卸店事業部');
         }
 
         function updateRCDChart() {
@@ -1496,12 +1503,12 @@
 
         function applyRCPreset(presetType) {
             switch(presetType) {
-                case 'standard':
-                    currentData.rc.variations = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-                    currentData.rc.targetRate = 0;
-                    break;
                 case 'actual':
                     currentData.rc.variations = referenceData.RC.map(ref => ref - currentData.rc.baseSales);
+                    currentData.rc.targetRate = 0;
+                    break;
+                case 'standard':
+                    currentData.rc.variations = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
                     currentData.rc.targetRate = 0;
                     break;
                 case 'growth':
@@ -1531,15 +1538,16 @@
 
         function applyRCDPreset(presetType) {
             switch(presetType) {
-                case 'zero':
-                    currentData.rcd.fees = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-                    break;
                 case 'actual':
                     currentData.rcd.purchases = referenceData.RCD.map(refSales => {
                         const purchaseCount = refSales / (2000 * 1.03);
                         return Math.floor(purchaseCount * 10) / 10;
                     });
                     currentData.rcd.fees = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1];
+                    break;
+                case 'zero':
+                    currentData.rcd.purchases = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                    currentData.rcd.fees = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
                     break;
                 case 'standard':
                     currentData.rcd.purchases = [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8];
@@ -1634,7 +1642,7 @@
 
                 if (!silent) {
                     const annual = currentData.w.sales.reduce((sum, val) => sum + val, 0);
-                    alert('WデータをPLシステムに送信しました！\n\n' +
+                    alert('Wデータを PLシステムに送信しました！\n\n' +
                           '年間合計: ' + formatNumber(annual) + '万円\n' +
                           '送信時刻: ' + new Date().toLocaleTimeString());
                 }
@@ -1659,8 +1667,8 @@
 
                 const rcSettings = {
                     advertising: currentData.rc.variables.advertising,
-                    decemberExhibition: currentData.rc.variables.exhibition,
-                    aprilBoothFee: currentData.rc.variables.exhibition
+                    decemberBooth: currentData.rc.variables.decemberBooth,
+                    mayBooth: currentData.rc.variables.mayBooth
                 };
 
                 localStorage.setItem(LOCAL_STORAGE_KEYS.rc_data, JSON.stringify(rcSalesData));
@@ -1740,7 +1748,7 @@
                       `【各事業部売上合計】\n` +
                       `SR事業部: ${formatNumber(srTotal)}万円\n` +
                       `W事業部: ${formatNumber(wTotal)}万円\n` +
-                      `RC店: ${formatNumber(rcTotal)}万円\n` +
+                      `RC卸店: ${formatNumber(rcTotal)}万円\n` +
                       `RCD社: ${formatNumber(rcdTotal)}万円\n` +
                       `━━━━━━━━━━━━━━━━━━━\n` +
                       `📊 統合売上合計: ${formatNumber(grandTotal)}万円\n\n` +
