@@ -461,7 +461,7 @@
                 <button class="action-btn btn-secondary" onclick="location.href='index.html'">
                     メインダッシュボード
                 </button>
-                <button class="action-btn btn-primary" onclick="sendAllDataAndNavigateToPL()">
+                <button class="action-btn btn-primary" onclick="sendAllDepartmentData()">
                     一括送信・事業部合計PL確認
                 </button>
                 <button class="action-btn btn-secondary" onclick="exportToJSON()">
@@ -616,7 +616,7 @@
                 <div class="settings-grid">
                     <div class="setting-item">
                         <label>広告宣伝費</label>
-                        <input type="number" id="w-advertising" value="50" onchange="updateWSettings(); calculateW()">
+                        <input type="number" id="w-advertising" value="30" onchange="updateWSettings(); calculateW()">
                     </div>
                 </div>
             </div>
@@ -699,11 +699,11 @@
                     </div>
                     <div class="setting-item">
                         <label>12月展示会費</label>
-                        <input type="number" id="rc-december-exhibition" value="20" onchange="updateRCSettings(); calculateRC()">
+                        <input type="number" id="rc-december-exhibition" value="100" onchange="updateRCSettings(); calculateRC()">
                     </div>
                     <div class="setting-item">
-                        <label>4月ブース料</label>
-                        <input type="number" id="rc-april-booth" value="20" onchange="updateRCSettings(); calculateRC()">
+                        <label>5月ブース料</label>
+                        <input type="number" id="rc-may-booth" value="90" onchange="updateRCSettings(); calculateRC()">
                     </div>
                 </div>
             </div>
@@ -771,7 +771,8 @@
     </div>
 
     <script>
-        // localStorageキー定義
+        <!-- ===== 【保護領域開始】絶対に変更禁止 ===== -->
+        // localStorageキー定義 - 変更禁止
         const LOCAL_STORAGE_KEYS = {
             sr_data: 'pl_system_sr_data',
             w_data: 'pl_system_w_data',
@@ -783,7 +784,9 @@
             rcd_settings: 'pl_system_rcd_settings',
             input_values: 'pl_system_input_values'
         };
+        <!-- ===== 【保護領域終了】 ===== -->
 
+        <!-- ===== 【カスタマイズ領域開始】計算ロジック変更可能 ===== -->
         // 基本データ
         const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
         
@@ -794,7 +797,7 @@
             RCD: [11037, 14297, 11504, 14664, 12507, 14920, 13661, 15455, 14439, 15857, 15478, 16360]
         };
 
-        // 修正版: RC卸の展示会費用を分離
+        // 修正版: デフォルト値修正とRC卸展示会費用を分離
         let currentData = {
             sr: {
                 stores: {
@@ -802,7 +805,7 @@
                     '静岡店': [369, 386, 600, 535, 285, 437, 351, 270, 369, 391, 256, 242],
                     '掛川店': [284, 375, 508, 278, 394, 394, 377, 309, 248, 469, 448, 535],
                     '市野店': [328, 547, 723, 520, 528, 607, 574, 318, 714, 657, 700, 600],
-                    '佐佐木店': [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
+                    '佐住木店': [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
                     '広島店': [490, 493, 427, 542, 558, 416, 622, 641, 496, 385, 253, 620]
                 },
                 variables: {
@@ -815,7 +818,7 @@
             w: {
                 sales: [886, 500, 669, 1174, 1257, 2331, 712, 772, 865, 824, 608, 923],
                 variables: {
-                    advertising: 50
+                    advertising: 30  // 修正: 50→30万円
                 }
             },
             rc: {
@@ -824,8 +827,8 @@
                 targetRate: 0,
                 variables: {
                     advertising: 40,
-                    decemberExhibition: 20,  // 12月展示会費用を分離
-                    aprilBoothFee: 20         // 4月ブース料を分離
+                    decemberExhibition: 100,  // 12月展示会費用を分離
+                    mayBoothFee: 90          // 5月ブース料を正しく設定
                 }
             },
             rcd: {
@@ -833,6 +836,7 @@
                 fees: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
             }
         };
+        <!-- ===== 【カスタマイズ領域終了】 ===== -->
 
         let charts = {};
 
@@ -865,7 +869,7 @@
                         if (currentData.rc && currentData.rc.variables) {
                             if (!currentData.rc.variables.decemberExhibition && currentData.rc.variables.exhibition) {
                                 currentData.rc.variables.decemberExhibition = currentData.rc.variables.exhibition;
-                                currentData.rc.variables.aprilBoothFee = currentData.rc.variables.exhibition;
+                                currentData.rc.variables.mayBoothFee = 90;
                             }
                         }
                         
@@ -902,7 +906,7 @@
                 'w-advertising': currentData.w.variables.advertising,
                 'rc-advertising': currentData.rc.variables.advertising,
                 'rc-december-exhibition': currentData.rc.variables.decemberExhibition,
-                'rc-april-booth': currentData.rc.variables.aprilBoothFee,
+                'rc-may-booth': currentData.rc.variables.mayBoothFee,
                 'rc-target-rate': currentData.rc.targetRate
             };
 
@@ -956,7 +960,7 @@
         function updateRCSettings() {
             currentData.rc.variables.advertising = parseInt(document.getElementById('rc-advertising').value) || 0;
             currentData.rc.variables.decemberExhibition = parseInt(document.getElementById('rc-december-exhibition').value) || 0;
-            currentData.rc.variables.aprilBoothFee = parseInt(document.getElementById('rc-april-booth').value) || 0;
+            currentData.rc.variables.mayBoothFee = parseInt(document.getElementById('rc-may-booth').value) || 0;
             saveInputValues();
         }
 
@@ -1367,486 +1371,3 @@
                 if (syncStatusElement) {
                     syncStatusElement.textContent = '送信準備完了';
                 }
-            } catch (error) {
-                console.error('Error in updateKPIs:', error);
-            }
-        }
-
-        // チャート更新関数群
-        function updateSRChart() {
-            const totals = months.map((_, i) => {
-                return Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0);
-            });
-            createDepartmentChart('sr-chart', referenceData.SR, totals, 'SR事業部');
-        }
-
-        function updateWChart() {
-            createDepartmentChart('w-chart', referenceData.W, currentData.w.sales, 'W事業部');
-        }
-
-        function updateRCChart() {
-            const totals = currentData.rc.variations.map(variation => currentData.rc.baseSales + variation);
-            createDepartmentChart('rc-chart', referenceData.RC, totals, 'RC卸事業部');
-        }
-
-        function updateRCDChart() {
-            const totals = currentData.rcd.purchases.map(purchase => Math.round(purchase * 2000 * 1.03));
-            createDepartmentChart('rcd-chart', referenceData.RCD, totals, 'RCD社事業部');
-        }
-
-        // プリセット関数群
-        function applySRPreset(presetType) {
-            const storeNames = Object.keys(currentData.sr.stores);
-            storeNames.forEach(storeName => {
-                for (let i = 0; i < 12; i++) {
-                    switch(presetType) {
-                        case 'actual':
-                            const storeIndex = storeNames.indexOf(storeName);
-                            const storeData = [
-                                [416, 397, 421, 502, 471, 544, 567, 476, 355, 408, 299, 346],
-                                [369, 386, 600, 535, 285, 437, 351, 270, 369, 391, 256, 242],
-                                [284, 375, 508, 278, 394, 394, 377, 309, 248, 469, 448, 535],
-                                [328, 547, 723, 520, 528, 607, 574, 318, 714, 657, 700, 600],
-                                [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
-                                [490, 493, 427, 542, 558, 416, 622, 641, 496, 385, 253, 620]
-                            ];
-                            currentData.sr.stores[storeName][i] = storeData[storeIndex][i];
-                            break;
-                        case '50p':
-                            currentData.sr.stores[storeName][i] += 50;
-                            break;
-                        case '100p':
-                            currentData.sr.stores[storeName][i] += 100;
-                            break;
-                        case '150p':
-                            currentData.sr.stores[storeName][i] += 150;
-                            break;
-                    }
-                }
-            });
-            saveInputValues();
-            calculateSR();
-            generateSRTable();
-            updateSRChart();
-        }
-
-        function applyWPreset(presetType) {
-            for (let i = 0; i < 12; i++) {
-                switch(presetType) {
-                    case 'actual':
-                        currentData.w.sales[i] = referenceData.W[i];
-                        break;
-                    case '200':
-                        currentData.w.sales[i] = referenceData.W[i] + 200;
-                        break;
-                    case '400':
-                        currentData.w.sales[i] = referenceData.W[i] + 400;
-                        break;
-                    case '600':
-                        currentData.w.sales[i] = referenceData.W[i] + 600;
-                        break;
-                }
-            }
-            saveInputValues();
-            calculateW();
-            generateWTable();
-            updateWChart();
-        }
-
-        function applyRCPreset(presetType) {
-            switch(presetType) {
-                case 'standard':
-                    currentData.rc.variations = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-                    currentData.rc.targetRate = 0;
-                    break;
-                case 'actual':
-                    currentData.rc.variations = referenceData.RC.map(ref => ref - currentData.rc.baseSales);
-                    currentData.rc.targetRate = 0;
-                    break;
-                case 'growth':
-                    currentData.rc.variations = referenceData.RC.map(ref => {
-                        const targetSales = Math.round(ref * 1.04);
-                        return targetSales - currentData.rc.baseSales;
-                    });
-                    currentData.rc.targetRate = 4;
-                    break;
-                case 'improvement':
-                    currentData.rc.variations = referenceData.RC.map(ref => {
-                        const targetSales = Math.round(ref * 1.07);
-                        return targetSales - currentData.rc.baseSales;
-                    });
-                    currentData.rc.targetRate = 7;
-                    break;
-            }
-            const rcTargetRateElem = document.getElementById('rc-target-rate');
-            const rcCurrentRateElem = document.getElementById('rc-current-rate');
-            if (rcTargetRateElem) rcTargetRateElem.value = currentData.rc.targetRate;
-            if (rcCurrentRateElem) rcCurrentRateElem.textContent = currentData.rc.targetRate;
-            saveInputValues();
-            calculateRC();
-            generateRCTable();
-            updateRCChart();
-        }
-
-        function applyRCDPreset(presetType) {
-            switch(presetType) {
-                case 'zero':
-                    currentData.rcd.fees = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-                    break;
-                case 'actual':
-                    currentData.rcd.purchases = referenceData.RCD.map(refSales => {
-                        const purchaseCount = refSales / (2000 * 1.03);
-                        return Math.floor(purchaseCount * 10) / 10;
-                    });
-                    currentData.rcd.fees = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1];
-                    break;
-                case 'standard':
-                    currentData.rcd.purchases = [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8];
-                    currentData.rcd.fees = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
-                    break;
-                case 'seven':
-                    currentData.rcd.purchases = [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7];
-                    currentData.rcd.fees = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
-                    break;
-                case 'six':
-                    currentData.rcd.purchases = [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6];
-                    currentData.rcd.fees = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-                    break;
-            }
-            saveInputValues();
-            calculateRCD();
-            generateRCDTable();
-            updateRCDChart();
-        }
-
-        function applyRCTargetRate() {
-            const targetRateElem = document.getElementById('rc-target-rate');
-            const currentRateElem = document.getElementById('rc-current-rate');
-            
-            if (targetRateElem && currentRateElem) {
-                const targetRate = parseFloat(targetRateElem.value) || 0;
-                currentData.rc.variations = referenceData.RC.map(ref => {
-                    const targetSales = Math.round(ref * (1 + targetRate / 100));
-                    return targetSales - currentData.rc.baseSales;
-                });
-                currentData.rc.targetRate = targetRate;
-                currentRateElem.textContent = targetRate;
-                saveInputValues();
-                calculateRC();
-                generateRCTable();
-                updateRCChart();
-            }
-        }
-
-        // サイレント送信関数（アラートなし）
-        function sendSRDataSilent() {
-            const monthlySales = months.map((_, i) => {
-                return Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0);
-            });
-
-            const srSalesData = {
-                monthlySales: monthlySales,
-                timestamp: new Date().toISOString()
-            };
-
-            const srSettings = {
-                commission: currentData.sr.variables.commission,
-                bonus6: currentData.sr.variables.bonus6,
-                bonus12: currentData.sr.variables.bonus12,
-                advertising: currentData.sr.variables.advertising
-            };
-
-            localStorage.setItem(LOCAL_STORAGE_KEYS.sr_data, JSON.stringify(srSalesData));
-            localStorage.setItem(LOCAL_STORAGE_KEYS.sr_settings, JSON.stringify(srSettings));
-            
-            return monthlySales.reduce((sum, val) => sum + val, 0);
-        }
-
-        function sendWDataSilent() {
-            const wSalesData = {
-                monthlySales: currentData.w.sales,
-                timestamp: new Date().toISOString()
-            };
-
-            const wSettings = {
-                advertising: currentData.w.variables.advertising
-            };
-
-            localStorage.setItem(LOCAL_STORAGE_KEYS.w_data, JSON.stringify(wSalesData));
-            localStorage.setItem(LOCAL_STORAGE_KEYS.w_settings, JSON.stringify(wSettings));
-            
-            return currentData.w.sales.reduce((sum, val) => sum + val, 0);
-        }
-
-        // 修正版: RC卸データ送信関数
-        function sendRCDataSilent() {
-            const rcSalesData = {
-                baseSales: currentData.rc.baseSales,
-                variations: currentData.rc.variations,
-                timestamp: new Date().toISOString()
-            };
-
-            const rcSettings = {
-                advertising: currentData.rc.variables.advertising,
-                decemberExhibition: currentData.rc.variables.decemberExhibition,  // 個別の値
-                aprilBoothFee: currentData.rc.variables.aprilBoothFee            // 個別の値
-            };
-
-            localStorage.setItem(LOCAL_STORAGE_KEYS.rc_data, JSON.stringify(rcSalesData));
-            localStorage.setItem(LOCAL_STORAGE_KEYS.rc_settings, JSON.stringify(rcSettings));
-            
-            const monthlySales = currentData.rc.variations.map(variation => currentData.rc.baseSales + variation);
-            return monthlySales.reduce((sum, val) => sum + val, 0);
-        }
-
-        function sendRCDDataSilent() {
-            const rcdSalesData = {
-                purchases: currentData.rcd.purchases,
-                timestamp: new Date().toISOString()
-            };
-
-            const rcdSettings = {
-                feeOccurrences: currentData.rcd.fees
-            };
-
-            localStorage.setItem(LOCAL_STORAGE_KEYS.rcd_data, JSON.stringify(rcdSalesData));
-            localStorage.setItem(LOCAL_STORAGE_KEYS.rcd_settings, JSON.stringify(rcdSettings));
-            
-            const monthlySales = currentData.rcd.purchases.map(purchase => Math.round(purchase * 2000 * 1.03));
-            return monthlySales.reduce((sum, val) => sum + val, 0);
-        }
-
-        // 個別送信関数（アラート付き）
-        function sendSRDataToPLSystem(showAlert = true) {
-            try {
-                const annual = sendSRDataSilent();
-                
-                if (showAlert) {
-                    alert('SRデータをPLシステムに送信しました！\n\n' +
-                          '年間合計: ' + formatNumber(annual) + '万円\n' +
-                          '送信時刻: ' + new Date().toLocaleTimeString());
-                }
-                return true;
-            } catch (error) {
-                if (showAlert) {
-                    alert('データ送信に失敗しました: ' + error.message);
-                }
-                throw error;
-            }
-        }
-
-        function sendWDataToPLSystem(showAlert = true) {
-            try {
-                const annual = sendWDataSilent();
-                
-                if (showAlert) {
-                    alert('WデータをPLシステムに送信しました！\n\n' +
-                          '年間合計: ' + formatNumber(annual) + '万円\n' +
-                          '送信時刻: ' + new Date().toLocaleTimeString());
-                }
-                return true;
-            } catch (error) {
-                if (showAlert) {
-                    alert('Wデータ送信に失敗しました: ' + error.message);
-                }
-                throw error;
-            }
-        }
-
-        function sendRCDataToPLSystem(showAlert = true) {
-            try {
-                const annual = sendRCDataSilent();
-                
-                if (showAlert) {
-                    alert('RCデータをPLシステムに送信しました！\n\n' +
-                          '年間合計: ' + formatNumber(annual) + '万円\n' +
-                          '送信時刻: ' + new Date().toLocaleTimeString());
-                }
-                return true;
-            } catch (error) {
-                if (showAlert) {
-                    alert('RCデータ送信に失敗しました: ' + error.message);
-                }
-                throw error;
-            }
-        }
-
-        function sendRCDDataToPLSystem(showAlert = true) {
-            try {
-                const annual = sendRCDDataSilent();
-                
-                if (showAlert) {
-                    alert('RCDデータをPLシステムに送信しました！\n\n' +
-                          '年間合計: ' + formatNumber(annual) + '万円\n' +
-                          '送信時刻: ' + new Date().toLocaleTimeString());
-                }
-                return true;
-            } catch (error) {
-                if (showAlert) {
-                    alert('RCDデータ送信に失敗しました: ' + error.message);
-                }
-                throw error;
-            }
-        }
-
-        // 一括送信機能
-        function sendAllDataAndNavigateToPL() {
-            try {
-                // サイレント送信実行（アラートなし）
-                const srTotal = sendSRDataSilent();
-                const wTotal = sendWDataSilent(); 
-                const rcTotal = sendRCDataSilent();
-                const rcdTotal = sendRCDDataSilent();
-                
-                // 統合フラグを設定
-                localStorage.setItem('all_data_sync_flag', JSON.stringify({
-                    timestamp: new Date().toISOString(),
-                    status: 'completed',
-                    departments: {
-                        sr: srTotal,
-                        w: wTotal,
-                        rc: rcTotal,
-                        rcd: rcdTotal
-                    }
-                }));
-                
-                // 合計を計算
-                const grandTotal = srTotal + wTotal + rcTotal + rcdTotal;
-                
-                // 確認メッセージを表示（1回のみ）
-                const message = `全事業部データの送信が完了しました！\n\n` +
-                               `【送信結果】\n` +
-                               `SR事業部: ${formatNumber(srTotal)}万円\n` +
-                               `W事業部: ${formatNumber(wTotal)}万円\n` +
-                               `RC卸: ${formatNumber(rcTotal)}万円\n` +
-                               `RCD社: ${formatNumber(rcdTotal)}万円\n` +
-                               `━━━━━━━━━\n` +
-                               `合計: ${formatNumber(grandTotal)}万円\n\n` +
-                               `OKを押すと事業部合計PLページへ移動します。`;
-                
-                // ユーザー確認後にページ遷移
-                if (confirm(message)) {
-                    window.location.href = 'combined-dashboard/index.html';
-                }
-                
-            } catch (error) {
-                console.error('一括送信エラー:', error);
-                alert('データ送信中にエラーが発生しました。\n\nエラー内容: ' + error.message);
-            }
-        }
-
-        // ナビゲーション機能
-        function navigateToSRPL() {
-            window.location.href = 'department-pl/sr-pl.html';
-        }
-
-        function navigateToWPL() {
-            window.location.href = 'department-pl/w-pl.html';
-        }
-
-        function navigateToRCPL() {
-            window.location.href = 'department-pl/rc-pl.html';
-        }
-
-        function navigateToRCDPL() {
-            window.location.href = 'department-pl/rcd-pl.html';
-        }
-
-        // エクスポート機能
-        function exportToJSON() {
-            const exportData = {
-                timestamp: new Date().toISOString(),
-                data: currentData,
-                summary: {
-                    totalRevenue: getCurrentTotalRevenue(),
-                    breakdown: getCurrentBreakdown()
-                }
-            };
-            
-            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `budget_input_data_${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        function getCurrentTotalRevenue() {
-            const srTotal = months.map((_, i) => {
-                return Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0);
-            }).reduce((sum, val) => sum + val, 0);
-
-            const wTotal = currentData.w.sales.reduce((sum, val) => sum + val, 0);
-            const rcTotal = currentData.rc.variations.map(variation => 
-                currentData.rc.baseSales + variation
-            ).reduce((sum, val) => sum + val, 0);
-            const rcdTotal = currentData.rcd.purchases.map(purchase => 
-                Math.round(purchase * 2000 * 1.03)
-            ).reduce((sum, val) => sum + val, 0);
-
-            return srTotal + wTotal + rcTotal + rcdTotal;
-        }
-
-        function getCurrentBreakdown() {
-            const srTotal = months.map((_, i) => {
-                return Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0);
-            }).reduce((sum, val) => sum + val, 0);
-
-            return {
-                SR: srTotal,
-                W: currentData.w.sales.reduce((sum, val) => sum + val, 0),
-                RC: currentData.rc.variations.map(variation => 
-                    currentData.rc.baseSales + variation
-                ).reduce((sum, val) => sum + val, 0),
-                RCD: currentData.rcd.purchases.map(purchase => 
-                    Math.round(purchase * 2000 * 1.03)
-                ).reduce((sum, val) => sum + val, 0)
-            };
-        }
-
-        // 初期化関数
-        function initialize() {
-            try {
-                console.log('Initializing budget input system...');
-                
-                // 保存されたデータがあれば復元
-                const restored = loadInputValues();
-                
-                if (restored) {
-                    updateAllUIElements();
-                } else {
-                    // 初期値設定
-                    updateAllUIElements();
-                }
-
-                // テーブル生成
-                generateAllTables();
-                
-                // 計算実行
-                calculateAllDepartments();
-                
-                // チャート初期化
-                updateAllCharts();
-                
-                // KPI更新
-                updateKPIs();
-                
-                console.log('Initialization completed successfully');
-                
-                // 初期保存（まだ保存データがない場合）
-                if (!restored) {
-                    saveInputValues();
-                }
-                
-            } catch (error) {
-                console.error('Error during initialization:', error);
-            }
-        }
-
-        // ページ読み込み時に初期化実行
-        document.addEventListener('DOMContentLoaded', initialize);
-        window.addEventListener('load', initialize);
-    </script>
-</body>
-</html>
