@@ -555,7 +555,7 @@
                     }
                 }
                 if (!Array.isArray(data.monthly) || data.monthly.length !== 12) {
-                    return { valid: false, message: '月次データは12か月分必要です' };
+                    return { valid: false, message: '月次データは12ヶ月分必要です' };
                 }
                 return { valid: true, message: 'データ検証成功' };
             },
@@ -710,7 +710,7 @@
                 if (statusElement) {
                     statusElement.className = `linkage-status linkage-${type}`;
                     statusElement.innerHTML = `
-                        <strong>${type === 'success' ? '✓' : type === 'warning' ? '⚠ ' : '✗'}</strong>
+                        <strong>${type === 'success' ? '✓' : type === 'warning' ? '⚠' : '✗'}</strong>
                         ${message}
                     `;
                 }
@@ -914,6 +914,12 @@
 
         let linkageActive = false;
 
+        // Phase 2修正: 自動送信メッセージ表示（新規実装）
+        function showAutoSendMessage() {
+            UI_MANAGER.updateLinkageStatus('success', 
+                `統合PLへ自動送信完了: ${new Date().toLocaleString()}`);
+        }
+
         // 【修正版】連携データ読み込み機能
         function loadLinkageData() {
             try {
@@ -1022,7 +1028,7 @@
             // 統合システム用データ生成（v3.0仕様準拠）
             const rcdIntegrationData = {
                 department: 'RCD社事業部',
-                // v3.0仕様：完全なデータ構造   
+                // v3.0仕様：完全なデータ構造    
                 sales: monthlyResults.map(m => m.sales),
                 cogs: monthlyResults.map(m => m.cogs),
                 personnel: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // 外部委託のため0
@@ -1073,12 +1079,6 @@
             }, 1500); // 1.5秒後に自動送信
         }
 
-        // Phase 2修正: 自動送信メッセージ表示（新規実装）
-        function showAutoSendMessage() {
-            UI_MANAGER.updateLinkageStatus('success', 
-                `統合PLへ自動送信完了: ${new Date().toLocaleString()}`);
-        }
-
         // CSV出力
         function exportToCSV() {
             if (!window.currentRCDResults) {
@@ -1123,6 +1123,11 @@
             
             // 連携データ読み込み（計算も含む）
             loadLinkageData();
+
+            // Phase 2修正: 画面表示時の自動送信メッセージ実装
+            setTimeout(() => {
+                showAutoSendMessage();
+            }, 2000); // 2秒後に自動送信メッセージ表示
             
             console.log('RCD社事業部PLシステム初期化完了');
         }
