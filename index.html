@@ -122,6 +122,22 @@
         .kpi-card.data-sync.partial { background: linear-gradient(135deg, #f39c12, #e67e22); }
         .kpi-card.data-sync.error { background: linear-gradient(135deg, #e74c3c, #c0392b); }
 
+        /* Phase 3追加: 統合PL連携カード */
+        .kpi-card.integration-linkage { 
+            background: linear-gradient(135deg, #1abc9c, #16a085); 
+            color: white;
+            border: 2px solid #0e8c73;
+        }
+        .kpi-card.integration-linkage.active { 
+            animation: integrationPulse 2s infinite;
+        }
+
+        @keyframes integrationPulse {
+            0% { border-color: #0e8c73; }
+            50% { border-color: #27ae60; }
+            100% { border-color: #0e8c73; }
+        }
+
         .kpi-label {
             font-size: 0.65em;
             margin-bottom: 2px;
@@ -147,6 +163,28 @@
             margin: 8px 10px;
             font-size: 0.75em;
             display: none;
+        }
+
+        /* Phase 3追加: 統合PL連携ステータス */
+        .integration-status-bar {
+            background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);
+            color: white;
+            padding: 8px 10px;
+            margin: 8px 10px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            text-align: center;
+            display: none;
+        }
+
+        .integration-status-bar.active {
+            display: block;
+            animation: statusBarSlide 0.5s ease-in-out;
+        }
+
+        @keyframes statusBarSlide {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .individual-dept-section {
@@ -412,7 +450,6 @@
             .dept-grid { grid-template-columns: 1fr; }
             .comparison-grid { grid-template-columns: 1fr; }
             
-            /* Step2-3モバイル対応 */
             .individual-dept-section > div[style*="grid-template-columns"] {
                 grid-template-columns: 1fr !important;
                 gap: 10px;
@@ -422,18 +459,15 @@
                 grid-template-columns: 1fr;
             }
             
-            /* モバイル時のグラフ高さ調整 */
             .individual-dept-section canvas {
                 height: 100px !important;
             }
             
-            /* モバイル時の全体パフォーマンス指標を2列維持 */
             .individual-dept-section div[style*="grid-template-columns: 1fr 1fr"] {
                 grid-template-columns: 1fr 1fr !important;
                 gap: 4px;
             }
             
-            /* KPIカードのフォントサイズ微調整 */
             .individual-dept-section .dept-card {
                 font-size: 0.9em;
             }
@@ -445,7 +479,6 @@
                 gap: 6px;
             }
             
-            /* 極小画面での追加調整 */
             .individual-dept-section canvas {
                 height: 80px !important;
             }
@@ -454,13 +487,11 @@
                 gap: 8px;
             }
             
-            /* 全体パフォーマンス指標を1列に */
             .individual-dept-section div[style*="grid-template-columns: 1fr 1fr"] {
                 grid-template-columns: 1fr !important;
                 gap: 3px;
             }
             
-            /* フォントサイズをさらに調整 */
             .section-title {
                 font-size: 0.8em;
             }
@@ -494,6 +525,13 @@
 
         <div class="data-warning" id="data-warning"></div>
 
+        <!-- Phase 3追加: 統合PL連携ステータスバー -->
+        <div class="integration-status-bar" id="integration-status-bar">
+            <strong>🔗 統合PLシステム連携:</strong> 
+            <span id="integration-status-text">待機中</span> | 
+            <span id="integration-last-update">最終更新: --:--</span>
+        </div>
+
         <div class="chart-section">
             <div class="chart-title">月次利益推移（動的データ対応）</div>
             <div class="chart-wrapper">
@@ -521,6 +559,12 @@
                 <div class="kpi-label">目標達成率</div>
                 <div class="kpi-value" id="target-achievement">---%</div>
                 <div class="kpi-detail" id="target-status">目標配分OFF</div>
+            </div>
+            <!-- Phase 3追加: 統合PL連携状況カード -->
+            <div class="kpi-card integration-linkage" id="integration-linkage-card">
+                <div class="kpi-label">統合PL連携</div>
+                <div class="kpi-value" id="integration-linkage-status">待機中</div>
+                <div class="kpi-detail" id="integration-linkage-detail">自動同期</div>
             </div>
             <div class="kpi-card data-sync" id="data-sync-card">
                 <div class="kpi-label">データ取得状況</div>
@@ -603,7 +647,7 @@
                             <canvas id="rcd-monthly-chart"></canvas>
                         </div>
                         <div style="font-size: 0.55em; color: #666; margin-top: 2px; text-align: center;">
-                            ※計画受注のため予算変動は少なめ
+                            ※計画受注のため予算変動は少ない
                         </div>
                     </div>
                 </div>
@@ -670,6 +714,8 @@
             <button class="action-btn reload" onclick="refreshDashboardData()">全データ更新</button>
             <button class="action-btn export" onclick="exportDebugData()">デバッグ情報出力</button>
             <button class="action-btn toggle" onclick="toggleDebugMode()">デバッグ表示切替</button>
+            <!-- Phase 3追加: 統合PL連携ボタン -->
+            <button class="action-btn" style="background: #1abc9c;" onclick="loadIntegrationData()">🔗 統合PL連携確認</button>
         </div>
     </div>
 
@@ -681,9 +727,138 @@
             w: 'pl_system_w_data',
             rc: 'pl_system_rc_data',
             rcd: 'pl_system_rcd_data',
-            executive: 'pl_system_executive_data'
+            executive: 'pl_system_executive_data',
+            
+            // Phase 3追加: ダッシュボード連携専用キー
+            dashboard_integration: 'dashboard_integration_data'
         };
         // ===== 【保護領域終了】 =====
+
+        // Phase 3追加: 統合PL連携管理機能
+        const IntegrationLinkageManager = {
+            // 統合PLデータ読み込み機能
+            loadIntegrationData: function() {
+                try {
+                    const integrationData = localStorage.getItem(STORAGE_KEYS.dashboard_integration);
+                    if (integrationData) {
+                        const data = JSON.parse(integrationData);
+                        this.updateDashboardFromIntegration(data);
+                        this.updateIntegrationStatus('統合PLと連携中', 'success');
+                        return data;
+                    } else {
+                        this.updateIntegrationStatus('統合PLデータなし', 'waiting');
+                        return null;
+                    }
+                } catch (error) {
+                    console.error('統合PL連携データ読み込みエラー:', error);
+                    this.updateIntegrationStatus('読み込みエラー', 'error');
+                    return null;
+                }
+            },
+
+            // ダッシュボードデータを統合PLデータで更新
+            updateDashboardFromIntegration: function(integrationData) {
+                try {
+                    // KPIカード更新
+                    this.updateElement('dept-total-profit', `${this.formatNumber(integrationData.summary.totalSales)}万円`);
+                    this.updateElement('final-profit', `${this.formatNumber(integrationData.summary.totalProfit)}万円`);
+                    this.updateElement('header-final-profit', this.formatNumber(integrationData.summary.totalProfit));
+                    
+                    // 統合PL連携カード更新
+                    this.updateElement('integration-linkage-status', 'アクティブ');
+                    this.updateElement('integration-linkage-detail', `利益率: ${integrationData.summary.profitRate.toFixed(1)}%`);
+                    
+                    // 最終利益カードの色変更
+                    const finalCard = document.getElementById('final-card');
+                    if (finalCard) {
+                        finalCard.className = 'kpi-card ' + (integrationData.summary.totalProfit >= 0 ? 'final-positive' : 'final-negative');
+                    }
+
+                    // 統合PL連携カードをアクティブに
+                    const linkageCard = document.getElementById('integration-linkage-card');
+                    if (linkageCard) {
+                        linkageCard.className = 'kpi-card integration-linkage active';
+                    }
+
+                    // ステータスバー表示
+                    const statusBar = document.getElementById('integration-status-bar');
+                    if (statusBar) {
+                        statusBar.className = 'integration-status-bar active';
+                    }
+
+                    this.logDebug('ダッシュボード更新完了（統合PLデータ）', {
+                        売上: integrationData.summary.totalSales,
+                        利益: integrationData.summary.totalProfit,
+                        利益率: integrationData.summary.profitRate,
+                        アクティブ部門: integrationData.departments.activeCount
+                    });
+
+                } catch (error) {
+                    console.error('ダッシュボード更新エラー:', error);
+                    this.updateIntegrationStatus('更新エラー', 'error');
+                }
+            },
+
+            // 統合連携ステータス更新
+            updateIntegrationStatus: function(message, status) {
+                try {
+                    const statusText = document.getElementById('integration-status-text');
+                    const lastUpdate = document.getElementById('integration-last-update');
+                    
+                    if (statusText) {
+                        statusText.textContent = message;
+                    }
+                    
+                    if (lastUpdate && status === 'success') {
+                        lastUpdate.textContent = `最終更新: ${new Date().toLocaleTimeString()}`;
+                    }
+
+                    this.logDebug(`統合PL連携ステータス: ${status} - ${message}`);
+                } catch (error) {
+                    console.error('統合連携ステータス更新エラー:', error);
+                }
+            },
+
+            // ユーティリティ関数
+            updateElement: function(elementId, value) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = value;
+                }
+            },
+
+            formatNumber: function(num) {
+                if (isNaN(num) || num === null || num === undefined) return '0';
+                return Math.round(num).toLocaleString();
+            },
+
+            logDebug: function(message, data = null) {
+                console.log(`[統合PL連携] ${message}`, data || '');
+                const debugElement = document.getElementById('debug-output');
+                if (debugElement) {
+                    const timestamp = new Date().toLocaleTimeString();
+                    debugElement.innerHTML += `<br>[${timestamp}] 統合PL連携: ${message}`;
+                    if (data) {
+                        debugElement.innerHTML += `<br>　　　　　　${JSON.stringify(data, null, 2)}`;
+                    }
+                }
+            }
+        };
+
+        // Phase 3追加: 統合PL連携データ読み込み（グローバル関数）
+        function loadIntegrationData() {
+            try {
+                const data = IntegrationLinkageManager.loadIntegrationData();
+                if (data) {
+                    alert(`統合PL連携データ取得成功\n売上: ${IntegrationLinkageManager.formatNumber(data.summary.totalSales)}万円\n利益: ${IntegrationLinkageManager.formatNumber(data.summary.totalProfit)}万円\n利益率: ${data.summary.profitRate.toFixed(1)}%\nアクティブ事業部: ${data.departments.activeCount}/4\n最終更新: ${new Date(data.lastUpdate).toLocaleString()}`);
+                } else {
+                    alert('統合PLデータが見つかりません。\n統合PLシステムからデータを送信してください。');
+                }
+            } catch (error) {
+                console.error('統合PL連携確認エラー:', error);
+                alert('統合PL連携確認中にエラーが発生しました: ' + error.message);
+            }
+        }
 
         // Step1実装: 動的データ取得機能
         const DynamicDataManager = {
@@ -692,7 +867,7 @@
                 const debugInfo = [];
                 
                 Object.entries(STORAGE_KEYS).forEach(([dept, storageKey]) => {
-                    if (dept === 'executive') return;
+                    if (dept === 'executive' || dept === 'dashboard_integration') return;
                     
                     try {
                         const storedData = localStorage.getItem(storageKey);
@@ -822,6 +997,7 @@
                         <div style="margin-left: 10px;">✓ Step3: 事業部月次グラフ＋KPI表示</div>
                         <div style="margin-left: 10px;">✓ 目標配分機能復旧</div>
                         <div style="margin-left: 10px;">✓ 月次利益推移グラフ</div>
+                        <div style="margin-left: 10px;">✓ Phase 3: 統合PL連携機能</div>
                     `;
                 }
             }
@@ -1203,80 +1379,6 @@
                         declining: decliningDepts
                     }
                 };
-            },
-
-            displayComparison: function(analysisData) {
-                const gridElement = document.getElementById('comparison-grid');
-                if (!gridElement) return;
-
-                gridElement.innerHTML = '';
-                
-                Object.entries(analysisData.departments).forEach(([dept, data]) => {
-                    const card = this.createComparisonCard(data);
-                    gridElement.appendChild(card);
-                });
-                
-                // サマリー更新
-                this.updateAnalysisSummary(analysisData.overall);
-            },
-
-            createComparisonCard: function(data) {
-                const card = document.createElement('div');
-                card.className = 'comparison-card';
-                
-                const revenueClass = data.difference.revenue >= 0 ? 'positive' : 'negative';
-                const profitClass = data.difference.profit >= 0 ? 'positive' : 'negative';
-                
-                card.innerHTML = `
-                    <div class="comparison-header">${data.name} - 前年対比</div>
-                    <div class="comparison-metrics">
-                        <div class="metric-item">
-                            <span class="metric-label">前年売上</span>
-                            <div class="metric-value">${data.previous.revenue.toLocaleString()}</div>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-label">今年売上</span>
-                            <div class="metric-value">${data.current.revenue.toLocaleString()}</div>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-label">売上増減</span>
-                            <div class="metric-value ${revenueClass}">
-                                ${data.difference.revenue >= 0 ? '+' : ''}${data.difference.revenue.toLocaleString()}
-                                <br><span style="font-size: 0.8em;">(${data.growth.revenue.toFixed(1)}%)</span>
-                            </div>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-label">前年利益</span>
-                            <div class="metric-value">${data.previous.profit.toLocaleString()}</div>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-label">今年利益</span>
-                            <div class="metric-value">${data.current.profit.toLocaleString()}</div>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-label">利益増減</span>
-                            <div class="metric-value ${profitClass}">
-                                ${data.difference.profit >= 0 ? '+' : ''}${data.difference.profit.toLocaleString()}
-                                <br><span style="font-size: 0.8em;">(${data.growth.profit.toFixed(1)}%)</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                return card;
-            },
-
-            updateAnalysisSummary: function(overallData) {
-                const summaryElement = document.getElementById('analysis-summary');
-                if (!summaryElement) return;
-                
-                const summaryText = `
-                    <span style="color: #27ae60;">改善事業部</span>: ${overallData.improving.join(', ')} | 
-                    <span style="color: #e74c3c;">要改善</span>: ${overallData.declining.join(', ')} | 
-                    <span style="color: #3498db;">全体売上伸長</span>: ${overallData.revenueGrowth >= 0 ? '+' : ''}${overallData.revenueGrowth.toFixed(2)}%
-                `;
-                
-                summaryElement.innerHTML = summaryText;
             }
         };
 
@@ -1609,7 +1711,7 @@
         let executiveBonusAmount = 300;
         let monthlyChart = null;
 
-        // Step1-4統合メイン関数
+        // Phase 3拡張: 統合PL連携を含むStep1-4統合メイン関数
         function executeStep1to4Pipeline() {
             console.log('Step1-4統合処理開始');
             
@@ -1653,6 +1755,9 @@
 
             // チャート更新
             updateDynamicChart(departmentData);
+
+            // Phase 3追加: 統合PL連携データ確認
+            IntegrationLinkageManager.loadIntegrationData();
 
             console.log(`Step1-4処理完了: 部門利益=${departmentTotalProfit}, 最終利益=${finalProfit}, 有効データ数=${validDataCount}`);
             
@@ -1698,6 +1803,11 @@
             monthlyChart.data.datasets[0].backgroundColor = 'rgba(52, 152, 219, 0.7)';
             monthlyChart.update();
         }
+
+        // Phase 3追加: 30秒ごとの定期チェック
+        setInterval(() => {
+            IntegrationLinkageManager.loadIntegrationData();
+        }, 30000);
 
         // 初期化とイベントリスナー
         document.addEventListener('DOMContentLoaded', function() {
@@ -1754,24 +1864,25 @@
         // デバッグ関数
         function exportDebugData() {
             const { departmentData } = DataSyncManager.updateDataSyncStatus();
-            const analysisData = YearOverYearAnalysis.analyzeYearOverYear(departmentData);
+            const integrationData = IntegrationLinkageManager.loadIntegrationData();
             
             const debugData = {
                 timestamp: new Date().toISOString(),
-                version: 'Step1-4完全版（目標配分復旧）',
+                version: 'Step1-4完全版（目標配分復旧）+ Phase 3統合PL連携',
                 storageKeys: STORAGE_KEYS,
                 departmentData: departmentData,
-                analysisData: analysisData,
+                integrationData: integrationData,
                 commonExpenses: calculateCommonExpensesTotal(),
                 targetAllocation: targetAllocation,
                 step1_dataAcquisition: 'completed',
                 step2_statusDisplay: 'completed',
                 step3_individualDisplay: 'completed',
                 step4_yearOverYear: 'completed',
+                phase3_integrationLinkage: 'completed',
                 targetAllocationFunction: 'restored'
             };
             
-            console.log('Step1-4統合デバッグデータ（目標配分復旧版）:', debugData);
+            console.log('Step1-4統合デバッグデータ（Phase 3統合PL連携版）:', debugData);
             
             const textarea = document.createElement('textarea');
             textarea.value = JSON.stringify(debugData, null, 2);
