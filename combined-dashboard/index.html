@@ -187,6 +187,38 @@
             border: 2px solid #f5c6cb;
         }
 
+        /* Phase 3追加: ダッシュボード連携ステータス */
+        .header-row5 {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            padding: 12px 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .dashboard-linkage-status {
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .linkage-indicator {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            margin-left: 10px;
+        }
+
+        .linkage-indicator.active {
+            background: rgba(255, 255, 255, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
         /* メインコンテンツ */
         .main-content {
             background: rgba(255, 255, 255, 0.95);
@@ -425,6 +457,15 @@
                     <div id="rcd-status" class="dept-status status-warning">RCD社: 待機中</div>
                 </div>
             </div>
+
+            <!-- Phase 3追加: 5行目: ダッシュボード連携ステータス -->
+            <div class="header-row5">
+                <div class="dashboard-linkage-status">
+                    <span>📊 ダッシュボード連携:</span>
+                    <span class="linkage-indicator" id="dashboard-linkage-indicator">待機中</span>
+                    <span id="last-dashboard-send">最終送信: --:--</span>
+                </div>
+            </div>
         </header>
 
         <!-- メインコンテンツ -->
@@ -468,6 +509,8 @@
                 <button class="action-btn btn-warning" onclick="validateAllData()">データ整合性チェック</button>
                 <button class="action-btn btn-info" onclick="toggleDebugInfo()">デバッグ情報表示</button>
                 <button class="action-btn btn-warning" onclick="inspectLocalStorage()">LocalStorage検査</button>
+                <!-- Phase 3追加: ダッシュボード連携ボタン -->
+                <button class="action-btn btn-success" onclick="sendDashboardIntegration()">📊 ダッシュボード連携送信</button>
             </div>
 
             <!-- 統合PLテーブル -->
@@ -496,7 +539,15 @@
                 各事業部の実際の販管費変動を動的に統合し、高精度なシミュレーション結果を提供します。
                 
                 <div class="spec-highlight">
-                    <strong>v3.0新機能:</strong><br>
+                    <strong>Phase 3新機能: ダッシュボード連携</strong><br>
+                    ✓ 統合処理完了時の自動送信: 1.5秒後にダッシュボードへデータ送信<br>
+                    ✓ ダッシュボード連携データ構造: summary（売上・利益・経費・利益率）+ departments情報<br>
+                    ✓ LocalStorageキー: 'dashboard_integration_data'で連携<br>
+                    ✓ 送信完了メッセージ表示: 日本語ローカライズ済み時刻表示<br>
+                    ✓ リアルタイム連携ステータス: ヘッダー5行目で視覚的に確認可能<br>
+                    ✓ 双方向連携対応: ダッシュボード側での受信機能と連動<br><br>
+                    
+                    <strong>v3.0既存機能:</strong><br>
                     ✓ 販管費動的統合: 各事業部のexpenses配列から実際の変動を反映 <br>
                     ✓ 役員報酬自動連携: ダッシュボードから最新データを取得<br>
                     ✓ 前年実績更新: 正確な前年比較データに更新<br>
@@ -504,22 +555,16 @@
                     ✓ データ検証機能: 4事業部データの整合性を自動チェック<br>
                     ✓ エラーハンドリング強化: 安定動作とデバッグ機能追加 <br>
                     ✓ LocalStorage検査機能: データ取り込み問題を詳細診断<br>
-                    ✓ その他固定費統合対応: SR事業部の詳細費目を正確に反映
+                    ✓ その他固定費統合対応: SR事業部の詳細費目を正確に反映 
                 </div>
             </div>
         </main>
     </div>
 
     <script>
-        // 4事業部統合PLシステム v3.0 データ取り込み修正版 - エラー修正版
-        
-        // グローバル変数
-        let integratedChart = null;
-        let debugMode = false;
-        
-        // LocalStorageキー（既存システムとの互換性を重視）
+        // ===== 【保護領域開始】絶対に変更禁止 =====
+        // LocalStorageキー管理 - 統合システム用
         const STORAGE_KEYS = {
-            // v3.0統合用キー（優先）
             sr: 'pl_system_sr_data',
             w: 'pl_system_w_data',
             rc: 'pl_system_rc_data',
@@ -533,9 +578,19 @@
             
             // ダッシュボード系
             dashboard: 'dashboard_data',
-            executive_compensation: 'executive_compensation_data'
+            executive_compensation: 'executive_compensation_data',
+            
+            // Phase 3追加: ダッシュボード連携専用キー
+            dashboard_integration: 'dashboard_integration_data'
         };
+        // ===== 【保護領域終了】 =====
 
+        // 4事業部統合PLシステム v3.0 データ取り込み修正版 - エラー修正版
+        
+        // グローバル変数
+        let integratedChart = null;
+        let debugMode = false;
+        
         const INTEGRATION_CONFIG = {
             requiredFields: ['sales', 'cogs', 'personnel', 'expenses'],
             monthCount: 12,
@@ -607,6 +662,27 @@
                     this.logDebug(`${dept}事業部ステータス更新: ${status} - ${message}`);
                 } catch (error) {
                     this.logDebug(`ステータス更新エラー(${dept})`, error.message);
+                }
+            },
+
+            // Phase 3追加: ダッシュボード連携ステータス更新
+            updateDashboardLinkageStatus: function(status, message) {
+                try {
+                    const indicator = document.getElementById('dashboard-linkage-indicator');
+                    const lastSend = document.getElementById('last-dashboard-send');
+                    
+                    if (indicator) {
+                        indicator.textContent = message;
+                        indicator.className = `linkage-indicator ${status === 'success' ? 'active' : ''}`;
+                    }
+                    
+                    if (lastSend && status === 'success') {
+                        lastSend.textContent = `最終送信: ${new Date().toLocaleTimeString()}`;
+                    }
+                    
+                    this.logDebug(`ダッシュボード連携ステータス更新: ${status} - ${message}`);
+                } catch (error) {
+                    this.logDebug(`ダッシュボード連携ステータス更新エラー`, error.message);
                 }
             },
 
@@ -1152,13 +1228,116 @@
                         その他固定費統合合計: UI_MANAGER.integratedData.othersFixed.reduce((a, b) => a + b, 0),
                         統合状況: `${activeDepts.length}/4`
                     });
+
+                    // Phase 3追加: 統合完了後1.5秒でダッシュボード自動送信
+                    setTimeout(() => {
+                        if (activeDepts.length > 0) {
+                            this.sendDashboardIntegrationAuto();
+                        }
+                    }, 1500);
+
                     return true;
                 } catch (error) {
                     UI_MANAGER.logDebug('データ統合エラー', error.message);
                     return false;
                 }
+            },
+
+            // Phase 3追加: ダッシュボード連携自動送信機能
+            sendDashboardIntegrationAuto: function() {
+                try {
+                    const annualSales = UI_MANAGER.integratedData.sales.reduce((sum, val) => sum + (val || 0), 0);
+                    const annualCogs = UI_MANAGER.integratedData.cogs.reduce((sum, val) => sum + (val || 0), 0);
+                    const annualPersonnel = UI_MANAGER.integratedData.personnel.reduce((sum, val) => sum + (val || 0), 0);
+                    const annualExpenses = UI_MANAGER.integratedData.expenses.reduce((sum, val) => sum + (val || 0), 0);
+                    const annualExecComp = UI_MANAGER.integratedData.executiveComp.reduce((sum, val) => sum + (val || 0), 0);
+                    const annualLegalWelfare = UI_MANAGER.integratedData.legalWelfare.reduce((sum, val) => sum + (val || 0), 0);
+                    const annualOtherFixed = UI_MANAGER.integratedData.otherFixedCosts.reduce((sum, val) => sum + (val || 0), 0);
+                    const annualOthersFixed = UI_MANAGER.integratedData.othersFixed.reduce((sum, val) => sum + (val || 0), 0);
+                    
+                    const grossProfit = annualSales - annualCogs;
+                    const totalExpenses = annualPersonnel + annualExpenses + annualExecComp + annualLegalWelfare + annualOtherFixed + annualOthersFixed;
+                    const operatingProfit = grossProfit - totalExpenses;
+                    const profitRate = annualSales > 0 ? (operatingProfit / annualSales * 100).toFixed(1) : '0.0';
+
+                    // Phase 3: ダッシュボード連携データ構造
+                    const dashboardData = {
+                        summary: {
+                            totalSales: annualSales,
+                            totalProfit: operatingProfit,
+                            totalExpenses: totalExpenses,
+                            profitRate: parseFloat(profitRate)
+                        },
+                        departments: {
+                            activeCount: UI_MANAGER.integratedData.metadata.activeDepartments.length,
+                            list: UI_MANAGER.integratedData.metadata.activeDepartments
+                        },
+                        lastUpdate: new Date().toISOString(),
+                        version: '3.0'
+                    };
+
+                    // LocalStorageへ送信
+                    localStorage.setItem(STORAGE_KEYS.dashboard_integration, JSON.stringify(dashboardData));
+                    
+                    // ステータス更新
+                    UI_MANAGER.updateDashboardLinkageStatus('success', '自動送信完了');
+                    
+                    UI_MANAGER.logDebug('ダッシュボード連携自動送信完了', dashboardData);
+                    
+                } catch (error) {
+                    UI_MANAGER.updateDashboardLinkageStatus('error', 'エラー');
+                    UI_MANAGER.logDebug('ダッシュボード連携自動送信エラー', error.message);
+                }
             }
         };
+
+        // Phase 3追加: ダッシュボード連携送信機能（手動実行）
+        function sendDashboardIntegration() {
+            try {
+                UI_MANAGER.logDebug('手動ダッシュボード連携送信開始');
+                
+                const annualSales = UI_MANAGER.integratedData.sales.reduce((sum, val) => sum + (val || 0), 0);
+                const annualCogs = UI_MANAGER.integratedData.cogs.reduce((sum, val) => sum + (val || 0), 0);
+                const annualPersonnel = UI_MANAGER.integratedData.personnel.reduce((sum, val) => sum + (val || 0), 0);
+                const annualExpenses = UI_MANAGER.integratedData.expenses.reduce((sum, val) => sum + (val || 0), 0);
+                const annualExecComp = UI_MANAGER.integratedData.executiveComp.reduce((sum, val) => sum + (val || 0), 0);
+                const annualLegalWelfare = UI_MANAGER.integratedData.legalWelfare.reduce((sum, val) => sum + (val || 0), 0);
+                const annualOtherFixed = UI_MANAGER.integratedData.otherFixedCosts.reduce((sum, val) => sum + (val || 0), 0);
+                const annualOthersFixed = UI_MANAGER.integratedData.othersFixed.reduce((sum, val) => sum + (val || 0), 0);
+                
+                const grossProfit = annualSales - annualCogs;
+                const totalExpenses = annualPersonnel + annualExpenses + annualExecComp + annualLegalWelfare + annualOtherFixed + annualOthersFixed;
+                const operatingProfit = grossProfit - totalExpenses;
+                const profitRate = annualSales > 0 ? (operatingProfit / annualSales * 100).toFixed(1) : '0.0';
+
+                const dashboardData = {
+                    summary: {
+                        totalSales: annualSales,
+                        totalProfit: operatingProfit,
+                        totalExpenses: totalExpenses,
+                        profitRate: parseFloat(profitRate)
+                    },
+                    departments: {
+                        activeCount: UI_MANAGER.integratedData.metadata.activeDepartments.length,
+                        list: UI_MANAGER.integratedData.metadata.activeDepartments
+                    },
+                    lastUpdate: new Date().toISOString(),
+                    version: '3.0'
+                };
+
+                localStorage.setItem(STORAGE_KEYS.dashboard_integration, JSON.stringify(dashboardData));
+                UI_MANAGER.updateDashboardLinkageStatus('success', '手動送信完了');
+                
+                alert(`ダッシュボード連携送信完了\n年間売上: ${UI_MANAGER.formatNumber(annualSales)}万円\n営業利益: ${UI_MANAGER.formatNumber(operatingProfit)}万円\n利益率: ${profitRate}%\nアクティブ事業部: ${dashboardData.departments.activeCount}/4`);
+                
+                UI_MANAGER.logDebug('手動ダッシュボード連携送信完了', dashboardData);
+                
+            } catch (error) {
+                UI_MANAGER.updateDashboardLinkageStatus('error', 'エラー');
+                UI_MANAGER.logDebug('手動ダッシュボード連携送信エラー', error.message);
+                alert('ダッシュボード連携送信中にエラーが発生しました: ' + error.message);
+            }
+        }
 
         // グローバル関数（ボタンアクション） - エラー修正版
         function refreshIntegrationData() {
