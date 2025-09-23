@@ -334,6 +334,11 @@
             border-left: 4px solid #e67e22;
         }
 
+        /* Phase 2修正: 非表示行のスタイル */
+        .hidden-row {
+            display: none !important;
+        }
+
         @media (max-width: 768px) {
             .container { padding: 5px; }
             .main-title { font-size: 1.5em; }
@@ -380,8 +385,8 @@
                         <div class="kpi-value positive" id="profit-rate">31.1%</div>
                     </div>
                     <div class="kpi-card">
-                        <div class="kpi-label">年間展示会費</div>
-                        <div class="kpi-value" id="annual-exhibition">180万円</div>
+                        <div class="kpi-label">年間販管費合計</div>
+                        <div class="kpi-value" id="annual-admin-expenses">1,239万円</div>
                     </div>
                 </div>
             </div>
@@ -390,7 +395,7 @@
                 <div class="linkage-status" id="linkage-status">
                     <strong>✓</strong> 連携成功: <span id="last-update">2025-09-22 14:35:12</span> にデータ受信
                 </div>
-                <p class="dept-subtitle">基準売上1,500万円+月次増減方式・仕入原価率35.2%（修正モデル）・固定人件費50万円/月・展示会費用対応（5月90万円・12月90万円）</p>
+                <p class="dept-subtitle">基準売上1,500万円+月次増減方式・仕入原価率35.2%（修正モデル）・固定人件費50万円/月・販管費合計対応（5月90万円・12月90万円）</p>
             </div>
         </header>
 
@@ -406,12 +411,12 @@
                     <span>売上高</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-color" style="background: #2ecc71;"></div>
+                    <div class="legend-color" style="background: #87ceeb;"></div>
                     <span>営業利益</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-color" style="background: #e67e22;"></div>
-                    <span>展示会費用</span>
+                    <span>販管費合計</span>
                 </div>
             </div>
 
@@ -451,7 +456,7 @@
 
             <div class="spec-info">
                 <strong>RC卸事業部計算仕様・項目ID体系</strong><br>
-                基準売上1,500万円+月次増減方式 • 仕入原価率35.2%（RC卸事業部仕入修正モデル） • 固定人件費50万円/月（売上変動なし） • 支払手数料70万円/月（固定額） • 展示会費用：5月90万円・12月90万円
+                基準売上1,500万円+月次増減方式 • 仕入原価率35.2%（RC卸事業部仕入修正モデル） • 固定人件費50万円/月（売上変動なし） • 支払手数料70万円/月（固定額） • 販管費合計：5月90万円・12月90万円対応
                 
                 <div class="spec-detail">
                     <strong>その他固定費内訳（月額260万円）：</strong><br>
@@ -533,13 +538,13 @@
                 const operatingProfit = grossProfit - totalExpenses;
                 const profitRate = annualSales > 0 ? (operatingProfit / annualSales * 100).toFixed(1) : 0;
                 
-                // 展示会費用計算
-                const exhibitionCost = CALCULATION_ENGINE.expenses.exhibition * 2; // 5月と12月
+                // Phase 2修正: 年間販管費合計を表示
+                const totalAdminExpenses = annualPersonnel + annualExpenses;
 
                 document.getElementById('annual-sales').textContent = `${annualSales.toLocaleString()}万円`;
                 document.getElementById('annual-profit').textContent = `${operatingProfit.toLocaleString()}万円`;
                 document.getElementById('profit-rate').textContent = `${profitRate}%`;
-                document.getElementById('annual-exhibition').textContent = `${exhibitionCost}万円`;
+                document.getElementById('annual-admin-expenses').textContent = `${totalAdminExpenses.toLocaleString()}万円`;
             },
 
             updateTable: function() {
@@ -548,15 +553,14 @@
 
                 let html = '';
                 
-                // 基準売上行
-                html += '<tr class="sales-row"><td class="item-name">基準売上</td>';
+                // Phase 2修正: 基準売上行と増減額行を非表示
+                html += '<tr class="sales-row hidden-row"><td class="item-name">基準売上</td>';
                 for (let i = 0; i < 12; i++) {
                     html += `<td>${CALCULATION_ENGINE.baseSales}</td>`;
                 }
                 html += `<td><strong>${CALCULATION_ENGINE.baseSales * 12}</strong></td><td>-</td></tr>`;
 
-                // 増減額行
-                html += '<tr class="sales-row"><td class="item-name">増減額</td>';
+                html += '<tr class="sales-row hidden-row"><td class="item-name">増減額</td>';
                 for (let i = 0; i < 12; i++) {
                     const variation = CALCULATION_ENGINE.variations[i];
                     const className = variation > 0 ? 'positive' : variation < 0 ? 'negative' : '';
@@ -567,8 +571,8 @@
                 const varClass = totalVariation > 0 ? 'positive' : totalVariation < 0 ? 'negative' : '';
                 html += `<td class="${varClass}"><strong>${totalVariation > 0 ? '+' : ''}${totalVariation}</strong></td><td>-</td></tr>`;
 
-                // 実際売上行
-                html += '<tr class="sales-row"><td class="item-name">実際売上</td>';
+                // Phase 2修正: 実績売上→設定売上に変更
+                html += '<tr class="sales-row"><td class="item-name">設定売上</td>';
                 for (let i = 0; i < 12; i++) {
                     html += `<td>${rcData.sales[i].toLocaleString()}</td>`;
                 }
@@ -607,20 +611,20 @@
                     { name: '広告宣伝費', values: new Array(12).fill(CALCULATION_ENGINE.expenses.advertising) }
                 ];
 
-                // 販売促進費（展示会含む）
-                const promotionValues = new Array(12).fill(10);
+                // Phase 2修正: 販売促進費を販管費合計に変更
+                const adminExpensesValues = new Array(12).fill(270); // 基本販管費（人件費除く）
                 if (CALCULATION_ENGINE.expenses.exhibition > 0) {
-                    promotionValues[10] = 10 + CALCULATION_ENGINE.expenses.exhibition; // 5月（インデックス10）
-                    promotionValues[5] = 10 + CALCULATION_ENGINE.expenses.exhibition; // 12月（インデックス5）
+                    adminExpensesValues[10] = 270 + CALCULATION_ENGINE.expenses.exhibition; // 5月（インデックス10）
+                    adminExpensesValues[5] = 270 + CALCULATION_ENGINE.expenses.exhibition; // 12月（インデックス5）
                 }
-                expenseItems.push({ name: '販売促進費', values: promotionValues });
+                expenseItems.push({ name: '販管費合計', values: adminExpensesValues });
                 expenseItems.push({ name: 'その他固定費', values: new Array(12).fill(260) });
 
                 // 各販管費項目を表示
                 expenseItems.forEach(item => {
                     html += '<tr class="expense-row"><td class="item-name">' + item.name + '</td>';
                     for (let i = 0; i < 12; i++) {
-                        const isHighlight = (item.name === '販売促進費' && (i === 10 || i === 5) && CALCULATION_ENGINE.expenses.exhibition > 0);
+                        const isHighlight = (item.name === '販管費合計' && (i === 10 || i === 5) && CALCULATION_ENGINE.expenses.exhibition > 0);
                         const style = isHighlight ? ' style="background: #fff3e0; font-weight: bold;"' : '';
                         html += `<td${style}>${item.values[i]}</td>`;
                     }
@@ -654,6 +658,16 @@
                 tableBody.innerHTML = html;
             }
         };
+
+        // Phase 2修正: 自動送信メッセージ表示（新規実装）
+        function showAutoSendMessage() {
+            const statusElement = document.getElementById('linkage-status');
+            if (statusElement) {
+                statusElement.innerHTML = 
+                    `<strong>✓</strong> 統合PLへ自動送信完了: ${new Date().toLocaleString()}`;
+                statusElement.className = 'linkage-status';
+            }
+        }
 
         // 【修正版】連携データ読み込み機能
         function loadLinkageData() {
@@ -732,7 +746,7 @@
                 } else {
                     // データが見つからない場合
                     document.getElementById('linkage-status').innerHTML = 
-                        `<strong>⚠ </strong> 連携データが見つかりません`;
+                        `<strong>⚠</strong> 連携データが見つかりません`;
                     document.getElementById('linkage-status').className = 'linkage-status linkage-warning';
                     
                     // デフォルト値で計算実行
@@ -752,16 +766,6 @@
                 UI_MANAGER.updateKPIs();
                 UI_MANAGER.updateTable();
                 updateChart();
-            }
-        }
-
-        // Phase 2修正: 自動送信メッセージ表示（新規実装）
-        function showAutoSendMessage() {
-            const statusElement = document.getElementById('linkage-status');
-            if (statusElement) {
-                statusElement.innerHTML = 
-                    `<strong>✓</strong> 統合PLへ自動送信完了: ${new Date().toLocaleString()}`;
-                statusElement.className = 'linkage-status';
             }
         }
 
@@ -850,11 +854,10 @@
                     sales - rcData.cogs[index] - rcData.personnel[index] - rcData.expenses[index]
                 );
                 
-                const exhibitionData = new Array(12).fill(0);
-                if (CALCULATION_ENGINE.expenses.exhibition > 0) {
-                    exhibitionData[10] = CALCULATION_ENGINE.expenses.exhibition; // 5月
-                    exhibitionData[5] = CALCULATION_ENGINE.expenses.exhibition; // 12月
-                }
+                // Phase 2修正: 販管費合計データ
+                const adminExpensesData = rcData.personnel.map((personnel, index) => 
+                    personnel + rcData.expenses[index]
+                );
 
                 monthlyChart = new Chart(ctx, {
                     type: 'bar',
@@ -873,15 +876,15 @@
                                 label: '営業利益',
                                 data: profitData,
                                 type: 'line',
-                                backgroundColor: 'rgba(46, 204, 113, 0.8)',
-                                borderColor: '#2ecc71',
+                                backgroundColor: 'rgba(135, 206, 235, 0.8)', // Phase 2修正: 水色に変更
+                                borderColor: '#87ceeb',
                                 borderWidth: 3,
                                 fill: false,
                                 yAxisID: 'y1'
                             },
                             {
-                                label: '展示会費用',
-                                data: exhibitionData,
+                                label: '販管費合計', // Phase 2修正: 展示会費用→販管費合計
+                                data: adminExpensesData,
                                 backgroundColor: 'rgba(230, 126, 34, 0.8)',
                                 borderColor: '#e67e22',
                                 borderWidth: 1,
@@ -915,7 +918,7 @@
                                 title: {
                                     display: true,
                                     text: '営業利益（万円）',
-                                    color: '#2ecc71'
+                                    color: '#87ceeb' // Phase 2修正: 水色に変更
                                 },
                                 grid: {
                                     drawOnChartArea: false,
@@ -973,6 +976,11 @@
         document.addEventListener('DOMContentLoaded', function() {
             // 連携データ読み込み（修正版を使用）
             loadLinkageData();
+
+            // Phase 2修正: 画面表示時の自動送信メッセージ実装
+            setTimeout(() => {
+                showAutoSendMessage();
+            }, 2000); // 2秒後に自動送信メッセージ表示
         });
     </script>
 </body>
