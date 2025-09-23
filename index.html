@@ -706,6 +706,142 @@
             </div>
         </div>
 
+        <div class="target-section" style="margin-top: 20px;">
+            <div class="section-title">役員報酬・共通経費設定</div>
+            
+            <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <!-- 左側：基本設定 -->
+                    <div>
+                        <div style="font-size: 0.8em; font-weight: bold; margin-bottom: 10px; color: #2c3e50;">
+                            一建築費構成
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <label style="font-size: 0.7em; display: block; margin-bottom: 3px; color: #666;">確基額：</label>
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="number" id="base-salary" value="50" step="10" style="width: 80px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75em;">
+                                <span style="font-size: 0.7em;">万円</span>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                            <button class="action-btn" style="background: #e74c3c; font-size: 0.65em; padding: 6px 10px;" onclick="updateExecutiveCompensation('increase')">増額</button>
+                            <button class="action-btn" style="background: #f39c12; font-size: 0.65em; padding: 6px 10px;" onclick="updateExecutiveCompensation('decrease')">減額</button>
+                            <button class="action-btn" style="background: #3498db; font-size: 0.65em; padding: 6px 10px;" onclick="resetExecutiveCompensation()">リセット</button>
+                        </div>
+                    </div>
+                    
+                    <!-- 右側：役員賞与設定 -->
+                    <div>
+                        <div style="font-size: 0.8em; font-weight: bold; margin-bottom: 10px; color: #2c3e50;">
+                            役員賞与設定
+                        </div>
+                        <div style="margin-bottom: 8px;">
+                            <label style="font-size: 0.7em; display: block; margin-bottom: 3px; color: #666;">6月支給額：</label>
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <input type="number" id="bonus-june" value="300" step="50" style="width: 80px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75em;">
+                                <span style="font-size: 0.7em;">万円</span>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 8px;">
+                            <button class="action-btn" style="background: #27ae60; font-size: 0.65em; padding: 6px 12px; width: 100%;" onclick="applyExecutiveSettings()">
+                                リセット
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 月別表示テーブル -->
+                <div style="margin-top: 15px; overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.65em;">
+                        <thead>
+                            <tr style="background: #34495e; color: white;">
+                                <th style="padding: 4px; text-align: center; border: 1px solid #ddd;">項目</th>
+                                <th style="padding: 4px; text-align: center; border: 1px solid #ddd;">7月</th>
+                                <th style="padding: 4px; text-align: center; border: 1px solid #ddd;">8月</th>
+                                <th style="padding: 4px; text-align: center; border: 1px solid #ddd;">9月</th>
+                                <th style="padding: 4px; text-align: center; border: 1px solid #ddd;">10月</th>
+                                <th style="padding: 4px; text-align: center; border: 1px solid #ddd;">11月</th>
+                                <th style="padding: 4px; text-align: center; border: 1px solid #ddd;">12月</th>
+                                <th style="padding: 4px; text-align: center; border: 1px solid #ddd;">1月</th>
+                                <th style="padding: 4px; text-align: center; border: 1px solid #ddd;">2月</th>
+                                <th style="padding: 4px; text-align: center; border: 1px solid #ddd;">3月</th>
+                                <th style="padding: 4px; text-align: center; border: 1px solid #ddd;">4月</th>
+                                <th style="padding: 4px; text-align: center; border: 1px solid #ddd;">5月</th>
+                                <th style="padding: 4px; text-align: center; border: 1px solid #ddd;">6月</th>
+                                <th style="padding: 4px; text-align: center; border: 1px solid #ddd; font-weight: bold;">年計</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="background: #ecf0f1;">
+                                <td style="padding: 4px; border: 1px solid #ddd; font-weight: bold;">役定給与費</td>
+                                <td id="exec-m0" style="padding: 4px; text-align: right; border: 1px solid #ddd;">529</td>
+                                <td id="exec-m1" style="padding: 4px; text-align: right; border: 1px solid #ddd;">529</td>
+                                <td id="exec-m2" style="padding: 4px; text-align: right; border: 1px solid #ddd;">529</td>
+                                <td id="exec-m3" style="padding: 4px; text-align: right; border: 1px solid #ddd;">676</td>
+                                <td id="exec-m4" style="padding: 4px; text-align: right; border: 1px solid #ddd;">676</td>
+                                <td id="exec-m5" style="padding: 4px; text-align: right; border: 1px solid #ddd;">676</td>
+                                <td id="exec-m6" style="padding: 4px; text-align: right; border: 1px solid #ddd;">676</td>
+                                <td id="exec-m7" style="padding: 4px; text-align: right; border: 1px solid #ddd;">676</td>
+                                <td id="exec-m8" style="padding: 4px; text-align: right; border: 1px solid #ddd;">676</td>
+                                <td id="exec-m9" style="padding: 4px; text-align: right; border: 1px solid #ddd;">676</td>
+                                <td id="exec-m10" style="padding: 4px; text-align: right; border: 1px solid #ddd;">676</td>
+                                <td id="exec-m11" style="padding: 4px; text-align: right; border: 1px solid #ddd;">976</td>
+                                <td id="exec-total" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">8,962</td>
+                            </tr>
+                            <tr style="background: #fff;">
+                                <td style="padding: 4px; border: 1px solid #ddd; font-weight: bold;">法定福利費</td>
+                                <td id="welfare-m0" style="padding: 4px; text-align: right; border: 1px solid #ddd;">107</td>
+                                <td id="welfare-m1" style="padding: 4px; text-align: right; border: 1px solid #ddd;">107</td>
+                                <td id="welfare-m2" style="padding: 4px; text-align: right; border: 1px solid #ddd;">107</td>
+                                <td id="welfare-m3" style="padding: 4px; text-align: right; border: 1px solid #ddd;">88</td>
+                                <td id="welfare-m4" style="padding: 4px; text-align: right; border: 1px solid #ddd;">88</td>
+                                <td id="welfare-m5" style="padding: 4px; text-align: right; border: 1px solid #ddd;">88</td>
+                                <td id="welfare-m6" style="padding: 4px; text-align: right; border: 1px solid #ddd;">88</td>
+                                <td id="welfare-m7" style="padding: 4px; text-align: right; border: 1px solid #ddd;">88</td>
+                                <td id="welfare-m8" style="padding: 4px; text-align: right; border: 1px solid #ddd;">88</td>
+                                <td id="welfare-m9" style="padding: 4px; text-align: right; border: 1px solid #ddd;">88</td>
+                                <td id="welfare-m10" style="padding: 4px; text-align: right; border: 1px solid #ddd;">88</td>
+                                <td id="welfare-m11" style="padding: 4px; text-align: right; border: 1px solid #ddd;">127</td>
+                                <td id="welfare-total" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">1,152</td>
+                            </tr>
+                            <tr style="background: #ecf0f1;">
+                                <td style="padding: 4px; border: 1px solid #ddd; font-weight: bold;">その他経費</td>
+                                <td id="other-m0" style="padding: 4px; text-align: right; border: 1px solid #ddd;">59</td>
+                                <td id="other-m1" style="padding: 4px; text-align: right; border: 1px solid #ddd;">-5</td>
+                                <td id="other-m2" style="padding: 4px; text-align: right; border: 1px solid #ddd;">46</td>
+                                <td id="other-m3" style="padding: 4px; text-align: right; border: 1px solid #ddd;">37</td>
+                                <td id="other-m4" style="padding: 4px; text-align: right; border: 1px solid #ddd;">30</td>
+                                <td id="other-m5" style="padding: 4px; text-align: right; border: 1px solid #ddd;">82</td>
+                                <td id="other-m6" style="padding: 4px; text-align: right; border: 1px solid #ddd;">58</td>
+                                <td id="other-m7" style="padding: 4px; text-align: right; border: 1px solid #ddd;">48</td>
+                                <td id="other-m8" style="padding: 4px; text-align: right; border: 1px solid #ddd;">110</td>
+                                <td id="other-m9" style="padding: 4px; text-align: right; border: 1px solid #ddd;">80</td>
+                                <td id="other-m10" style="padding: 4px; text-align: right; border: 1px solid #ddd;">102</td>
+                                <td id="other-m11" style="padding: 4px; text-align: right; border: 1px solid #ddd;">61</td>
+                                <td id="other-total" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">668</td>
+                            </tr>
+                            <tr style="background: #fdf2f2;">
+                                <td style="padding: 4px; border: 1px solid #ddd; font-weight: bold; color: #e74c3c;">営業利益計</td>
+                                <td id="profit-m0" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">932</td>
+                                <td id="profit-m1" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">928</td>
+                                <td id="profit-m2" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">979</td>
+                                <td id="profit-m3" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">801</td>
+                                <td id="profit-m4" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">794</td>
+                                <td id="profit-m5" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">826</td>
+                                <td id="profit-m6" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">822</td>
+                                <td id="profit-m7" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">812</td>
+                                <td id="profit-m8" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">874</td>
+                                <td id="profit-m9" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">824</td>
+                                <td id="profit-m10" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">866</td>
+                                <td id="profit-m11" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold; color: #e74c3c;">1,164</td>
+                                <td id="profit-total" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold; color: #e74c3c;">10,582</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <div class="debug-section">
             <div class="debug-title">Phase 3統合PL完全連動デバッグ: リアルタイム同期状況</div>
             <div class="debug-content" id="debug-output">
@@ -1092,15 +1228,23 @@
                 const previousData = PREVIOUS_YEAR_DATA[deptKey];
                 const color = DEPT_COLORS[deptKey];
                 
-                // 今期データ（ダミー）
-                const currentData = months.map(() => Math.random() * 2000 + 1000);
+                // 今期データ取得（実データ優先、なければダミー）
+                let currentData = [];
+                const storedData = getCurrentYearData(deptKey);
+                
+                if (storedData && storedData.length === 12) {
+                    currentData = storedData;
+                } else {
+                    // ダミーデータ
+                    currentData = months.map(() => Math.random() * 2000 + 1000);
+                }
                 
                 // KPIデータ更新用に集計
                 const currentTotal = currentData.reduce((a, b) => a + b, 0);
                 const previousTotal = previousData.annual;
-                const yoyChange = ((currentTotal - previousTotal) / previousTotal * 100).toFixed(1);
+                const yoyChange = ((currentTotal - previousTotal) / previousTotal * 100);
                 const increase = currentTotal - previousTotal;
-                const profit = Math.random() * 2000 - 500; // ダミーの利益値
+                const profit = Math.random() * 2000 - 500; // 利益は仮値（統合PLから取得予定）
                 
                 // 部門データ保存
                 departmentCurrentData[deptKey] = {
@@ -1112,15 +1256,16 @@
                 updateDepartmentKPI(deptKey, {
                     simSales: currentTotal,
                     increase: increase,
-                    growth: yoyChange,
+                    growth: Math.round(yoyChange), // 整数に丸め
                     profit: profit
                 });
                 
-                // 前年比サマリー更新
+                // 前年比サマリー更新（整数表示）
                 const summaryElement = document.getElementById(`${deptKey}-yoy-summary`);
                 if (summaryElement) {
-                    const changeColor = yoyChange >= 0 ? '#27ae60' : '#e74c3c';
-                    summaryElement.innerHTML = `前年比: <span style="color: ${changeColor};">${yoyChange >= 0 ? '+' : ''}${yoyChange}%</span>`;
+                    const roundedChange = Math.round(yoyChange);
+                    const changeColor = roundedChange >= 0 ? '#27ae60' : '#e74c3c';
+                    summaryElement.innerHTML = `前年比: <span style="color: ${changeColor};">${roundedChange >= 0 ? '+' : ''}${roundedChange}%</span>`;
                 }
 
                 return new Chart(ctx, {
@@ -1165,11 +1310,11 @@
                                 callbacks: {
                                     label: function(context) {
                                         const label = context.dataset.label;
-                                        const value = context.parsed.y;
+                                        const value = Math.round(context.parsed.y); // 整数表示
                                         
                                         if (label === '今期実績' && previousData) {
                                             const prevValue = previousData.monthly[context.dataIndex];
-                                            const change = ((value - prevValue) / prevValue * 100).toFixed(1);
+                                            const change = Math.round(((value - prevValue) / prevValue * 100));
                                             return `${label}: ${value.toLocaleString()}万円 (前年比 ${change >= 0 ? '+' : ''}${change}%)`;
                                         }
                                         return `${label}: ${value.toLocaleString()}万円`;
@@ -1185,7 +1330,7 @@
                                         size: 9
                                     },
                                     callback: function(value) {
-                                        return value.toLocaleString();
+                                        return Math.round(value).toLocaleString();
                                     }
                                 }
                             },
@@ -1201,6 +1346,37 @@
                 });
             } catch (error) {
                 console.error(`${deptKey}グラフ作成エラー:`, error);
+                return null;
+            }
+        }
+
+        // 今期実績データ取得関数（新規追加）
+        function getCurrentYearData(deptKey) {
+            try {
+                // 統合PLからのデータを優先
+                const integrationData = localStorage.getItem(STORAGE_KEYS.dashboard_integration);
+                if (integrationData) {
+                    const data = JSON.parse(integrationData);
+                    if (data.monthlyData && data.monthlyData[deptKey]) {
+                        return data.monthlyData[deptKey];
+                    }
+                }
+                
+                // 個別PLデータから取得
+                const deptData = localStorage.getItem(STORAGE_KEYS[deptKey]);
+                if (deptData) {
+                    const parsed = JSON.parse(deptData);
+                    if (parsed.monthlySales && Array.isArray(parsed.monthlySales)) {
+                        return parsed.monthlySales;
+                    }
+                    if (parsed.sales && Array.isArray(parsed.sales)) {
+                        return parsed.sales;
+                    }
+                }
+                
+                return null;
+            } catch (error) {
+                console.error(`${deptKey}の今期データ取得エラー:`, error);
                 return null;
             }
         }
@@ -1229,6 +1405,178 @@
                 elements.profit.textContent = `${Math.round(data.profit).toLocaleString()}万円`;
                 elements.profit.className = `kpi-item-value ${data.profit >= 0 ? 'positive' : 'negative'}`;
             }
+        }
+
+        // 役員報酬管理システム
+        const ExecutiveCompensationManager = {
+            // デフォルト値
+            defaultValues: {
+                baseSalary: 50,
+                bonusJune: 300,
+                monthlyBase: [529, 529, 529, 676, 676, 676, 676, 676, 676, 676, 676, 976],
+                welfare: [107, 107, 107, 88, 88, 88, 88, 88, 88, 88, 88, 127],
+                other: [59, -5, 46, 37, 30, 82, 58, 48, 110, 80, 102, 61]
+            },
+
+            // 現在の値
+            currentValues: null,
+
+            // 初期化
+            init: function() {
+                this.loadValues();
+                this.updateDisplay();
+            },
+
+            // 値の読み込み
+            loadValues: function() {
+                try {
+                    const stored = localStorage.getItem('executive_compensation_settings');
+                    if (stored) {
+                        this.currentValues = JSON.parse(stored);
+                    } else {
+                        this.currentValues = JSON.parse(JSON.stringify(this.defaultValues));
+                    }
+                } catch (error) {
+                    console.error('役員報酬設定読み込みエラー:', error);
+                    this.currentValues = JSON.parse(JSON.stringify(this.defaultValues));
+                }
+            },
+
+            // 値の保存
+            saveValues: function() {
+                try {
+                    localStorage.setItem('executive_compensation_settings', JSON.stringify(this.currentValues));
+                    
+                    // ダッシュボード用データも更新
+                    const dashboardData = {
+                        executiveCompensation: this.currentValues.monthlyBase,
+                        lastUpdate: new Date().toISOString()
+                    };
+                    
+                    // 既存のダッシュボードデータとマージ
+                    const existingData = localStorage.getItem(STORAGE_KEYS.dashboard) || '{}';
+                    const merged = { ...JSON.parse(existingData), ...dashboardData };
+                    localStorage.setItem(STORAGE_KEYS.dashboard, JSON.stringify(merged));
+                    
+                } catch (error) {
+                    console.error('役員報酬設定保存エラー:', error);
+                }
+            },
+
+            // 表示更新
+            updateDisplay: function() {
+                // 入力欄更新
+                document.getElementById('base-salary').value = this.currentValues.baseSalary;
+                document.getElementById('bonus-june').value = this.currentValues.bonusJune;
+                
+                // 月別表示更新
+                let execTotal = 0;
+                let welfareTotal = 0;
+                let otherTotal = 0;
+                let profitTotal = 0;
+                
+                for (let i = 0; i < 12; i++) {
+                    const exec = this.currentValues.monthlyBase[i];
+                    const welfare = this.currentValues.welfare[i];
+                    const other = this.currentValues.other[i];
+                    const profit = exec + welfare + other;
+                    
+                    document.getElementById(`exec-m${i}`).textContent = exec.toLocaleString();
+                    document.getElementById(`welfare-m${i}`).textContent = welfare.toLocaleString();
+                    document.getElementById(`other-m${i}`).textContent = other.toLocaleString();
+                    document.getElementById(`profit-m${i}`).textContent = profit.toLocaleString();
+                    
+                    execTotal += exec;
+                    welfareTotal += welfare;
+                    otherTotal += other;
+                    profitTotal += profit;
+                }
+                
+                // 年計更新
+                document.getElementById('exec-total').textContent = execTotal.toLocaleString();
+                document.getElementById('welfare-total').textContent = welfareTotal.toLocaleString();
+                document.getElementById('other-total').textContent = otherTotal.toLocaleString();
+                document.getElementById('profit-total').textContent = profitTotal.toLocaleString();
+            },
+
+            // 基本給更新
+            updateBaseSalary: function(action) {
+                const input = document.getElementById('base-salary');
+                let value = parseInt(input.value) || 50;
+                
+                if (action === 'increase') {
+                    value += 10;
+                } else if (action === 'decrease') {
+                    value = Math.max(0, value - 10);
+                }
+                
+                input.value = value;
+                this.currentValues.baseSalary = value;
+                
+                // 月別値を再計算
+                this.recalculateMonthly();
+                this.updateDisplay();
+                this.saveValues();
+            },
+
+            // 月別値再計算
+            recalculateMonthly: function() {
+                const baseSalary = this.currentValues.baseSalary;
+                const bonusJune = this.currentValues.bonusJune;
+                
+                // 基本給の月割り計算
+                for (let i = 0; i < 12; i++) {
+                    this.currentValues.monthlyBase[i] = baseSalary;
+                    
+                    // 賞与月の追加
+                    if (i === 11) { // 6月（配列は0スタート）
+                        this.currentValues.monthlyBase[i] += bonusJune;
+                    }
+                }
+                
+                // 法定福利費も更新（簡易計算）
+                for (let i = 0; i < 12; i++) {
+                    this.currentValues.welfare[i] = Math.round(this.currentValues.monthlyBase[i] * 0.13);
+                }
+            },
+
+            // 設定適用
+            apply: function() {
+                const baseSalary = parseInt(document.getElementById('base-salary').value) || 50;
+                const bonusJune = parseInt(document.getElementById('bonus-june').value) || 300;
+                
+                this.currentValues.baseSalary = baseSalary;
+                this.currentValues.bonusJune = bonusJune;
+                
+                this.recalculateMonthly();
+                this.updateDisplay();
+                this.saveValues();
+                
+                alert('役員報酬設定を適用しました。');
+            },
+
+            // リセット
+            reset: function() {
+                if (confirm('役員報酬設定をリセットしますか？')) {
+                    this.currentValues = JSON.parse(JSON.stringify(this.defaultValues));
+                    this.updateDisplay();
+                    this.saveValues();
+                    alert('役員報酬設定をリセットしました。');
+                }
+            }
+        };
+
+        // グローバル関数として公開
+        function updateExecutiveCompensation(action) {
+            ExecutiveCompensationManager.updateBaseSalary(action);
+        }
+
+        function applyExecutiveSettings() {
+            ExecutiveCompensationManager.apply();
+        }
+
+        function resetExecutiveCompensation() {
+            ExecutiveCompensationManager.reset();
         }
 
         // 目標配分機能
