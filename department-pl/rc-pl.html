@@ -388,9 +388,9 @@
 
             <div class="header-row4">
                 <div class="linkage-status" id="linkage-status">
-                    <strong>✔</strong> 連携成功: <span id="last-update">2025-09-22 14:35:12</span> にデータ受信
+                    <strong>✓</strong> 連携成功: <span id="last-update">2025-09-22 14:35:12</span> にデータ受信
                 </div>
-                <p class="dept-subtitle">基準売上1,500万円+月次増減方式・仕入原価率35.2%（修正モデル）・展示会費用対応（5月90万円・12月90万円）</p>
+                <p class="dept-subtitle">基準売上1,500万円+月次増減方式・仕入原価率35.2%（修正モデル）・固定人件費50万円/月・展示会費用対応（5月90万円・12月90万円）</p>
             </div>
         </header>
 
@@ -505,12 +505,12 @@
                 fees: 70, // 支払手数料
                 travel: 15, // 旅費交通費
                 advertising: 40, // デフォルトの広告宣伝費
-                exhibition: 20, // デフォルトの展示会費用
+                exhibition: 90, // デフォルトの展示会費用
                 other: 260, // その他固定費
                 promotion: { // 販売促進費（展示会費用）
                     base: 10,
                     exhibition: {
-                        april: 0, // 4月の展示会費用（インデックス9）
+                        may: 0, // 5月の展示会費用（インデックス10）
                         december: 0 // 12月の展示会費用（インデックス5）
                     }
                 }
@@ -534,7 +534,7 @@
                 const profitRate = annualSales > 0 ? (operatingProfit / annualSales * 100).toFixed(1) : 0;
                 
                 // 展示会費用計算
-                const exhibitionCost = CALCULATION_ENGINE.expenses.exhibition * 2; // 4月と12月
+                const exhibitionCost = CALCULATION_ENGINE.expenses.exhibition * 2; // 5月と12月
 
                 document.getElementById('annual-sales').textContent = `${annualSales.toLocaleString()}万円`;
                 document.getElementById('annual-profit').textContent = `${operatingProfit.toLocaleString()}万円`;
@@ -610,7 +610,7 @@
                 // 販売促進費（展示会含む）
                 const promotionValues = new Array(12).fill(10);
                 if (CALCULATION_ENGINE.expenses.exhibition > 0) {
-                    promotionValues[9] = 10 + CALCULATION_ENGINE.expenses.exhibition; // 4月（インデックス9）
+                    promotionValues[10] = 10 + CALCULATION_ENGINE.expenses.exhibition; // 5月（インデックス10）
                     promotionValues[5] = 10 + CALCULATION_ENGINE.expenses.exhibition; // 12月（インデックス5）
                 }
                 expenseItems.push({ name: '販売促進費', values: promotionValues });
@@ -620,7 +620,7 @@
                 expenseItems.forEach(item => {
                     html += '<tr class="expense-row"><td class="item-name">' + item.name + '</td>';
                     for (let i = 0; i < 12; i++) {
-                        const isHighlight = (item.name === '販売促進費' && (i === 9 || i === 5) && CALCULATION_ENGINE.expenses.exhibition > 0);
+                        const isHighlight = (item.name === '販売促進費' && (i === 10 || i === 5) && CALCULATION_ENGINE.expenses.exhibition > 0);
                         const style = isHighlight ? ' style="background: #fff3e0; font-weight: bold;"' : '';
                         html += `<td${style}>${item.values[i]}</td>`;
                     }
@@ -680,12 +680,12 @@
                             if (settings.decemberExhibition !== undefined) {
                                 CALCULATION_ENGINE.expenses.exhibition = settings.decemberExhibition;
                             }
-                            // 4月の展示会費用も設定
-                            if (settings.aprilBoothFee !== undefined) {
-                                CALCULATION_ENGINE.expenses.promotion.exhibition.april = settings.aprilBoothFee;
+                            // 5月のブース料も設定
+                            if (settings.mayBoothFee !== undefined) {
+                                CALCULATION_ENGINE.expenses.promotion.exhibition.may = settings.mayBoothFee;
                                 // 両月同じ金額を使用
                                 if (!settings.decemberExhibition) {
-                                    CALCULATION_ENGINE.expenses.exhibition = settings.aprilBoothFee;
+                                    CALCULATION_ENGINE.expenses.exhibition = settings.mayBoothFee;
                                 }
                             }
                         }
@@ -694,7 +694,7 @@
                         calculateRCData();
                         
                         document.getElementById('linkage-status').innerHTML = 
-                            `<strong>✔</strong> 連携成功: ${new Date(parsedData.timestamp || new Date()).toLocaleString('ja-JP')} にデータ受信`;
+                            `<strong>✓</strong> 連携成功: ${new Date(parsedData.timestamp || new Date()).toLocaleString('ja-JP')} にデータ受信`;
                         document.getElementById('linkage-status').className = 'linkage-status';
                         
                         console.log('RC卸連携データ読み込み成功');
@@ -708,7 +708,7 @@
                         if (parsedData.expenses) rcData.expenses = parsedData.expenses;
                         
                         document.getElementById('linkage-status').innerHTML = 
-                            `<strong>✔</strong> 連携成功: ${new Date(parsedData.metadata?.lastUpdate || new Date()).toLocaleString('ja-JP')} にデータ受信`;
+                            `<strong>✓</strong> 連携成功: ${new Date(parsedData.metadata?.lastUpdate || new Date()).toLocaleString('ja-JP')} にデータ受信`;
                         document.getElementById('linkage-status').className = 'linkage-status';
                         
                         console.log('RC卸連携データ読み込み成功（v3.0形式）');
@@ -721,10 +721,18 @@
                     UI_MANAGER.updateTable();
                     updateChart();
                     
+                    // Phase 2修正: 自動送信タイミング設定
+                    setTimeout(() => {
+                        if (window.currentRCResults) {
+                            sendToIntegratedPL(); // 既存の送信関数使用
+                            showAutoSendMessage(); // メッセージ表示（新規実装）
+                        }
+                    }, 1500); // 1.5秒後に自動送信
+                    
                 } else {
                     // データが見つからない場合
                     document.getElementById('linkage-status').innerHTML = 
-                        `<strong>⚠</strong> 連携データが見つかりません`;
+                        `<strong>⚠ </strong> 連携データが見つかりません`;
                     document.getElementById('linkage-status').className = 'linkage-status linkage-warning';
                     
                     // デフォルト値で計算実行
@@ -744,6 +752,16 @@
                 UI_MANAGER.updateKPIs();
                 UI_MANAGER.updateTable();
                 updateChart();
+            }
+        }
+
+        // Phase 2修正: 自動送信メッセージ表示（新規実装）
+        function showAutoSendMessage() {
+            const statusElement = document.getElementById('linkage-status');
+            if (statusElement) {
+                statusElement.innerHTML = 
+                    `<strong>✓</strong> 統合PLへ自動送信完了: ${new Date().toLocaleString()}`;
+                statusElement.className = 'linkage-status';
             }
         }
 
@@ -776,7 +794,7 @@
                 monthlyExpenses += CALCULATION_ENGINE.expenses.other;
                 
                 // 販売促進費（展示会費用）
-                if (i === 9) { // 4月（インデックス9）
+                if (i === 10) { // 5月（インデックス10）
                     monthlyExpenses += CALCULATION_ENGINE.expenses.promotion.base;
                     monthlyExpenses += CALCULATION_ENGINE.expenses.exhibition;
                 } else if (i === 5) { // 12月（インデックス5）
@@ -791,6 +809,9 @@
 
             // メタデータ更新
             rcData.metadata.lastUpdate = new Date().toISOString();
+
+            // グローバル変数に保存（自動送信用）
+            window.currentRCResults = rcData;
         }
 
         // 自動データ送信（保護領域 - 変更禁止）
@@ -831,7 +852,7 @@
                 
                 const exhibitionData = new Array(12).fill(0);
                 if (CALCULATION_ENGINE.expenses.exhibition > 0) {
-                    exhibitionData[9] = CALCULATION_ENGINE.expenses.exhibition; // 4月
+                    exhibitionData[10] = CALCULATION_ENGINE.expenses.exhibition; // 5月
                     exhibitionData[5] = CALCULATION_ENGINE.expenses.exhibition; // 12月
                 }
 
