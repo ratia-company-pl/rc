@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4事業部統合PLシミュレーター（統合PL完全連動版）</title>
+    <title>4事業部統合PLシミュレーター（CSV実データ対応版）</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -184,11 +184,6 @@
             color: #2c3e50;
             border-left: 3px solid #667eea;
             padding-left: 6px;
-        }
-
-        .dept-comparison-table {
-            width: 100%;
-            border-collapse: collapse;
         }
 
         .dept-comparison-row {
@@ -413,6 +408,33 @@
         .negative { color: #e74c3c; }
         .neutral { color: #6c757d; }
 
+        /* 役員報酬セクション強調 */
+        .executive-section {
+            background: #e8f5e8;
+            border: 2px solid #27ae60;
+            border-radius: 8px;
+            margin: 10px;
+            padding: 15px;
+        }
+
+        .executive-title {
+            color: #2c3e50;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #27ae60;
+            padding-bottom: 5px;
+        }
+
+        .csv-data-highlight {
+            background: #fff3cd;
+            border: 1px solid #f39c12;
+            border-radius: 4px;
+            padding: 8px;
+            margin: 8px 0;
+            font-size: 0.75em;
+        }
+
         @media (max-width: 768px) {
             .kpi-grid { grid-template-columns: 1fr; }
             
@@ -448,7 +470,7 @@
                     最終営業利益 <span id="header-final-profit">---</span>万円（共通経費控除後・目標配分<span id="header-allocation-status">OFF</span>）
                 </td>
                 <td class="header-right">
-                    4事業部統合PLシミュレーター Step1-4完全版（統合PL完全連動版）
+                    4事業部統合PLシミュレーター CSV実データ対応版（統合PL完全連動版）
                 </td>
             </tr>
         </table>
@@ -459,8 +481,8 @@
                 <td><button class="nav-btn" onclick="location.href='budget-input.html'">予算入力</button></td>
                 <td><button class="nav-btn" onclick="location.href='department-pl/sr-pl.html'">SR事業部PL</button></td>
                 <td><button class="nav-btn" onclick="location.href='department-pl/w-pl.html'">W事業部PL</button></td>
-                <td><button class="nav-btn" onclick="location.href='department-pl/rc-pl.html'">RC卸事業部PL</button></td>
-                <td><button class="nav-btn" onclick="location.href='department-pl/rcd-pl.html'">RCD社事業部PL</button></td>
+                <td><button class="nav-btn" onclick="location.href='department-pl/rc-pl.html'">RCå¸事業部PL</button></td>
+                <td><button class="nav-btn" onclick="location.href='department-pl/rcd-pl.html'">RCDç¤¾事業部PL</button></td>
                 <td><button class="nav-btn" onclick="location.href='combined-dashboard/index.html'">全体PL分析</button></td>
             </tr>
         </table>
@@ -482,8 +504,8 @@
             </div>
             <div class="kpi-card common">
                 <div class="kpi-label">年間共通経費</div>
-                <div class="kpi-value" id="common-expenses-total">-10,342万円</div>
-                <div class="kpi-detail">役員報酬・諸経費</div>
+                <div class="kpi-value" id="common-expenses-total">-8,556万円</div>
+                <div class="kpi-detail">役員報酬・諸経費（CSV実データ）</div>
             </div>
             <div class="kpi-card final-positive" id="final-card">
                 <div class="kpi-label">最終営業利益</div>
@@ -578,12 +600,12 @@
                 </div>
             </div>
 
-            <!-- RC卸事業部 -->
+            <!-- RCå¸事業部 -->
             <div class="dept-comparison-row">
                 <div class="dept-graph-cell">
                     <div class="dept-graph-container">
                         <div class="dept-graph-header dept-rc">
-                            <span>RC卸事業部</span>
+                            <span>RCå¸事業部</span>
                             <span id="rc-yoy-summary" style="font-size: 0.9em;">前年比: --%</span>
                         </div>
                         <div style="position: relative; height: 120px; background: white; border-radius: 4px;">
@@ -617,12 +639,12 @@
                 </div>
             </div>
 
-            <!-- RCD社事業部 -->
+            <!-- RCDç¤¾事業部 -->
             <div class="dept-comparison-row">
                 <div class="dept-graph-cell">
                     <div class="dept-graph-container">
                         <div class="dept-graph-header dept-rcd">
-                            <span>RCD社事業部（計画受注）</span>
+                            <span>RCDç¤¾事業部（計画受注）</span>
                             <span id="rcd-yoy-summary" style="font-size: 0.9em;">前年比: --%</span>
                         </div>
                         <div style="position: relative; height: 120px; background: white; border-radius: 4px;">
@@ -701,60 +723,65 @@
                 
                 <div style="background: #fff3cd; padding: 6px; border-radius: 4px; font-size: 0.65em; margin-top: 6px;">
                     <strong>配分ロジック:</strong>
-                    赤字事業部（SR）:月+100万固定 | 黒字事業部（W・RC卸）:効率配分 | RCD社:計画受注により除外 | 制約:売上増20%上限
+                    赤字事業部（SR）:月+100万固定 | 黒字事業部（W・RCå¸）:効率配分 | RCDç¤¾:計画受注により除外 | 制約:売上増20%上限
                 </div>
             </div>
         </div>
 
-        <div class="target-section" style="margin-top: 20px;">
-            <div class="section-title">役員報酬・共通経費設定</div>
+        <!-- CSV実データ対応役員報酬セクション -->
+        <div class="executive-section">
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                <div class="executive-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">役員報酬設定</div>
+                <div class="csv-data-highlight" style="margin: 0; flex-grow: 1;">
+                    <strong>📊 CSV実データ反映済み:</strong> 役員報酬は実データ（7-9月:826万円、10-6月:676万円、年間計8,556万円）に基づいて自動計算されています。
+                </div>
+            </div>
             
-            <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <!-- 左側：基本設定 -->
-                    <div>
-                        <div style="font-size: 0.8em; font-weight: bold; margin-bottom: 10px; color: #2c3e50;">
-                            一建築費構成
-                        </div>
-                        <div style="margin-bottom: 12px;">
-                            <label style="font-size: 0.7em; display: block; margin-bottom: 3px; color: #666;">確基額：</label>
-                            <div style="display: flex; align-items: center; gap: 5px;">
-                                <input type="number" id="base-salary" value="50" step="10" style="width: 80px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75em;">
-                                <span style="font-size: 0.7em;">万円</span>
-                            </div>
-                        </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
-                            <button class="action-btn" style="background: #e74c3c; font-size: 0.65em; padding: 6px 10px;" onclick="updateExecutiveCompensation('increase')">増額</button>
-                            <button class="action-btn" style="background: #f39c12; font-size: 0.65em; padding: 6px 10px;" onclick="updateExecutiveCompensation('decrease')">減額</button>
-                            <button class="action-btn" style="background: #3498db; font-size: 0.65em; padding: 6px 10px;" onclick="resetExecutiveCompensation()">リセット</button>
-                        </div>
+            <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #27ae60;">
+                <!-- 1行目：月額設定 -->
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 8px;">
+                    <div style="font-size: 0.8em; font-weight: bold; color: #2c3e50; min-width: 80px;">月額設定</div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label style="font-size: 0.7em; color: #666;">7-9月基準:</label>
+                        <input type="number" id="base-salary-high" value="826" step="10" readonly style="width: 60px; padding: 2px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.7em; background: #f8f9fa;">
+                        <span style="font-size: 0.65em;">万円</span>
                     </div>
-                    
-                    <!-- 右側：役員賞与設定 -->
-                    <div>
-                        <div style="font-size: 0.8em; font-weight: bold; margin-bottom: 10px; color: #2c3e50;">
-                            役員賞与設定
-                        </div>
-                        <div style="margin-bottom: 8px;">
-                            <label style="font-size: 0.7em; display: block; margin-bottom: 3px; color: #666;">6月支給額：</label>
-                            <div style="display: flex; align-items: center; gap: 5px;">
-                                <input type="number" id="bonus-june" value="300" step="50" style="width: 80px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.75em;">
-                                <span style="font-size: 0.7em;">万円</span>
-                            </div>
-                        </div>
-                        <div style="margin-bottom: 8px;">
-                            <button class="action-btn" style="background: #27ae60; font-size: 0.65em; padding: 6px 12px; width: 100%;" onclick="applyExecutiveSettings()">
-                                リセット
-                            </button>
-                        </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label style="font-size: 0.7em; color: #666;">10-6月基準:</label>
+                        <input type="number" id="base-salary-low" value="676" step="10" readonly style="width: 60px; padding: 2px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.7em; background: #f8f9fa;">
+                        <span style="font-size: 0.65em;">万円</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label style="font-size: 0.7em; color: #666;">調整額:</label>
+                        <input type="number" id="adjustment-amount" value="0" step="50" style="width: 60px; padding: 2px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.7em;">
+                        <span style="font-size: 0.65em;">万円</span>
+                    </div>
+                    <!-- 適用ボタンを右側に配置 -->
+                    <div style="margin-left: auto;">
+                        <button class="action-btn" style="background: #27ae60; font-size: 0.7em; padding: 6px 16px;" onclick="applyExecutiveAdjustment()">
+                            設定を適用
+                        </button>
                     </div>
                 </div>
                 
-                <!-- 月別表示テーブル -->
+                <!-- 2行目：役員報酬 -->
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 8px;">
+                    <div style="font-size: 0.8em; font-weight: bold; color: #2c3e50; min-width: 80px;">役員報酬</div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label style="font-size: 0.7em; color: #666;">6月役員賞与:</label>
+                        <input type="number" id="bonus-june" value="0" step="50" style="width: 60px; padding: 2px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.7em;">
+                        <span style="font-size: 0.65em;">万円</span>
+                    </div>
+                    <div style="font-size: 0.9em; font-weight: bold; color: #00bcd4;">
+                        6月の月額費に加算
+                    </div>
+                </div>
+                
+                <!-- 月別表示テーブル（簡略化版） -->
                 <div style="margin-top: 15px; overflow-x: auto;">
                     <table style="width: 100%; border-collapse: collapse; font-size: 0.65em;">
                         <thead>
-                            <tr style="background: #34495e; color: white;">
+                            <tr style="background: #27ae60; color: white;">
                                 <th style="padding: 4px; text-align: center; border: 1px solid #ddd;">項目</th>
                                 <th style="padding: 4px; text-align: center; border: 1px solid #ddd;">7月</th>
                                 <th style="padding: 4px; text-align: center; border: 1px solid #ddd;">8月</th>
@@ -772,11 +799,11 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr style="background: #ecf0f1;">
-                                <td style="padding: 4px; border: 1px solid #ddd; font-weight: bold;">役定給与費</td>
-                                <td id="exec-m0" style="padding: 4px; text-align: right; border: 1px solid #ddd;">529</td>
-                                <td id="exec-m1" style="padding: 4px; text-align: right; border: 1px solid #ddd;">529</td>
-                                <td id="exec-m2" style="padding: 4px; text-align: right; border: 1px solid #ddd;">529</td>
+                            <tr style="background: #e8f5e8;">
+                                <td style="padding: 4px; border: 1px solid #ddd; font-weight: bold;">役員報酬</td>
+                                <td id="exec-m0" style="padding: 4px; text-align: right; border: 1px solid #ddd;">826</td>
+                                <td id="exec-m1" style="padding: 4px; text-align: right; border: 1px solid #ddd;">826</td>
+                                <td id="exec-m2" style="padding: 4px; text-align: right; border: 1px solid #ddd;">826</td>
                                 <td id="exec-m3" style="padding: 4px; text-align: right; border: 1px solid #ddd;">676</td>
                                 <td id="exec-m4" style="padding: 4px; text-align: right; border: 1px solid #ddd;">676</td>
                                 <td id="exec-m5" style="padding: 4px; text-align: right; border: 1px solid #ddd;">676</td>
@@ -785,8 +812,8 @@
                                 <td id="exec-m8" style="padding: 4px; text-align: right; border: 1px solid #ddd;">676</td>
                                 <td id="exec-m9" style="padding: 4px; text-align: right; border: 1px solid #ddd;">676</td>
                                 <td id="exec-m10" style="padding: 4px; text-align: right; border: 1px solid #ddd;">676</td>
-                                <td id="exec-m11" style="padding: 4px; text-align: right; border: 1px solid #ddd;">976</td>
-                                <td id="exec-total" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">8,962</td>
+                                <td id="exec-m11" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold; background: #e1f5fe; color: #00bcd4;">676</td>
+                                <td id="exec-total" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">8,556</td>
                             </tr>
                             <tr style="background: #fff;">
                                 <td style="padding: 4px; border: 1px solid #ddd; font-weight: bold;">法定福利費</td>
@@ -801,40 +828,8 @@
                                 <td id="welfare-m8" style="padding: 4px; text-align: right; border: 1px solid #ddd;">88</td>
                                 <td id="welfare-m9" style="padding: 4px; text-align: right; border: 1px solid #ddd;">88</td>
                                 <td id="welfare-m10" style="padding: 4px; text-align: right; border: 1px solid #ddd;">88</td>
-                                <td id="welfare-m11" style="padding: 4px; text-align: right; border: 1px solid #ddd;">127</td>
-                                <td id="welfare-total" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">1,152</td>
-                            </tr>
-                            <tr style="background: #ecf0f1;">
-                                <td style="padding: 4px; border: 1px solid #ddd; font-weight: bold;">その他経費</td>
-                                <td id="other-m0" style="padding: 4px; text-align: right; border: 1px solid #ddd;">59</td>
-                                <td id="other-m1" style="padding: 4px; text-align: right; border: 1px solid #ddd;">-5</td>
-                                <td id="other-m2" style="padding: 4px; text-align: right; border: 1px solid #ddd;">46</td>
-                                <td id="other-m3" style="padding: 4px; text-align: right; border: 1px solid #ddd;">37</td>
-                                <td id="other-m4" style="padding: 4px; text-align: right; border: 1px solid #ddd;">30</td>
-                                <td id="other-m5" style="padding: 4px; text-align: right; border: 1px solid #ddd;">82</td>
-                                <td id="other-m6" style="padding: 4px; text-align: right; border: 1px solid #ddd;">58</td>
-                                <td id="other-m7" style="padding: 4px; text-align: right; border: 1px solid #ddd;">48</td>
-                                <td id="other-m8" style="padding: 4px; text-align: right; border: 1px solid #ddd;">110</td>
-                                <td id="other-m9" style="padding: 4px; text-align: right; border: 1px solid #ddd;">80</td>
-                                <td id="other-m10" style="padding: 4px; text-align: right; border: 1px solid #ddd;">102</td>
-                                <td id="other-m11" style="padding: 4px; text-align: right; border: 1px solid #ddd;">61</td>
-                                <td id="other-total" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">668</td>
-                            </tr>
-                            <tr style="background: #fdf2f2;">
-                                <td style="padding: 4px; border: 1px solid #ddd; font-weight: bold; color: #e74c3c;">営業利益計</td>
-                                <td id="profit-m0" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">932</td>
-                                <td id="profit-m1" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">928</td>
-                                <td id="profit-m2" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">979</td>
-                                <td id="profit-m3" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">801</td>
-                                <td id="profit-m4" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">794</td>
-                                <td id="profit-m5" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">826</td>
-                                <td id="profit-m6" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">822</td>
-                                <td id="profit-m7" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">812</td>
-                                <td id="profit-m8" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">874</td>
-                                <td id="profit-m9" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">824</td>
-                                <td id="profit-m10" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">866</td>
-                                <td id="profit-m11" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold; color: #e74c3c;">1,164</td>
-                                <td id="profit-total" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold; color: #e74c3c;">10,582</td>
+                                <td id="welfare-m11" style="padding: 4px; text-align: right; border: 1px solid #ddd;">88</td>
+                                <td id="welfare-total" style="padding: 4px; text-align: right; border: 1px solid #ddd; font-weight: bold;">1,115</td>
                             </tr>
                         </tbody>
                     </table>
@@ -843,9 +838,9 @@
         </div>
 
         <div class="debug-section">
-            <div class="debug-title">Phase 3統合PL完全連動デバッグ: リアルタイム同期状況</div>
+            <div class="debug-title">CSV実データ対応版デバッグ: リアルタイム同期状況</div>
             <div class="debug-content" id="debug-output">
-                読み込み中...
+                CSV実データ読み込み中...
             </div>
         </div>
 
@@ -900,12 +895,12 @@
                 annual: 11521
             },
             rc: {
-                name: 'RC卸事業部',
+                name: 'RCå¸事業部',
                 monthly: [1947, 1645, 1530, 1730, 1165, 1846, 1475, 1585, 1241, 1173, 1602, 1420],
                 annual: 18359
             },
             rcd: {
-                name: 'RCD社事業部',
+                name: 'RCDç¤¾事業部',
                 monthly: [11037, 14297, 11504, 14664, 12507, 14920, 13661, 15455, 14439, 15857, 15478, 16360],
                 annual: 170179
             }
@@ -919,7 +914,162 @@
             rcd: '#9b59b6'  // 紫
         };
 
-        // Phase 3完全実装: 統合PL完全連動管理システム
+        // CSV実データ対応役員報酬管理システム
+        const ExecutiveCompensationManager = {
+            // CSV実データベース値
+            csvData: {
+                highPeriod: 826,  // 7-9月
+                lowPeriod: 676,   // 10-6月
+                monthly: [826, 826, 826, 676, 676, 676, 676, 676, 676, 676, 676, 676],
+                welfare: [107, 107, 107, 88, 88, 88, 88, 88, 88, 88, 88, 88],
+                other: [59, -5, 46, 37, 30, 82, 58, 48, 110, 80, 102, 61]
+            },
+
+            // 現在の値（調整適用後）
+            currentValues: null,
+
+            // 初期化
+            init: function() {
+                this.loadValues();
+                this.updateDisplay();
+                this.logDebug('CSV実データ対応役員報酬システム初期化完了');
+            },
+
+            // 値の読み込み
+            loadValues: function() {
+                try {
+                    const stored = localStorage.getItem('executive_compensation_csv_settings');
+                    if (stored) {
+                        this.currentValues = JSON.parse(stored);
+                        // 既存データにbonusJuneが無い場合はデフォルト値を設定
+                        if (this.currentValues.bonusJune === undefined) {
+                            this.currentValues.bonusJune = 0;
+                        }
+                    } else {
+                        this.currentValues = {
+                            adjustment: 0,
+                            bonusJune: 0,
+                            monthlyCompensation: [...this.csvData.monthly],
+                            welfare: [...this.csvData.welfare],
+                            other: [...this.csvData.other]
+                        };
+                    }
+                } catch (error) {
+                    this.logDebug('役員報酬設定読み込みエラー', error.message);
+                    this.resetToCSVData();
+                }
+            },
+
+            // CSV実データにリセット
+            resetToCSVData: function() {
+                this.currentValues = {
+                    adjustment: 0,
+                    bonusJune: 0,
+                    monthlyCompensation: [...this.csvData.monthly],
+                    welfare: [...this.csvData.welfare],
+                    other: [...this.csvData.other]
+                };
+                this.saveValues();
+            },
+
+            // 値の保存
+            saveValues: function() {
+                try {
+                    localStorage.setItem('executive_compensation_csv_settings', JSON.stringify(this.currentValues));
+                    
+                    // ダッシュボード用データも更新
+                    const dashboardData = {
+                        executiveCompensation: this.currentValues.monthlyCompensation,
+                        lastUpdate: new Date().toISOString()
+                    };
+                    
+                    // 既存のダッシュボードデータとマージ
+                    const existingData = localStorage.getItem(STORAGE_KEYS.dashboard) || '{}';
+                    const merged = { ...JSON.parse(existingData), ...dashboardData };
+                    localStorage.setItem(STORAGE_KEYS.dashboard, JSON.stringify(merged));
+                    
+                    this.logDebug('役員報酬データ保存完了');
+                } catch (error) {
+                    this.logDebug('役員報酬設定保存エラー', error.message);
+                }
+            },
+
+            // 表示更新
+            updateDisplay: function() {
+                // 入力欄更新
+                document.getElementById('base-salary-high').value = this.csvData.highPeriod;
+                document.getElementById('base-salary-low').value = this.csvData.lowPeriod;
+                document.getElementById('adjustment-amount').value = this.currentValues.adjustment;
+                document.getElementById('bonus-june').value = this.currentValues.bonusJune;
+                
+                // 月別表示更新（役員報酬と法定福利費のみ）
+                let execTotal = 0;
+                let welfareTotal = 0;
+                
+                for (let i = 0; i < 12; i++) {
+                    const exec = this.currentValues.monthlyCompensation[i];
+                    const welfare = this.currentValues.welfare[i];
+                    
+                    document.getElementById(`exec-m${i}`).textContent = exec.toLocaleString();
+                    document.getElementById(`welfare-m${i}`).textContent = welfare.toLocaleString();
+                    
+                    execTotal += exec;
+                    welfareTotal += welfare;
+                }
+                
+                // 年計更新
+                document.getElementById('exec-total').textContent = execTotal.toLocaleString();
+                document.getElementById('welfare-total').textContent = welfareTotal.toLocaleString();
+                
+                // 共通経費合計KPI更新（役員報酬のみ。法定福利費は他事業部に合算）
+                const commonExpensesElement = document.getElementById('common-expenses-total');
+                if (commonExpensesElement) {
+                    commonExpensesElement.textContent = `-${execTotal.toLocaleString()}万円`;
+                }
+            },
+
+            // 調整適用
+            applyAdjustment: function() {
+                const adjustment = parseInt(document.getElementById('adjustment-amount').value) || 0;
+                const bonusJune = parseInt(document.getElementById('bonus-june').value) || 0;
+                
+                this.currentValues.adjustment = adjustment;
+                this.currentValues.bonusJune = bonusJune;
+                
+                // 基本月額に調整額を適用
+                this.currentValues.monthlyCompensation = this.csvData.monthly.map(base => base + adjustment);
+                
+                // 6月に役員賞与を加算
+                this.currentValues.monthlyCompensation[11] += bonusJune; // 6月は配列の11番目
+                
+                // 法定福利費も調整（13%で計算）
+                this.currentValues.welfare = this.currentValues.monthlyCompensation.map(comp => 
+                    Math.round(comp * 0.13)
+                );
+                
+                this.updateDisplay();
+                this.saveValues();
+                
+                const newTotal = this.currentValues.monthlyCompensation.reduce((sum, val) => sum + val, 0);
+                this.logDebug(`役員報酬設定適用: 調整額${adjustment}万円/月, 6月賞与${bonusJune}万円 → 年間合計${newTotal}万円`);
+                
+                alert(`役員報酬設定を適用しました。\n調整額: ${adjustment >= 0 ? '+' : ''}${adjustment}万円/月\n6月賞与: ${bonusJune}万円\n年間合計: ${newTotal.toLocaleString()}万円`);
+            },
+
+            logDebug: function(message, data = null) {
+                console.log(`[CSV役員報酬] ${message}`, data || '');
+                const debugElement = document.getElementById('debug-output');
+                if (debugElement) {
+                    const timestamp = new Date().toLocaleTimeString();
+                    debugElement.innerHTML += `<br>[${timestamp}] CSV役員報酬: ${message}`;
+                    if (data) {
+                        debugElement.innerHTML += `<br>　　　　　　　　${JSON.stringify(data, null, 2)}`;
+                    }
+                }
+            }
+        };
+
+        // Phase 3完全実装: 統合PL完全連動管理システム 
         const IntegrationLinkageManager = {
             autoSyncInterval: null,
             isAutoSyncEnabled: false,
@@ -1202,7 +1352,7 @@
                     const timestamp = new Date().toLocaleTimeString();
                     debugElement.innerHTML += `<br>[${timestamp}] 統合PL連携: ${message}`;
                     if (data) {
-                        debugElement.innerHTML += `<br>　　　　　　　${JSON.stringify(data, null, 2)}`;
+                        debugElement.innerHTML += `<br>　　　　　　　　${JSON.stringify(data, null, 2)}`;
                     }
                 }
             }
@@ -1407,178 +1557,6 @@
             }
         }
 
-        // 役員報酬管理システム
-        const ExecutiveCompensationManager = {
-            // デフォルト値
-            defaultValues: {
-                baseSalary: 50,
-                bonusJune: 300,
-                monthlyBase: [529, 529, 529, 676, 676, 676, 676, 676, 676, 676, 676, 976],
-                welfare: [107, 107, 107, 88, 88, 88, 88, 88, 88, 88, 88, 127],
-                other: [59, -5, 46, 37, 30, 82, 58, 48, 110, 80, 102, 61]
-            },
-
-            // 現在の値
-            currentValues: null,
-
-            // 初期化
-            init: function() {
-                this.loadValues();
-                this.updateDisplay();
-            },
-
-            // 値の読み込み
-            loadValues: function() {
-                try {
-                    const stored = localStorage.getItem('executive_compensation_settings');
-                    if (stored) {
-                        this.currentValues = JSON.parse(stored);
-                    } else {
-                        this.currentValues = JSON.parse(JSON.stringify(this.defaultValues));
-                    }
-                } catch (error) {
-                    console.error('役員報酬設定読み込みエラー:', error);
-                    this.currentValues = JSON.parse(JSON.stringify(this.defaultValues));
-                }
-            },
-
-            // 値の保存
-            saveValues: function() {
-                try {
-                    localStorage.setItem('executive_compensation_settings', JSON.stringify(this.currentValues));
-                    
-                    // ダッシュボード用データも更新
-                    const dashboardData = {
-                        executiveCompensation: this.currentValues.monthlyBase,
-                        lastUpdate: new Date().toISOString()
-                    };
-                    
-                    // 既存のダッシュボードデータとマージ
-                    const existingData = localStorage.getItem(STORAGE_KEYS.dashboard) || '{}';
-                    const merged = { ...JSON.parse(existingData), ...dashboardData };
-                    localStorage.setItem(STORAGE_KEYS.dashboard, JSON.stringify(merged));
-                    
-                } catch (error) {
-                    console.error('役員報酬設定保存エラー:', error);
-                }
-            },
-
-            // 表示更新
-            updateDisplay: function() {
-                // 入力欄更新
-                document.getElementById('base-salary').value = this.currentValues.baseSalary;
-                document.getElementById('bonus-june').value = this.currentValues.bonusJune;
-                
-                // 月別表示更新
-                let execTotal = 0;
-                let welfareTotal = 0;
-                let otherTotal = 0;
-                let profitTotal = 0;
-                
-                for (let i = 0; i < 12; i++) {
-                    const exec = this.currentValues.monthlyBase[i];
-                    const welfare = this.currentValues.welfare[i];
-                    const other = this.currentValues.other[i];
-                    const profit = exec + welfare + other;
-                    
-                    document.getElementById(`exec-m${i}`).textContent = exec.toLocaleString();
-                    document.getElementById(`welfare-m${i}`).textContent = welfare.toLocaleString();
-                    document.getElementById(`other-m${i}`).textContent = other.toLocaleString();
-                    document.getElementById(`profit-m${i}`).textContent = profit.toLocaleString();
-                    
-                    execTotal += exec;
-                    welfareTotal += welfare;
-                    otherTotal += other;
-                    profitTotal += profit;
-                }
-                
-                // 年計更新
-                document.getElementById('exec-total').textContent = execTotal.toLocaleString();
-                document.getElementById('welfare-total').textContent = welfareTotal.toLocaleString();
-                document.getElementById('other-total').textContent = otherTotal.toLocaleString();
-                document.getElementById('profit-total').textContent = profitTotal.toLocaleString();
-            },
-
-            // 基本給更新
-            updateBaseSalary: function(action) {
-                const input = document.getElementById('base-salary');
-                let value = parseInt(input.value) || 50;
-                
-                if (action === 'increase') {
-                    value += 10;
-                } else if (action === 'decrease') {
-                    value = Math.max(0, value - 10);
-                }
-                
-                input.value = value;
-                this.currentValues.baseSalary = value;
-                
-                // 月別値を再計算
-                this.recalculateMonthly();
-                this.updateDisplay();
-                this.saveValues();
-            },
-
-            // 月別値再計算
-            recalculateMonthly: function() {
-                const baseSalary = this.currentValues.baseSalary;
-                const bonusJune = this.currentValues.bonusJune;
-                
-                // 基本給の月割り計算
-                for (let i = 0; i < 12; i++) {
-                    this.currentValues.monthlyBase[i] = baseSalary;
-                    
-                    // 賞与月の追加
-                    if (i === 11) { // 6月（配列は0スタート）
-                        this.currentValues.monthlyBase[i] += bonusJune;
-                    }
-                }
-                
-                // 法定福利費も更新（簡易計算）
-                for (let i = 0; i < 12; i++) {
-                    this.currentValues.welfare[i] = Math.round(this.currentValues.monthlyBase[i] * 0.13);
-                }
-            },
-
-            // 設定適用
-            apply: function() {
-                const baseSalary = parseInt(document.getElementById('base-salary').value) || 50;
-                const bonusJune = parseInt(document.getElementById('bonus-june').value) || 300;
-                
-                this.currentValues.baseSalary = baseSalary;
-                this.currentValues.bonusJune = bonusJune;
-                
-                this.recalculateMonthly();
-                this.updateDisplay();
-                this.saveValues();
-                
-                alert('役員報酬設定を適用しました。');
-            },
-
-            // リセット
-            reset: function() {
-                if (confirm('役員報酬設定をリセットしますか？')) {
-                    this.currentValues = JSON.parse(JSON.stringify(this.defaultValues));
-                    this.updateDisplay();
-                    this.saveValues();
-                    alert('役員報酬設定をリセットしました。');
-                }
-            }
-        };
-
-        // グローバル関数として公開
-        function updateExecutiveCompensation(action) {
-            ExecutiveCompensationManager.updateBaseSalary(action);
-        }
-
-        function applyExecutiveSettings() {
-            ExecutiveCompensationManager.apply();
-        }
-
-        function resetExecutiveCompensation() {
-            ExecutiveCompensationManager.reset();
-        }
-
         // 目標配分機能
         function toggleTargetAllocation() {
             targetAllocationEnabled = !targetAllocationEnabled;
@@ -1690,6 +1668,8 @@
             try {
                 const debugData = {
                     timestamp: new Date().toISOString(),
+                    csvExecutiveData: ExecutiveCompensationManager.csvData,
+                    currentExecutiveData: ExecutiveCompensationManager.currentValues,
                     integrationData: IntegrationLinkageManager.lastSyncData,
                     autoSyncEnabled: IntegrationLinkageManager.isAutoSyncEnabled,
                     departmentData: departmentCurrentData,
@@ -1706,7 +1686,7 @@
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `dashboard_debug_${new Date().toISOString().slice(0, 10)}.json`;
+                a.download = `dashboard_csv_debug_${new Date().toISOString().slice(0, 10)}.json`;
                 a.click();
                 URL.revokeObjectURL(url);
                 
@@ -1724,10 +1704,18 @@
             }
         }
 
+        // 役員報酬調整適用関数
+        function applyExecutiveAdjustment() {
+            ExecutiveCompensationManager.applyAdjustment();
+        }
+
         // 初期化処理
         document.addEventListener('DOMContentLoaded', function() {
             try {
-                console.log('ダッシュボード初期化開始（Phase 3統合PL完全連動版 + 前年実績比較）');
+                console.log('CSV実データ対応ダッシュボード初期化開始');
+                
+                // 役員報酬システム初期化
+                ExecutiveCompensationManager.init();
                 
                 // 個別事業部グラフ作成
                 setTimeout(() => {
@@ -1751,7 +1739,7 @@
                     }
                 }, 30000);
                 
-                console.log('Phase 3統合PL完全連動版 + 前年実績比較機能 初期化完了');
+                console.log('CSV実データ対応版初期化完了');
             } catch (error) {
                 console.error('初期化エラー:', error);
             }
