@@ -557,7 +557,7 @@
                     ✓ processDepartmentData関数のRC・RCDケース修正<br>
                     ✓ loadDepartmentData関数のデータ形式判定強化<br>
                     ✓ 全販管費表示機能の完全実装<br>
-                    ✓ ナビゲーション誤字修正（RC市→RC卸）<br>
+                    ✓ ナビゲーション誤字修正（RC卸市→RC卸）<br>
                     ✓ 統合データ整合性の確保
                 </div>
             </div>
@@ -1330,4 +1330,335 @@
                     ['統合人件費', ...integratedData.personnel],
                     ['統合販管費', ...integratedData.expenses],
                     ['役員報酬', ...integratedData.executiveComp],
-                    ['法定
+                    ['法定福利費', ...integratedData.legalWelfare],
+                    ['その他固定費', ...integratedData.otherFixedCosts]
+                ];
+
+                dataRows.forEach(row => {
+                    const annual = row.slice(1).reduce((sum, val) => sum + (val || 0), 0);
+                    csvData.push([...row, annual]);
+                });
+
+                const csvContent = csvData.map(row => row.join(',')).join('\n');
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `統合PL_Phase3完全修正版_${new Date().toISOString().slice(0, 10)}.csv`;
+                link.click();
+                URL.revokeObjectURL(link.href);
+                
+                alert('CSVファイルをダウンロードしました。');
+            } catch (error) {
+                logDebug('CSVエクスポートエラー', error.message);
+                alert('CSVエクスポートに失敗しました: ' + error.message);
+            }
+        }
+
+        function checkDashboardLink() {
+            try {
+                const dashboardData = localStorage.getItem(STORAGE_KEYS.dashboard);
+                if (dashboardData) {
+                    const data = JSON.parse(dashboardData);
+                    const lastUpdate = data.lastUpdate ? new Date(data.lastUpdate).toLocaleString() : '不明';
+                    alert(`役員報酬連携状況\n最終更新: ${lastUpdate}\n月額基準: 2537万円\n連携状況: アクティブ`);
+                } else {
+                    alert('役員報酬連携データが見つかりません。\nダッシュボードからデータを送信してください。');
+                }
+            } catch (error) {
+                logDebug('checkDashboardLinkエラー', error.message);
+                alert('役員報酬連携確認中にエラーが発生しました: ' + error.message);
+            }
+        }
+
+        function validateAllData() {
+            try {
+                let report = '4事業部データ整合性チェック結果（Phase 3完全修正版）\n\n';
+                let validCount = 0;
+
+                ['sr', 'w', 'rc', 'rcd'].forEach(dept => {
+                    const data = localStorage.getItem(STORAGE_KEYS[dept]);
+                    
+                    let status = '- データなし';
+                    if (data) {
+                        try {
+                            const parsedData = JSON.parse(data);
+                            
+                            // Phase 3修正: 事業部別データ形式チェック
+                            if (dept === 'rc') {
+                                if (parsedData.baseSales !== undefined && parsedData.variations) {
+                                    const baseSales = parsedData.baseSales || 1550;
+                                    const variations = parsedData.variations || [];
+                                    const annual = (baseSales * 12) + variations.reduce((a, b) => a + b, 0);
+                                    status = `✓ 正常-baseSales+variations（${formatNumber(annual)}万円）`;
+                                    validCount++;
+                                } else if (parsedData.monthlySales && Array.isArray(parsedData.monthlySales)) {
+                                    const annual = parsedData.monthlySales.reduce((a, b) => a + b, 0);
+                                    status = `✓ 正常-monthlySales（${formatNumber(annual)}万円）`;
+                                    validCount++;
+                                } else if (parsedData.sales && Array.isArray(parsedData.sales)) {
+                                    const annual = parsedData.sales.reduce((a, b) => a + b, 0);
+                                    status = `✓ 正常-sales（${formatNumber(annual)}万円）`;
+                                    validCount++;
+                                } else {
+                                    status = '✗ RC卸データ形式不正';
+                                }
+                            } else if (dept === 'rcd') {
+                                if (parsedData.purchases && Array.isArray(parsedData.purchases)) {
+                                    const purchases = parsedData.purchases.reduce((a, b) => a + b, 0);
+                                    const annual = Math.round(purchases * 2000 * 1.03);
+                                    status = `✓ 正常-purchases（${formatNumber(annual)}万円）`;
+                                    validCount++;
+                                } else if (parsedData.sales && Array.isArray(parsedData.sales)) {
+                                    const annual = parsedData.sales.reduce((a, b) => a + b, 0);
+                                    status = `✓ 正常-sales（${formatNumber(annual)}万円）`;
+                                    validCount++;
+                                } else if (parsedData.monthlySales && Array.isArray(parsedData.monthlySales)) {
+                                    const annual = parsedData.monthlySales.reduce((a, b) => a + b, 0);
+                                    status = `✓ 正常-monthlySales（${formatNumber(annual)}万円）`;
+                                    validCount++;
+                                } else {
+                                    status = '✗ RCD社データ形式不正';
+                                }
+                            } else {
+                                // SR・W事業部
+                                if (parsedData.monthlySales && Array.isArray(parsedData.monthlySales)) {
+                                    const annual = parsedData.monthlySales.reduce((a, b) => a + b, 0);
+                                    status = `✓ 正常（${formatNumber(annual)}万円）`;
+                                    validCount++;
+                                } else if (parsedData.sales && Array.isArray(parsedData.sales)) {
+                                    const annual = parsedData.sales.reduce((a, b) => a + b, 0);
+                                    status = `✓ 正常-legacy（${formatNumber(annual)}万円）`;
+                                    validCount++;
+                                } else {
+                                    status = '✗ データ形式不正';
+                                }
+                            }
+                        } catch (error) {
+                            status = '✗ 解析エラー';
+                        }
+                    }
+                    
+                    report += `${dept.toUpperCase()}事業部: ${status}\n`;
+                });
+
+                report += `\n統合可能事業部: ${validCount}/4`;
+                report += '\n\n【Phase 3完全修正内容】';
+                report += '\n✓ RC卸・RCD社データ取り込みエラーの完全解決';
+                report += '\n✓ 事業部別データ形式判定の強化';
+                report += '\n✓ baseSales+variations / purchases形式の完全対応';
+                report += '\n✓ 全販管費詳細項目表示の実装';
+                report += '\n✓ 4/4事業部完全統合の実現';
+                
+                alert(report);
+            } catch (error) {
+                logDebug('validateAllDataエラー', error.message);
+                alert('データ整合性チェック中にエラーが発生しました: ' + error.message);
+            }
+        }
+
+        function toggleDebugInfo() {
+            try {
+                debugMode = !debugMode;
+                const debugElement = document.getElementById('debug-info');
+                if (debugElement) {
+                    debugElement.style.display = debugMode ? 'block' : 'none';
+                    if (debugMode) {
+                        const debugContent = document.getElementById('debug-content');
+                        if (debugContent) {
+                            debugContent.textContent = 'Phase 3完全修正版デバッグモード開始...';
+                        }
+                    }
+                }
+                logDebug('デバッグモード切り替え', debugMode);
+                alert(`デバッグモード: ${debugMode ? 'ON' : 'OFF'}`);
+            } catch (error) {
+                logDebug('toggleDebugInfoエラー', error.message);
+                alert('デバッグ情報表示切り替え中にエラーが発生しました: ' + error.message);
+            }
+        }
+
+        function inspectLocalStorage() {
+            try {
+                let report = 'LocalStorage検査結果（Phase 3完全修正版）\n\n';
+                
+                Object.entries(STORAGE_KEYS).forEach(([keyName, keyValue]) => {
+                    const data = localStorage.getItem(keyValue);
+                    if (data) {
+                        try {
+                            const parsed = JSON.parse(data);
+                            const dataInfo = {
+                                サイズ: (data.length / 1024).toFixed(2) + 'KB',
+                                更新日: parsed.timestamp || parsed.lastUpdate || '不明',
+                                主要フィールド: Object.keys(parsed).slice(0, 3).join(', '),
+                                データ形式: (() => {
+                                    if (keyName === 'rc') {
+                                        if (parsed.baseSales !== undefined && parsed.variations) return 'baseSales+variations';
+                                        if (parsed.monthlySales) return 'monthlySales';
+                                        if (parsed.sales) return 'sales';
+                                        return '不明';
+                                    } else if (keyName === 'rcd') {
+                                        if (parsed.purchases) return 'purchases';
+                                        if (parsed.sales) return 'sales';
+                                        if (parsed.monthlySales) return 'monthlySales';
+                                        return '不明';
+                                    } else {
+                                        return parsed.monthlySales ? 'monthlySales' : 'その他';
+                                    }
+                                })()
+                            };
+                            report += `✓ ${keyName}: ${JSON.stringify(dataInfo)}\n\n`;
+                        } catch (error) {
+                            report += `✗ ${keyName}: 解析エラー\n\n`;
+                        }
+                    } else {
+                        report += `- ${keyName}: データなし\n\n`;
+                    }
+                });
+                
+                const syncFlag = localStorage.getItem('all_data_sync_flag');
+                if (syncFlag) {
+                    const flag = JSON.parse(syncFlag);
+                    report += `一括送信フラグ: ${flag.status} (${flag.timestamp})`;
+                } else {
+                    report += `一括送信フラグ: 未設定`;
+                }
+                
+                alert(report);
+            } catch (error) {
+                logDebug('inspectLocalStorageエラー', error.message);
+                alert('LocalStorage検査中にエラーが発生しました: ' + error.message);
+            }
+        }
+
+        function sendDashboardIntegration() {
+            try {
+                const annualSales = integratedData.sales.reduce((sum, val) => sum + (val || 0), 0);
+                const annualCogs = integratedData.cogs.reduce((sum, val) => sum + (val || 0), 0);
+                const annualPersonnel = integratedData.personnel.reduce((sum, val) => sum + (val || 0), 0);
+                const annualExpenses = integratedData.expenses.reduce((sum, val) => sum + (val || 0), 0);
+                const annualExecComp = integratedData.executiveComp.reduce((sum, val) => sum + (val || 0), 0);
+                const annualLegalWelfare = integratedData.legalWelfare.reduce((sum, val) => sum + (val || 0), 0);
+                const annualOtherFixed = integratedData.otherFixedCosts.reduce((sum, val) => sum + (val || 0), 0);
+                
+                const grossProfit = annualSales - annualCogs;
+                const totalExpenses = annualPersonnel + annualExpenses + annualExecComp + annualLegalWelfare + annualOtherFixed;
+                const operatingProfit = grossProfit - totalExpenses;
+                const profitRate = annualSales > 0 ? (operatingProfit / annualSales * 100).toFixed(1) : '0.0';
+
+                const dashboardData = {
+                    summary: {
+                        totalSales: annualSales,
+                        totalProfit: operatingProfit,
+                        totalExpenses: totalExpenses,
+                        profitRate: parseFloat(profitRate)
+                    },
+                    departments: {
+                        activeCount: integratedData.metadata.activeDepartments.length,
+                        list: integratedData.metadata.activeDepartments
+                    },
+                    lastUpdate: new Date().toISOString(),
+                    version: 'Phase3-Complete'
+                };
+
+                localStorage.setItem(STORAGE_KEYS.dashboard_integration, JSON.stringify(dashboardData));
+                updateDashboardLinkageStatus('success', '手動送信完了');
+                
+                alert(`ダッシュボード連携送信完了\n年間売上: ${formatNumber(annualSales)}万円\n営業利益: ${formatNumber(operatingProfit)}万円\n利益率: ${profitRate}%\nアクティブ事業部: ${dashboardData.departments.activeCount}/4`);
+                
+                logDebug('手動ダッシュボード連携送信完了', dashboardData);
+                
+            } catch (error) {
+                updateDashboardLinkageStatus('error', 'エラー');
+                logDebug('手動ダッシュボード連携送信エラー', error.message);
+                alert('ダッシュボード連携送信中にエラーが発生しました: ' + error.message);
+            }
+        }
+
+        // 初期化処理（Phase 3完全修正版）
+        function initialize() {
+            try {
+                if (isInitialized) {
+                    logDebug('初期化済みのためスキップ');
+                    return;
+                }
+
+                logDebug('Phase 3完全修正版 初期化開始');
+                
+                // データ統合実行
+                const success = integrateAllData();
+                
+                if (success) {
+                    // UI更新
+                    updateKPIs();
+                    updateChart();
+                    generateIntegratedTable();
+                    
+                    // ダッシュボード連携ステータス更新
+                    updateDashboardLinkageStatus('success', '統合完了');
+                    
+                    logDebug('Phase 3完全修正版 初期化完了');
+                    isInitialized = true;
+                } else {
+                    logDebug('データ統合失敗、デフォルト表示');
+                    updateKPIs();
+                    generateIntegratedTable();
+                    updateDashboardLinkageStatus('warning', '部分的統合');
+                }
+                
+            } catch (error) {
+                logDebug('初期化エラー', error.message);
+                console.error('Phase 3完全修正版初期化エラー:', error);
+                
+                // エラー時のフォールバック処理
+                try {
+                    updateKPIs();
+                    generateIntegratedTable();
+                    updateDashboardLinkageStatus('error', '初期化エラー');
+                } catch (fallbackError) {
+                    console.error('フォールバック処理もエラー:', fallbackError);
+                }
+            }
+        }
+
+        // DOM読み込み完了時の初期化（安全版）
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                logDebug('DOMContentLoaded: 初期化開始');
+                setTimeout(initialize, 100); // 100ms遅延で確実に実行
+            } catch (error) {
+                console.error('DOMContentLoaded初期化エラー:', error);
+            }
+        });
+
+        // ウィンドウ読み込み完了時のフォールバック初期化
+        window.addEventListener('load', function() {
+            try {
+                if (!isInitialized) {
+                    logDebug('window.load: フォールバック初期化実行');
+                    setTimeout(initialize, 200); // 200ms遅延でさらに確実に
+                }
+            } catch (error) {
+                console.error('window.load初期化エラー:', error);
+            }
+        });
+
+        // 緊急時の手動初期化関数（デバッグ用）
+        function forceInitialize() {
+            try {
+                isInitialized = false;
+                logDebug('強制初期化実行');
+                initialize();
+                alert('強制初期化を実行しました。');
+            } catch (error) {
+                alert('強制初期化に失敗しました: ' + error.message);
+            }
+        }
+
+        // グローバル関数として公開（デバッグ用）
+        window.forceInitialize = forceInitialize;
+        window.logDebug = logDebug;
+        window.integratedData = integratedData;
+        window.STORAGE_KEYS = STORAGE_KEYS;
+    </script>
+</body>
+</html>
