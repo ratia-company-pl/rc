@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SR事業部PLシミュレーター（連携機能付）</title>
+    <title>SR事業部PLシミュレーター（連携機能付・その他固定費対応版）</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -500,9 +500,9 @@
                 商品仕入率27.2%・売上レンジ別人件費係数（24.5-33.8%）・営業コミッション・6月賞与・12月賞与対応・8項目販管費表示版（少額項目は統合処理）
                 
                 <div class="spec-detail">
-                    <strong>統合PL連携機能追加:</strong> 各月の販管費データを統合PLシステムに送信・LocalStorageキー「pl_system_sr_data」・expenses配列による月次販管費動的統合対応・メタデータによるバージョン管理v3.0対応<br>
-                    <strong>表示項目（8項目）:</strong> 人件費統合、法定福利費、物流管理費、地代家賃、外注費、貨物運賃（変動）、広告宣伝費、販売促進費(紹介報酬)、水道光熱費（変動）、支払手数料（変動）<br>
-                    <strong>統合処理済み少額項目:</strong> 衛生費14万円、旅費交通費31万円、通信費19万円、消耗品費4万円、事務用品費11万円、リース料1万円、保険料6万円、支払報酬料34万円、減価償却費19万円（年額計137万円を販管費計に含む）<br>
+                    <strong>統合PL連携機能追加:</strong> 各月の販管費データを統合PLシステムに送信・LocalStorageキー「pl_system_sr_data」・expensesデータとその他固定費の詳細送信対応・メタデータによるバージョン管理v3.0対応<br>
+                    <strong>表示項目（8項目）:</strong> 人件費統合、法定福利費、物流管理費、地代家賃、外注費、貨物運賃（変動）、広告宣伝費、販売促進費(紹介報酬)、水道光熱費（変動）、支払手数料（変動）、その他固定費統合<br>
+                    <strong>統合処理済み少額項目:</strong> 衛生費14万円、旅費交通費31万円、通信費19万円、消耗品費4万円、事務用品費11万円、リース料1万円、保険料6万円、支払報酬料34万円、減価償却費19万円（年額計137万円をその他固定費に含む）<br>
                     <strong>変動費係数:</strong> 貨物運賃（0.07-1.82）、水道光熱費（0.82-1.41）、支払手数料（0.70-1.51）
                 </div>
             </div>
@@ -510,7 +510,7 @@
     </div>
 
     <script>
-        // SR事業部PL計算システム（統合PL対応版v3.0）
+        // SR事業部PL計算システム （統合PL対応版v3.0）
         
         // グローバル変数
         let currentData = {
@@ -676,11 +676,13 @@
             
             const advertising = currentData.sr.advertising; // 月額広告宣伝費
             
+            // その他固定費統合（13項目）
+            const othersFixed = hygiene + travel + communication + supplies + office + lease + insurance + consulting + depreciation;
+            
             // 販売管理費計（統合PL用に分離）
             const expensesDetails = {
-                hygiene, logistics, rent, outsourcing, freight, advertising,
-                travel, communication, promotion, supplies, office, utilities,
-                fees, lease, insurance, consulting, depreciation
+                logistics, rent, outsourcing, freight, advertising,
+                promotion, utilities, fees, othersFixed
             };
             
             // 販管費合計（人件費・法定福利費除く）
@@ -694,14 +696,22 @@
                 grossProfit: grossProfit,
                 personnel: personnel,
                 welfare: welfare,
-                ...expensesDetails,
+                logistics: logistics,
+                rent: rent,
+                outsourcing: outsourcing,
+                freight: freight,
+                advertising: advertising,
+                promotion: promotion,
+                utilities: utilities,
+                fees: fees,
+                othersFixed: othersFixed,
                 totalExpenses: Math.round(totalExpenses),
                 operatingProfit: Math.round(operatingProfit),
                 expensesSummary: Math.round(Object.values(expensesDetails).reduce((sum, val) => sum + val, 0)) // 統合PL用
             };
         }
 
-        // 統合PLシステム用データ送信（新規追加）
+        // 統合PLシステム用データ送信（修正版）
         function sendIntegrationData() {
             if (!window.srCurrentResults) {
                 alert('計算結果が生成されていません。');
@@ -711,17 +721,29 @@
             try {
                 const { monthlyResults, annual } = window.srCurrentResults;
                 
-                // 統合PLシステムが期待するデータ構造（引き継ぎ書仕様準拠）
+                // 統合PLシステムが期待するデータ構造（詳細項目個別送信）
                 const integrationData = {
                     sales: monthlyResults.map(m => m.sales),
                     cogs: monthlyResults.map(m => m.cogs),
                     personnel: monthlyResults.map(m => m.personnel),
-                    expenses: monthlyResults.map(m => m.expensesSummary), // 販管費（人件費・法定福利費除く）
+                    welfare: monthlyResults.map(m => m.welfare),
+                    // 個別費用項目を詳細送信
+                    logistics: monthlyResults.map(m => m.logistics),
+                    rent: monthlyResults.map(m => m.rent),
+                    outsourcing: monthlyResults.map(m => m.outsourcing),
+                    freight: monthlyResults.map(m => m.freight),
+                    advertising: monthlyResults.map(m => m.advertising),
+                    promotion: monthlyResults.map(m => m.promotion),
+                    utilities: monthlyResults.map(m => m.utilities),
+                    fees: monthlyResults.map(m => m.fees),
+                    othersFixed: monthlyResults.map(m => m.othersFixed), // ★新規追加
+                    expenses: monthlyResults.map(m => m.expensesSummary), // 従来の統合値も維持
                     metadata: {
                         lastUpdate: new Date().toISOString(),
                         dataSource: "SR事業部",
                         version: "3.0",
-                        calculationEngine: "dynamic"
+                        calculationEngine: "dynamic",
+                        detailItemsIncluded: true
                     }
                 };
 
@@ -771,7 +793,7 @@
             updateKPICards();
         }
 
-        // SRテーブル生成
+        // SRテーブル生成（その他固定費行追加版）
         function generateSRTable() {
             const monthlyResults = currentData.sr.monthlySales.map((sales, i) => calculateMonthlyPL(i, sales));
             
@@ -891,6 +913,13 @@
                             <td class="item-name">支払手数料（変動）</td>
                             ${monthlyResults.map(m => `<td>${formatNumber(m.fees)}</td>`).join('')}
                             <td><strong>${formatNumber(monthlyResults.reduce((sum, m) => sum + m.fees, 0))}</strong></td>
+                            <td>-</td>
+                        </tr>
+                        <tr class="expense-row">
+                            <td>16</td>
+                            <td class="item-name">その他固定費統合</td>
+                            ${monthlyResults.map(m => `<td>${formatNumber(m.othersFixed)}</td>`).join('')}
+                            <td><strong>${formatNumber(monthlyResults.reduce((sum, m) => sum + m.othersFixed, 0))}</strong></td>
                             <td>-</td>
                         </tr>
                         <tr class="total-expense-row">
@@ -1064,6 +1093,7 @@
                 ['物流管理費', monthlyResults.map(m => m.logistics)],
                 ['地代家賃', monthlyResults.map(m => m.rent)],
                 ['広告宣伝費', monthlyResults.map(m => m.advertising)],
+                ['その他固定費統合', monthlyResults.map(m => m.othersFixed)],
                 ['販売管理費計', monthlyResults.map(m => m.totalExpenses)],
                 ['営業利益', monthlyResults.map(m => m.operatingProfit)]
             ];
