@@ -511,7 +511,7 @@
     </div>
 
     <script>
-        // 4事業部統合PLシステム v3.0 データ取り込み修正版
+        // 4事業部統合PLシステム v3.0 データ取り込み修正版 - エラー修正版
         
         // グローバル変数
         let integratedChart = null;
@@ -539,7 +539,7 @@
         const INTEGRATION_CONFIG = {
             requiredFields: ['sales', 'cogs', 'personnel', 'expenses'],
             monthCount: 12,
-            validationLevel: 'flexible', // strictから変更
+            validationLevel: 'flexible',
             autoRefresh: false,
             refreshInterval: 30000
         };
@@ -548,14 +548,14 @@
         const UI_MANAGER = {
             months: ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'],
             
-            // ★修正: 統合データ構造拡張（othersFixed等を追加）
+            // 統合データ構造拡張（othersFixed等を追加）
             integratedData: {
                 sales: new Array(12).fill(0),
                 cogs: new Array(12).fill(0),
                 personnel: new Array(12).fill(0),
                 expenses: new Array(12).fill(0),
                 
-                // ★新規追加: 個別費用項目
+                // 新規追加: 個別費用項目
                 logistics: new Array(12).fill(0),
                 rent: new Array(12).fill(0),
                 outsourcing: new Array(12).fill(0),
@@ -563,7 +563,7 @@
                 advertising: new Array(12).fill(0),
                 utilities: new Array(12).fill(0),
                 fees: new Array(12).fill(0),
-                othersFixed: new Array(12).fill(0), // ★SR事業部のその他固定費統合
+                othersFixed: new Array(12).fill(0), // SR事業部のその他固定費統合
                 
                 executiveComp: new Array(12).fill(2537),
                 legalWelfare: new Array(12).fill(0),
@@ -621,7 +621,7 @@
                     const annualLegalWelfare = this.integratedData.legalWelfare.reduce((sum, val) => sum + (val || 0), 0);
                     const annualOtherFixed = this.integratedData.otherFixedCosts.reduce((sum, val) => sum + (val || 0), 0);
                     
-                    // ★修正: その他固定費統合を加算
+                    // その他固定費統合を加算
                     const annualOthersFixed = this.integratedData.othersFixed.reduce((sum, val) => sum + (val || 0), 0);
                     
                     const grossProfit = annualSales - annualCogs;
@@ -683,7 +683,7 @@
                         integratedChart = null;
                     }
 
-                    // ★修正: 月次営業利益計算（その他固定費統合を含む）
+                    // 月次営業利益計算（その他固定費統合を含む）
                     const monthlyOperatingProfit = this.integratedData.sales.map((sales, i) => {
                         const cogs = this.integratedData.cogs[i] || 0;
                         const personnel = this.integratedData.personnel[i] || 0;
@@ -691,7 +691,7 @@
                         const execComp = this.integratedData.executiveComp[i] || 0;
                         const welfare = this.integratedData.legalWelfare[i] || 0;
                         const otherFixed = this.integratedData.otherFixedCosts[i] || 0;
-                        const othersFixed = this.integratedData.othersFixed[i] || 0; // ★追加
+                        const othersFixed = this.integratedData.othersFixed[i] || 0;
                         
                         const grossProfit = (sales || 0) - cogs;
                         const totalExpenses = personnel + expenses + execComp + welfare + otherFixed + othersFixed;
@@ -773,7 +773,7 @@
                 }
             },
 
-            // ★修正: 統合テーブル生成（その他固定費統合行を追加）
+            // 統合テーブル生成（その他固定費統合行を追加）
             generateIntegratedTable: function() {
                 try {
                     // 月次営業利益計算
@@ -784,7 +784,7 @@
                         const execComp = this.integratedData.executiveComp[i] || 0;
                         const welfare = this.integratedData.legalWelfare[i] || 0;
                         const otherFixed = this.integratedData.otherFixedCosts[i] || 0;
-                        const othersFixed = this.integratedData.othersFixed[i] || 0; // ★追加
+                        const othersFixed = this.integratedData.othersFixed[i] || 0;
                         
                         const grossProfit = (sales || 0) - cogs;
                         const totalExpenses = personnel + expenses + execComp + welfare + otherFixed + othersFixed;
@@ -799,7 +799,7 @@
                             execComp,
                             welfare,
                             otherFixed,
-                            othersFixed, // ★追加
+                            othersFixed,
                             totalExpenses,
                             operatingProfit
                         };
@@ -815,12 +815,12 @@
                         execComp: monthlyResults.reduce((sum, m) => sum + m.execComp, 0),
                         welfare: monthlyResults.reduce((sum, m) => sum + m.welfare, 0),
                         otherFixed: monthlyResults.reduce((sum, m) => sum + m.otherFixed, 0),
-                        othersFixed: monthlyResults.reduce((sum, m) => sum + m.othersFixed, 0), // ★追加
+                        othersFixed: monthlyResults.reduce((sum, m) => sum + m.othersFixed, 0),
                         totalExpenses: monthlyResults.reduce((sum, m) => sum + m.totalExpenses, 0),
                         operatingProfit: monthlyResults.reduce((sum, m) => sum + m.operatingProfit, 0)
                     };
 
-                    // ★修正: テーブルHTML生成（その他固定費統合行を追加）
+                    // テーブルHTML生成（その他固定費統合行を追加）
                     let html = `
                         <tr class="sales-row">
                             <td class="item-name">統合売上高</td>
@@ -945,7 +945,7 @@
                 }
             },
 
-            // ★修正: データ構造の適応的変換（othersFixed対応）
+            // データ構造の適応的変換（othersFixed対応）
             adaptDataStructure: function(rawData, dept, source) {
                 try {
                     let adaptedData = {
@@ -954,7 +954,7 @@
                         personnel: new Array(12).fill(0),
                         expenses: new Array(12).fill(0),
                         
-                        // ★新規追加: 個別費用項目の受信
+                        // 新規追加: 個別費用項目の受信
                         logistics: rawData.logistics || new Array(12).fill(0),
                         rent: rawData.rent || new Array(12).fill(0),
                         outsourcing: rawData.outsourcing || new Array(12).fill(0),
@@ -962,7 +962,7 @@
                         advertising: rawData.advertising || new Array(12).fill(0),
                         utilities: rawData.utilities || new Array(12).fill(0),
                         fees: rawData.fees || new Array(12).fill(0),
-                        othersFixed: rawData.othersFixed || new Array(12).fill(0) // ★SR事業部の重要項目
+                        othersFixed: rawData.othersFixed || new Array(12).fill(0) // SR事業部の重要項目
                     };
 
                     // v3.0形式の場合
@@ -972,7 +972,7 @@
                         adaptedData.personnel = rawData.personnel ? rawData.personnel.slice(0, 12) : new Array(12).fill(0);
                         adaptedData.expenses = rawData.expenses ? rawData.expenses.slice(0, 12) : new Array(12).fill(0);
                         
-                        // ★新規: 個別費用項目の変換
+                        // 新規: 個別費用項目の変換
                         if (rawData.othersFixed && Array.isArray(rawData.othersFixed)) {
                             adaptedData.othersFixed = rawData.othersFixed.slice(0, 12);
                         }
@@ -993,7 +993,7 @@
                                 adaptedData.personnel[index] = monthData.personnel || 0;
                                 adaptedData.expenses[index] = monthData.expenses || 0;
                                 
-                                // ★レガシーデータからothersFixed抽出を試行
+                                // レガシーデータからothersFixed抽出を試行
                                 adaptedData.othersFixed[index] = monthData.othersFixed || 0;
                             });
                             
@@ -1008,13 +1008,13 @@
                             const monthlyCogs = (rawData.annual.cogs || 0) / 12;
                             const monthlyPersonnel = (rawData.annual.personnel || 0) / 12;
                             const monthlyExpenses = (rawData.annual.expenses || 0) / 12;
-                            const monthlyOthersFixed = (rawData.annual.othersFixed || 0) / 12; // ★追加
+                            const monthlyOthersFixed = (rawData.annual.othersFixed || 0) / 12;
 
                             adaptedData.sales.fill(monthlySales);
                             adaptedData.cogs.fill(monthlyCogs);
                             adaptedData.personnel.fill(monthlyPersonnel);
                             adaptedData.expenses.fill(monthlyExpenses);
-                            adaptedData.othersFixed.fill(monthlyOthersFixed); // ★追加
+                            adaptedData.othersFixed.fill(monthlyOthersFixed);
                             
                             UI_MANAGER.logDebug(`${dept}: レガシー形式(annual)で変換完了`);
                             return adaptedData;
@@ -1027,7 +1027,7 @@
                         adaptedData.cogs.fill((rawData.cogs || 0) / 12);
                         adaptedData.personnel.fill((rawData.personnel || 0) / 12);
                         adaptedData.expenses.fill((rawData.expenses || 0) / 12);
-                        adaptedData.othersFixed.fill((rawData.othersFixed || 0) / 12); // ★追加
+                        adaptedData.othersFixed.fill((rawData.othersFixed || 0) / 12);
                         
                         UI_MANAGER.logDebug(`${dept}: 単一値形式で変換完了`);
                         return adaptedData;
@@ -1070,7 +1070,7 @@
                 }
             },
 
-            // ★修正: データ統合実行（othersFixed統合処理追加）
+            // データ統合実行（othersFixed統合処理追加）
             integrateAllData: function() {
                 try {
                     UI_MANAGER.logDebug('データ統合開始');
@@ -1083,7 +1083,7 @@
 
                     // アクティブ事業部リスト更新
                     const activeDepts = [];
-                    const deptMapping = { sr: 'SR', w: 'W', rc: 'RCå¸', rcd: 'RCDç¤¾' };
+                    const deptMapping = { sr: 'SR', w: 'W', rc: 'RC市', rcd: 'RCD社' };
                     
                     [srData, wData, rcData, rcdData].forEach((data, index) => {
                         const deptKey = ['sr', 'w', 'rc', 'rcd'][index];
@@ -1120,7 +1120,7 @@
                             (rcData?.expenses?.[i] || 0) + 
                             (rcdData?.expenses?.[i] || 0);
 
-                        // ★新規追加: その他固定費統合（主にSR事業部から）
+                        // 新規追加: その他固定費統合（主にSR事業部から）
                         UI_MANAGER.integratedData.othersFixed[i] = 
                             (srData?.othersFixed?.[i] || 0) + 
                             (wData?.othersFixed?.[i] || 0) + 
@@ -1160,17 +1160,22 @@
             }
         };
 
-        // グローバル関数（ボタンアクション）
+        // グローバル関数（ボタンアクション） - エラー修正版
         function refreshIntegrationData() {
-            UI_MANAGER.logDebug('手動データ統合更新開始');
-            const success = INTEGRATION_ENGINE.integrateAllData();
-            if (success) {
-                UI_MANAGER.updateKPIs();
-                UI_MANAGER.updateChart();
-                UI_MANAGER.generateIntegratedTable();
-                alert('統合データを更新しました。');
-            } else {
-                alert('データ統合に失敗しました。LocalStorage検査でデータ状況を確認してください。');
+            try {
+                UI_MANAGER.logDebug('手動データ統合更新開始');
+                const success = INTEGRATION_ENGINE.integrateAllData();
+                if (success) {
+                    UI_MANAGER.updateKPIs();
+                    UI_MANAGER.updateChart();
+                    UI_MANAGER.generateIntegratedTable();
+                    alert('統合データを更新しました。');
+                } else {
+                    alert('データ統合に失敗しました。LocalStorage検査でデータ状況を確認してください。');
+                }
+            } catch (error) {
+                UI_MANAGER.logDebug('refreshIntegrationDataエラー', error.message);
+                alert('データ更新中にエラーが発生しました: ' + error.message);
             }
         }
 
@@ -1187,7 +1192,7 @@
                     ['役員報酬', ...UI_MANAGER.integratedData.executiveComp],
                     ['法定福利費', ...UI_MANAGER.integratedData.legalWelfare],
                     ['その他固定費', ...UI_MANAGER.integratedData.otherFixedCosts],
-                    ['その他固定費統合', ...UI_MANAGER.integratedData.othersFixed] // ★追加
+                    ['その他固定費統合', ...UI_MANAGER.integratedData.othersFixed]
                 ];
 
                 dataRows.forEach(row => {
@@ -1204,59 +1209,148 @@
                 URL.revokeObjectURL(link.href);
             } catch (error) {
                 UI_MANAGER.logDebug('CSVエクスポートエラー', error.message);
-                alert('CSVエクスポートに失敗しました');
+                alert('CSVエクスポートに失敗しました: ' + error.message);
             }
         }
 
         function checkDashboardLink() {
-            const dashboardData = localStorage.getItem(STORAGE_KEYS.dashboard);
-            if (dashboardData) {
-                const data = JSON.parse(dashboardData);
-                const lastUpdate = data.lastUpdate ? new Date(data.lastUpdate).toLocaleString() : '不明';
-                alert(`役員報酬連携状況\n最終更新: ${lastUpdate}\n月額基準: 2537万円\n連携状況: アクティブ`);
-            } else {
-                alert('役員報酬連携データが見つかりません。\nダッシュボードからデータを送信してください。');
+            try {
+                const dashboardData = localStorage.getItem(STORAGE_KEYS.dashboard);
+                if (dashboardData) {
+                    const data = JSON.parse(dashboardData);
+                    const lastUpdate = data.lastUpdate ? new Date(data.lastUpdate).toLocaleString() : '不明';
+                    alert(`役員報酬連携状況\n最終更新: ${lastUpdate}\n月額基準: 2537万円\n連携状況: アクティブ`);
+                } else {
+                    alert('役員報酬連携データが見つかりません。\nダッシュボードからデータを送信してください。');
+                }
+            } catch (error) {
+                UI_MANAGER.logDebug('checkDashboardLinkエラー', error.message);
+                alert('役員報酬連携確認中にエラーが発生しました: ' + error.message);
             }
         }
 
         function validateAllData() {
-            let report = '4事業部データ整合性チェック結果\n\n';
-            let validCount = 0;
+            try {
+                let report = '4事業部データ整合性チェック結果\n\n';
+                let validCount = 0;
 
-            ['sr', 'w', 'rc', 'rcd'].forEach(dept => {
-                const v3Data = localStorage.getItem(STORAGE_KEYS[dept]);
-                const legacyData = localStorage.getItem(STORAGE_KEYS[dept + '_legacy']);
-                
-                let status = '- データなし';
-                if (v3Data || legacyData) {
-                    try {
-                        const testData = INTEGRATION_ENGINE.loadDepartmentData(dept);
-                        if (testData) {
-                            status = '✓ 正常（統合可能）';
-                            // ★othersFixedの確認
-                            const othersFixedSum = testData.othersFixed ? testData.othersFixed.reduce((a, b) => a + b, 0) : 0;
-                            if (dept === 'sr' && othersFixedSum > 0) {
-                                status += ` [その他固定費統合: ${othersFixedSum}万円]`;
+                ['sr', 'w', 'rc', 'rcd'].forEach(dept => {
+                    const v3Data = localStorage.getItem(STORAGE_KEYS[dept]);
+                    const legacyData = localStorage.getItem(STORAGE_KEYS[dept + '_legacy']);
+                    
+                    let status = '- データなし';
+                    if (v3Data || legacyData) {
+                        try {
+                            const testData = INTEGRATION_ENGINE.loadDepartmentData(dept);
+                            if (testData) {
+                                status = '✓ 正常（統合可能）';
+                                // othersFixedの確認
+                                const othersFixedSum = testData.othersFixed ? testData.othersFixed.reduce((a, b) => a + b, 0) : 0;
+                                if (dept === 'sr' && othersFixedSum > 0) {
+                                    status += ` [その他固定費統合: ${othersFixedSum}万円]`;
+                                }
+                                validCount++;
+                            } else {
+                                status = '✗ 形式不正';
                             }
-                            validCount++;
-                        } else {
-                            status = '✗ 形式不正';
+                        } catch (error) {
+                            status = '✗ 解析エラー';
                         }
-                    } catch (error) {
-                        status = '✗ 解析エラー';
                     }
-                }
-                
-                report += `${dept.toUpperCase()}事業部: ${status}\n`;
-            });
+                    
+                    report += `${dept.toUpperCase()}事業部: ${status}\n`;
+                });
 
-            report += `\n統合可能事業部: ${validCount}/4`;
-            alert(report);
+                report += `\n統合可能事業部: ${validCount}/4`;
+                alert(report);
+            } catch (error) {
+                UI_MANAGER.logDebug('validateAllDataエラー', error.message);
+                alert('データ整合性チェック中にエラーが発生しました: ' + error.message);
+            }
         }
 
         function toggleDebugInfo() {
-            debugMode = !debugMode;
-            const debugElement = document.getElementById('debug-info');
-            if (debugElement) {
-                debugElement.style.display = debugMode ? 'block' : 'none';
-                if (
+            try {
+                debugMode = !debugMode;
+                const debugElement = document.getElementById('debug-info');
+                if (debugElement) {
+                    debugElement.style.display = debugMode ? 'block' : 'none';
+                    if (debugMode) {
+                        document.getElementById('debug-content').innerHTML = 'デバッグモード開始...';
+                    }
+                }
+                UI_MANAGER.logDebug('デバッグモード切り替え', debugMode);
+            } catch (error) {
+                UI_MANAGER.logDebug('toggleDebugInfoエラー', error.message);
+                alert('デバッグ情報表示切り替え中にエラーが発生しました: ' + error.message);
+            }
+        }
+
+        function inspectLocalStorage() {
+            try {
+                let report = 'LocalStorage検査結果\n\n';
+                
+                // 全キーの確認
+                Object.entries(STORAGE_KEYS).forEach(([keyName, keyValue]) => {
+                    const data = localStorage.getItem(keyValue);
+                    if (data) {
+                        try {
+                            const parsed = JSON.parse(data);
+                            const dataInfo = {
+                                サイズ: (data.length / 1024).toFixed(2) + 'KB',
+                                更新日: parsed.metadata?.lastUpdate || parsed.lastUpdate || parsed.timestamp || '不明',
+                                主要フィールド: Object.keys(parsed).slice(0, 5).join(', '),
+                                othersFixed: parsed.othersFixed ? '有り' : '無し'
+                            };
+                            report += `✓ ${keyName} (${keyValue})\n`;
+                            report += `  ${JSON.stringify(dataInfo, null, 2)}\n\n`;
+                        } catch (error) {
+                            report += `✗ ${keyName} (${keyValue}) - 解析エラー\n\n`;
+                        }
+                    } else {
+                        report += `- ${keyName} (${keyValue}) - データなし\n\n`;
+                    }
+                });
+                
+                alert(report);
+            } catch (error) {
+                UI_MANAGER.logDebug('inspectLocalStorageエラー', error.message);
+                alert('LocalStorage検査中にエラーが発生しました: ' + error.message);
+            }
+        }
+
+        // 初期化処理
+        function initialize() {
+            try {
+                UI_MANAGER.logDebug('4事業部統合PLシステム v3.0 初期化開始');
+                
+                // データ統合実行
+                const success = INTEGRATION_ENGINE.integrateAllData();
+                
+                if (success) {
+                    UI_MANAGER.updateKPIs();
+                    UI_MANAGER.updateChart();
+                    UI_MANAGER.generateIntegratedTable();
+                    UI_MANAGER.logDebug('統合PLシステム v3.0 初期化完了');
+                } else {
+                    UI_MANAGER.logDebug('統合PLシステム: データ統合失敗、デフォルト表示');
+                    UI_MANAGER.updateKPIs();
+                    UI_MANAGER.generateIntegratedTable();
+                }
+            } catch (error) {
+                UI_MANAGER.logDebug('初期化エラー', error.message);
+                console.error('統合PLシステム初期化エラー:', error);
+            }
+        }
+
+        // ページ読み込み時に初期化
+        document.addEventListener('DOMContentLoaded', initialize);
+        window.addEventListener('load', function() {
+            if (!UI_MANAGER.integratedData.metadata.lastUpdate) {
+                UI_MANAGER.logDebug('Fallback初期化実行');
+                initialize();
+            }
+        });
+    </script>
+</body>
+</html>
