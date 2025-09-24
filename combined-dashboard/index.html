@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4事業部統合PLシステム（販管費31項目完全実装版）</title>
+    <title>4事業部統合PLシステム（統一構造19項目完全対応版）</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -416,18 +416,18 @@
             <!-- 1行目: タイトル -->
             <div class="header-row1">
                 <h1 class="main-title">4事業部統合PLシステム</h1>
-                <p class="subtitle">販管費31項目完全実装版・リアルタイムデータ連携対応</p>
+                <p class="subtitle">統一構造19項目完全対応版・リアルタイムデータ連携対応</p>
             </div>
 
             <!-- 2行目: ナビゲーション -->
             <div class="header-row2">
                 <div class="nav-buttons">
-                    <a href="#" class="btn" onclick="showPage('dashboard'); return false;">ダッシュボード</a>
-                    <a href="#" class="btn" onclick="showPage('budget'); return false;">予算入力</a>
-                    <a href="#" class="btn" onclick="showPage('sr'); return false;">SR事業部</a>
-                    <a href="#" class="btn" onclick="showPage('w'); return false;">W事業部</a>
-                    <a href="#" class="btn" onclick="showPage('rc'); return false;">RC卸事業部</a>
-                    <a href="#" class="btn" onclick="showPage('rcd'); return false;">RCD社事業部</a>
+                    <a href="../index.html" class="btn">ダッシュボード</a>
+                    <a href="../budget-input.html" class="btn">予算入力</a>
+                    <a href="../department-pl/sr-pl.html" class="btn">SR事業部</a>
+                    <a href="../department-pl/w-pl.html" class="btn">W事業部</a>
+                    <a href="../department-pl/rc-pl.html" class="btn">RC支店事業部</a>
+                    <a href="../department-pl/rcd-pl.html" class="btn">RCD社事業部</a>
                 </div>
             </div>
 
@@ -442,7 +442,7 @@
                     <div class="kpi-card" id="total-profit-card">
                         <div class="kpi-label">統合営業利益</div>
                         <div class="kpi-value" id="total-profit">---万円</div>
-                        <div class="kpi-detail">販管費31項目控除後</div>
+                        <div class="kpi-detail">販管費19項目控除後</div>
                     </div>
                     <div class="kpi-card" id="profit-rate-card">
                         <div class="kpi-label">統合利益率</div>
@@ -456,8 +456,8 @@
                     </div>
                     <div class="kpi-card">
                         <div class="kpi-label">販管費項目数</div>
-                        <div class="kpi-value" id="expense-items">31/31</div>
-                        <div class="kpi-detail">項目表示完了</div>
+                        <div class="kpi-value" id="expense-items">19/19</div>
+                        <div class="kpi-detail">統一構造対応</div>
                     </div>
                 </div>
             </div>
@@ -467,7 +467,7 @@
                 <div class="status-grid">
                     <div id="sr-status" class="dept-status status-warning">SR事業部: 待機中</div>
                     <div id="w-status" class="dept-status status-warning">W事業部: 待機中</div>
-                    <div id="rc-status" class="dept-status status-warning">RC卸: 待機中</div>
+                    <div id="rc-status" class="dept-status status-warning">RC支店: 待機中</div>
                     <div id="rcd-status" class="dept-status status-warning">RCD社: 待機中</div>
                 </div>
             </div>
@@ -475,7 +475,7 @@
             <!-- 5行目: ダッシュボード連携ステータス -->
             <div class="header-row5">
                 <div class="dashboard-linkage-status">
-                    <span>🔄 自動同期システム:</span>
+                    <span>📄 自動同期システム:</span>
                     <span class="linkage-indicator" id="sync-status">停止中</span>
                     <span id="last-sync">最終同期: --:--</span>
                 </div>
@@ -509,8 +509,8 @@
                 <!-- JavaScriptで動的生成 -->
             </div>
 
-            <!-- 販管費31項目テーブル -->
-            <h2 class="section-title" style="margin-top: 40px;">販管費31項目 詳細表示（月次推移）</h2>
+            <!-- 販管費19項目テーブル -->
+            <h2 class="section-title" style="margin-top: 40px;">販管費19項目 詳細表示（統一構造対応）</h2>
             <div class="table-container" id="expense-table-container">
                 <!-- JavaScriptで動的生成 -->
             </div>
@@ -519,24 +519,28 @@
 
     <!-- 同期インジケータ -->
     <div class="sync-indicator" id="sync-indicator">
-        🔄 データ同期中...
+        📄 データ同期中...
     </div>
 
     <script>
-        // ===== データストレージ管理 =====
+        // ===== データストレージ管理（修正版） =====
         const DataStorage = {
             keys: {
-                sr: 'pl_system_sr_data',
+                sr: 'pl_system_sr_data',      // 統一キー
                 w: 'pl_system_w_data',
                 rc: 'pl_system_rc_data',
                 rcd: 'pl_system_rcd_data',
                 dashboard: 'dashboard_data',
-                executive: 'executive_compensation_csv_settings'
+                executive: 'executive_compensation_data'
             },
             
             get: function(key) {
                 try {
-                    const data = sessionStorage.getItem(this.keys[key]);
+                    // LocalStorageとsessionStorageの両方をチェック
+                    let data = localStorage.getItem(this.keys[key]);
+                    if (!data) {
+                        data = sessionStorage.getItem(this.keys[key]);
+                    }
                     return data ? JSON.parse(data) : null;
                 } catch (error) {
                     console.error(`データ取得エラー(${key}):`, error);
@@ -546,7 +550,7 @@
             
             set: function(key, data) {
                 try {
-                    sessionStorage.setItem(this.keys[key], JSON.stringify(data));
+                    localStorage.setItem(this.keys[key], JSON.stringify(data));
                     return true;
                 } catch (error) {
                     console.error(`データ保存エラー(${key}):`, error);
@@ -559,73 +563,67 @@
             }
         };
 
-        // ===== 正しい販管費31項目定義 =====
-        const ADMIN_EXPENSE_ITEMS = {
-            // 人件費関連
-            personnel: { id: 1, name: '人件費統合', category: 'personnel' },
-            welfare: { id: 2, name: '法定福利費', category: 'personnel' },
-            hygiene: { id: 3, name: '衛生費', category: 'personnel' },
-            
-            // 物流・施設費
-            logistics: { id: 4, name: '物流管理費', category: 'facility' },
-            rent: { id: 5, name: '地代家賃', category: 'facility' },
-            outsourcing: { id: 6, name: '外注費', category: 'facility' },
-            freight: { id: 7, name: '荷造運賃', category: 'facility' },
-            
-            // 営業・マーケティング費
-            advertising: { id: 8, name: '広告宣伝費', category: 'marketing' },
-            travel: { id: 9, name: '旅費交通費', category: 'marketing' },
-            communication: { id: 10, name: '通信費', category: 'marketing' },
-            promotion: { id: 11, name: '販売促進費', category: 'marketing' },
-            
-            // 運営費
-            consumables: { id: 12, name: '消耗品費', category: 'operation' },
-            office: { id: 13, name: '事務用品費', category: 'operation' },
-            utilities: { id: 14, name: '水道光熱費', category: 'operation' },
-            fees: { id: 15, name: '支払手数料', category: 'operation' },
-            
-            // 設備・保険
-            lease: { id: 16, name: 'リース料', category: 'equipment' },
-            insurance: { id: 17, name: '保険料', category: 'equipment' },
-            paymentFees: { id: 18, name: '支払報酬料', category: 'equipment' },
-            depreciation: { id: 19, name: '減価償却費', category: 'equipment' },
-            
-            // 役員・管理
-            executiveComp: { id: 20, name: '役員報酬', category: 'executive' },
-            adminExpenses: { id: 21, name: '管理諸費', category: 'executive' },
-            repairs: { id: 22, name: '修繕費', category: 'executive' },
-            vehicle: { id: 23, name: '車両費', category: 'executive' },
-            
-            // その他費用
-            taxes: { id: 24, name: '租税公課', category: 'other' },
-            entertainment: { id: 25, name: '交際費', category: 'other' },
-            dues: { id: 26, name: '諸会費', category: 'other' },
-            meetings: { id: 27, name: '会議費', category: 'other' },
-            welfareExpenses: { id: 28, name: '福利厚生費', category: 'other' },
-            training: { id: 29, name: '研修費', category: 'other' },
-            miscExpenses: { id: 30, name: '雑費', category: 'other' },
-            donations: { id: 31, name: '寄付金', category: 'other' }
+        // ===== 統一構造19項目定義（修正版） =====
+        const UNIFIED_EXPENSE_ITEMS = {
+            // 統一構造 Version 3.0に基づく19項目
+            1: { id: 1, name: '人件費統合', category: 'personnel' },
+            2: { id: 2, name: '法定福利費', category: 'personnel' },
+            3: { id: 3, name: '衛生費', category: 'personnel' },
+            4: { id: 4, name: '物流管理費', category: 'facility' },
+            5: { id: 5, name: '地代家賃', category: 'facility' },
+            6: { id: 6, name: '外注費', category: 'facility' },
+            7: { id: 7, name: '荷造運賃', category: 'facility' },
+            8: { id: 8, name: '広告宣伝費', category: 'marketing' },
+            9: { id: 9, name: '旅費交通費', category: 'marketing' },
+            10: { id: 10, name: '通信費', category: 'marketing' },
+            11: { id: 11, name: '販売促進費', category: 'marketing' },
+            12: { id: 12, name: '消耗品費', category: 'operation' },
+            13: { id: 13, name: '事務用品費', category: 'operation' },
+            14: { id: 14, name: '水道光熱費', category: 'operation' },
+            15: { id: 15, name: '支払手数料', category: 'operation' },
+            16: { id: 16, name: 'リース料', category: 'equipment' },
+            17: { id: 17, name: '保険料', category: 'equipment' },
+            18: { id: 18, name: '支払報酬料', category: 'equipment' },
+            19: { id: 19, name: '減価償却費', category: 'equipment' }
         };
 
-        // ===== テストデータ生成 =====
+        // ===== テストデータ生成（統一構造対応版） =====
         function generateTestData() {
-            const testData = {
-                sr: {
-                    sales: [3405, 3333, 3333, 3333, 3333, 3333, 3333, 3333, 3333, 3333, 3333, 3333],
-                    cogs: [1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861],
-                    personnel: [280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280],
-                    welfare: [140, 140, 140, 127, 127, 127, 127, 127, 127, 127, 127, 127],
-                    logistics: [117, 117, 117, 117, 117, 117, 117, 117, 117, 117, 117, 117],
-                    rent: [55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55],
-                    outsourcing: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
-                    freight: [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
-                    advertising: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
-                    travel: [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
-                    communication: [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
-                    promotion: [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20],
-                    utilities: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
-                    fees: [93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93]
+            // SR事業部の統一構造データ（実際の統合システム出力形式）
+            const srUnifiedData = {
+                metadata: {
+                    department: 'SR',
+                    lastUpdate: new Date().toISOString(),
+                    version: '3.0',
+                    unifiedStructure: true
                 },
+                sales: [3405, 3333, 3333, 3333, 3333, 3333, 3333, 3333, 3333, 3333, 3333, 3333],
+                cogs: [1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861],
+                expenses: {
+                    1: [280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280],   // 人件費統合
+                    2: [140, 140, 140, 127, 127, 127, 127, 127, 127, 127, 127, 127],   // 法定福利費
+                    3: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14],               // 衛生費
+                    4: [208, 208, 208, 208, 208, 208, 208, 208, 208, 208, 208, 208],   // 物流管理費
+                    5: [214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214],   // 地代家賃
+                    6: [122, 122, 122, 122, 122, 122, 122, 122, 122, 122, 122, 122],   // 外注費
+                    7: [71, 9, 130, 66, 6, 69, 127, 66, 69, 66, 5, 117],               // 荷造運賃（変動）
+                    8: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],               // 広告宣伝費
+                    9: [31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31],               // 旅費交通費
+                    10: [19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],              // 通信費
+                    11: [39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39],              // 販売促進費
+                    12: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],                         // 消耗品費
+                    13: [11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11],              // 事務用品費
+                    14: [40, 47, 68, 55, 42, 40, 43, 56, 56, 52, 40, 40],              // 水道光熱費（変動）
+                    15: [62, 127, 81, 79, 133, 79, 105, 69, 61, 98, 70, 88],           // 支払手数料（変動）
+                    16: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],                         // リース料
+                    17: [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6],                         // 保険料
+                    18: [34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34],              // 支払報酬料
+                    19: [19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19]               // 減価償却費
+                }
+            };
+
+            // 他事業部の簡易テストデータ（統一構造変換前）
+            const testData = {
                 w: {
                     sales: [1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674],
                     cogs: [880, 880, 880, 880, 880, 880, 880, 880, 880, 880, 880, 880],
@@ -647,12 +645,7 @@
                     fees: [70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70],
                     travel: [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
                     communication: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    promotion: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
-                    office: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
-                    utilities: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-                    insurance: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    paymentFees: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
-                    depreciation: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7]
+                    promotion: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
                 },
                 rcd: {
                     sales: [532, 532, 532, 532, 532, 532, 532, 532, 532, 532, 532, 532],
@@ -663,17 +656,11 @@
                 }
             };
 
-            // 役員報酬データ
-            const executiveData = {
-                monthlyCompensation: [826, 826, 826, 676, 676, 676, 676, 676, 676, 676, 676, 676]
-            };
-
             // データ保存
-            DataStorage.set('sr', testData.sr);
+            DataStorage.set('sr', srUnifiedData);  // SR事業部は統一構造 
             DataStorage.set('w', testData.w);
             DataStorage.set('rc', testData.rc);
             DataStorage.set('rcd', testData.rcd);
-            DataStorage.set('executive', executiveData);
 
             // 初期化メッセージを非表示
             document.getElementById('init-message').style.display = 'none';
@@ -682,7 +669,7 @@
             generateSalesTable();
             generateExpenseTable();
             
-            alert('テストデータを生成しました。');
+            alert('テストデータを生成しました（SR事業部は統一構造対応）。');
         }
 
         // ===== 売上・仕入・粗利テーブル生成 =====
@@ -703,7 +690,7 @@
             const deptNames = {
                 sr: 'SR事業部',
                 w: 'W事業部',
-                rc: 'RC卸事業部',
+                rc: 'RC支店事業部',
                 rcd: 'RCD社事業部'
             };
 
@@ -720,7 +707,7 @@
             `;
 
             // 売上高セクション
-            html += `<tr class="category-header sales-header"><td colspan="15">売上高</td></tr>`;
+            html += `<tr class="category-header sales-header"><td colspan="14">売上高</td></tr>`;
             
             departments.forEach(dept => {
                 const data = DataStorage.get(dept);
@@ -747,7 +734,7 @@
             `;
 
             // 売上原価セクション
-            html += `<tr class="category-header cogs-header"><td colspan="15">売上原価</td></tr>`;
+            html += `<tr class="category-header cogs-header"><td colspan="14">売上原価</td></tr>`;
             
             departments.forEach(dept => {
                 const data = DataStorage.get(dept);
@@ -774,7 +761,7 @@
             `;
 
             // 粗利益セクション
-            html += `<tr class="category-header profit-header"><td colspan="15">粗利益</td></tr>`;
+            html += `<tr class="category-header profit-header"><td colspan="14">粗利益</td></tr>`;
             
             departments.forEach(dept => {
                 const data = DataStorage.get(dept);
@@ -805,98 +792,85 @@
             document.getElementById('sales-table-container').innerHTML = html;
         }
 
-        // ===== データ収集・統合処理 =====
+        // ===== データ収集・統合処理（統一構造対応版） =====
         function collectDepartmentData() {
             const integratedExpenses = {};
             
-            // 31項目を初期化
-            Object.keys(ADMIN_EXPENSE_ITEMS).forEach(key => {
-                integratedExpenses[key] = new Array(12).fill(0);
-            });
+            // 19項目を初期化
+            for (let i = 1; i <= 19; i++) {
+                integratedExpenses[i] = new Array(12).fill(0);
+            }
             
             let activeCount = 0;
             
-            // SR事業部のデータ
+            // SR事業部の統一構造データ
             const srData = DataStorage.get('sr');
-            if (srData) {
+            if (srData && srData.metadata && srData.metadata.unifiedStructure) {
                 activeCount++;
-                updateDeptStatus('sr', 'success', 'データ取得済');
+                updateDeptStatus('sr', 'success', '統一構造データ取得済');
                 
-                // 直接マッピングできる項目
-                ['personnel', 'welfare', 'logistics', 'rent', 'outsourcing', 'freight',
-                 'advertising', 'travel', 'communication', 'promotion', 'utilities', 'fees'].forEach(key => {
-                    if (srData[key]) {
-                        addToExpenses(integratedExpenses, key, srData[key]);
-                    }
-                });
-                
-                // その他の項目に一部を配分（簡易的に）
-                if (srData.fees) {
-                    // 支払手数料の一部を他の項目にも配分
-                    srData.fees.forEach((val, i) => {
-                        integratedExpenses.consumables[i] += Math.round(val * 0.05);
-                        integratedExpenses.office[i] += Math.round(val * 0.05);
-                        integratedExpenses.hygiene[i] += Math.round(val * 0.03);
+                // 統一構造のexpensesオブジェクトから直接データを取得
+                if (srData.expenses) {
+                    Object.keys(srData.expenses).forEach(expenseId => {
+                        const id = parseInt(expenseId);
+                        if (id >= 1 && id <= 19 && Array.isArray(srData.expenses[expenseId])) {
+                            srData.expenses[expenseId].forEach((val, monthIndex) => {
+                                integratedExpenses[id][monthIndex] += (val || 0);
+                            });
+                        }
                     });
                 }
             } else {
                 updateDeptStatus('sr', 'warning', 'データなし');
             }
             
-            // W事業部のデータ
+            // W事業部データ（従来形式から統一構造にマッピング）
             const wData = DataStorage.get('w');
             if (wData) {
                 activeCount++;
                 updateDeptStatus('w', 'success', 'データ取得済');
                 
-                ['personnel', 'welfare', 'rent', 'advertising', 'fees', 'travel', 'communication'].forEach(key => {
-                    if (wData[key]) {
-                        addToExpenses(integratedExpenses, key, wData[key]);
-                    }
-                });
+                // 簡易マッピング（実際のシステムでは各事業部が統一構造で送信する）
+                if (wData.personnel) addToExpenses(integratedExpenses, 1, wData.personnel);
+                if (wData.welfare) addToExpenses(integratedExpenses, 2, wData.welfare);
+                if (wData.rent) addToExpenses(integratedExpenses, 5, wData.rent);
+                if (wData.advertising) addToExpenses(integratedExpenses, 8, wData.advertising);
+                if (wData.travel) addToExpenses(integratedExpenses, 9, wData.travel);
+                if (wData.communication) addToExpenses(integratedExpenses, 10, wData.communication);
+                if (wData.fees) addToExpenses(integratedExpenses, 15, wData.fees);
             } else {
                 updateDeptStatus('w', 'warning', 'データなし');
             }
             
-            // RC卸事業部のデータ
+            // RC支店事業部データ
             const rcData = DataStorage.get('rc');
             if (rcData) {
                 activeCount++;
                 updateDeptStatus('rc', 'success', 'データ取得済');
                 
-                ['personnel', 'welfare', 'logistics', 'advertising', 'fees', 'travel',
-                 'communication', 'promotion', 'office', 'utilities', 'insurance',
-                 'paymentFees', 'depreciation'].forEach(key => {
-                    if (rcData[key]) {
-                        addToExpenses(integratedExpenses, key, rcData[key]);
-                    }
-                });
+                if (rcData.personnel) addToExpenses(integratedExpenses, 1, rcData.personnel);
+                if (rcData.welfare) addToExpenses(integratedExpenses, 2, rcData.welfare);
+                if (rcData.logistics) addToExpenses(integratedExpenses, 4, rcData.logistics);
+                if (rcData.advertising) addToExpenses(integratedExpenses, 8, rcData.advertising);
+                if (rcData.travel) addToExpenses(integratedExpenses, 9, rcData.travel);
+                if (rcData.communication) addToExpenses(integratedExpenses, 10, rcData.communication);
+                if (rcData.promotion) addToExpenses(integratedExpenses, 11, rcData.promotion);
+                if (rcData.fees) addToExpenses(integratedExpenses, 15, rcData.fees);
             } else {
                 updateDeptStatus('rc', 'warning', 'データなし');
             }
             
-            // RCD社事業部のデータ
+            // RCD社事業部データ
             const rcdData = DataStorage.get('rcd');
             if (rcdData) {
                 activeCount++;
                 updateDeptStatus('rcd', 'success', 'データ取得済');
                 
-                ['personnel', 'welfare', 'fees'].forEach(key => {
-                    if (rcdData[key]) {
-                        addToExpenses(integratedExpenses, key, rcdData[key]);
-                    }
-                });
+                if (rcdData.personnel) addToExpenses(integratedExpenses, 1, rcdData.personnel);
+                if (rcdData.welfare) addToExpenses(integratedExpenses, 2, rcdData.welfare);
+                if (rcdData.fees) addToExpenses(integratedExpenses, 15, rcdData.fees);
             } else {
                 updateDeptStatus('rcd', 'warning', 'データなし');
-            }
-            
-            // 役員報酬の追加
-            const executiveData = DataStorage.get('executive');
-            if (executiveData && executiveData.monthlyCompensation) {
-                integratedExpenses.executiveComp = executiveData.monthlyCompensation;
-            } else {
-                // デフォルト値
-                integratedExpenses.executiveComp = [826, 826, 826, 676, 676, 676, 676, 676, 676, 676, 676, 676];
             }
             
             // 統合状況更新
@@ -905,15 +879,15 @@
             return integratedExpenses;
         }
 
-        function addToExpenses(expenses, key, dataArray) {
-            if (expenses[key] && Array.isArray(dataArray)) {
+        function addToExpenses(expenses, itemId, dataArray) {
+            if (expenses[itemId] && Array.isArray(dataArray)) {
                 dataArray.forEach((val, i) => {
-                    expenses[key][i] += (val || 0);
+                    expenses[itemId][i] += (val || 0);
                 });
             }
         }
 
-        // ===== 販管費テーブル生成 =====
+        // ===== 販管費テーブル生成（統一構造19項目版） =====
         function generateExpenseTable() {
             if (!DataStorage.hasData()) {
                 document.getElementById('expense-table-container').innerHTML = 
@@ -942,9 +916,7 @@
                 facility: '物流・施設費',
                 marketing: '営業・マーケティング費',
                 operation: '運営費',
-                equipment: '設備・保険',
-                executive: '役員・管理',
-                other: 'その他費用'
+                equipment: '設備・保険'
             };
             
             let grandTotal = 0;
@@ -959,11 +931,11 @@
                 `;
                 
                 // 項目表示
-                Object.entries(ADMIN_EXPENSE_ITEMS)
+                Object.entries(UNIFIED_EXPENSE_ITEMS)
                     .filter(([_, item]) => item.category === catKey)
                     .sort((a, b) => a[1].id - b[1].id)
-                    .forEach(([key, item]) => {
-                        const monthlyData = expenses[key] || new Array(12).fill(0);
+                    .forEach(([_, item]) => {
+                        const monthlyData = expenses[item.id] || new Array(12).fill(0);
                         const annual = monthlyData.reduce((sum, val) => sum + val, 0);
                         grandTotal += annual;
                         
@@ -995,13 +967,6 @@
             `;
             
             document.getElementById('expense-table-container').innerHTML = html;
-            
-            // 広告宣伝費の確認（デバッグ用）
-            console.log('広告宣伝費の内訳:');
-            console.log('SR事業部: 30万円 × 12ヶ月 = 360万円');
-            console.log('W事業部: 30万円 × 12ヶ月 = 360万円');
-            console.log('RC卸: 40万円 × 12ヶ月 = 480万円');
-            console.log('合計: 100万円 × 12ヶ月 = 1,200万円');
             
             // KPI更新
             updateKPIs(grandTotal);
@@ -1173,30 +1138,10 @@
                 const deptNames = {
                     sr: 'SR事業部',
                     w: 'W事業部',
-                    rc: 'RC卸',
+                    rc: 'RC支店',
                     rcd: 'RCD社'
                 };
                 statusElement.textContent = `${deptNames[dept]}: ${message}`;
-            }
-        }
-
-        // ===== ページ切替 =====
-        function showPage(page) {
-            const pageUrls = {
-                dashboard: 'index.html',
-                budget: 'budget-input.html',
-                sr: 'sr-pl.html',
-                w: 'w-pl.html',
-                rc: 'rc-pl.html',
-                rcd: 'rcd-pl.html'
-            };
-            
-            // 実際のファイルがある場合は遷移
-            if (pageUrls[page]) {
-                // window.location.href = pageUrls[page];
-                alert(`${page}ページへ遷移: ${pageUrls[page]}`);
-            } else {
-                alert(`${page}ページは準備中です`);
             }
         }
 
@@ -1234,8 +1179,8 @@
             const expenses = collectDepartmentData();
             const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
             
-            // 売上・仕入・粗利データも含めたCSV作成
-            let csv = '\uFEFF統合PLデータ\n\n';
+            // 統一構造19項目対応のCSV作成
+            let csv = '\uFEFF統合PLデータ（統一構造19項目対応版）\n\n';
             
             // 売上データセクション
             csv += '【売上高】\n';
@@ -1245,7 +1190,7 @@
             const deptNames = {
                 sr: 'SR事業部',
                 w: 'W事業部', 
-                rc: 'RC卸事業部',
+                rc: 'RC支店事業部',
                 rcd: 'RCD社事業部'
             };
             
@@ -1264,14 +1209,14 @@
             csv += totalSalesRow.reduce((sum, val) => sum + val, 0) + '\n\n';
             
             // 販管費データセクション
-            csv += '【販管費31項目詳細】\n';
+            csv += '【販管費19項目詳細】\n';
             csv += 'ID,項目名,';
             csv += months.join(',') + ',年間計\n';
             
-            Object.entries(ADMIN_EXPENSE_ITEMS)
+            Object.entries(UNIFIED_EXPENSE_ITEMS)
                 .sort((a, b) => a[1].id - b[1].id)
-                .forEach(([key, item]) => {
-                    const monthlyData = expenses[key] || new Array(12).fill(0);
+                .forEach(([_, item]) => {
+                    const monthlyData = expenses[item.id] || new Array(12).fill(0);
                     const annual = monthlyData.reduce((sum, val) => sum + val, 0);
                     csv += `${item.id},"${item.name}",`;
                     csv += monthlyData.join(',') + ',' + annual + '\n';
@@ -1279,13 +1224,13 @@
             
             // 販管費合計行
             const monthlyTotals = new Array(12).fill(0);
-            Object.keys(expenses).forEach(key => {
-                if (expenses[key]) {
-                    expenses[key].forEach((val, i) => {
-                        monthlyTotals[i] += val;
+            for (let i = 1; i <= 19; i++) {
+                if (expenses[i]) {
+                    expenses[i].forEach((val, monthIdx) => {
+                        monthlyTotals[monthIdx] += val;
                     });
                 }
-            });
+            }
             csv += '-,販管費合計,';
             csv += monthlyTotals.join(',') + ',';
             csv += monthlyTotals.reduce((sum, val) => sum + val, 0) + '\n';
@@ -1293,13 +1238,13 @@
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = `統合PLデータ_${new Date().toISOString().slice(0, 10)}.csv`;
+            link.download = `統合PLデータ_統一構造19項目_${new Date().toISOString().slice(0, 10)}.csv`;
             link.click();
         }
 
         // ===== 初期化 =====
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('統合PLシステム 販管費31項目完全実装版 起動');
+            console.log('統合PLシステム 統一構造19項目完全対応版 起動');
             
             // データ有無チェック
             if (!DataStorage.hasData()) {
