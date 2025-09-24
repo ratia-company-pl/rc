@@ -248,13 +248,13 @@
             padding: 15px;
         }
 
-        /* テーブル */
+        /* テーブル共通スタイル */
         .table-container {
             overflow-x: auto;
             margin-top: 25px;
         }
 
-        .admin-expense-table {
+        .data-table {
             width: 100%;
             border-collapse: collapse;
             min-width: 1400px;
@@ -262,14 +262,14 @@
             background: white;
         }
 
-        .admin-expense-table th, 
-        .admin-expense-table td {
+        .data-table th, 
+        .data-table td {
             padding: 10px 8px;
             text-align: center;
             border: 1px solid #ddd;
         }
 
-        .admin-expense-table th {
+        .data-table th {
             background: #34495e;
             color: white;
             font-weight: 700;
@@ -293,7 +293,7 @@
             min-width: 200px;
         }
 
-        .expense-row:hover {
+        .data-row:hover {
             background: rgba(52, 152, 219, 0.1);
         }
 
@@ -311,6 +311,19 @@
             font-weight: bold;
             color: #e74c3c;
             background: #fff3cd;
+        }
+
+        /* 売上・仕入・粗利テーブル専用 */
+        .sales-header {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+
+        .cogs-header {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .profit-header {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
         }
 
         /* アクションボタン */
@@ -434,7 +447,7 @@
                     <div class="kpi-card" id="profit-rate-card">
                         <div class="kpi-label">統合利益率</div>
                         <div class="kpi-value" id="profit-rate">---%</div>
-                        <div class="kpi-detail">前年比較対応</div>
+                        <div class="kpi-detail">対売上高比率</div>
                     </div>
                     <div class="kpi-card">
                         <div class="kpi-label">データ統合状況</div>
@@ -476,8 +489,6 @@
 
         <!-- メインコンテンツ -->
         <main class="main-content">
-            <h2 class="section-title">販管費31項目 詳細表示（月次推移）</h2>
-            
             <!-- アクションボタン -->
             <div class="action-section">
                 <button class="action-btn btn-success" onclick="generateTestData()">テストデータ生成</button>
@@ -492,7 +503,14 @@
                 <canvas id="expenseChart"></canvas>
             </div>
 
+            <!-- 売上・仕入・粗利テーブル -->
+            <h2 class="section-title">売上・仕入・粗利推移</h2>
+            <div class="table-container" id="sales-table-container">
+                <!-- JavaScriptで動的生成 -->
+            </div>
+
             <!-- 販管費31項目テーブル -->
+            <h2 class="section-title" style="margin-top: 40px;">販管費31項目 詳細表示（月次推移）</h2>
             <div class="table-container" id="expense-table-container">
                 <!-- JavaScriptで動的生成 -->
             </div>
@@ -589,46 +607,50 @@
         function generateTestData() {
             const testData = {
                 sr: {
-                    sales: [1000, 1100, 1200, 1050, 1150, 1250, 1300, 1350, 1400, 1450, 1500, 1550],
-                    cogs: [600, 660, 720, 630, 690, 750, 780, 810, 840, 870, 900, 930],
-                    personnel: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
-                    welfare: [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
-                    logistics: [50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50],
-                    rent: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
-                    outsourcing: [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20],
+                    sales: [3405, 3333, 3333, 3333, 3333, 3333, 3333, 3333, 3333, 3333, 3333, 3333],
+                    cogs: [1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861],
+                    grossProfit: [1544, 1472, 1472, 1472, 1472, 1472, 1472, 1472, 1472, 1472, 1472, 1472],
+                    personnel: [280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280],
+                    welfare: [140, 140, 140, 127, 127, 127, 127, 127, 127, 127, 127, 127],
+                    logistics: [117, 117, 117, 117, 117, 117, 117, 117, 117, 117, 117, 117],
+                    rent: [55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55],
+                    outsourcing: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
                     freight: [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
-                    advertising: [25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25],
-                    promotion: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
-                    utilities: [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
-                    fees: [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8],
-                    othersFixed: [40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40]
+                    advertising: [60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60],
+                    promotion: [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20],
+                    utilities: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+                    fees: [93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93],
+                    othersFixed: [62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62]
                 },
                 w: {
-                    sales: [800, 850, 900, 820, 860, 920, 950, 980, 1000, 1020, 1050, 1080],
-                    cogs: [480, 510, 540, 492, 516, 552, 570, 588, 600, 612, 630, 648],
-                    personnel: [80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80],
-                    welfare: [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-                    rent: [25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25],
-                    advertising: [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20],
-                    fees: [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
-                    othersFixed: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
+                    sales: [1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674],
+                    cogs: [880, 880, 880, 880, 880, 880, 880, 880, 880, 880, 880, 880],
+                    grossProfit: [794, 794, 794, 794, 794, 794, 794, 794, 794, 794, 794, 794],
+                    personnel: [117, 117, 117, 117, 117, 117, 117, 117, 117, 117, 117, 117],
+                    welfare: [55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55],
+                    rent: [60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60],
+                    advertising: [67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67],
+                    fees: [11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11],
+                    othersFixed: [29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29]
                 },
                 rc: {
-                    sales: [500, 520, 540, 510, 530, 550, 570, 590, 610, 630, 650, 670],
-                    cogs: [300, 312, 324, 306, 318, 330, 342, 354, 366, 378, 390, 402],
-                    personnel: [60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60],
-                    expenses: [250, 250, 250, 250, 250, 350, 250, 250, 250, 250, 250, 350]
+                    sales: [1244, 1244, 1244, 1244, 1244, 1244, 1244, 1244, 1244, 1244, 1244, 1244],
+                    cogs: [932, 932, 932, 932, 932, 932, 932, 932, 932, 932, 932, 932],
+                    grossProfit: [312, 312, 312, 312, 312, 312, 312, 312, 312, 312, 312, 312],
+                    personnel: [61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61],
+                    expenses: [259, 259, 259, 259, 259, 349, 259, 259, 259, 259, 259, 349]
                 },
                 rcd: {
-                    sales: [300, 310, 320, 305, 315, 325, 330, 340, 350, 360, 370, 380],
-                    cogs: [180, 186, 192, 183, 189, 195, 198, 204, 210, 216, 222, 228],
-                    personnel: [40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40],
-                    welfare: [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
-                    expenses: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+                    sales: [532, 532, 532, 532, 532, 532, 532, 532, 532, 532, 532, 532],
+                    cogs: [372, 372, 372, 372, 372, 372, 372, 372, 372, 372, 372, 372],
+                    grossProfit: [160, 160, 160, 160, 160, 160, 160, 160, 160, 160, 160, 160],
+                    personnel: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+                    welfare: [13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13],
+                    expenses: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
                 }
             };
 
-            // 役員報酬データ
+            // 役員報酬データ（画像に合わせた数値）
             const executiveData = {
                 monthlyCompensation: [826, 826, 826, 676, 676, 676, 676, 676, 676, 676, 676, 676]
             };
@@ -644,9 +666,130 @@
             document.getElementById('init-message').style.display = 'none';
             
             // データ更新
+            generateSalesTable();
             generateExpenseTable();
             
             alert('テストデータを生成しました。');
+        }
+
+        // ===== 売上・仕入・粗利テーブル生成 =====
+        function generateSalesTable() {
+            if (!DataStorage.hasData()) {
+                document.getElementById('sales-table-container').innerHTML = 
+                    '<p style="text-align: center; color: #856404;">データがありません。</p>';
+                return;
+            }
+
+            const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
+            let totalSales = new Array(12).fill(0);
+            let totalCOGS = new Array(12).fill(0);
+            let totalGrossProfit = new Array(12).fill(0);
+
+            // 各事業部のデータを収集
+            const departments = ['sr', 'w', 'rc', 'rcd'];
+            const deptNames = {
+                sr: 'SR事業部',
+                w: 'W事業部',
+                rc: 'RC卸事業部',
+                rcd: 'RCD社事業部'
+            };
+
+            let html = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 200px;">項目</th>
+                            ${months.map(m => `<th>${m}</th>`).join('')}
+                            <th style="width: 100px;">年間計</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            // 売上高セクション
+            html += `<tr class="category-header sales-header"><td colspan="15">売上高</td></tr>`;
+            
+            departments.forEach(dept => {
+                const data = DataStorage.get(dept);
+                if (data && data.sales) {
+                    const annual = data.sales.reduce((sum, val) => sum + val, 0);
+                    html += `
+                        <tr class="data-row">
+                            <td class="item-name">${deptNames[dept]}</td>
+                            ${data.sales.map(val => `<td>${formatNumber(val)}</td>`).join('')}
+                            <td class="annual-total">${formatNumber(annual)}</td>
+                        </tr>
+                    `;
+                    data.sales.forEach((val, i) => totalSales[i] += val);
+                }
+            });
+
+            const annualTotalSales = totalSales.reduce((sum, val) => sum + val, 0);
+            html += `
+                <tr class="total-row">
+                    <td class="item-name">売上高合計</td>
+                    ${totalSales.map(val => `<td>${formatNumber(val)}</td>`).join('')}
+                    <td class="grand-total">${formatNumber(annualTotalSales)}</td>
+                </tr>
+            `;
+
+            // 売上原価セクション
+            html += `<tr class="category-header cogs-header"><td colspan="15">売上原価</td></tr>`;
+            
+            departments.forEach(dept => {
+                const data = DataStorage.get(dept);
+                if (data && data.cogs) {
+                    const annual = data.cogs.reduce((sum, val) => sum + val, 0);
+                    html += `
+                        <tr class="data-row">
+                            <td class="item-name">${deptNames[dept]}</td>
+                            ${data.cogs.map(val => `<td>${formatNumber(val)}</td>`).join('')}
+                            <td class="annual-total">${formatNumber(annual)}</td>
+                        </tr>
+                    `;
+                    data.cogs.forEach((val, i) => totalCOGS[i] += val);
+                }
+            });
+
+            const annualTotalCOGS = totalCOGS.reduce((sum, val) => sum + val, 0);
+            html += `
+                <tr class="total-row">
+                    <td class="item-name">売上原価合計</td>
+                    ${totalCOGS.map(val => `<td>${formatNumber(val)}</td>`).join('')}
+                    <td class="grand-total">${formatNumber(annualTotalCOGS)}</td>
+                </tr>
+            `;
+
+            // 粗利益セクション
+            html += `<tr class="category-header profit-header"><td colspan="15">粗利益</td></tr>`;
+            
+            departments.forEach(dept => {
+                const data = DataStorage.get(dept);
+                if (data && data.sales && data.cogs) {
+                    const grossProfitData = data.sales.map((sales, i) => sales - data.cogs[i]);
+                    const annual = grossProfitData.reduce((sum, val) => sum + val, 0);
+                    html += `
+                        <tr class="data-row">
+                            <td class="item-name">${deptNames[dept]}</td>
+                            ${grossProfitData.map(val => `<td>${formatNumber(val)}</td>`).join('')}
+                            <td class="annual-total">${formatNumber(annual)}</td>
+                        </tr>
+                    `;
+                    grossProfitData.forEach((val, i) => totalGrossProfit[i] += val);
+                }
+            });
+
+            const annualTotalGrossProfit = totalGrossProfit.reduce((sum, val) => sum + val, 0);
+            html += `
+                <tr class="total-row">
+                    <td class="item-name">粗利益合計</td>
+                    ${totalGrossProfit.map(val => `<td>${formatNumber(val)}</td>`).join('')}
+                    <td class="grand-total">${formatNumber(annualTotalGrossProfit)}</td>
+                </tr>
+            `;
+
+            html += `</tbody></table>`;
+            document.getElementById('sales-table-container').innerHTML = html;
         }
 
         // ===== データ収集・統合処理 =====
@@ -762,6 +905,7 @@
         }
 
         function distributeRCExpenses(expenses, monthlyExpense, monthIndex) {
+            // RC卸の固定的な経費配分
             expenses.welfare[monthIndex] += 6;
             expenses.fees[monthIndex] += 70;
             expenses.travel[monthIndex] += 15;
@@ -774,9 +918,10 @@
             expenses.insurance[monthIndex] += 1;
             expenses.consulting[monthIndex] += 10;
             expenses.depreciation[monthIndex] += 7;
+            expenses.retirement[monthIndex] += 10;
             
-            // 展示会費用（5月・12月）
-            if (monthIndex === 10 || monthIndex === 5) {
+            // 展示会費用（12月・6月）
+            if (monthIndex === 5 || monthIndex === 11) {
                 expenses.exhibition[monthIndex] += 90;
             }
         }
@@ -785,16 +930,9 @@
             const executiveData = DataStorage.get('executive');
             if (executiveData && executiveData.monthlyCompensation) {
                 expenses.executiveComp = executiveData.monthlyCompensation;
-                // 役員報酬分の法定福利費も追加
-                executiveData.monthlyCompensation.forEach((comp, i) => {
-                    expenses.welfare[i] += Math.round(comp * 0.13);
-                });
             } else {
-                // デフォルト値
+                // デフォルト値（画像に基づく）
                 expenses.executiveComp = [826, 826, 826, 676, 676, 676, 676, 676, 676, 676, 676, 676];
-                expenses.executiveComp.forEach((comp, i) => {
-                    expenses.welfare[i] += Math.round(comp * 0.13);
-                });
             }
         }
 
@@ -818,7 +956,7 @@
             const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
             
             let html = `
-                <table class="admin-expense-table">
+                <table class="data-table">
                     <thead>
                         <tr>
                             <th style="width: 50px;">ID</th>
@@ -863,7 +1001,7 @@
                         });
                         
                         html += `
-                            <tr class="expense-row">
+                            <tr class="data-row">
                                 <td>${item.id}</td>
                                 <td class="item-name">${item.name}</td>
                                 ${monthlyData.map(val => `<td>${formatNumber(val)}</td>`).join('')}
@@ -1030,6 +1168,7 @@
                 indicator.className = 'sync-indicator active';
                 
                 // データ更新
+                generateSalesTable();
                 generateExpenseTable();
                 
                 // 最終同期時刻更新
@@ -1103,6 +1242,7 @@
                 alert('先にテストデータを生成してください。');
                 return;
             }
+            generateSalesTable();
             generateExpenseTable();
             alert('データを手動更新しました');
         }
@@ -1116,7 +1256,38 @@
             const expenses = collectDepartmentData();
             const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
             
-            let csv = '販管費31項目詳細,';
+            // 売上・仕入・粗利データも含めたCSV作成
+            let csv = 'BOM,\n統合PLデータ\n\n';
+            
+            // 売上データセクション
+            csv += '【売上高】\n';
+            csv += '事業部,7月,8月,9月,10月,11月,12月,1月,2月,3月,4月,5月,6月,年間計\n';
+            
+            const departments = ['sr', 'w', 'rc', 'rcd'];
+            const deptNames = {
+                sr: 'SR事業部',
+                w: 'W事業部', 
+                rc: 'RC卸事業部',
+                rcd: 'RCD社事業部'
+            };
+            
+            let totalSalesRow = new Array(12).fill(0);
+            departments.forEach(dept => {
+                const data = DataStorage.get(dept);
+                if (data && data.sales) {
+                    csv += `${deptNames[dept]},`;
+                    csv += data.sales.join(',') + ',';
+                    csv += data.sales.reduce((sum, val) => sum + val, 0) + '\n';
+                    data.sales.forEach((val, i) => totalSalesRow[i] += val);
+                }
+            });
+            csv += '売上高合計,';
+            csv += totalSalesRow.join(',') + ',';
+            csv += totalSalesRow.reduce((sum, val) => sum + val, 0) + '\n\n';
+            
+            // 販管費データセクション
+            csv += '【販管費31項目詳細】\n';
+            csv += 'ID,項目名,';
             csv += months.join(',') + ',年間計\n';
             
             Object.entries(ADMIN_EXPENSE_ITEMS)
@@ -1124,14 +1295,25 @@
                 .forEach(([key, item]) => {
                     const monthlyData = expenses[key] || new Array(12).fill(0);
                     const annual = monthlyData.reduce((sum, val) => sum + val, 0);
-                    csv += `"${item.id}.${item.name}",`;
+                    csv += `${item.id},"${item.name}",`;
                     csv += monthlyData.join(',') + ',' + annual + '\n';
                 });
+            
+            // 販管費合計行
+            const monthlyTotals = new Array(12).fill(0);
+            Object.keys(expenses).forEach(key => {
+                expenses[key].forEach((val, i) => {
+                    monthlyTotals[i] += val;
+                });
+            });
+            csv += '-,販管費合計,';
+            csv += monthlyTotals.join(',') + ',';
+            csv += monthlyTotals.reduce((sum, val) => sum + val, 0) + '\n';
             
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = `販管費31項目_${new Date().toISOString().slice(0, 10)}.csv`;
+            link.download = `統合PLデータ_${new Date().toISOString().slice(0, 10)}.csv`;
             link.click();
         }
 
@@ -1145,6 +1327,7 @@
             } else {
                 document.getElementById('init-message').style.display = 'none';
                 // 初回データ読み込み
+                generateSalesTable();
                 generateExpenseTable();
             }
         });
