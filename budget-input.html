@@ -831,7 +831,7 @@
     </div>
 
     <script>
-        // localStorage統一ルール
+        // localStorageルール
         const LOCAL_STORAGE_KEYS = {
             sr_data: 'pl_system_sr_data',
             w_data: 'pl_system_w_data',
@@ -1587,27 +1587,53 @@
             }
         }
 
-        // 送信機能群 - 修正版
+        // 修正版: SR事業部データ送信（統一構造対応）
         function sendSRDataToPLSystem(silent = false) {
             try {
                 const monthlySales = months.map((_, i) => {
                     return Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0);
                 });
 
-                const srSalesData = {
-                    monthlySales: monthlySales,
-                    timestamp: new Date().toISOString()
+                // 修正版: 統一構造データ生成
+                const srUnifiedData = {
+                    metadata: {
+                        department: 'SR',
+                        lastUpdate: new Date().toISOString(),
+                        version: '3.0',
+                        unifiedStructure: true
+                    },
+                    
+                    // 売上・原価データ
+                    sales: monthlySales,
+                    cogs: monthlySales.map(sales => Math.round(sales * 0.272)), // 仕入原価率27.2%
+                    
+                    // 19項目販管費データ（簡略版）
+                    expenses: {
+                        1: monthlySales.map(sales => Math.round(sales * 0.12)), // 人件費統合（12%）
+                        2: monthlySales.map(sales => Math.round(sales * 0.05)), // 法定福利費（5%）
+                        3: new Array(12).fill(Math.round(166/12)), // 衛生費（年166万円÷12）
+                        4: new Array(12).fill(Math.round(2500/12)), // 物流管理費
+                        5: new Array(12).fill(Math.round(2574/12)), // 地代家賃
+                        6: new Array(12).fill(Math.round(1470/12)), // 外注費
+                        7: new Array(12).fill(Math.round(851/12)), // 貨物運賃
+                        8: new Array(12).fill(currentData.sr.variables.advertising), // 広告宣伝費
+                        9: new Array(12).fill(Math.round(374/12)), // 旅費交通費
+                        10: new Array(12).fill(Math.round(227/12)), // 通信費
+                        11: new Array(12).fill(Math.round(468/12)), // 販売促進費
+                        12: new Array(12).fill(Math.round(43/12)), // 消耗品費
+                        13: new Array(12).fill(Math.round(127/12)), // 事務用品費
+                        14: new Array(12).fill(Math.round(579/12)), // 水道光熱費
+                        15: monthlySales.map(sales => Math.round(sales * 0.04)), // 支払手数料（4%）
+                        16: new Array(12).fill(Math.round(14/12)), // リース料
+                        17: new Array(12).fill(Math.round(67/12)), // 保険料
+                        18: new Array(12).fill(Math.round(408/12)), // 支払報酬料
+                        19: new Array(12).fill(Math.round(230/12))  // 減価償却費
+                    }
                 };
 
-                const srSettings = {
-                    commission: currentData.sr.variables.commission,
-                    bonus6: currentData.sr.variables.bonus6,
-                    bonus12: currentData.sr.variables.bonus12,
-                    advertising: currentData.sr.variables.advertising
-                };
-
-                localStorage.setItem(LOCAL_STORAGE_KEYS.sr_data, JSON.stringify(srSalesData));
-                localStorage.setItem(LOCAL_STORAGE_KEYS.sr_settings, JSON.stringify(srSettings));
+                // 統一キーで保存
+                localStorage.setItem('pl_system_sr_data', JSON.stringify(srUnifiedData));
+                console.log('SR統一構造データ送信:', srUnifiedData);
 
                 if (!silent) {
                     const annual = monthlySales.reduce((sum, val) => sum + val, 0);
@@ -1622,6 +1648,7 @@
                 if (!silent) {
                     alert('データ送信に失敗しました: ' + error.message);
                 }
+                console.error('SR送信エラー:', error);
                 return 0;
             }
         }
@@ -1642,7 +1669,7 @@
 
                 if (!silent) {
                     const annual = currentData.w.sales.reduce((sum, val) => sum + val, 0);
-                    alert('Wデータを PLシステムに送信しました！\n\n' +
+                    alert('WデータをPLシステムに送信しました！\n\n' +
                           '年間合計: ' + formatNumber(annual) + '万円\n' +
                           '送信時刻: ' + new Date().toLocaleTimeString());
                 }
@@ -1726,41 +1753,63 @@
             }
         }
 
-        // 一括送信機能 - 修正版
+        // 修正版: 一括送信機能 - 修正版
         function sendAllDataAndNavigateToPL() {
             try {
-                // 個別送信処理（silent=true）
+                // 修正版: 送信順序と待機時間を調整
+                console.log('一括送信開始');
+                
+                // 1. SR事業部データ送信（最初に実行）
                 const srTotal = sendSRDataToPLSystem(true);
-                const wTotal = sendWDataToPLSystem(true);
-                const rcTotal = sendRCDataToPLSystem(true);
-                const rcdTotal = sendRCDDataToPLSystem(true);
+                console.log('SR送信完了:', srTotal);
                 
-                const grandTotal = srTotal + wTotal + rcTotal + rcdTotal;
-                
-                // 同期フラグ設定
-                localStorage.setItem('all_data_sync_flag', JSON.stringify({
-                    timestamp: new Date().toISOString(),
-                    status: 'completed'
-                }));
-                
-                // 統合メッセージ表示
-                alert(`全事業部データを一括送信しました！\n\n` +
-                      `【各事業部売上合計】\n` +
-                      `SR事業部: ${formatNumber(srTotal)}万円\n` +
-                      `W事業部: ${formatNumber(wTotal)}万円\n` +
-                      `RC卸店: ${formatNumber(rcTotal)}万円\n` +
-                      `RCD社: ${formatNumber(rcdTotal)}万円\n` +
-                      `━━━━━━━━━━━━━━━━━━━\n` +
-                      `📊 統合売上合計: ${formatNumber(grandTotal)}万円\n\n` +
-                      `🚀 1秒後に統合PLページに移動します。`);
-                
-                // 画面移動
+                // 2. 少し待ってからW事業部
                 setTimeout(() => {
-                    window.location.href = 'combined-dashboard/index.html';
-                }, 1000);
+                    const wTotal = sendWDataToPLSystem(true);
+                    console.log('W送信完了:', wTotal);
+                    
+                    // 3. さらに待ってからRC卸
+                    setTimeout(() => {
+                        const rcTotal = sendRCDataToPLSystem(true);
+                        console.log('RC送信完了:', rcTotal);
+                        
+                        // 4. 最後にRCD社
+                        setTimeout(() => {
+                            const rcdTotal = sendRCDDataToPLSystem(true);
+                            console.log('RCD送信完了:', rcdTotal);
+                            
+                            const grandTotal = srTotal + wTotal + rcTotal + rcdTotal;
+                            
+                            // 5. 統合完了フラグ設定
+                            localStorage.setItem('all_data_sync_flag', JSON.stringify({
+                                timestamp: new Date().toISOString(),
+                                status: 'completed',
+                                totals: { sr: srTotal, w: wTotal, rc: rcTotal, rcd: rcdTotal }
+                            }));
+                            
+                            // 6. 統合メッセージ表示
+                            alert(`全事業部データを一括送信しました！\n\n` +
+                                  `【各事業部売上合計】\n` +
+                                  `SR事業部: ${formatNumber(srTotal)}万円\n` +
+                                  `W事業部: ${formatNumber(wTotal)}万円\n` +
+                                  `RC卸店: ${formatNumber(rcTotal)}万円\n` +
+                                  `RCD社: ${formatNumber(rcdTotal)}万円\n` +
+                                  `─────────────────────────\n` +
+                                  `📊 統合売上合計: ${formatNumber(grandTotal)}万円\n\n` +
+                                  `🚀 2秒後に統合PLページに移動します。`);
+                            
+                            // 7. 画面移動（待機時間を延長）
+                            setTimeout(() => {
+                                window.location.href = 'combined-dashboard/index.html';
+                            }, 2000); // 2秒待機に延長
+                            
+                        }, 300); // 0.3秒待機
+                    }, 300); // 0.3秒待機
+                }, 300); // 0.3秒待機
                 
             } catch (error) {
                 alert('一括送信に失敗しました: ' + error.message);
+                console.error('一括送信エラー:', error);
             }
         }
 
@@ -1863,7 +1912,7 @@
                 
                 console.log('Initialization completed successfully');
                 
-                // 初期保存（まだ保存データがない場合）
+                // 初回保存（まだ保存データがない場合）
                 if (!restored) {
                     saveInputValues();
                 }
