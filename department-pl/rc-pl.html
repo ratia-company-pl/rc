@@ -661,7 +661,7 @@
             }
         };
 
-        // 【新規追加】統一データ構造変換関数
+        // 【新規追加】統一データ構造変換関数 - RC卸事業部版
         const UNIFIED_CONVERTER = {
             // 統一データ構造テンプレート
             createUnifiedStructure: function() {
@@ -684,8 +684,8 @@
                         4: [0,0,0,0,0,0,0,0,0,0,0,0],  // 物流管理費（月額67万円）
                         5: [0,0,0,0,0,0,0,0,0,0,0,0],  // 地代家賃（該当なし）
                         6: [0,0,0,0,0,0,0,0,0,0,0,0],  // 外注費（該当なし）
-                        7: [0,0,0,0,0,0,0,0,0,0,0,0],  // 荷造運賃（該当なし）
-                        8: [0,0,0,0,0,0,0,0,0,0,0,0],  // 広告宣伝費（営業ソーシング想定費：月額40万円）
+                        7: [0,0,0,0,0,0,0,0,0,0,0,0],  // 貨物運賃（該当なし）
+                        8: [0,0,0,0,0,0,0,0,0,0,0,0],  // 広告宣伝費（営業ソーシング想定費）
                         9: [0,0,0,0,0,0,0,0,0,0,0,0],  // 旅費交通費（月額15万円）
                         10: [0,0,0,0,0,0,0,0,0,0,0,0], // 通信費（月額1万円）
                         11: [0,0,0,0,0,0,0,0,0,0,0,0], // 販売促進費（展示会費用：5月・12月に90万円追加）
@@ -917,7 +917,7 @@
             }
         }
 
-        // 【修正版】連携データ読み込み機能
+        // 【修正版】連携データ読み込み機能 - 統一構造対応
         function loadLinkageData() {
             try {
                 const rcDataStr = localStorage.getItem(STORAGE_KEYS.rc);
@@ -983,13 +983,15 @@
                     UI_MANAGER.updateTable();
                     updateChart();
                     
-                    // Phase 2修正: 自動送信タイミング設定
+                    // Phase 2修正: 自動送信実装
                     setTimeout(() => {
                         if (window.currentRCResults) {
-                            sendToIntegratedPL(); // 既存の送信関数使用
-                            showAutoSendMessage(); // メッセージ表示（新規実装）
+                            // 統一構造データ送信
+                            const unifiedData = UNIFIED_CONVERTER.convertRCToUnified(rcData);
+                            localStorage.setItem(STORAGE_KEYS.rc, JSON.stringify(unifiedData));
+                            showAutoSendMessage();
                         }
-                    }, 1500); // 1.5秒後に自動送信
+                    }, 500); // 0.5秒後に自動送信
                     
                 } else {
                     // データが見つからない場合
@@ -1062,7 +1064,7 @@
             // メタデータ更新
             rcData.metadata.lastUpdate = new Date().toISOString();
 
-            // 【新規実装】統一データ構造変換
+            // 【新規実装】統一データ構造変換と自動送信
             const unifiedData = UNIFIED_CONVERTER.convertRCToUnified(rcData);
             
             // 統合システム用データ生成（統一構造準拠）
@@ -1098,20 +1100,21 @@
         // 自動データ送信（保護領域 - 変更禁止）
         function autoSendData() {
             try {
-                // v3.0形式でデータ保存
-                localStorage.setItem(STORAGE_KEYS.rc, JSON.stringify(rcData));
+                // 統一構造データを送信
+                const unifiedData = UNIFIED_CONVERTER.convertRCToUnified(rcData);
+                localStorage.setItem(STORAGE_KEYS.rc, JSON.stringify(unifiedData));
                 
                 const integrationStatus = {
                     rc: {
                         status: 'success',
                         lastUpdate: new Date().toISOString(),
-                        dataVersion: rcData.metadata.version
+                        dataVersion: '3.0'
                     }
                 };
                 
                 localStorage.setItem(STORAGE_KEYS.integration_status, JSON.stringify(integrationStatus));
                 
-                console.log('RC卸事業部データ自動送信完了（統一構造）', rcData);
+                console.log('RC卸事業部データ自動送信完了（統一構造）', unifiedData);
                 
             } catch (error) {
                 console.error('データ送信エラー:', error);
