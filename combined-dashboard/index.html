@@ -484,7 +484,7 @@
 
         <!-- データ初期化メッセージ -->
         <div class="init-message" id="init-message">
-            ⚠️ データが存在しません。「テストデータ生成」ボタンをクリックしてください。
+            ⚠ データが存在しません。「テストデータ生成」ボタンをクリックしてください。
         </div>
 
         <!-- メインコンテンツ -->
@@ -523,7 +523,7 @@
     </div>
 
     <script>
-        // ===== データストレージ管理（修正版） =====
+        // ===== Phase 2修正版: データストレージ管理（修正版） =====
         const DataStorage = {
             keys: {
                 sr: 'pl_system_sr_data',      // 統一キー
@@ -625,39 +625,60 @@
             // 他事業部の簡易テストデータ（統一構造変換前）
             const testData = {
                 w: {
+                    metadata: {
+                        department: 'W',
+                        lastUpdate: new Date().toISOString(),
+                        version: '3.0'
+                    },
                     sales: [1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674],
                     cogs: [880, 880, 880, 880, 880, 880, 880, 880, 880, 880, 880, 880],
-                    personnel: [117, 117, 117, 117, 117, 117, 117, 117, 117, 117, 117, 117],
-                    welfare: [55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55],
-                    rent: [60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60],
-                    advertising: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
-                    fees: [11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11],
-                    travel: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
-                    communication: [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+                    expenses: {
+                        1: [117, 117, 117, 117, 117, 117, 117, 117, 117, 117, 117, 117],   // 人件費統合
+                        2: [55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55],               // 法定福利費
+                        5: [60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60],               // 地代家賃
+                        8: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],               // 広告宣伝費
+                        9: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],               // 旅費交通費
+                        10: [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],                         // 通信費
+                        15: [11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]               // 支払手数料
+                    }
                 },
                 rc: {
+                    metadata: {
+                        department: 'RC',
+                        lastUpdate: new Date().toISOString(),
+                        version: '3.0'
+                    },
                     sales: [1244, 1244, 1244, 1244, 1244, 1244, 1244, 1244, 1244, 1244, 1244, 1244],
                     cogs: [932, 932, 932, 932, 932, 932, 932, 932, 932, 932, 932, 932],
-                    personnel: [61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61],
-                    welfare: [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
-                    logistics: [67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67],
-                    advertising: [40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40],
-                    fees: [70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70],
-                    travel: [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
-                    communication: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                    promotion: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+                    expenses: {
+                        1: [61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61],               // 人件費統合
+                        2: [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6],                           // 法定福利費
+                        4: [67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67],               // 物流管理費
+                        8: [40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40],               // 広告宣伝費
+                        9: [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],               // 旅費交通費
+                        10: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],                         // 通信費
+                        11: [10, 10, 10, 10, 10, 90, 10, 10, 10, 10, 10, 90],             // 販売促進費（5月・12月展示会）
+                        15: [70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70]               // 支払手数料
+                    }
                 },
                 rcd: {
+                    metadata: {
+                        department: 'RCD',
+                        lastUpdate: new Date().toISOString(),
+                        version: '3.0'
+                    },
                     sales: [532, 532, 532, 532, 532, 532, 532, 532, 532, 532, 532, 532],
                     cogs: [372, 372, 372, 372, 372, 372, 372, 372, 372, 372, 372, 372],
-                    personnel: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-                    welfare: [13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13],
-                    fees: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+                    expenses: {
+                        1: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],                           // 人件費統合（外部委託）
+                        2: [13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13],               // 法定福利費
+                        15: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]                           // 支払手数料
+                    }
                 }
             };
 
             // データ保存
-            DataStorage.set('sr', srUnifiedData);  // SR事業部は統一構造 
+            DataStorage.set('sr', srUnifiedData);  // SR事業部は統一構造  
             DataStorage.set('w', testData.w);
             DataStorage.set('rc', testData.rc);
             DataStorage.set('rcd', testData.rcd);
@@ -669,10 +690,111 @@
             generateSalesTable();
             generateExpenseTable();
             
-            alert('テストデータを生成しました（SR事業部は統一構造対応）。');
+            alert('テストデータを生成しました！（SR事業部は統一構造対応）。');
         }
 
-        // ===== 売上・仕入・粗利テーブル生成 =====
+        // ===== Phase 2修正版: データ収集・統合処理（簡略化済み）=====
+        function collectDepartmentData() {
+            const integratedExpenses = {};
+            
+            // 19項目を初期化
+            for (let i = 1; i <= 19; i++) {
+                integratedExpenses[i] = new Array(12).fill(0);
+            }
+            
+            let activeCount = 0;
+            
+            // SR事業部の統一構造データ（修正版）
+            const srData = DataStorage.get('sr');
+            if (srData && srData.metadata && srData.metadata.unifiedStructure) {
+                activeCount++;
+                updateDeptStatus('sr', 'success', '統一構造データ取得済み');
+                
+                // 統一構造のexpensesオブジェクトから直接データを取得
+                if (srData.expenses) {
+                    Object.keys(srData.expenses).forEach(expenseId => {
+                        const id = parseInt(expenseId);
+                        if (id >= 1 && id <= 19 && Array.isArray(srData.expenses[expenseId])) {
+                            srData.expenses[expenseId].forEach((val, monthIndex) => {
+                                integratedExpenses[id][monthIndex] += (val || 0);
+                            });
+                        }
+                    });
+                }
+            } else {
+                updateDeptStatus('sr', 'warning', 'データなし');
+            }
+            
+            // W事業部データ（統一構造対応）
+            const wData = DataStorage.get('w');
+            if (wData && wData.metadata && wData.metadata.version === '3.0') {
+                activeCount++;
+                updateDeptStatus('w', 'success', 'データ取得済み');
+                
+                // Phase 2修正: 統一構造データから直接取得
+                if (wData.expenses) {
+                    Object.keys(wData.expenses).forEach(expenseId => {
+                        const id = parseInt(expenseId);
+                        if (id >= 1 && id <= 19 && Array.isArray(wData.expenses[expenseId])) {
+                            wData.expenses[expenseId].forEach((val, monthIndex) => {
+                                integratedExpenses[id][monthIndex] += (val || 0);
+                            });
+                        }
+                    });
+                }
+            } else {
+                updateDeptStatus('w', 'warning', 'データなし');
+            }
+            
+            // RC卸店事業部データ（統一構造対応）
+            const rcData = DataStorage.get('rc');
+            if (rcData && rcData.metadata && rcData.metadata.version === '3.0') {
+                activeCount++;
+                updateDeptStatus('rc', 'success', 'データ取得済み');
+                
+                // Phase 2修正: 統一構造データから直接取得
+                if (rcData.expenses) {
+                    Object.keys(rcData.expenses).forEach(expenseId => {
+                        const id = parseInt(expenseId);
+                        if (id >= 1 && id <= 19 && Array.isArray(rcData.expenses[expenseId])) {
+                            rcData.expenses[expenseId].forEach((val, monthIndex) => {
+                                integratedExpenses[id][monthIndex] += (val || 0);
+                            });
+                        }
+                    });
+                }
+            } else {
+                updateDeptStatus('rc', 'warning', 'データなし');
+            }
+            
+            // RCD社事業部データ（統一構造対応）
+            const rcdData = DataStorage.get('rcd');
+            if (rcdData && rcdData.metadata && rcdData.metadata.version === '3.0') {
+                activeCount++;
+                updateDeptStatus('rcd', 'success', 'データ取得済み');
+                
+                // Phase 2修正: 統一構造データから直接取得
+                if (rcdData.expenses) {
+                    Object.keys(rcdData.expenses).forEach(expenseId => {
+                        const id = parseInt(expenseId);
+                        if (id >= 1 && id <= 19 && Array.isArray(rcdData.expenses[expenseId])) {
+                            rcdData.expenses[expenseId].forEach((val, monthIndex) => {
+                                integratedExpenses[id][monthIndex] += (val || 0);
+                            });
+                        }
+                    });
+                }
+            } else {
+                updateDeptStatus('rcd', 'warning', 'データなし');
+            }
+            
+            // 統合状況更新
+            document.getElementById('integration-count').textContent = `${activeCount}/4`;
+            
+            return integratedExpenses;
+        }
+
+        // ===== Phase 2修正版: 売上テーブル生成（簡略化）=====
         function generateSalesTable() {
             if (!DataStorage.hasData()) {
                 document.getElementById('sales-table-container').innerHTML = 
@@ -685,7 +807,7 @@
             let totalCOGS = new Array(12).fill(0);
             let totalGrossProfit = new Array(12).fill(0);
 
-            // 各事業部のデータを収集
+            // 各事業部のデータを収集（統一構造）
             const departments = ['sr', 'w', 'rc', 'rcd'];
             const deptNames = {
                 sr: 'SR事業部',
@@ -790,101 +912,6 @@
 
             html += `</tbody></table>`;
             document.getElementById('sales-table-container').innerHTML = html;
-        }
-
-        // ===== データ収集・統合処理（統一構造対応版） =====
-        function collectDepartmentData() {
-            const integratedExpenses = {};
-            
-            // 19項目を初期化
-            for (let i = 1; i <= 19; i++) {
-                integratedExpenses[i] = new Array(12).fill(0);
-            }
-            
-            let activeCount = 0;
-            
-            // SR事業部の統一構造データ
-            const srData = DataStorage.get('sr');
-            if (srData && srData.metadata && srData.metadata.unifiedStructure) {
-                activeCount++;
-                updateDeptStatus('sr', 'success', '統一構造データ取得済');
-                
-                // 統一構造のexpensesオブジェクトから直接データを取得
-                if (srData.expenses) {
-                    Object.keys(srData.expenses).forEach(expenseId => {
-                        const id = parseInt(expenseId);
-                        if (id >= 1 && id <= 19 && Array.isArray(srData.expenses[expenseId])) {
-                            srData.expenses[expenseId].forEach((val, monthIndex) => {
-                                integratedExpenses[id][monthIndex] += (val || 0);
-                            });
-                        }
-                    });
-                }
-            } else {
-                updateDeptStatus('sr', 'warning', 'データなし');
-            }
-            
-            // W事業部データ（従来形式から統一構造にマッピング）
-            const wData = DataStorage.get('w');
-            if (wData) {
-                activeCount++;
-                updateDeptStatus('w', 'success', 'データ取得済');
-                
-                // 簡易マッピング（実際のシステムでは各事業部が統一構造で送信する）
-                if (wData.personnel) addToExpenses(integratedExpenses, 1, wData.personnel);
-                if (wData.welfare) addToExpenses(integratedExpenses, 2, wData.welfare);
-                if (wData.rent) addToExpenses(integratedExpenses, 5, wData.rent);
-                if (wData.advertising) addToExpenses(integratedExpenses, 8, wData.advertising);
-                if (wData.travel) addToExpenses(integratedExpenses, 9, wData.travel);
-                if (wData.communication) addToExpenses(integratedExpenses, 10, wData.communication);
-                if (wData.fees) addToExpenses(integratedExpenses, 15, wData.fees);
-            } else {
-                updateDeptStatus('w', 'warning', 'データなし');
-            }
-            
-            // RC支店事業部データ
-            const rcData = DataStorage.get('rc');
-            if (rcData) {
-                activeCount++;
-                updateDeptStatus('rc', 'success', 'データ取得済');
-                
-                if (rcData.personnel) addToExpenses(integratedExpenses, 1, rcData.personnel);
-                if (rcData.welfare) addToExpenses(integratedExpenses, 2, rcData.welfare);
-                if (rcData.logistics) addToExpenses(integratedExpenses, 4, rcData.logistics);
-                if (rcData.advertising) addToExpenses(integratedExpenses, 8, rcData.advertising);
-                if (rcData.travel) addToExpenses(integratedExpenses, 9, rcData.travel);
-                if (rcData.communication) addToExpenses(integratedExpenses, 10, rcData.communication);
-                if (rcData.promotion) addToExpenses(integratedExpenses, 11, rcData.promotion);
-                if (rcData.fees) addToExpenses(integratedExpenses, 15, rcData.fees);
-            } else {
-                updateDeptStatus('rc', 'warning', 'データなし');
-            }
-            
-            // RCD社事業部データ
-            const rcdData = DataStorage.get('rcd');
-            if (rcdData) {
-                activeCount++;
-                updateDeptStatus('rcd', 'success', 'データ取得済');
-                
-                if (rcdData.personnel) addToExpenses(integratedExpenses, 1, rcdData.personnel);
-                if (rcdData.welfare) addToExpenses(integratedExpenses, 2, rcdData.welfare);
-                if (rcdData.fees) addToExpenses(integratedExpenses, 15, rcdData.fees);
-            } else {
-                updateDeptStatus('rcd', 'warning', 'データなし');
-            }
-            
-            // 統合状況更新
-            document.getElementById('integration-count').textContent = `${activeCount}/4`;
-            
-            return integratedExpenses;
-        }
-
-        function addToExpenses(expenses, itemId, dataArray) {
-            if (expenses[itemId] && Array.isArray(dataArray)) {
-                dataArray.forEach((val, i) => {
-                    expenses[itemId][i] += (val || 0);
-                });
-            }
         }
 
         // ===== 販管費テーブル生成（統一構造19項目版） =====
@@ -1242,7 +1269,7 @@
             link.click();
         }
 
-        // ===== 初期化 =====
+        // ===== Phase 2修正版: 初期化処理（自動更新追加）=====
         document.addEventListener('DOMContentLoaded', function() {
             console.log('統合PLシステム 統一構造19項目完全対応版 起動');
             
@@ -1255,6 +1282,14 @@
                 generateSalesTable();
                 generateExpenseTable();
             }
+            
+            // Phase 2修正: 自動更新機能追加（1秒ごとにチェック）
+            setInterval(() => {
+                if (DataStorage.hasData()) {
+                    generateSalesTable();
+                    generateExpenseTable();
+                }
+            }, 1000);
         });
     </script>
 </body>
