@@ -739,7 +739,7 @@
             sales: new Array(12).fill(0),
             cogs: new Array(12).fill(0), 
             personnel: new Array(12).fill(0),
-            expenses: new Array(12).fill(0), // 新規追加：販管費配列
+            expenses: new Array(12).fill(0), // 販管費配列を正しく初期化
             metadata: {
                 lastUpdate: new Date().toISOString(),
                 dataSource: "RC卸事業部",
@@ -748,16 +748,33 @@
             }
         };
 
+        // 初期化関数でデータを確実に配列として設定
+        function initializeRCData() {
+            rcData.sales = rcData.sales || new Array(12).fill(0);
+            rcData.cogs = rcData.cogs || new Array(12).fill(0);
+            rcData.personnel = rcData.personnel || new Array(12).fill(0);
+            rcData.expenses = rcData.expenses || new Array(12).fill(0);
+            
+            // 配列でない場合は強制的に配列に変換
+            if (!Array.isArray(rcData.sales)) rcData.sales = new Array(12).fill(0);
+            if (!Array.isArray(rcData.cogs)) rcData.cogs = new Array(12).fill(0);
+            if (!Array.isArray(rcData.personnel)) rcData.personnel = new Array(12).fill(0);
+            if (!Array.isArray(rcData.expenses)) rcData.expenses = new Array(12).fill(0);
+        }
+
         // 月名の配列（7月から開始）
         const monthNames = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
 
-        // UI管理（カスタマイズ可能領域）
+        // UI管理（カスタマイズ可能領域） - エラー対策版
         const UI_MANAGER = {
             updateKPIs: function() {
-                const annualSales = rcData.sales.reduce((sum, val) => sum + val, 0);
-                const annualCogs = rcData.cogs.reduce((sum, val) => sum + val, 0);
-                const annualPersonnel = rcData.personnel.reduce((sum, val) => sum + val, 0);
-                const annualExpenses = rcData.expenses.reduce((sum, val) => sum + val, 0);
+                // 配列チェックを追加
+                initializeRCData();
+                
+                const annualSales = Array.isArray(rcData.sales) ? rcData.sales.reduce((sum, val) => sum + val, 0) : 0;
+                const annualCogs = Array.isArray(rcData.cogs) ? rcData.cogs.reduce((sum, val) => sum + val, 0) : 0;
+                const annualPersonnel = Array.isArray(rcData.personnel) ? rcData.personnel.reduce((sum, val) => sum + val, 0) : 0;
+                const annualExpenses = Array.isArray(rcData.expenses) ? rcData.expenses.reduce((sum, val) => sum + val, 0) : 0;
                 
                 const grossProfit = annualSales - annualCogs;
                 const totalExpenses = annualPersonnel + annualExpenses;
@@ -796,6 +813,9 @@
             },
 
             updateTable: function() {
+                // 配列チェックを追加
+                initializeRCData();
+                
                 const tableBody = document.getElementById('table-body');
                 if (!tableBody) return;
 
@@ -822,25 +842,29 @@
                 // Phase 2修正: 実績売上→設定売上に変更
                 html += '<tr class="sales-row"><td class="item-name">設定売上</td>';
                 for (let i = 0; i < 12; i++) {
-                    html += `<td>${rcData.sales[i].toLocaleString()}</td>`;
+                    const sales = Array.isArray(rcData.sales) ? rcData.sales[i] : 0;
+                    html += `<td>${sales.toLocaleString()}</td>`;
                 }
-                const totalSales = rcData.sales.reduce((sum, val) => sum + val, 0);
+                const totalSales = Array.isArray(rcData.sales) ? rcData.sales.reduce((sum, val) => sum + val, 0) : 0;
                 html += `<td><strong>${totalSales.toLocaleString()}</strong></td>`;
                 html += `<td class="positive">+${Math.round(totalSales * 0.05)}</td></tr>`;
 
                 // 仕入原価行
                 html += '<tr class="expense-row"><td class="item-name">仕入原価</td>';
                 for (let i = 0; i < 12; i++) {
-                    html += `<td>${rcData.cogs[i].toLocaleString()}</td>`;
+                    const cogs = Array.isArray(rcData.cogs) ? rcData.cogs[i] : 0;
+                    html += `<td>${cogs.toLocaleString()}</td>`;
                 }
-                const totalCogs = rcData.cogs.reduce((sum, val) => sum + val, 0);
+                const totalCogs = Array.isArray(rcData.cogs) ? rcData.cogs.reduce((sum, val) => sum + val, 0) : 0;
                 html += `<td><strong>${totalCogs.toLocaleString()}</strong></td>`;
                 html += `<td class="negative">+${Math.round(totalCogs * 0.05)}</td></tr>`;
 
                 // 売上総利益行
                 html += '<tr class="gross-profit-row"><td class="item-name">売上総利益</td>';
                 for (let i = 0; i < 12; i++) {
-                    const grossProfit = rcData.sales[i] - rcData.cogs[i];
+                    const sales = Array.isArray(rcData.sales) ? rcData.sales[i] : 0;
+                    const cogs = Array.isArray(rcData.cogs) ? rcData.cogs[i] : 0;
+                    const grossProfit = sales - cogs;
                     html += `<td>${grossProfit.toLocaleString()}</td>`;
                 }
                 const totalGrossProfit = totalSales - totalCogs;
@@ -850,9 +874,10 @@
                 // 空行
                 html += '<tr><td colspan="15" style="border:none; padding:5px;"></td></tr>';
 
-                // 販管費の詳細（修正版）
+                // 販管費の詳細（修正版） - 配列チェック追加
+                const personnelArray = Array.isArray(rcData.personnel) ? rcData.personnel : new Array(12).fill(0);
                 const expenseItems = [
-                    { name: '固定人件費', values: rcData.personnel },
+                    { name: '固定人件費', values: personnelArray },
                     { name: '法定福利費', values: new Array(12).fill(6) },
                     { name: '支払手数料', values: new Array(12).fill(70) },
                     { name: '旅費交通費', values: new Array(12).fill(15) },
@@ -880,21 +905,28 @@
                     html += `<td><strong>${total}</strong></td><td>-</td></tr>`;
                 });
 
-                // 販売管理費計
+                // 販売管理費計 - 配列チェック追加
                 html += '<tr class="total-expense-row"><td class="item-name">販売管理費計</td>';
                 for (let i = 0; i < 12; i++) {
-                    const totalExpense = rcData.personnel[i] + rcData.expenses[i];
+                    const personnel = Array.isArray(rcData.personnel) ? rcData.personnel[i] : 0;
+                    const expenses = Array.isArray(rcData.expenses) ? rcData.expenses[i] : 0;
+                    const totalExpense = personnel + expenses;
                     html += `<td>${totalExpense.toLocaleString()}</td>`;
                 }
-                const totalExpenses = rcData.personnel.reduce((sum, val) => sum + val, 0) + 
-                                     rcData.expenses.reduce((sum, val) => sum + val, 0);
+                const annualPersonnel = Array.isArray(rcData.personnel) ? rcData.personnel.reduce((sum, val) => sum + val, 0) : 0;
+                const annualExpenses = Array.isArray(rcData.expenses) ? rcData.expenses.reduce((sum, val) => sum + val, 0) : 0;
+                const totalExpenses = annualPersonnel + annualExpenses;
                 html += `<td><strong>${totalExpenses.toLocaleString()}</strong></td>`;
                 html += `<td>+${Math.round(totalExpenses * 0.02)}</td></tr>`;
 
-                // 営業利益行
+                // 営業利益行 - 配列チェック追加
                 html += '<tr class="operating-profit-row"><td class="item-name">営業利益</td>';
                 for (let i = 0; i < 12; i++) {
-                    const operatingProfit = rcData.sales[i] - rcData.cogs[i] - rcData.personnel[i] - rcData.expenses[i];
+                    const sales = Array.isArray(rcData.sales) ? rcData.sales[i] : 0;
+                    const cogs = Array.isArray(rcData.cogs) ? rcData.cogs[i] : 0;
+                    const personnel = Array.isArray(rcData.personnel) ? rcData.personnel[i] : 0;
+                    const expenses = Array.isArray(rcData.expenses) ? rcData.expenses[i] : 0;
+                    const operatingProfit = sales - cogs - personnel - expenses;
                     const className = operatingProfit >= 0 ? 'positive' : 'negative';
                     html += `<td class="${className}">${operatingProfit.toLocaleString()}</td>`;
                 }
@@ -1019,8 +1051,11 @@
             }
         }
 
-        // 【修正版】RC卸事業部固有の計算処理（統一構造対応）
+        // 【修正版】RC卸事業部固有の計算処理（統一構造対応） - エラー対策版
         function calculateRCData() {
+            // 初期化確認
+            initializeRCData();
+            
             // 売上計算（基準売上 + 月次変動）
             for (let i = 0; i < 12; i++) {
                 rcData.sales[i] = CALCULATION_ENGINE.baseSales + CALCULATION_ENGINE.variations[i];
@@ -1036,7 +1071,7 @@
                 rcData.personnel[i] = CALCULATION_ENGINE.fixedPersonnel;
             }
 
-            // 販管費計算（修正版）
+            // 販管費計算（修正版）- 配列確認追加
             for (let i = 0; i < 12; i++) {
                 let monthlyExpenses = 0;
                 
@@ -1067,28 +1102,33 @@
             // 【新規実装】統一データ構造変換と自動送信
             const unifiedData = UNIFIED_CONVERTER.convertRCToUnified(rcData);
             
-            // 統合システム用データ生成（統一構造準拠）
+            // 統合システム用データ生成（統一構造準拠）- 配列チェック追加
+            const annualSales = Array.isArray(rcData.sales) ? rcData.sales.reduce((sum, val) => sum + val, 0) : 0;
+            const annualCogs = Array.isArray(rcData.cogs) ? rcData.cogs.reduce((sum, val) => sum + val, 0) : 0;
+            const annualPersonnel = Array.isArray(rcData.personnel) ? rcData.personnel.reduce((sum, val) => sum + val, 0) : 0;
+            const annualExpenses = Array.isArray(rcData.expenses) ? rcData.expenses.reduce((sum, val) => sum + val, 0) : 0;
+            
             const rcIntegrationData = {
                 department: 'RC卸事業部',
                 // 統一構造データ
                 ...unifiedData,
                 // 追加メタデータ（後方互換性のため）
                 annual: {
-                    sales: rcData.sales.reduce((sum, val) => sum + val, 0),
-                    cogs: rcData.cogs.reduce((sum, val) => sum + val, 0),
-                    grossProfit: rcData.sales.reduce((sum, val) => sum + val, 0) - rcData.cogs.reduce((sum, val) => sum + val, 0),
-                    personnel: rcData.personnel.reduce((sum, val) => sum + val, 0),
-                    expenses: rcData.expenses.reduce((sum, val) => sum + val, 0),
-                    operatingProfit: rcData.sales.reduce((sum, val) => sum + val, 0) - rcData.cogs.reduce((sum, val) => sum + val, 0) - rcData.personnel.reduce((sum, val) => sum + val, 0) - rcData.expenses.reduce((sum, val) => sum + val, 0)
+                    sales: annualSales,
+                    cogs: annualCogs,
+                    grossProfit: annualSales - annualCogs,
+                    personnel: annualPersonnel,
+                    expenses: annualExpenses,
+                    operatingProfit: annualSales - annualCogs - annualPersonnel - annualExpenses
                 },
-                monthly: rcData.sales.map((sales, i) => ({
+                monthly: Array.isArray(rcData.sales) ? rcData.sales.map((sales, i) => ({
                     sales: sales,
-                    cogs: rcData.cogs[i],
-                    grossProfit: sales - rcData.cogs[i],
-                    personnel: rcData.personnel[i],
-                    expenses: rcData.expenses[i],
-                    operatingProfit: sales - rcData.cogs[i] - rcData.personnel[i] - rcData.expenses[i]
-                })),
+                    cogs: Array.isArray(rcData.cogs) ? rcData.cogs[i] : 0,
+                    grossProfit: sales - (Array.isArray(rcData.cogs) ? rcData.cogs[i] : 0),
+                    personnel: Array.isArray(rcData.personnel) ? rcData.personnel[i] : 0,
+                    expenses: Array.isArray(rcData.expenses) ? rcData.expenses[i] : 0,
+                    operatingProfit: sales - (Array.isArray(rcData.cogs) ? rcData.cogs[i] : 0) - (Array.isArray(rcData.personnel) ? rcData.personnel[i] : 0) - (Array.isArray(rcData.expenses) ? rcData.expenses[i] : 0)
+                })) : [],
                 linkageActive: true,
                 timestamp: new Date().toISOString()
             };
