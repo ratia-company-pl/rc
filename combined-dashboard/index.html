@@ -374,6 +374,18 @@
             }
         }
 
+        /* データ初期化メッセージ */
+        .init-message {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #856404;
+            font-weight: 600;
+        }
+
         /* レスポンシブ */
         @media (max-width: 768px) {
             .main-title { font-size: 1.8em; }
@@ -397,12 +409,12 @@
             <!-- 2行目: ナビゲーション -->
             <div class="header-row2">
                 <div class="nav-buttons">
-                    <a href="#" class="btn" onclick="navigateTo('dashboard')">ダッシュボード</a>
-                    <a href="#" class="btn" onclick="navigateTo('budget')">予算入力</a>
-                    <a href="#" class="btn" onclick="navigateTo('sr')">SR事業部</a>
-                    <a href="#" class="btn" onclick="navigateTo('w')">W事業部</a>
-                    <a href="#" class="btn" onclick="navigateTo('rc')">RC卸事業部</a>
-                    <a href="#" class="btn" onclick="navigateTo('rcd')">RCD社事業部</a>
+                    <a href="#" class="btn" onclick="showPage('dashboard'); return false;">ダッシュボード</a>
+                    <a href="#" class="btn" onclick="showPage('budget'); return false;">予算入力</a>
+                    <a href="#" class="btn" onclick="showPage('sr'); return false;">SR事業部</a>
+                    <a href="#" class="btn" onclick="showPage('w'); return false;">W事業部</a>
+                    <a href="#" class="btn" onclick="showPage('rc'); return false;">RC卸事業部</a>
+                    <a href="#" class="btn" onclick="showPage('rcd'); return false;">RCD社事業部</a>
                 </div>
             </div>
 
@@ -457,16 +469,22 @@
             </div>
         </header>
 
+        <!-- データ初期化メッセージ -->
+        <div class="init-message" id="init-message">
+            ⚠️ データが存在しません。「テストデータ生成」ボタンをクリックしてください。
+        </div>
+
         <!-- メインコンテンツ -->
         <main class="main-content">
             <h2 class="section-title">販管費31項目 詳細表示（月次推移）</h2>
             
             <!-- アクションボタン -->
             <div class="action-section">
+                <button class="action-btn btn-success" onclick="generateTestData()">テストデータ生成</button>
                 <button class="action-btn btn-primary" onclick="startAutoSync()">自動同期開始</button>
                 <button class="action-btn btn-warning" onclick="stopAutoSync()">自動同期停止</button>
                 <button class="action-btn btn-info" onclick="manualRefresh()">手動更新</button>
-                <button class="action-btn btn-success" onclick="exportToCSV()">CSV出力</button>
+                <button class="action-btn btn-info" onclick="exportToCSV()">CSV出力</button>
             </div>
 
             <!-- チャート表示 -->
@@ -487,14 +505,40 @@
     </div>
 
     <script>
-        // ===== LocalStorageキー管理 =====
-        const STORAGE_KEYS = {
-            sr: 'pl_system_sr_data',
-            w: 'pl_system_w_data',
-            rc: 'pl_system_rc_data',
-            rcd: 'pl_system_rcd_data',
-            dashboard: 'dashboard_data',
-            executive: 'executive_compensation_csv_settings'
+        // ===== データストレージ管理 =====
+        const DataStorage = {
+            keys: {
+                sr: 'pl_system_sr_data',
+                w: 'pl_system_w_data',
+                rc: 'pl_system_rc_data',
+                rcd: 'pl_system_rcd_data',
+                dashboard: 'dashboard_data',
+                executive: 'executive_compensation_csv_settings'
+            },
+            
+            get: function(key) {
+                try {
+                    const data = sessionStorage.getItem(this.keys[key]);
+                    return data ? JSON.parse(data) : null;
+                } catch (error) {
+                    console.error(`データ取得エラー(${key}):`, error);
+                    return null;
+                }
+            },
+            
+            set: function(key, data) {
+                try {
+                    sessionStorage.setItem(this.keys[key], JSON.stringify(data));
+                    return true;
+                } catch (error) {
+                    console.error(`データ保存エラー(${key}):`, error);
+                    return false;
+                }
+            },
+            
+            hasData: function() {
+                return ['sr', 'w', 'rc', 'rcd'].some(key => this.get(key) !== null);
+            }
         };
 
         // ===== 販管費31項目定義 =====
@@ -541,9 +585,72 @@
             exhibition: { id: 18, name: '展示会費用', category: 'other' }
         };
 
+        // ===== テストデータ生成 =====
+        function generateTestData() {
+            const testData = {
+                sr: {
+                    sales: [1000, 1100, 1200, 1050, 1150, 1250, 1300, 1350, 1400, 1450, 1500, 1550],
+                    cogs: [600, 660, 720, 630, 690, 750, 780, 810, 840, 870, 900, 930],
+                    personnel: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
+                    welfare: [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
+                    logistics: [50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50],
+                    rent: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
+                    outsourcing: [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20],
+                    freight: [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
+                    advertising: [25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25],
+                    promotion: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+                    utilities: [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+                    fees: [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8],
+                    othersFixed: [40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40]
+                },
+                w: {
+                    sales: [800, 850, 900, 820, 860, 920, 950, 980, 1000, 1020, 1050, 1080],
+                    cogs: [480, 510, 540, 492, 516, 552, 570, 588, 600, 612, 630, 648],
+                    personnel: [80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80],
+                    welfare: [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+                    rent: [25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25],
+                    advertising: [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20],
+                    fees: [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+                    othersFixed: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
+                },
+                rc: {
+                    sales: [500, 520, 540, 510, 530, 550, 570, 590, 610, 630, 650, 670],
+                    cogs: [300, 312, 324, 306, 318, 330, 342, 354, 366, 378, 390, 402],
+                    personnel: [60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60],
+                    expenses: [250, 250, 250, 250, 250, 350, 250, 250, 250, 250, 250, 350]
+                },
+                rcd: {
+                    sales: [300, 310, 320, 305, 315, 325, 330, 340, 350, 360, 370, 380],
+                    cogs: [180, 186, 192, 183, 189, 195, 198, 204, 210, 216, 222, 228],
+                    personnel: [40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40],
+                    welfare: [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+                    expenses: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+                }
+            };
+
+            // 役員報酬データ
+            const executiveData = {
+                monthlyCompensation: [826, 826, 826, 676, 676, 676, 676, 676, 676, 676, 676, 676]
+            };
+
+            // データ保存
+            DataStorage.set('sr', testData.sr);
+            DataStorage.set('w', testData.w);
+            DataStorage.set('rc', testData.rc);
+            DataStorage.set('rcd', testData.rcd);
+            DataStorage.set('executive', executiveData);
+
+            // 初期化メッセージを非表示
+            document.getElementById('init-message').style.display = 'none';
+            
+            // データ更新
+            generateExpenseTable();
+            
+            alert('テストデータを生成しました。');
+        }
+
         // ===== データ収集・統合処理 =====
         function collectDepartmentData() {
-            const departments = ['sr', 'w', 'rc', 'rcd'];
             const integratedExpenses = {};
             
             // 31項目を初期化
@@ -553,24 +660,75 @@
             
             let activeCount = 0;
             
-            departments.forEach(dept => {
-                const deptData = localStorage.getItem(STORAGE_KEYS[dept]);
-                if (deptData) {
-                    try {
-                        const parsed = JSON.parse(deptData);
-                        activeCount++;
-                        updateDeptStatus(dept, 'success', 'データ取得済');
-                        
-                        // 事業部別データマッピング
-                        processDepartmentData(dept, parsed, integratedExpenses);
-                    } catch (error) {
-                        console.error(`${dept}データ処理エラー:`, error);
-                        updateDeptStatus(dept, 'error', 'エラー');
-                    }
-                } else {
-                    updateDeptStatus(dept, 'warning', 'データなし');
+            // SR事業部
+            const srData = DataStorage.get('sr');
+            if (srData) {
+                activeCount++;
+                updateDeptStatus('sr', 'success', 'データ取得済');
+                
+                if (srData.personnel) addToExpenses(integratedExpenses, 'personnel', srData.personnel);
+                if (srData.welfare) addToExpenses(integratedExpenses, 'welfare', srData.welfare);
+                if (srData.logistics) addToExpenses(integratedExpenses, 'logistics', srData.logistics);
+                if (srData.rent) addToExpenses(integratedExpenses, 'rent', srData.rent);
+                if (srData.outsourcing) addToExpenses(integratedExpenses, 'outsourcing', srData.outsourcing);
+                if (srData.freight) addToExpenses(integratedExpenses, 'freight', srData.freight);
+                if (srData.advertising) addToExpenses(integratedExpenses, 'advertising', srData.advertising);
+                if (srData.promotion) addToExpenses(integratedExpenses, 'promotion', srData.promotion);
+                if (srData.utilities) addToExpenses(integratedExpenses, 'utilities', srData.utilities);
+                if (srData.fees) addToExpenses(integratedExpenses, 'fees', srData.fees);
+                if (srData.othersFixed) distributeOthersFixed(integratedExpenses, srData.othersFixed);
+            } else {
+                updateDeptStatus('sr', 'warning', 'データなし');
+            }
+            
+            // W事業部
+            const wData = DataStorage.get('w');
+            if (wData) {
+                activeCount++;
+                updateDeptStatus('w', 'success', 'データ取得済');
+                
+                if (wData.personnel) addToExpenses(integratedExpenses, 'personnel', wData.personnel);
+                if (wData.welfare) addToExpenses(integratedExpenses, 'welfare', wData.welfare);
+                if (wData.rent) addToExpenses(integratedExpenses, 'rent', wData.rent);
+                if (wData.advertising) addToExpenses(integratedExpenses, 'advertising', wData.advertising);
+                if (wData.fees) addToExpenses(integratedExpenses, 'fees', wData.fees);
+                if (wData.othersFixed) distributeOthersFixed(integratedExpenses, wData.othersFixed);
+            } else {
+                updateDeptStatus('w', 'warning', 'データなし');
+            }
+            
+            // RC卸事業部
+            const rcData = DataStorage.get('rc');
+            if (rcData) {
+                activeCount++;
+                updateDeptStatus('rc', 'success', 'データ取得済');
+                
+                if (rcData.personnel) addToExpenses(integratedExpenses, 'personnel', rcData.personnel);
+                if (rcData.expenses && Array.isArray(rcData.expenses)) {
+                    rcData.expenses.forEach((expense, i) => {
+                        distributeRCExpenses(integratedExpenses, expense, i);
+                    });
                 }
-            });
+            } else {
+                updateDeptStatus('rc', 'warning', 'データなし');
+            }
+            
+            // RCD社事業部
+            const rcdData = DataStorage.get('rcd');
+            if (rcdData) {
+                activeCount++;
+                updateDeptStatus('rcd', 'success', 'データ取得済');
+                
+                if (rcdData.personnel) addToExpenses(integratedExpenses, 'personnel', rcdData.personnel);
+                if (rcdData.welfare) addToExpenses(integratedExpenses, 'welfare', rcdData.welfare);
+                if (rcdData.expenses && Array.isArray(rcdData.expenses)) {
+                    rcdData.expenses.forEach((expense, i) => {
+                        integratedExpenses.fees[i] += expense;
+                    });
+                }
+            } else {
+                updateDeptStatus('rcd', 'warning', 'データなし');
+            }
             
             // 役員報酬の追加
             addExecutiveCompensation(integratedExpenses);
@@ -579,53 +737,6 @@
             document.getElementById('integration-count').textContent = `${activeCount}/4`;
             
             return integratedExpenses;
-        }
-
-        function processDepartmentData(dept, data, expenses) {
-            switch(dept) {
-                case 'sr':
-                    // SR事業部の詳細項目マッピング
-                    if (data.logistics) addToExpenses(expenses, 'logistics', data.logistics);
-                    if (data.rent) addToExpenses(expenses, 'rent', data.rent);
-                    if (data.outsourcing) addToExpenses(expenses, 'outsourcing', data.outsourcing);
-                    if (data.freight) addToExpenses(expenses, 'freight', data.freight);
-                    if (data.advertising) addToExpenses(expenses, 'advertising', data.advertising);
-                    if (data.promotion) addToExpenses(expenses, 'promotion', data.promotion);
-                    if (data.utilities) addToExpenses(expenses, 'utilities', data.utilities);
-                    if (data.fees) addToExpenses(expenses, 'fees', data.fees);
-                    if (data.othersFixed) distributeOthersFixed(expenses, data.othersFixed);
-                    break;
-                    
-                case 'w':
-                    // W事業部のデータマッピング
-                    if (data.rent) addToExpenses(expenses, 'rent', data.rent);
-                    if (data.advertising) addToExpenses(expenses, 'advertising', data.advertising);
-                    if (data.fees) addToExpenses(expenses, 'fees', data.fees);
-                    if (data.othersFixed) distributeOthersFixed(expenses, data.othersFixed);
-                    break;
-                    
-                case 'rc':
-                    // RC卸事業部の経費振り分け
-                    if (data.expenses && Array.isArray(data.expenses)) {
-                        data.expenses.forEach((expense, i) => {
-                            distributeRCExpenses(expenses, expense, i);
-                        });
-                    }
-                    break;
-                    
-                case 'rcd':
-                    // RCD社事業部（支払手数料のみ）
-                    if (data.expenses && Array.isArray(data.expenses)) {
-                        data.expenses.forEach((expense, i) => {
-                            expenses.fees[i] += expense;
-                        });
-                    }
-                    break;
-            }
-            
-            // 共通：人件費・法定福利費
-            if (data.personnel) addToExpenses(expenses, 'personnel', data.personnel);
-            if (data.welfare) addToExpenses(expenses, 'welfare', data.welfare);
         }
 
         function distributeOthersFixed(expenses, othersFixedArray) {
@@ -651,7 +762,6 @@
         }
 
         function distributeRCExpenses(expenses, monthlyExpense, monthIndex) {
-            // RC卸の固定的な経費構成
             expenses.welfare[monthIndex] += 6;
             expenses.fees[monthIndex] += 70;
             expenses.travel[monthIndex] += 15;
@@ -672,25 +782,19 @@
         }
 
         function addExecutiveCompensation(expenses) {
-            const executiveData = localStorage.getItem(STORAGE_KEYS.executive);
-            if (executiveData) {
-                try {
-                    const settings = JSON.parse(executiveData);
-                    if (settings.monthlyCompensation) {
-                        expenses.executiveComp = settings.monthlyCompensation;
-                        // 役員報酬分の法定福利費も追加
-                        settings.monthlyCompensation.forEach((comp, i) => {
-                            expenses.welfare[i] += Math.round(comp * 0.13);
-                        });
-                    }
-                } catch (error) {
-                    console.error('役員報酬データ処理エラー:', error);
-                    // デフォルト値を使用
-                    expenses.executiveComp = [826, 826, 826, 676, 676, 676, 676, 676, 676, 676, 676, 676];
-                }
+            const executiveData = DataStorage.get('executive');
+            if (executiveData && executiveData.monthlyCompensation) {
+                expenses.executiveComp = executiveData.monthlyCompensation;
+                // 役員報酬分の法定福利費も追加
+                executiveData.monthlyCompensation.forEach((comp, i) => {
+                    expenses.welfare[i] += Math.round(comp * 0.13);
+                });
             } else {
-                // CSVデフォルト値
+                // デフォルト値
                 expenses.executiveComp = [826, 826, 826, 676, 676, 676, 676, 676, 676, 676, 676, 676];
+                expenses.executiveComp.forEach((comp, i) => {
+                    expenses.welfare[i] += Math.round(comp * 0.13);
+                });
             }
         }
 
@@ -704,6 +808,12 @@
 
         // ===== テーブル生成 =====
         function generateExpenseTable() {
+            if (!DataStorage.hasData()) {
+                document.getElementById('expense-table-container').innerHTML = 
+                    '<p style="text-align: center; color: #856404;">データがありません。「テストデータ生成」ボタンをクリックしてください。</p>';
+                return;
+            }
+            
             const expenses = collectDepartmentData();
             const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
             
@@ -786,23 +896,18 @@
 
         // ===== KPI更新 =====
         function updateKPIs(totalExpenses) {
-            // 売上データ収集（簡易版）
+            // 売上データ収集
             let totalSales = 0;
             let totalCOGS = 0;
             
             ['sr', 'w', 'rc', 'rcd'].forEach(dept => {
-                const data = localStorage.getItem(STORAGE_KEYS[dept]);
+                const data = DataStorage.get(dept);
                 if (data) {
-                    try {
-                        const parsed = JSON.parse(data);
-                        if (parsed.sales && Array.isArray(parsed.sales)) {
-                            totalSales += parsed.sales.reduce((sum, val) => sum + val, 0);
-                        }
-                        if (parsed.cogs && Array.isArray(parsed.cogs)) {
-                            totalCOGS += parsed.cogs.reduce((sum, val) => sum + val, 0);
-                        }
-                    } catch (error) {
-                        console.error(`${dept} KPIデータ処理エラー:`, error);
+                    if (data.sales && Array.isArray(data.sales)) {
+                        totalSales += data.sales.reduce((sum, val) => sum + val, 0);
+                    }
+                    if (data.cogs && Array.isArray(data.cogs)) {
+                        totalCOGS += data.cogs.reduce((sum, val) => sum + val, 0);
                     }
                 }
             });
@@ -921,7 +1026,6 @@
             },
             
             sync: function() {
-                // 同期インジケータ表示
                 const indicator = document.getElementById('sync-indicator');
                 indicator.className = 'sync-indicator active';
                 
@@ -933,7 +1037,6 @@
                 document.getElementById('last-sync').textContent = 
                     `最終同期: ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
                 
-                // インジケータ非表示
                 setTimeout(() => {
                     indicator.className = 'sync-indicator';
                 }, 1000);
@@ -960,8 +1063,32 @@
             }
         }
 
+        // ===== ページ切替 =====
+        function showPage(page) {
+            const pageUrls = {
+                dashboard: 'index.html',
+                budget: 'budget-input.html',
+                sr: 'sr-pl.html',
+                w: 'w-pl.html',
+                rc: 'rc-pl.html',
+                rcd: 'rcd-pl.html'
+            };
+            
+            // 実際のファイルがある場合は遷移
+            if (pageUrls[page]) {
+                // window.location.href = pageUrls[page];
+                alert(`${page}ページへ遷移: ${pageUrls[page]}`);
+            } else {
+                alert(`${page}ページは準備中です`);
+            }
+        }
+
         // ===== グローバル関数 =====
         function startAutoSync() {
+            if (!DataStorage.hasData()) {
+                alert('先にテストデータを生成してください。');
+                return;
+            }
             AUTO_SYNC.start();
             alert('自動同期を開始しました（5秒間隔）');
         }
@@ -972,11 +1099,20 @@
         }
 
         function manualRefresh() {
+            if (!DataStorage.hasData()) {
+                alert('先にテストデータを生成してください。');
+                return;
+            }
             generateExpenseTable();
             alert('データを手動更新しました');
         }
 
         function exportToCSV() {
+            if (!DataStorage.hasData()) {
+                alert('データがありません。先にテストデータを生成してください。');
+                return;
+            }
+            
             const expenses = collectDepartmentData();
             const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
             
@@ -999,22 +1135,18 @@
             link.click();
         }
 
-        function navigateTo(page) {
-            // 実際のナビゲーション処理（実装省略）
-            console.log(`Navigate to: ${page}`);
-        }
-
         // ===== 初期化 =====
         document.addEventListener('DOMContentLoaded', function() {
             console.log('統合PLシステム 販管費31項目完全実装版 起動');
             
-            // 初回データ読み込み
-            generateExpenseTable();
-            
-            // 自動同期を3秒後に開始
-            setTimeout(() => {
-                startAutoSync();
-            }, 3000);
+            // データ有無チェック
+            if (!DataStorage.hasData()) {
+                document.getElementById('init-message').style.display = 'block';
+            } else {
+                document.getElementById('init-message').style.display = 'none';
+                // 初回データ読み込み
+                generateExpenseTable();
+            }
         });
     </script>
 </body>
