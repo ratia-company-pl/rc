@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4事業部統合PLシミュレーター - 予算入力システム Phase 3修正版</title>
+    <title>4事業部統合PLシミュレーター - 予算入力システム</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -163,30 +163,6 @@
         .action-btn:hover {
             transform: translateY(-1px);
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Phase 3追加: 一括送信状態表示 */
-        .batch-send-status {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-align: center;
-            display: none;
-        }
-
-        .batch-send-status.active {
-            display: block;
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
         }
         
         /* 事業部セクション - 超コンパクト版 */
@@ -505,8 +481,8 @@
         <!-- ヘッダー部 -->
         <div class="header-section">
             <div class="title-row">
-                <div class="main-title">4事業部統合PLシミュレーター - 予算入力システム Phase 3修正版</div>
-                <div class="subtitle">一括送信システム根本修正完了版</div>
+                <div class="main-title">4事業部統合PLシミュレーター - 予算入力システム</div>
+                <div class="subtitle">4事業部統合売上予算管理システム</div>
             </div>
 
             <!-- 共通ナビゲーション追加 -->
@@ -522,11 +498,6 @@
                 </div>
             </div>
             
-            <!-- Phase 3追加: 一括送信状態表示 -->
-            <div class="batch-send-status" id="batch-status">
-                🚀 一括送信処理中... SR事業部 → W事業部 → RC卸 → RCD社 → 統合PL遷移
-            </div>
-            
             <div class="kpi-cards">
                 <div class="kpi-card">
                     <div class="kpi-label">統合年間売上</div>
@@ -537,7 +508,7 @@
                     <div class="kpi-value" id="revenue-diff">+0万円</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-label">送信状況</div>
+                    <div class="kpi-label">データ送信状況</div>
                     <div class="kpi-value" id="sync-status">準備中</div>
                 </div>
                 <div class="kpi-card">
@@ -860,9 +831,9 @@
     </div>
 
     <script>
-        // ===== Phase 3修正版: localStorageルール（完全版） =====
+        // localStorageルール
         const LOCAL_STORAGE_KEYS = {
-            sr_data: 'pl_system_sr_data',      // 統一キー（変更禁止）
+            sr_data: 'pl_system_sr_data',
             w_data: 'pl_system_w_data',
             rc_data: 'pl_system_rc_data',
             rcd_data: 'pl_system_rcd_data',
@@ -870,8 +841,7 @@
             w_settings: 'pl_system_w_settings',
             rc_settings: 'pl_system_rc_settings',
             rcd_settings: 'pl_system_rcd_settings',
-            input_values: 'pl_system_input_values',
-            batch_status: 'pl_system_batch_status'  // Phase 3追加
+            input_values: 'pl_system_input_values'
         };
 
         // 基本データ
@@ -929,325 +899,6 @@
             return Math.round(num).toLocaleString();
         }
 
-        // ===== Phase 3修正版: Promise/async-await対応のデータ送信関数群 =====
-        
-        // SR事業部データ送信（Promise対応版）
-        function sendSRDataToPLSystemAsync(silent = false) {
-            return new Promise((resolve, reject) => {
-                try {
-                    const monthlySales = months.map((_, i) => {
-                        return Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0);
-                    });
-
-                    // 修正版: 統一構造データ生成
-                    const srUnifiedData = {
-                        metadata: {
-                            department: 'SR',
-                            lastUpdate: new Date().toISOString(),
-                            version: '3.0',
-                            unifiedStructure: true
-                        },
-                        
-                        // 売上・原価データ
-                        sales: monthlySales,
-                        cogs: monthlySales.map(sales => Math.round(sales * 0.272)), // 仕入原価率27.2%
-                        
-                        // 19項目販管費データ（簡略版）
-                        expenses: {
-                            1: monthlySales.map(sales => Math.round(sales * 0.12)), // 人件費統合（12%）
-                            2: monthlySales.map(sales => Math.round(sales * 0.05)), // 法定福利費（5%）
-                            3: new Array(12).fill(Math.round(166/12)), // 衛生費（年166万円÷12）
-                            4: new Array(12).fill(Math.round(2500/12)), // 物流管理費
-                            5: new Array(12).fill(Math.round(2574/12)), // 地代家賃
-                            6: new Array(12).fill(Math.round(1470/12)), // 外注費
-                            7: new Array(12).fill(Math.round(851/12)), // 貨物運賃
-                            8: new Array(12).fill(currentData.sr.variables.advertising), // 広告宣伝費
-                            9: new Array(12).fill(Math.round(374/12)), // 旅費交通費
-                            10: new Array(12).fill(Math.round(227/12)), // 通信費
-                            11: new Array(12).fill(Math.round(468/12)), // 販売促進費
-                            12: new Array(12).fill(Math.round(43/12)), // 消耗品費
-                            13: new Array(12).fill(Math.round(127/12)), // 事務用品費
-                            14: new Array(12).fill(Math.round(579/12)), // 水道光熱費
-                            15: monthlySales.map(sales => Math.round(sales * 0.04)), // 支払手数料（4%）
-                            16: new Array(12).fill(Math.round(14/12)), // リース料
-                            17: new Array(12).fill(Math.round(67/12)), // 保険料
-                            18: new Array(12).fill(Math.round(408/12)), // 支払報酬料
-                            19: new Array(12).fill(Math.round(230/12))  // 減価償却費
-                        }
-                    };
-
-                    // 統一キーで保存
-                    localStorage.setItem(LOCAL_STORAGE_KEYS.sr_data, JSON.stringify(srUnifiedData));
-                    console.log('SR統一構造データ送信完了:', srUnifiedData);
-
-                    if (!silent) {
-                        const annual = monthlySales.reduce((sum, val) => sum + val, 0);
-                        alert('SRデータをPLシステムに送信しました！\n\n' +
-                              '年間合計: ' + formatNumber(annual) + '万円\n' +
-                              '送信時刻: ' + new Date().toLocaleTimeString());
-                    }
-
-                    const totalRevenue = monthlySales.reduce((sum, val) => sum + val, 0);
-                    resolve(totalRevenue);
-
-                } catch (error) {
-                    if (!silent) {
-                        alert('データ送信に失敗しました: ' + error.message);
-                    }
-                    console.error('SR送信エラー:', error);
-                    reject(error);
-                }
-            });
-        }
-
-        function sendWDataToPLSystemAsync(silent = false) {
-            return new Promise((resolve, reject) => {
-                try {
-                    const wSalesData = {
-                        monthlySales: currentData.w.sales,
-                        timestamp: new Date().toISOString()
-                    };
-
-                    const wSettings = {
-                        advertising: currentData.w.variables.advertising
-                    };
-
-                    localStorage.setItem(LOCAL_STORAGE_KEYS.w_data, JSON.stringify(wSalesData));
-                    localStorage.setItem(LOCAL_STORAGE_KEYS.w_settings, JSON.stringify(wSettings));
-
-                    if (!silent) {
-                        const annual = currentData.w.sales.reduce((sum, val) => sum + val, 0);
-                        alert('Wデータを送信しました！\n' +
-                              '年間合計: ' + formatNumber(annual) + '万円');
-                    }
-
-                    const totalRevenue = currentData.w.sales.reduce((sum, val) => sum + val, 0);
-                    resolve(totalRevenue);
-
-                } catch (error) {
-                    if (!silent) {
-                        alert('Wデータ送信に失敗しました: ' + error.message);
-                    }
-                    reject(error);
-                }
-            });
-        }
-
-        function sendRCDataToPLSystemAsync(silent = false) {
-            return new Promise((resolve, reject) => {
-                try {
-                    const rcSalesData = {
-                        baseSales: currentData.rc.baseSales,
-                        variations: currentData.rc.variations,
-                        timestamp: new Date().toISOString()
-                    };
-
-                    const rcSettings = {
-                        advertising: currentData.rc.variables.advertising,
-                        decemberBooth: currentData.rc.variables.decemberBooth,
-                        mayBooth: currentData.rc.variables.mayBooth
-                    };
-
-                    localStorage.setItem(LOCAL_STORAGE_KEYS.rc_data, JSON.stringify(rcSalesData));
-                    localStorage.setItem(LOCAL_STORAGE_KEYS.rc_settings, JSON.stringify(rcSettings));
-
-                    if (!silent) {
-                        const monthlySales = currentData.rc.variations.map(variation => currentData.rc.baseSales + variation);
-                        const annual = monthlySales.reduce((sum, val) => sum + val, 0);
-                        alert('RCデータを送信しました！\n' +
-                              '年間合計: ' + formatNumber(annual) + '万円');
-                    }
-
-                    const monthlySales = currentData.rc.variations.map(variation => currentData.rc.baseSales + variation);
-                    const totalRevenue = monthlySales.reduce((sum, val) => sum + val, 0);
-                    resolve(totalRevenue);
-
-                } catch (error) {
-                    if (!silent) {
-                        alert('RCデータ送信に失敗しました: ' + error.message);
-                    }
-                    reject(error);
-                }
-            });
-        }
-
-        function sendRCDDataToPLSystemAsync(silent = false) {
-            return new Promise((resolve, reject) => {
-                try {
-                    const rcdSalesData = {
-                        purchases: currentData.rcd.purchases,
-                        timestamp: new Date().toISOString()
-                    };
-
-                    const rcdSettings = {
-                        feeOccurrences: currentData.rcd.fees
-                    };
-
-                    localStorage.setItem(LOCAL_STORAGE_KEYS.rcd_data, JSON.stringify(rcdSalesData));
-                    localStorage.setItem(LOCAL_STORAGE_KEYS.rcd_settings, JSON.stringify(rcdSettings));
-
-                    if (!silent) {
-                        const monthlySales = currentData.rcd.purchases.map(purchase => Math.round(purchase * 2000 * 1.03));
-                        const annual = monthlySales.reduce((sum, val) => sum + val, 0);
-                        alert('RCDデータを送信しました！\n' +
-                              '年間合計: ' + formatNumber(annual) + '万円');
-                    }
-
-                    const monthlySales = currentData.rcd.purchases.map(purchase => Math.round(purchase * 2000 * 1.03));
-                    const totalRevenue = monthlySales.reduce((sum, val) => sum + val, 0);
-                    resolve(totalRevenue);
-
-                } catch (error) {
-                    if (!silent) {
-                        alert('RCDデータ送信に失敗しました: ' + error.message);
-                    }
-                    reject(error);
-                }
-            });
-        }
-
-        // ===== Phase 3根本修正版: 一括送信機能（完全修正版） =====
-        async function sendAllDataAndNavigateToPL() {
-            const batchStatus = document.getElementById('batch-status');
-            
-            try {
-                console.log('Phase 3一括送信開始');
-                
-                // Phase 3: 状態表示開始
-                batchStatus.className = 'batch-send-status active';
-                batchStatus.textContent = '🚀 一括送信開始 - SR事業部データ準備中...';
-                
-                // Phase 3: Promise/async-awaitによる確実な順次処理
-                
-                // 1. SR事業部データ送信（統一構造）
-                batchStatus.textContent = '🚀 SR事業部データ送信中...';
-                const srTotal = await sendSRDataToPLSystemAsync(true);
-                console.log('SR送信完了:', srTotal);
-                await delay(500);
-                
-                // 2. W事業部データ送信
-                batchStatus.textContent = '🚀 W事業部データ送信中...';
-                const wTotal = await sendWDataToPLSystemAsync(true);
-                console.log('W送信完了:', wTotal);
-                await delay(500);
-                
-                // 3. RC卸データ送信
-                batchStatus.textContent = '🚀 RC卸事業部データ送信中...';
-                const rcTotal = await sendRCDataToPLSystemAsync(true);
-                console.log('RC送信完了:', rcTotal);
-                await delay(500);
-                
-                // 4. RCD社データ送信
-                batchStatus.textContent = '🚀 RCD社データ送信中...';
-                const rcdTotal = await sendRCDDataToPLSystemAsync(true);
-                console.log('RCD送信完了:', rcdTotal);
-                await delay(500);
-                
-                const grandTotal = srTotal + wTotal + rcTotal + rcdTotal;
-                
-                // Phase 3: LocalStorage書き込み完了確認
-                batchStatus.textContent = '🚀 データ保存確認中...';
-                await verifyAllDataSaved();
-                console.log('全データ保存確認完了');
-                
-                // Phase 3: 統合完了フラグ設定（修正版）
-                const completionFlag = {
-                    timestamp: new Date().toISOString(),
-                    status: 'completed',
-                    version: 'phase3',
-                    totals: { 
-                        sr: srTotal, 
-                        w: wTotal, 
-                        rc: rcTotal, 
-                        rcd: rcdTotal,
-                        grand: grandTotal
-                    }
-                };
-                localStorage.setItem('all_data_sync_flag', JSON.stringify(completionFlag));
-                console.log('一括送信完了フラグ設定:', completionFlag);
-                
-                // Phase 3: 統合メッセージ表示
-                batchStatus.textContent = '✅ 全事業部データ送信完了！統合PLページに移動します...';
-                
-                alert(`【Phase 3一括送信成功】\n\n` +
-                      `全事業部データを一括送信しました！\n\n` +
-                      `【各事業部売上合計】\n` +
-                      `SR事業部: ${formatNumber(srTotal)}万円\n` +
-                      `W事業部: ${formatNumber(wTotal)}万円\n` +
-                      `RC卸店: ${formatNumber(rcTotal)}万円\n` +
-                      `RCD社: ${formatNumber(rcdTotal)}万円\n` +
-                      `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-                      `🔥 統合売上合計: ${formatNumber(grandTotal)}万円\n\n` +
-                      `🚀 3秒後に統合PLページに移動します。\n` +
-                      `※データは確実に保存・連携済みです`);
-                
-                // Phase 3: 画面遷移（待機時間延長）
-                setTimeout(() => {
-                    batchStatus.className = 'batch-send-status';
-                    window.location.href = 'combined-dashboard/index.html';
-                }, 3000); // 3秒待機
-                
-            } catch (error) {
-                batchStatus.className = 'batch-send-status';
-                batchStatus.textContent = '❌ 送信エラーが発生しました';
-                
-                alert('【Phase 3一括送信エラー】\n\n' + 
-                      '一括送信に失敗しました: ' + error.message + '\n\n' +
-                      '個別送信をお試しください。');
-                console.error('Phase 3一括送信エラー:', error);
-            }
-        }
-
-        // Phase 3追加: 遅延関数
-        function delay(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-        // Phase 3追加: LocalStorage書き込み完了確認
-        async function verifyAllDataSaved() {
-            const keys = [
-                LOCAL_STORAGE_KEYS.sr_data, 
-                LOCAL_STORAGE_KEYS.w_data, 
-                LOCAL_STORAGE_KEYS.rc_data, 
-                LOCAL_STORAGE_KEYS.rcd_data
-            ];
-            
-            for (let key of keys) {
-                let retries = 0;
-                while (retries < 10) { // 最大1秒待機
-                    const data = localStorage.getItem(key);
-                    if (data && data.length > 100) break; // データが十分な長さかチェック
-                    
-                    await delay(100);
-                    retries++;
-                }
-                
-                if (retries >= 10) {
-                    throw new Error(`${key} の保存確認に失敗しました`);
-                }
-            }
-            console.log('全LocalStorageキー保存確認完了');
-        }
-
-        // ===== 個別送信機能（Phase 2互換性維持） =====
-        function sendSRDataToPLSystem(silent = false) {
-            sendSRDataToPLSystemAsync(silent);
-        }
-
-        function sendWDataToPLSystem(silent = false) {
-            sendWDataToPLSystemAsync(silent);
-        }
-
-        function sendRCDataToPLSystem(silent = false) {
-            sendRCDataToPLSystemAsync(silent);
-        }
-
-        function sendRCDDataToPLSystem(silent = false) {
-            sendRCDDataToPLSystemAsync(silent);
-        }
-
-        // ===== 以下、Phase 2の機能（変更なし） =====
-        
         // 入力値の自動保存・復元
         function saveInputValues() {
             try {
@@ -1380,4 +1031,904 @@
                         ${totals.map((total, i) => {
                             const diff = total - referenceData.SR[i];
                             const color = diff >= 0 ? '#059669' : '#dc2626';
-                            return `
+                            return `<td style="color: ${color}; font-weight: 600;">${diff >= 0 ? '+' : ''}${formatNumber(diff)}</td>`;
+                        }).join('')}
+                    </tr>
+                    <tr style="background: #f3f4f6;">
+                        <td style="color: #6b7280;">参考</td>
+                        ${referenceData.SR.map(val => `<td style="color: #6b7280;">${formatNumber(val)}</td>`).join('')}
+                    </tr>
+                `;
+
+                Object.entries(currentData.sr.stores).forEach(([storeName, values]) => {
+                    html += `
+                        <tr style="background: white;">
+                            <td rowspan="2" style="font-weight: 600;">${storeName}</td>
+                            <td style="color: #3182ce; font-weight: 600;">売上</td>
+                            ${values.map((val, i) => `
+                                <td>
+                                    <input type="number" value="${val}" 
+                                           onchange="updateSRStore('${storeName}', ${i}, this.value)">
+                                </td>
+                            `).join('')}
+                        </tr>
+                        <tr style="background: #f9fafb;">
+                            <td style="color: #6b7280;">参考</td>
+                            ${values.map(val => `<td style="color: #6b7280; font-size: 0.55rem;">${formatNumber(val)}</td>`).join('')}
+                        </tr>
+                    `;
+                });
+
+                tableBody.innerHTML = html;
+            } catch (error) {
+                console.error('Error generating SR table:', error);
+            }
+        }
+
+        function generateWTable() {
+            try {
+                const tableBody = document.getElementById('w-table-body');
+                if (!tableBody) return;
+
+                let html = `
+                    <tr style="background: white;">
+                        <td style="font-weight: 600; color: #3182ce;">売上</td>
+                        ${currentData.w.sales.map((val, i) => `
+                            <td>
+                                <input type="number" value="${val}" 
+                                       onchange="updateWSales(${i}, this.value)">
+                            </td>
+                        `).join('')}
+                    </tr>
+                    <tr style="background: white;">
+                        <td style="font-weight: 600;">増減</td>
+                        ${currentData.w.sales.map((val, i) => {
+                            const diff = val - referenceData.W[i];
+                            const color = diff >= 0 ? '#059669' : '#dc2626';
+                            return `<td style="color: ${color}; font-weight: 600; text-align: center;">${diff >= 0 ? '+' : ''}${formatNumber(diff)}</td>`;
+                        }).join('')}
+                    </tr>
+                    <tr style="background: #f3f4f6;">
+                        <td style="color: #6b7280;">参考</td>
+                        ${referenceData.W.map(val => `<td style="color: #6b7280; text-align: center;">${formatNumber(val)}</td>`).join('')}
+                    </tr>
+                `;
+                tableBody.innerHTML = html;
+            } catch (error) {
+                console.error('Error generating W table:', error);
+            }
+        }
+
+        function generateRCTable() {
+            try {
+                const tableBody = document.getElementById('rc-table-body');
+                if (!tableBody) return;
+
+                let html = `
+                    <tr style="background: white;">
+                        <td style="font-weight: 600; color: #3182ce;">増減</td>
+                        ${currentData.rc.variations.map((val, i) => `
+                            <td>
+                                <input type="number" value="${val}" 
+                                       onchange="updateRCVariation(${i}, this.value)">
+                            </td>
+                        `).join('')}
+                    </tr>
+                    <tr style="background: #f0fff4; border-left: 4px solid #059669;">
+                        <td style="font-weight: 600; color: #059669;">売上</td>
+                        ${currentData.rc.variations.map(val => `
+                            <td style="color: #059669; font-weight: 600; text-align: center;">
+                                ${formatNumber(currentData.rc.baseSales + val)}
+                            </td>
+                        `).join('')}
+                    </tr>
+                    <tr style="background: white;">
+                        <td style="font-weight: 600;">対前年増減</td>
+                        ${currentData.rc.variations.map((val, i) => {
+                            const currentSales = currentData.rc.baseSales + val;
+                            const diff = currentSales - referenceData.RC[i];
+                            const color = diff >= 0 ? '#059669' : '#dc2626';
+                            return `<td style="color: ${color}; font-weight: 600; text-align: center;">${diff >= 0 ? '+' : ''}${formatNumber(diff)}</td>`;
+                        }).join('')}
+                    </tr>
+                    <tr style="background: #f3f4f6;">
+                        <td style="color: #6b7280;">参考</td>
+                        ${referenceData.RC.map(val => `<td style="color: #6b7280; text-align: center;">${formatNumber(val)}</td>`).join('')}
+                    </tr>
+                `;
+                tableBody.innerHTML = html;
+            } catch (error) {
+                console.error('Error generating RC table:', error);
+            }
+        }
+
+        function generateRCDTable() {
+            try {
+                const tableBody = document.getElementById('rcd-table-body');
+                if (!tableBody) return;
+
+                let html = `
+                    <tr style="background: white;">
+                        <td style="font-weight: 600; color: #3182ce;">仕入</td>
+                        ${currentData.rcd.purchases.map((val, i) => `
+                            <td>
+                                <input type="number" step="0.1" value="${val}" 
+                                       onchange="updateRCDPurchase(${i}, this.value)">
+                            </td>
+                        `).join('')}
+                    </tr>
+                    <tr style="background: #f0fff4; border-left: 4px solid #059669;">
+                        <td style="font-weight: 600; color: #059669;">売上</td>
+                        ${currentData.rcd.purchases.map(val => `
+                            <td style="color: #059669; font-weight: 600; text-align: center;">
+                                ${formatNumber(Math.round(val * 2000 * 1.03))}
+                            </td>
+                        `).join('')}
+                    </tr>
+                    <tr style="background: white;">
+                        <td style="font-weight: 600;">対前年増減</td>
+                        ${currentData.rcd.purchases.map((val, i) => {
+                            const currentSales = Math.round(val * 2000 * 1.03);
+                            const diff = currentSales - referenceData.RCD[i];
+                            const color = diff >= 0 ? '#059669' : '#dc2626';
+                            return `<td style="color: ${color}; font-weight: 600; text-align: center;">${diff >= 0 ? '+' : ''}${formatNumber(diff)}</td>`;
+                        }).join('')}
+                    </tr>
+                    <tr style="background: #fffbeb; border-left: 4px solid #f59e0b;">
+                        <td style="font-weight: 600; color: #b45309;">手数料</td>
+                        ${currentData.rcd.fees.map((val, i) => `
+                            <td>
+                                <input type="number" min="0" max="10" value="${val}" 
+                                       onchange="updateRCDFee(${i}, this.value)">
+                                <div style="font-size: 0.55rem; color: #b45309; text-align: center; line-height: 1;">
+                                    ${formatNumber(Math.round(val * 90.6))}万
+                                </div>
+                            </td>
+                        `).join('')}
+                    </tr>
+                    <tr style="background: #f3f4f6;">
+                        <td style="color: #6b7280;">参考</td>
+                        ${referenceData.RCD.map(val => `<td style="color: #6b7280; text-align: center;">${formatNumber(val)}</td>`).join('')}
+                    </tr>
+                `;
+                tableBody.innerHTML = html;
+            } catch (error) {
+                console.error('Error generating RCD table:', error);
+            }
+        }
+
+        // チャート作成関数
+        function createDepartmentChart(containerId, referenceDataArray, currentDataArray, deptName) {
+            try {
+                const ctx = document.getElementById(containerId);
+                if (!ctx) {
+                    console.error(`Chart container ${containerId} not found`);
+                    return;
+                }
+                
+                if (charts[containerId]) {
+                    charts[containerId].destroy();
+                }
+                
+                charts[containerId] = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: months,
+                        datasets: [
+                            {
+                                label: '参考売上',
+                                data: referenceDataArray,
+                                backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                                borderColor: 'rgba(59, 130, 246, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: '予算設定',
+                                data: currentDataArray,
+                                backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                                borderColor: 'rgba(34, 197, 94, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    font: { size: 8 }
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    font: { size: 8 }
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error(`Error creating chart ${containerId}:`, error);
+            }
+        }
+
+        // データ更新関数群
+        function updateSRStore(storeName, monthIndex, value) {
+            currentData.sr.stores[storeName][monthIndex] = parseInt(value) || 0;
+            saveInputValues();
+            calculateSR();
+            generateSRTable();
+            updateSRChart();
+        }
+
+        function updateWSales(monthIndex, value) {
+            currentData.w.sales[monthIndex] = parseInt(value) || 0;
+            saveInputValues();
+            calculateW();
+            generateWTable();
+            updateWChart();
+        }
+
+        function updateRCVariation(monthIndex, value) {
+            currentData.rc.variations[monthIndex] = parseInt(value) || 0;
+            saveInputValues();
+            calculateRC();
+            generateRCTable();
+            updateRCChart();
+        }
+
+        function updateRCDPurchase(monthIndex, value) {
+            currentData.rcd.purchases[monthIndex] = parseFloat(value) || 0;
+            saveInputValues();
+            calculateRCD();
+            generateRCDTable();
+            updateRCDChart();
+        }
+
+        function updateRCDFee(monthIndex, value) {
+            currentData.rcd.fees[monthIndex] = parseInt(value) || 0;
+            saveInputValues();
+            calculateRCD();
+            generateRCDTable();
+        }
+
+        // 計算関数群
+        function calculateSR() {
+            try {
+                const totals = months.map((_, i) => {
+                    return Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0);
+                });
+                const annual = totals.reduce((sum, val) => sum + val, 0);
+                const refTotal = referenceData.SR.reduce((sum, val) => sum + val, 0);
+                const diff = annual - refTotal;
+
+                const annualElement = document.getElementById('sr-annual');
+                if (annualElement) {
+                    annualElement.textContent = 
+                        `年間合計: ${formatNumber(annual)}万円　前年増減: ${diff >= 0 ? '+' : ''}${formatNumber(diff)}万円`;
+                }
+                
+                updateKPIs();
+            } catch (error) {
+                console.error('Error in calculateSR:', error);
+            }
+        }
+
+        function calculateW() {
+            try {
+                const annual = currentData.w.sales.reduce((sum, val) => sum + val, 0);
+                const refTotal = referenceData.W.reduce((sum, val) => sum + val, 0);
+                const diff = annual - refTotal;
+
+                const annualElement = document.getElementById('w-annual');
+                if (annualElement) {
+                    annualElement.textContent = 
+                        `年間合計: ${formatNumber(annual)}万円　前年増減: ${diff >= 0 ? '+' : ''}${formatNumber(diff)}万円`;
+                }
+                
+                updateKPIs();
+            } catch (error) {
+                console.error('Error in calculateW:', error);
+            }
+        }
+
+        function calculateRC() {
+            try {
+                const totals = currentData.rc.variations.map(variation => currentData.rc.baseSales + variation);
+                const annual = totals.reduce((sum, val) => sum + val, 0);
+                const refTotal = referenceData.RC.reduce((sum, val) => sum + val, 0);
+                const diff = annual - refTotal;
+
+                const annualElement = document.getElementById('rc-annual');
+                if (annualElement) {
+                    annualElement.textContent = 
+                        `年間合計: ${formatNumber(annual)}万円　前年増減: ${diff >= 0 ? '+' : ''}${formatNumber(diff)}万円`;
+                }
+                
+                updateKPIs();
+            } catch (error) {
+                console.error('Error in calculateRC:', error);
+            }
+        }
+
+        function calculateRCD() {
+            try {
+                const totals = currentData.rcd.purchases.map(purchase => Math.round(purchase * 2000 * 1.03));
+                const annual = totals.reduce((sum, val) => sum + val, 0);
+                const refTotal = referenceData.RCD.reduce((sum, val) => sum + val, 0);
+                const diff = annual - refTotal;
+
+                const annualElement = document.getElementById('rcd-annual');
+                if (annualElement) {
+                    annualElement.textContent = 
+                        `年間合計: ${formatNumber(annual)}万円　前年増減: ${diff >= 0 ? '+' : ''}${formatNumber(diff)}万円`;
+                }
+                
+                updateKPIs();
+            } catch (error) {
+                console.error('Error in calculateRCD:', error);
+            }
+        }
+
+        function updateKPIs() {
+            try {
+                const srTotal = months.map((_, i) => {
+                    return Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0);
+                }).reduce((sum, val) => sum + val, 0);
+
+                const wTotal = currentData.w.sales.reduce((sum, val) => sum + val, 0);
+                const rcTotal = currentData.rc.variations.map(variation => 
+                    currentData.rc.baseSales + variation
+                ).reduce((sum, val) => sum + val, 0);
+                const rcdTotal = currentData.rcd.purchases.map(purchase => 
+                    Math.round(purchase * 2000 * 1.03)
+                ).reduce((sum, val) => sum + val, 0);
+
+                const totalRevenue = srTotal + wTotal + rcTotal + rcdTotal;
+
+                const refTotals = {
+                    SR: referenceData.SR.reduce((sum, val) => sum + val, 0),
+                    W: referenceData.W.reduce((sum, val) => sum + val, 0),
+                    RC: referenceData.RC.reduce((sum, val) => sum + val, 0),
+                    RCD: referenceData.RCD.reduce((sum, val) => sum + val, 0)
+                };
+                const totalRefRevenue = refTotals.SR + refTotals.W + refTotals.RC + refTotals.RCD;
+                const totalDiff = totalRevenue - totalRefRevenue;
+
+                const totalRevenueElement = document.getElementById('total-revenue');
+                const revenueDiffElement = document.getElementById('revenue-diff');
+                const syncStatusElement = document.getElementById('sync-status');
+
+                if (totalRevenueElement) {
+                    totalRevenueElement.textContent = formatNumber(totalRevenue) + '万円';
+                }
+                if (revenueDiffElement) {
+                    revenueDiffElement.textContent = (totalDiff >= 0 ? '+' : '') + formatNumber(totalDiff) + '万円';
+                }
+                if (syncStatusElement) {
+                    syncStatusElement.textContent = '送信準備完了';
+                }
+            } catch (error) {
+                console.error('Error in updateKPIs:', error);
+            }
+        }
+
+        // チャート更新関数群
+        function updateSRChart() {
+            const totals = months.map((_, i) => {
+                return Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0);
+            });
+            createDepartmentChart('sr-chart', referenceData.SR, totals, 'SR事業部');
+        }
+
+        function updateWChart() {
+            createDepartmentChart('w-chart', referenceData.W, currentData.w.sales, 'W事業部');
+        }
+
+        function updateRCChart() {
+            const totals = currentData.rc.variations.map(variation => currentData.rc.baseSales + variation);
+            createDepartmentChart('rc-chart', referenceData.RC, totals, 'RC卸店事業部');
+        }
+
+        function updateRCDChart() {
+            const totals = currentData.rcd.purchases.map(purchase => Math.round(purchase * 2000 * 1.03));
+            createDepartmentChart('rcd-chart', referenceData.RCD, totals, 'RCD社事業部');
+        }
+
+        // プリセット関数群
+        function applySRPreset(presetType) {
+            const storeNames = Object.keys(currentData.sr.stores);
+            storeNames.forEach(storeName => {
+                for (let i = 0; i < 12; i++) {
+                    switch(presetType) {
+                        case 'actual':
+                            const storeIndex = storeNames.indexOf(storeName);
+                            const storeData = [
+                                [416, 397, 421, 502, 471, 544, 567, 476, 355, 408, 299, 346],
+                                [369, 386, 600, 535, 285, 437, 351, 270, 369, 391, 256, 242],
+                                [284, 375, 508, 278, 394, 394, 377, 309, 248, 469, 448, 535],
+                                [328, 547, 723, 520, 528, 607, 574, 318, 714, 657, 700, 600],
+                                [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
+                                [490, 493, 427, 542, 558, 416, 622, 641, 496, 385, 253, 620]
+                            ];
+                            currentData.sr.stores[storeName][i] = storeData[storeIndex][i];
+                            break;
+                        case '50p':
+                            currentData.sr.stores[storeName][i] += 50;
+                            break;
+                        case '100p':
+                            currentData.sr.stores[storeName][i] += 100;
+                            break;
+                        case '150p':
+                            currentData.sr.stores[storeName][i] += 150;
+                            break;
+                    }
+                }
+            });
+            saveInputValues();
+            calculateSR();
+            generateSRTable();
+            updateSRChart();
+        }
+
+        function applyWPreset(presetType) {
+            for (let i = 0; i < 12; i++) {
+                switch(presetType) {
+                    case 'actual':
+                        currentData.w.sales[i] = referenceData.W[i];
+                        break;
+                    case '200':
+                        currentData.w.sales[i] = referenceData.W[i] + 200;
+                        break;
+                    case '400':
+                        currentData.w.sales[i] = referenceData.W[i] + 400;
+                        break;
+                    case '600':
+                        currentData.w.sales[i] = referenceData.W[i] + 600;
+                        break;
+                }
+            }
+            saveInputValues();
+            calculateW();
+            generateWTable();
+            updateWChart();
+        }
+
+        function applyRCPreset(presetType) {
+            switch(presetType) {
+                case 'actual':
+                    currentData.rc.variations = referenceData.RC.map(ref => ref - currentData.rc.baseSales);
+                    currentData.rc.targetRate = 0;
+                    break;
+                case 'standard':
+                    currentData.rc.variations = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                    currentData.rc.targetRate = 0;
+                    break;
+                case 'growth':
+                    currentData.rc.variations = referenceData.RC.map(ref => {
+                        const targetSales = Math.round(ref * 1.04);
+                        return targetSales - currentData.rc.baseSales;
+                    });
+                    currentData.rc.targetRate = 4;
+                    break;
+                case 'improvement':
+                    currentData.rc.variations = referenceData.RC.map(ref => {
+                        const targetSales = Math.round(ref * 1.07);
+                        return targetSales - currentData.rc.baseSales;
+                    });
+                    currentData.rc.targetRate = 7;
+                    break;
+            }
+            const rcTargetRateElem = document.getElementById('rc-target-rate');
+            const rcCurrentRateElem = document.getElementById('rc-current-rate');
+            if (rcTargetRateElem) rcTargetRateElem.value = currentData.rc.targetRate;
+            if (rcCurrentRateElem) rcCurrentRateElem.textContent = currentData.rc.targetRate;
+            saveInputValues();
+            calculateRC();
+            generateRCTable();
+            updateRCChart();
+        }
+
+        function applyRCDPreset(presetType) {
+            switch(presetType) {
+                case 'actual':
+                    currentData.rcd.purchases = referenceData.RCD.map(refSales => {
+                        const purchaseCount = refSales / (2000 * 1.03);
+                        return Math.floor(purchaseCount * 10) / 10;
+                    });
+                    currentData.rcd.fees = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1];
+                    break;
+                case 'zero':
+                    currentData.rcd.purchases = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                    currentData.rcd.fees = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                    break;
+                case 'standard':
+                    currentData.rcd.purchases = [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8];
+                    currentData.rcd.fees = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+                    break;
+                case 'seven':
+                    currentData.rcd.purchases = [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7];
+                    currentData.rcd.fees = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+                    break;
+                case 'six':
+                    currentData.rcd.purchases = [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6];
+                    currentData.rcd.fees = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                    break;
+            }
+            saveInputValues();
+            calculateRCD();
+            generateRCDTable();
+            updateRCDChart();
+        }
+
+        function applyRCTargetRate() {
+            const targetRateElem = document.getElementById('rc-target-rate');
+            const currentRateElem = document.getElementById('rc-current-rate');
+            
+            if (targetRateElem && currentRateElem) {
+                const targetRate = parseFloat(targetRateElem.value) || 0;
+                currentData.rc.variations = referenceData.RC.map(ref => {
+                    const targetSales = Math.round(ref * (1 + targetRate / 100));
+                    return targetSales - currentData.rc.baseSales;
+                });
+                currentData.rc.targetRate = targetRate;
+                currentRateElem.textContent = targetRate;
+                saveInputValues();
+                calculateRC();
+                generateRCTable();
+                updateRCChart();
+            }
+        }
+
+        // 修正版: SR事業部データ送信（統一構造対応）
+        function sendSRDataToPLSystem(silent = false) {
+            try {
+                const monthlySales = months.map((_, i) => {
+                    return Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0);
+                });
+
+                // 修正版: 統一構造データ生成
+                const srUnifiedData = {
+                    metadata: {
+                        department: 'SR',
+                        lastUpdate: new Date().toISOString(),
+                        version: '3.0',
+                        unifiedStructure: true
+                    },
+                    
+                    // 売上・原価データ
+                    sales: monthlySales,
+                    cogs: monthlySales.map(sales => Math.round(sales * 0.272)), // 仕入原価率27.2%
+                    
+                    // 19項目販管費データ（簡略版）
+                    expenses: {
+                        1: monthlySales.map(sales => Math.round(sales * 0.12)), // 人件費統合（12%）
+                        2: monthlySales.map(sales => Math.round(sales * 0.05)), // 法定福利費（5%）
+                        3: new Array(12).fill(Math.round(166/12)), // 衛生費（年166万円÷12）
+                        4: new Array(12).fill(Math.round(2500/12)), // 物流管理費
+                        5: new Array(12).fill(Math.round(2574/12)), // 地代家賃
+                        6: new Array(12).fill(Math.round(1470/12)), // 外注費
+                        7: new Array(12).fill(Math.round(851/12)), // 貨物運賃
+                        8: new Array(12).fill(currentData.sr.variables.advertising), // 広告宣伝費
+                        9: new Array(12).fill(Math.round(374/12)), // 旅費交通費
+                        10: new Array(12).fill(Math.round(227/12)), // 通信費
+                        11: new Array(12).fill(Math.round(468/12)), // 販売促進費
+                        12: new Array(12).fill(Math.round(43/12)), // 消耗品費
+                        13: new Array(12).fill(Math.round(127/12)), // 事務用品費
+                        14: new Array(12).fill(Math.round(579/12)), // 水道光熱費
+                        15: monthlySales.map(sales => Math.round(sales * 0.04)), // 支払手数料（4%）
+                        16: new Array(12).fill(Math.round(14/12)), // リース料
+                        17: new Array(12).fill(Math.round(67/12)), // 保険料
+                        18: new Array(12).fill(Math.round(408/12)), // 支払報酬料
+                        19: new Array(12).fill(Math.round(230/12))  // 減価償却費
+                    }
+                };
+
+                // 統一キーで保存
+                localStorage.setItem('pl_system_sr_data', JSON.stringify(srUnifiedData));
+                console.log('SR統一構造データ送信:', srUnifiedData);
+
+                if (!silent) {
+                    const annual = monthlySales.reduce((sum, val) => sum + val, 0);
+                    alert('SRデータをPLシステムに送信しました！\n\n' +
+                          '年間合計: ' + formatNumber(annual) + '万円\n' +
+                          '送信時刻: ' + new Date().toLocaleTimeString());
+                }
+
+                return monthlySales.reduce((sum, val) => sum + val, 0);
+
+            } catch (error) {
+                if (!silent) {
+                    alert('データ送信に失敗しました: ' + error.message);
+                }
+                console.error('SR送信エラー:', error);
+                return 0;
+            }
+        }
+
+        function sendWDataToPLSystem(silent = false) {
+            try {
+                const wSalesData = {
+                    monthlySales: currentData.w.sales,
+                    timestamp: new Date().toISOString()
+                };
+
+                const wSettings = {
+                    advertising: currentData.w.variables.advertising
+                };
+
+                localStorage.setItem(LOCAL_STORAGE_KEYS.w_data, JSON.stringify(wSalesData));
+                localStorage.setItem(LOCAL_STORAGE_KEYS.w_settings, JSON.stringify(wSettings));
+
+                if (!silent) {
+                    const annual = currentData.w.sales.reduce((sum, val) => sum + val, 0);
+                    alert('WデータをPLシステムに送信しました！\n\n' +
+                          '年間合計: ' + formatNumber(annual) + '万円\n' +
+                          '送信時刻: ' + new Date().toLocaleTimeString());
+                }
+
+                return currentData.w.sales.reduce((sum, val) => sum + val, 0);
+
+            } catch (error) {
+                if (!silent) {
+                    alert('Wデータ送信に失敗しました: ' + error.message);
+                }
+                return 0;
+            }
+        }
+
+        function sendRCDataToPLSystem(silent = false) {
+            try {
+                const rcSalesData = {
+                    baseSales: currentData.rc.baseSales,
+                    variations: currentData.rc.variations,
+                    timestamp: new Date().toISOString()
+                };
+
+                const rcSettings = {
+                    advertising: currentData.rc.variables.advertising,
+                    decemberBooth: currentData.rc.variables.decemberBooth,
+                    mayBooth: currentData.rc.variables.mayBooth
+                };
+
+                localStorage.setItem(LOCAL_STORAGE_KEYS.rc_data, JSON.stringify(rcSalesData));
+                localStorage.setItem(LOCAL_STORAGE_KEYS.rc_settings, JSON.stringify(rcSettings));
+
+                if (!silent) {
+                    const monthlySales = currentData.rc.variations.map(variation => currentData.rc.baseSales + variation);
+                    const annual = monthlySales.reduce((sum, val) => sum + val, 0);
+                    alert('RCデータをPLシステムに送信しました！\n\n' +
+                          '年間合計: ' + formatNumber(annual) + '万円\n' +
+                          '送信時刻: ' + new Date().toLocaleTimeString());
+                }
+
+                const monthlySales = currentData.rc.variations.map(variation => currentData.rc.baseSales + variation);
+                return monthlySales.reduce((sum, val) => sum + val, 0);
+
+            } catch (error) {
+                if (!silent) {
+                    alert('RCデータ送信に失敗しました: ' + error.message);
+                }
+                return 0;
+            }
+        }
+
+        function sendRCDDataToPLSystem(silent = false) {
+            try {
+                const rcdSalesData = {
+                    purchases: currentData.rcd.purchases,
+                    timestamp: new Date().toISOString()
+                };
+
+                const rcdSettings = {
+                    feeOccurrences: currentData.rcd.fees
+                };
+
+                localStorage.setItem(LOCAL_STORAGE_KEYS.rcd_data, JSON.stringify(rcdSalesData));
+                localStorage.setItem(LOCAL_STORAGE_KEYS.rcd_settings, JSON.stringify(rcdSettings));
+
+                if (!silent) {
+                    const monthlySales = currentData.rcd.purchases.map(purchase => Math.round(purchase * 2000 * 1.03));
+                    const annual = monthlySales.reduce((sum, val) => sum + val, 0);
+                    alert('RCDデータをPLシステムに送信しました！\n\n' +
+                          '年間合計: ' + formatNumber(annual) + '万円\n' +
+                          '送信時刻: ' + new Date().toLocaleTimeString());
+                }
+
+                const monthlySales = currentData.rcd.purchases.map(purchase => Math.round(purchase * 2000 * 1.03));
+                return monthlySales.reduce((sum, val) => sum + val, 0);
+
+            } catch (error) {
+                if (!silent) {
+                    alert('RCDデータ送信に失敗しました: ' + error.message);
+                }
+                return 0;
+            }
+        }
+
+       // 修正版: 一括送信機能（最小限修正）
+async function sendAllDataAndNavigateToPL() {
+    try {
+        console.log('一括送信開始');
+        
+        // 1. SR事業部データ送信
+        const srTotal = sendSRDataToPLSystem(true);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        console.log('SR送信完了:', srTotal);
+        
+        // 2. W事業部データ送信  
+        const wTotal = sendWDataToPLSystem(true);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        console.log('W送信完了:', wTotal);
+        
+        // 3. RC卸データ送信
+        const rcTotal = sendRCDataToPLSystem(true);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        console.log('RC送信完了:', rcTotal);
+        
+        // 4. RCD社データ送信
+        const rcdTotal = sendRCDDataToPLSystem(true);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        console.log('RCD送信完了:', rcdTotal);
+        
+        const grandTotal = srTotal + wTotal + rcTotal + rcdTotal;
+        
+        // 5. 統合完了フラグ設定
+        localStorage.setItem('all_data_sync_flag', JSON.stringify({
+            timestamp: new Date().toISOString(),
+            status: 'completed',
+            version: 'minimal_fix',
+            totals: { 
+                sr: srTotal, 
+                w: wTotal, 
+                rc: rcTotal, 
+                rcd: rcdTotal,
+                grand: grandTotal
+            }
+        }));
+        console.log('統合フラグ設定完了');
+        
+        // 6. 成功メッセージ表示
+        alert(`一括送信が完了しました！\n\n` +
+              `【各事業部売上合計】\n` +
+              `SR事業部: ${srTotal.toLocaleString()}万円\n` +
+              `W事業部: ${wTotal.toLocaleString()}万円\n` +
+              `RC卸店: ${rcTotal.toLocaleString()}万円\n` +
+              `RCD社: ${rcdTotal.toLocaleString()}万円\n` +
+              `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+              `統合売上合計: ${grandTotal.toLocaleString()}万円\n\n` +
+              `3秒後に統合PLページに移動します。`);
+        
+        // 7. 画面遷移（3秒待機）
+        setTimeout(() => {
+            window.location.href = 'combined-dashboard/index.html';
+        }, 3000);
+        
+    } catch (error) {
+        alert('一括送信に失敗しました: ' + error.message + '\n\n個別送信をお試しください。');
+        console.error('一括送信エラー:', error);
+    }
+}
+
+        // ナビゲーション機能
+        function navigateToSRPL() {
+            window.location.href = 'department-pl/sr-pl.html';
+        }
+
+        function navigateToWPL() {
+            window.location.href = 'department-pl/w-pl.html';
+        }
+
+        function navigateToRCPL() {
+            window.location.href = 'department-pl/rc-pl.html';
+        }
+
+        function navigateToRCDPL() {
+            window.location.href = 'department-pl/rcd-pl.html';
+        }
+
+        // エクスポート機能
+        function exportToJSON() {
+            const exportData = {
+                timestamp: new Date().toISOString(),
+                data: currentData,
+                summary: {
+                    totalRevenue: getCurrentTotalRevenue(),
+                    breakdown: getCurrentBreakdown()
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'budget_input_data.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function getCurrentTotalRevenue() {
+            const srTotal = months.map((_, i) => {
+                return Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0);
+            }).reduce((sum, val) => sum + val, 0);
+
+            const wTotal = currentData.w.sales.reduce((sum, val) => sum + val, 0);
+            const rcTotal = currentData.rc.variations.map(variation => 
+                currentData.rc.baseSales + variation
+            ).reduce((sum, val) => sum + val, 0);
+            const rcdTotal = currentData.rcd.purchases.map(purchase => 
+                Math.round(purchase * 2000 * 1.03)
+            ).reduce((sum, val) => sum + val, 0);
+
+            return srTotal + wTotal + rcTotal + rcdTotal;
+        }
+
+        function getCurrentBreakdown() {
+            const srTotal = months.map((_, i) => {
+                return Object.values(currentData.sr.stores).reduce((sum, store) => sum + store[i], 0);
+            }).reduce((sum, val) => sum + val, 0);
+
+            return {
+                SR: srTotal,
+                W: currentData.w.sales.reduce((sum, val) => sum + val, 0),
+                RC: currentData.rc.variations.map(variation => 
+                    currentData.rc.baseSales + variation
+                ).reduce((sum, val) => sum + val, 0),
+                RCD: currentData.rcd.purchases.map(purchase => 
+                    Math.round(purchase * 2000 * 1.03)
+                ).reduce((sum, val) => sum + val, 0)
+            };
+        }
+
+        // 初期化関数
+        function initialize() {
+            try {
+                console.log('Initializing budget input system...');
+                
+                // 保存されたデータがあれば復元
+                const restored = loadInputValues();
+                
+                if (restored) {
+                    updateAllUIElements();
+                } else {
+                    // 初期値設定
+                    updateAllUIElements();
+                }
+
+                // テーブル生成
+                generateAllTables();
+                
+                // 計算実行
+                calculateAllDepartments();
+                
+                // チャート初期化
+                updateAllCharts();
+                
+                // KPI更新
+                updateKPIs();
+                
+                console.log('Initialization completed successfully');
+                
+                // 初回保存（まだ保存データがない場合）
+                if (!restored) {
+                    saveInputValues();
+                }
+                
+            } catch (error) {
+                console.error('Error during initialization:', error);
+            }
+        }
+
+        // ページ読み込み時に初期化実行
+        document.addEventListener('DOMContentLoaded', initialize);
+        window.addEventListener('load', initialize);
+    </script>
+</body>
+</html>
