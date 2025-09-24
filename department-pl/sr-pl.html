@@ -502,7 +502,7 @@
                 <div class="spec-detail">
                     <strong>統一構造変換機能:</strong> SR事業部の複雑な計算結果を統一データ構造（19項目販管費）に完全変換・LocalStorageキー「pl_system_sr_data」・UNIFIED_CONVERTER関数群実装・自動送信機能対応・メタデータによるバージョン管理v3.0完全対応<br>
                     <strong>19項目マッピング:</strong> ID1:人件費統合、ID2:法定福利費、ID3:衛生費、ID4:物流管理費、ID5:地代家賃、ID6:外注費、ID7:荷造運賃（変動）、ID8:広告宣伝費、ID9:旅費交通費、ID10:通信費、ID11:販売促進費、ID12:消耗品費、ID13:事務用品費、ID14:水道光熱費（変動）、ID15:支払手数料（変動）、ID16:リース料、ID17:保険料、ID18:支払報酬料、ID19:減価償却費<br>
-                    <strong>統合済み少額項目:</strong> 衛生費14万円、旅費交通費31万円、通信費19万円、消耗品費4万円、事務用品費11万円、リース料1万円、保険料6万円、支払報酬料34万円、減価償却費19万円（年額計137万円を月割り配置）<br>
+                    <strong>統合済み少額項目:</strong> 衛生費14万円、旅費交通費31万円、通信費19万円、消耗品費4万円、事務用品費11万円、リース料1万円、保険料6万円、支払報酬料34万円、減価償却費19万円（年額計137万円を月割配置）<br>
                     <strong>変動費係数:</strong> 貨物運賃（0.07-1.82）、水道光熱費（0.82-1.41）、支払手数料（0.70-1.51）・月別動的計算対応
                 </div>
             </div>
@@ -669,7 +669,7 @@
         let linkageActive = false;
         let monthlyChart = null;
 
-        // 連携データ読み込み機能
+        // 連携データ読み込み機能（修正版：連携データ読み込み後も自動送信）
         function loadLinkageData() {
             try {
                 const srSalesData = localStorage.getItem(STORAGE_KEYS.sr);
@@ -695,6 +695,13 @@
                         
                         // 計算実行
                         calculateSR();
+                        
+                        // 修正版: 連携データ読み込み後も自動送信
+                        setTimeout(() => {
+                            if (window.srCurrentResults) {
+                                sendUnifiedData();
+                            }
+                        }, 200); // 0.2秒後に自動送信
                         
                         console.log('SR連携データ読み込み成功:', salesData);
                     } else {
@@ -828,7 +835,7 @@
             };
         }
 
-        // 統一構造データ送信機能（新規実装）
+        // 統一構造データ送信機能（修正版）
         function sendUnifiedData() {
             if (!window.srCurrentResults) {
                 alert('計算結果が生成されていません。');
@@ -841,39 +848,21 @@
                 // 統一構造データ生成
                 const unifiedData = UNIFIED_CONVERTER.convertSRToUnified(monthlyResults);
                 
-                // DATA_TRANSMISSION機能で送信
-                const success = DATA_TRANSMISSION.manualDataSend(unifiedData);
+                // 修正版: LocalStorageに直接保存（統一キー使用）
+                localStorage.setItem('pl_system_sr_data', JSON.stringify(unifiedData));
                 
-                if (success) {
-                    // レガシー互換性のため既存形式も保持
-                    const legacyData = {
-                        department: 'SR事業部',
-                        annual: {
-                            sales: annual.sales,
-                            cogs: annual.cogs,
-                            grossProfit: annual.grossProfit,
-                            totalExpenses: annual.totalExpenses,
-                            operatingProfit: annual.operatingProfit,
-                            personnel: annual.personnel,
-                            welfare: annual.welfare
-                        },
-                        monthly: monthlyResults,
-                        linkageActive: linkageActive,
-                        timestamp: new Date().toISOString()
-                    };
-                    
-                    localStorage.setItem(STORAGE_KEYS.sr_legacy, JSON.stringify(legacyData));
-                    
-                    console.log('統一構造データ送信完了:', {
-                        unified: unifiedData,
-                        legacy: legacyData
-                    });
-                }
+                // 成功通知
+                updateLinkageStatus('success', `統一構造データ送信完了: ${new Date().toLocaleString()}`);
+                console.log('SR統一構造データ送信完了:', unifiedData);
+                alert('統一構造データが正常に送信されました。');
+                
+                return true;
                 
             } catch (error) {
                 updateLinkageStatus('error', `統一構造データ送信エラー: ${error.message}`);
-                console.error('統一構造データ送信エラー:', error);
+                console.error('SR統一構造データ送信エラー:', error);
                 alert(`統一構造データ送信に失敗しました: ${error.message}`);
+                return false;
             }
         }
 
@@ -1282,21 +1271,26 @@
             return Math.round(num).toLocaleString();
         }
 
-        // 初期化処理
+        // 修正版: 自動送信タイミングの調整
         function initialize() {
+            console.log('SR事業部PLシステム初期化開始');
+            
             // 初期計算実行
             calculateSR();
             
             // 連携データ読み込み
             loadLinkageData();
             
-            // 自動統一構造送信（計算後）
+            // 修正版: 自動統一構造送信（初期化時）
             setTimeout(() => {
                 if (window.srCurrentResults) {
                     sendUnifiedData();
                 }
-            }, 1000);
+            }, 500); // 短縮：0.5秒後に自動送信
         }
 
         // ページ読み込み時に初期化実行
         window.addEventListener('load', initialize);
+    </script>
+</body>
+</html>
