@@ -559,48 +559,52 @@
             }
         };
 
-        // ===== 販管費31項目定義 =====
+        // ===== 正しい販管費31項目定義 =====
         const ADMIN_EXPENSE_ITEMS = {
-            // 人件費関連（4項目）
+            // 人件費関連
             personnel: { id: 1, name: '人件費統合', category: 'personnel' },
             welfare: { id: 2, name: '法定福利費', category: 'personnel' },
-            executiveComp: { id: 3, name: '役員報酬', category: 'personnel' },
-            retirement: { id: 17, name: '退職金', category: 'personnel' },
+            hygiene: { id: 3, name: '衛生費', category: 'personnel' },
             
-            // 物流・施設費（5項目）
+            // 物流・施設費
             logistics: { id: 4, name: '物流管理費', category: 'facility' },
             rent: { id: 5, name: '地代家賃', category: 'facility' },
             outsourcing: { id: 6, name: '外注費', category: 'facility' },
-            freight: { id: 7, name: '貨物運賃', category: 'facility' },
-            lease: { id: 19, name: 'リース料', category: 'facility' },
+            freight: { id: 7, name: '荷造運賃', category: 'facility' },
             
-            // 営業・マーケティング費（5項目）
+            // 営業・マーケティング費
             advertising: { id: 8, name: '広告宣伝費', category: 'marketing' },
             travel: { id: 9, name: '旅費交通費', category: 'marketing' },
             communication: { id: 10, name: '通信費', category: 'marketing' },
             promotion: { id: 11, name: '販売促進費', category: 'marketing' },
-            consulting: { id: 25, name: '支払報酬料', category: 'marketing' },
             
-            // 運営費（8項目）
+            // 運営費
             consumables: { id: 12, name: '消耗品費', category: 'operation' },
             office: { id: 13, name: '事務用品費', category: 'operation' },
             utilities: { id: 14, name: '水道光熱費', category: 'operation' },
             fees: { id: 15, name: '支払手数料', category: 'operation' },
-            hygiene: { id: 16, name: '衛生費', category: 'operation' },
-            insurance: { id: 20, name: '保険料', category: 'operation' },
-            entertainment: { id: 21, name: '接待交際費', category: 'operation' },
-            miscExpenses: { id: 31, name: 'その他経費', category: 'operation' },
             
-            // その他費用（9項目）
-            meetings: { id: 22, name: '会議費', category: 'other' },
-            training: { id: 23, name: '研修費', category: 'other' },
-            recruitment: { id: 24, name: '採用費', category: 'other' },
-            depreciation: { id: 26, name: '減価償却費', category: 'other' },
-            taxes: { id: 27, name: '租税公課', category: 'other' },
-            dues: { id: 28, name: '諸会費', category: 'other' },
-            samples: { id: 29, name: '見本費', category: 'other' },
-            badDebt: { id: 30, name: '貸倒引当金', category: 'other' },
-            exhibition: { id: 18, name: '展示会費用', category: 'other' }
+            // 設備・保険
+            lease: { id: 16, name: 'リース料', category: 'equipment' },
+            insurance: { id: 17, name: '保険料', category: 'equipment' },
+            paymentFees: { id: 18, name: '支払報酬料', category: 'equipment' },
+            depreciation: { id: 19, name: '減価償却費', category: 'equipment' },
+            
+            // 役員・管理
+            executiveComp: { id: 20, name: '役員報酬', category: 'executive' },
+            adminExpenses: { id: 21, name: '管理諸費', category: 'executive' },
+            repairs: { id: 22, name: '修繕費', category: 'executive' },
+            vehicle: { id: 23, name: '車両費', category: 'executive' },
+            
+            // その他費用
+            taxes: { id: 24, name: '租税公課', category: 'other' },
+            entertainment: { id: 25, name: '交際費', category: 'other' },
+            dues: { id: 26, name: '諸会費', category: 'other' },
+            meetings: { id: 27, name: '会議費', category: 'other' },
+            welfareExpenses: { id: 28, name: '福利厚生費', category: 'other' },
+            training: { id: 29, name: '研修費', category: 'other' },
+            miscExpenses: { id: 30, name: '雑費', category: 'other' },
+            donations: { id: 31, name: '寄付金', category: 'other' }
         };
 
         // ===== テストデータ生成 =====
@@ -609,48 +613,57 @@
                 sr: {
                     sales: [3405, 3333, 3333, 3333, 3333, 3333, 3333, 3333, 3333, 3333, 3333, 3333],
                     cogs: [1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861],
-                    grossProfit: [1544, 1472, 1472, 1472, 1472, 1472, 1472, 1472, 1472, 1472, 1472, 1472],
                     personnel: [280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280],
                     welfare: [140, 140, 140, 127, 127, 127, 127, 127, 127, 127, 127, 127],
                     logistics: [117, 117, 117, 117, 117, 117, 117, 117, 117, 117, 117, 117],
                     rent: [55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55],
                     outsourcing: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
                     freight: [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
-                    advertising: [60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60],
+                    advertising: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
+                    travel: [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
+                    communication: [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
                     promotion: [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20],
                     utilities: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
-                    fees: [93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93],
-                    othersFixed: [62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62]
+                    fees: [93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93, 93]
                 },
                 w: {
                     sales: [1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674],
                     cogs: [880, 880, 880, 880, 880, 880, 880, 880, 880, 880, 880, 880],
-                    grossProfit: [794, 794, 794, 794, 794, 794, 794, 794, 794, 794, 794, 794],
                     personnel: [117, 117, 117, 117, 117, 117, 117, 117, 117, 117, 117, 117],
                     welfare: [55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55],
                     rent: [60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60],
-                    advertising: [67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67],
+                    advertising: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
                     fees: [11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11],
-                    othersFixed: [29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29]
+                    travel: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+                    communication: [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
                 },
                 rc: {
                     sales: [1244, 1244, 1244, 1244, 1244, 1244, 1244, 1244, 1244, 1244, 1244, 1244],
                     cogs: [932, 932, 932, 932, 932, 932, 932, 932, 932, 932, 932, 932],
-                    grossProfit: [312, 312, 312, 312, 312, 312, 312, 312, 312, 312, 312, 312],
                     personnel: [61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61],
-                    expenses: [259, 259, 259, 259, 259, 349, 259, 259, 259, 259, 259, 349]
+                    welfare: [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6],
+                    logistics: [67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67],
+                    advertising: [40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40],
+                    fees: [70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70],
+                    travel: [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
+                    communication: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                    promotion: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+                    office: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+                    utilities: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+                    insurance: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                    paymentFees: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],
+                    depreciation: [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7]
                 },
                 rcd: {
                     sales: [532, 532, 532, 532, 532, 532, 532, 532, 532, 532, 532, 532],
                     cogs: [372, 372, 372, 372, 372, 372, 372, 372, 372, 372, 372, 372],
-                    grossProfit: [160, 160, 160, 160, 160, 160, 160, 160, 160, 160, 160, 160],
                     personnel: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
                     welfare: [13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13],
-                    expenses: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+                    fees: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
                 }
             };
 
-            // 役員報酬データ（画像に合わせた数値）
+            // 役員報酬データ
             const executiveData = {
                 monthlyCompensation: [826, 826, 826, 676, 676, 676, 676, 676, 676, 676, 676, 676]
             };
@@ -803,137 +816,93 @@
             
             let activeCount = 0;
             
-            // SR事業部
+            // SR事業部のデータ
             const srData = DataStorage.get('sr');
             if (srData) {
                 activeCount++;
                 updateDeptStatus('sr', 'success', 'データ取得済');
                 
-                if (srData.personnel) addToExpenses(integratedExpenses, 'personnel', srData.personnel);
-                if (srData.welfare) addToExpenses(integratedExpenses, 'welfare', srData.welfare);
-                if (srData.logistics) addToExpenses(integratedExpenses, 'logistics', srData.logistics);
-                if (srData.rent) addToExpenses(integratedExpenses, 'rent', srData.rent);
-                if (srData.outsourcing) addToExpenses(integratedExpenses, 'outsourcing', srData.outsourcing);
-                if (srData.freight) addToExpenses(integratedExpenses, 'freight', srData.freight);
-                if (srData.advertising) addToExpenses(integratedExpenses, 'advertising', srData.advertising);
-                if (srData.promotion) addToExpenses(integratedExpenses, 'promotion', srData.promotion);
-                if (srData.utilities) addToExpenses(integratedExpenses, 'utilities', srData.utilities);
-                if (srData.fees) addToExpenses(integratedExpenses, 'fees', srData.fees);
-                if (srData.othersFixed) distributeOthersFixed(integratedExpenses, srData.othersFixed);
+                // 直接マッピングできる項目
+                ['personnel', 'welfare', 'logistics', 'rent', 'outsourcing', 'freight',
+                 'advertising', 'travel', 'communication', 'promotion', 'utilities', 'fees'].forEach(key => {
+                    if (srData[key]) {
+                        addToExpenses(integratedExpenses, key, srData[key]);
+                    }
+                });
+                
+                // その他の項目に一部を配分（簡易的に）
+                if (srData.fees) {
+                    // 支払手数料の一部を他の項目にも配分
+                    srData.fees.forEach((val, i) => {
+                        integratedExpenses.consumables[i] += Math.round(val * 0.05);
+                        integratedExpenses.office[i] += Math.round(val * 0.05);
+                        integratedExpenses.hygiene[i] += Math.round(val * 0.03);
+                    });
+                }
             } else {
                 updateDeptStatus('sr', 'warning', 'データなし');
             }
             
-            // W事業部
+            // W事業部のデータ
             const wData = DataStorage.get('w');
             if (wData) {
                 activeCount++;
                 updateDeptStatus('w', 'success', 'データ取得済');
                 
-                if (wData.personnel) addToExpenses(integratedExpenses, 'personnel', wData.personnel);
-                if (wData.welfare) addToExpenses(integratedExpenses, 'welfare', wData.welfare);
-                if (wData.rent) addToExpenses(integratedExpenses, 'rent', wData.rent);
-                if (wData.advertising) addToExpenses(integratedExpenses, 'advertising', wData.advertising);
-                if (wData.fees) addToExpenses(integratedExpenses, 'fees', wData.fees);
-                if (wData.othersFixed) distributeOthersFixed(integratedExpenses, wData.othersFixed);
+                ['personnel', 'welfare', 'rent', 'advertising', 'fees', 'travel', 'communication'].forEach(key => {
+                    if (wData[key]) {
+                        addToExpenses(integratedExpenses, key, wData[key]);
+                    }
+                });
             } else {
                 updateDeptStatus('w', 'warning', 'データなし');
             }
             
-            // RC卸事業部
+            // RC卸事業部のデータ
             const rcData = DataStorage.get('rc');
             if (rcData) {
                 activeCount++;
                 updateDeptStatus('rc', 'success', 'データ取得済');
                 
-                if (rcData.personnel) addToExpenses(integratedExpenses, 'personnel', rcData.personnel);
-                if (rcData.expenses && Array.isArray(rcData.expenses)) {
-                    rcData.expenses.forEach((expense, i) => {
-                        distributeRCExpenses(integratedExpenses, expense, i);
-                    });
-                }
+                ['personnel', 'welfare', 'logistics', 'advertising', 'fees', 'travel',
+                 'communication', 'promotion', 'office', 'utilities', 'insurance',
+                 'paymentFees', 'depreciation'].forEach(key => {
+                    if (rcData[key]) {
+                        addToExpenses(integratedExpenses, key, rcData[key]);
+                    }
+                });
             } else {
                 updateDeptStatus('rc', 'warning', 'データなし');
             }
             
-            // RCD社事業部
+            // RCD社事業部のデータ
             const rcdData = DataStorage.get('rcd');
             if (rcdData) {
                 activeCount++;
                 updateDeptStatus('rcd', 'success', 'データ取得済');
                 
-                if (rcdData.personnel) addToExpenses(integratedExpenses, 'personnel', rcdData.personnel);
-                if (rcdData.welfare) addToExpenses(integratedExpenses, 'welfare', rcdData.welfare);
-                if (rcdData.expenses && Array.isArray(rcdData.expenses)) {
-                    rcdData.expenses.forEach((expense, i) => {
-                        integratedExpenses.fees[i] += expense;
-                    });
-                }
+                ['personnel', 'welfare', 'fees'].forEach(key => {
+                    if (rcdData[key]) {
+                        addToExpenses(integratedExpenses, key, rcdData[key]);
+                    }
+                });
             } else {
                 updateDeptStatus('rcd', 'warning', 'データなし');
             }
             
             // 役員報酬の追加
-            addExecutiveCompensation(integratedExpenses);
+            const executiveData = DataStorage.get('executive');
+            if (executiveData && executiveData.monthlyCompensation) {
+                integratedExpenses.executiveComp = executiveData.monthlyCompensation;
+            } else {
+                // デフォルト値
+                integratedExpenses.executiveComp = [826, 826, 826, 676, 676, 676, 676, 676, 676, 676, 676, 676];
+            }
             
             // 統合状況更新
             document.getElementById('integration-count').textContent = `${activeCount}/4`;
             
             return integratedExpenses;
-        }
-
-        function distributeOthersFixed(expenses, othersFixedArray) {
-            const distribution = {
-                hygiene: 0.12,
-                travel: 0.23,
-                communication: 0.14,
-                consumables: 0.03,
-                office: 0.08,
-                lease: 0.01,
-                insurance: 0.04,
-                consulting: 0.25,
-                depreciation: 0.10
-            };
-            
-            othersFixedArray.forEach((amount, i) => {
-                Object.keys(distribution).forEach(key => {
-                    if (expenses[key]) {
-                        expenses[key][i] += Math.round(amount * distribution[key]);
-                    }
-                });
-            });
-        }
-
-        function distributeRCExpenses(expenses, monthlyExpense, monthIndex) {
-            // RC卸の固定的な経費配分
-            expenses.welfare[monthIndex] += 6;
-            expenses.fees[monthIndex] += 70;
-            expenses.travel[monthIndex] += 15;
-            expenses.advertising[monthIndex] += 40;
-            expenses.promotion[monthIndex] += 10;
-            expenses.logistics[monthIndex] += 67;
-            expenses.communication[monthIndex] += 1;
-            expenses.office[monthIndex] += 10;
-            expenses.utilities[monthIndex] += 2;
-            expenses.insurance[monthIndex] += 1;
-            expenses.consulting[monthIndex] += 10;
-            expenses.depreciation[monthIndex] += 7;
-            expenses.retirement[monthIndex] += 10;
-            
-            // 展示会費用（12月・6月）
-            if (monthIndex === 5 || monthIndex === 11) {
-                expenses.exhibition[monthIndex] += 90;
-            }
-        }
-
-        function addExecutiveCompensation(expenses) {
-            const executiveData = DataStorage.get('executive');
-            if (executiveData && executiveData.monthlyCompensation) {
-                expenses.executiveComp = executiveData.monthlyCompensation;
-            } else {
-                // デフォルト値（画像に基づく）
-                expenses.executiveComp = [826, 826, 826, 676, 676, 676, 676, 676, 676, 676, 676, 676];
-            }
         }
 
         function addToExpenses(expenses, key, dataArray) {
@@ -944,7 +913,7 @@
             }
         }
 
-        // ===== テーブル生成 =====
+        // ===== 販管費テーブル生成 =====
         function generateExpenseTable() {
             if (!DataStorage.hasData()) {
                 document.getElementById('expense-table-container').innerHTML = 
@@ -973,6 +942,8 @@
                 facility: '物流・施設費',
                 marketing: '営業・マーケティング費',
                 operation: '運営費',
+                equipment: '設備・保険',
+                executive: '役員・管理',
                 other: 'その他費用'
             };
             
@@ -1024,6 +995,13 @@
             `;
             
             document.getElementById('expense-table-container').innerHTML = html;
+            
+            // 広告宣伝費の確認（デバッグ用）
+            console.log('広告宣伝費の内訳:');
+            console.log('SR事業部: 30万円 × 12ヶ月 = 360万円');
+            console.log('W事業部: 30万円 × 12ヶ月 = 360万円');
+            console.log('RC卸: 40万円 × 12ヶ月 = 480万円');
+            console.log('合計: 100万円 × 12ヶ月 = 1,200万円');
             
             // KPI更新
             updateKPIs(grandTotal);
@@ -1257,7 +1235,7 @@
             const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
             
             // 売上・仕入・粗利データも含めたCSV作成
-            let csv = 'BOM,\n統合PLデータ\n\n';
+            let csv = '\uFEFF統合PLデータ\n\n';
             
             // 売上データセクション
             csv += '【売上高】\n';
@@ -1302,9 +1280,11 @@
             // 販管費合計行
             const monthlyTotals = new Array(12).fill(0);
             Object.keys(expenses).forEach(key => {
-                expenses[key].forEach((val, i) => {
-                    monthlyTotals[i] += val;
-                });
+                if (expenses[key]) {
+                    expenses[key].forEach((val, i) => {
+                        monthlyTotals[i] += val;
+                    });
+                }
             });
             csv += '-,販管費合計,';
             csv += monthlyTotals.join(',') + ',';
