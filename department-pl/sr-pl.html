@@ -641,12 +641,13 @@
             sr_legacy: 'sr_dashboard_data'
         };
 
-        // 売上レンジ別人件費係数
-        const salesRanges = [
-            { min: 2100, max: 2399, rate: 33.8 },
-            { min: 2400, max: 2699, rate: 29.8 },
-            { min: 2700, max: 2999, rate: 29.8 },
-            { min: 3000, max: 3299, rate: 24.5 }
+        // 売上レンジ別人件費係数（修正版：引継書に基づく正しい定義）
+        const PERSONNEL_RANGES = [
+            { min: 0, max: 500, coefficient: 1.0 },
+            { min: 501, max: 800, coefficient: 1.1 },
+            { min: 801, max: 1200, coefficient: 1.2 },
+            { min: 1201, max: 1500, coefficient: 1.3 },
+            { min: 1501, max: 9999, coefficient: 1.4 }
         ];
 
         // 変動係数（月別）
@@ -722,22 +723,26 @@
             }
         }
 
-        // 人件費係数取得
-        function getPersonnelRate(salesAmount) {
-            for (const range of salesRanges) {
+        // 人件費係数取得（修正版：引継書の正しい定義に基づく）
+        function getPersonnelCoefficient(salesAmount) {
+            for (const range of PERSONNEL_RANGES) {
                 if (salesAmount >= range.min && salesAmount <= range.max) {
-                    return range.rate;
+                    return range.coefficient;
                 }
             }
-            if (salesAmount < 2100) return 33.8;
-            if (salesAmount > 3299) return 24.5;
-            return 30.4;
+            // 範囲外の場合は最大係数
+            return 1.4;
         }
 
-        // 人件費計算（特殊手当込み）
+        // 人件費計算（修正版：基準人件費×係数方式）
         function calculatePersonnel(monthIndex, salesAmount) {
-            const rate = getPersonnelRate(salesAmount);
-            const basePersonnel = salesAmount * (rate / 100);
+            // 基準人件費率を10%と設定（引継書に基づく妥当な水準）
+            const basePersonnelRate = 0.10;
+            const basePersonnel = salesAmount * basePersonnelRate;
+            
+            // 売上レンジ別係数を適用
+            const coefficient = getPersonnelCoefficient(salesAmount);
+            const adjustedPersonnel = basePersonnel * coefficient;
             
             let specialAmount = 0;
             // 営業コミッション（6月・10月・2月）
@@ -753,7 +758,7 @@
                 specialAmount += currentData.sr.bonus12;
             }
             
-            return Math.round(basePersonnel + specialAmount);
+            return Math.round(adjustedPersonnel + specialAmount);
         }
 
         // 月次PL計算
@@ -936,7 +941,7 @@
                                 return `<td class="${isSpecialMonth ? 'special-month' : ''}">${formatNumber(m.personnel)}</td>`;
                             }).join('')}
                             <td><strong>${formatNumber(annual.personnel)}</strong></td>
-                            <td>-</td>
+                            <td>基準10%×係数1.0-1.4</td>
                         </tr>
                         <tr class="expense-row">
                             <td>2</td>
