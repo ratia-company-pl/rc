@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4事業部統合PLシステム（統一構造19項目完全対応版）</title>
+    <title>4事業部統合PLシステム Phase 3修正版（一括送信対応強化）</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -85,6 +85,32 @@
         .btn:hover {
             background: rgba(255, 255, 255, 0.3);
             transform: translateY(-2px);
+        }
+
+        /* Phase 3追加: 一括送信検出表示 */
+        .batch-detection {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 12px 20px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .batch-detection.active {
+            display: block;
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         /* KPIセクション */
@@ -399,6 +425,35 @@
             font-weight: 600;
         }
 
+        /* Phase 3追加: 一括送信成功メッセージ */
+        .batch-success-message {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 2px solid #27ae60;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #155724;
+            font-weight: 600;
+            display: none;
+        }
+
+        .batch-success-message.active {
+            display: block;
+            animation: fadeInScale 0.5s ease;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
         /* レスポンシブ */
         @media (max-width: 768px) {
             .main-title { font-size: 1.8em; }
@@ -415,8 +470,13 @@
         <header class="header">
             <!-- 1行目: タイトル -->
             <div class="header-row1">
-                <h1 class="main-title">4事業部統合PLシステム</h1>
-                <p class="subtitle">統一構造19項目完全対応版・リアルタイムデータ連携対応</p>
+                <h1 class="main-title">4事業部統合PLシステム Phase 3修正版</h1>
+                <p class="subtitle">一括送信対応強化・リアルタイムデータ連携対応</p>
+            </div>
+
+            <!-- Phase 3追加: 一括送信検出表示 -->
+            <div class="batch-detection" id="batch-detection">
+                🎯 一括送信データを検出しました！自動的にデータを読み込み中...
             </div>
 
             <!-- 2行目: ナビゲーション -->
@@ -475,12 +535,19 @@
             <!-- 5行目: ダッシュボード連携ステータス -->
             <div class="header-row5">
                 <div class="dashboard-linkage-status">
-                    <span>📄 自動同期システム:</span>
+                    <span>📊 自動同期システム:</span>
                     <span class="linkage-indicator" id="sync-status">停止中</span>
                     <span id="last-sync">最終同期: --:--</span>
                 </div>
             </div>
         </header>
+
+        <!-- Phase 3追加: 一括送信成功メッセージ -->
+        <div class="batch-success-message" id="batch-success-message">
+            <h3>🎉 一括送信データ受信成功！</h3>
+            <p>予算入力システムからの4事業部データを正常に受信・統合しました。</p>
+            <p><strong>受信時刻:</strong> <span id="batch-received-time">--:--</span> | <strong>総売上:</strong> <span id="batch-total-sales">---万円</span></p>
+        </div>
 
         <!-- データ初期化メッセージ -->
         <div class="init-message" id="init-message">
@@ -519,11 +586,11 @@
 
     <!-- 同期インジケータ -->
     <div class="sync-indicator" id="sync-indicator">
-        📄 データ同期中...
+        📊 データ同期中...
     </div>
 
     <script>
-        // ===== Phase 2修正版: データストレージ管理（修正版） =====
+        // ===== Phase 3修正版: データストレージ管理（一括送信対応強化） =====
         const DataStorage = {
             keys: {
                 sr: 'pl_system_sr_data',      // 統一キー
@@ -531,7 +598,8 @@
                 rc: 'pl_system_rc_data',
                 rcd: 'pl_system_rcd_data',
                 dashboard: 'dashboard_data',
-                executive: 'executive_compensation_data'
+                executive: 'executive_compensation_data',
+                batch_flag: 'all_data_sync_flag'  // Phase 3追加
             },
             
             get: function(key) {
@@ -560,6 +628,21 @@
             
             hasData: function() {
                 return ['sr', 'w', 'rc', 'rcd'].some(key => this.get(key) !== null);
+            },
+
+            // Phase 3追加: 一括送信フラグチェック
+            checkBatchFlag: function() {
+                const flag = this.get('batch_flag');
+                if (flag && flag.status === 'completed' && flag.version === 'phase3') {
+                    return flag;
+                }
+                return null;
+            },
+
+            // Phase 3追加: 一括送信フラグクリア
+            clearBatchFlag: function() {
+                localStorage.removeItem(this.keys.batch_flag);
+                sessionStorage.removeItem(this.keys.batch_flag);
             }
         };
 
@@ -572,7 +655,7 @@
             4: { id: 4, name: '物流管理費', category: 'facility' },
             5: { id: 5, name: '地代家賃', category: 'facility' },
             6: { id: 6, name: '外注費', category: 'facility' },
-            7: { id: 7, name: '荷造運賃', category: 'facility' },
+            7: { id: 7, name: '貨物運賃', category: 'facility' },
             8: { id: 8, name: '広告宣伝費', category: 'marketing' },
             9: { id: 9, name: '旅費交通費', category: 'marketing' },
             10: { id: 10, name: '通信費', category: 'marketing' },
@@ -586,6 +669,58 @@
             18: { id: 18, name: '支払報酬料', category: 'equipment' },
             19: { id: 19, name: '減価償却費', category: 'equipment' }
         };
+
+        // ===== Phase 3追加: 一括送信検出・処理機能 =====
+        function checkAndProcessBatchData() {
+            const batchFlag = DataStorage.checkBatchFlag();
+            
+            if (batchFlag) {
+                console.log('Phase 3一括送信データ検出:', batchFlag);
+                
+                // 一括送信検出表示
+                const batchDetection = document.getElementById('batch-detection');
+                batchDetection.className = 'batch-detection active';
+                
+                // 成功メッセージ表示
+                setTimeout(() => {
+                    showBatchSuccessMessage(batchFlag);
+                    batchDetection.className = 'batch-detection';
+                    
+                    // データ読み込み実行
+                    generateSalesTable();
+                    generateExpenseTable();
+                    
+                    // フラグクリア
+                    DataStorage.clearBatchFlag();
+                }, 1000);
+                
+                return true;
+            }
+            
+            return false;
+        }
+
+        function showBatchSuccessMessage(batchFlag) {
+            const successMessage = document.getElementById('batch-success-message');
+            const receivedTimeElem = document.getElementById('batch-received-time');
+            const totalSalesElem = document.getElementById('batch-total-sales');
+            
+            if (batchFlag.timestamp) {
+                const time = new Date(batchFlag.timestamp);
+                receivedTimeElem.textContent = time.toLocaleTimeString();
+            }
+            
+            if (batchFlag.totals && batchFlag.totals.grand) {
+                totalSalesElem.textContent = formatNumber(batchFlag.totals.grand) + '万円';
+            }
+            
+            successMessage.className = 'batch-success-message active';
+            
+            // 5秒後に非表示
+            setTimeout(() => {
+                successMessage.className = 'batch-success-message';
+            }, 5000);
+        }
 
         // ===== テストデータ生成（統一構造対応版） =====
         function generateTestData() {
@@ -606,7 +741,7 @@
                     4: [208, 208, 208, 208, 208, 208, 208, 208, 208, 208, 208, 208],   // 物流管理費
                     5: [214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214],   // 地代家賃
                     6: [122, 122, 122, 122, 122, 122, 122, 122, 122, 122, 122, 122],   // 外注費
-                    7: [71, 9, 130, 66, 6, 69, 127, 66, 69, 66, 5, 117],               // 荷造運賃（変動）
+                    7: [71, 9, 130, 66, 6, 69, 127, 66, 69, 66, 5, 117],               // 貨物運賃（変動）
                     8: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],               // 広告宣伝費
                     9: [31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31],               // 旅費交通費
                     10: [19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],              // 通信費
@@ -678,7 +813,7 @@
             };
 
             // データ保存
-            DataStorage.set('sr', srUnifiedData);  // SR事業部は統一構造  
+            DataStorage.set('sr', srUnifiedData);  // SR事業部は統一構造   
             DataStorage.set('w', testData.w);
             DataStorage.set('rc', testData.rc);
             DataStorage.set('rcd', testData.rcd);
@@ -693,7 +828,7 @@
             alert('テストデータを生成しました！（SR事業部は統一構造対応）。');
         }
 
-        // ===== Phase 2修正版: データ収集・統合処理（簡略化済み）=====
+        // ===== Phase 3修正版: データ収集・統合処理（簡略化済み）=====
         function collectDepartmentData() {
             const integratedExpenses = {};
             
@@ -794,7 +929,7 @@
             return integratedExpenses;
         }
 
-        // ===== Phase 2修正版: 売上テーブル生成（簡略化）=====
+        // ===== Phase 2修正版: 売上テーブル生成（簡略化） =====
         function generateSalesTable() {
             if (!DataStorage.hasData()) {
                 document.getElementById('sales-table-container').innerHTML = 
@@ -1265,27 +1400,35 @@
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = `統合PLデータ_統一構造19項目_${new Date().toISOString().slice(0, 10)}.csv`;
+            link.download = `統合PLデータ_統一構造19項目_Phase3_${new Date().toISOString().slice(0, 10)}.csv`;
             link.click();
         }
 
-        // ===== Phase 2修正版: 初期化処理（自動更新追加）=====
+        // ===== Phase 3修正版: 初期化処理（一括送信検出対応） =====
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('統合PLシステム 統一構造19項目完全対応版 起動');
+            console.log('統合PLシステム Phase 3修正版 起動');
             
-            // データ有無チェック
-            if (!DataStorage.hasData()) {
-                document.getElementById('init-message').style.display = 'block';
-            } else {
-                document.getElementById('init-message').style.display = 'none';
-                // 初回データ読み込み
-                generateSalesTable();
-                generateExpenseTable();
+            // Phase 3: 一括送信データ検出・処理
+            const batchDetected = checkAndProcessBatchData();
+            
+            if (!batchDetected) {
+                // データ有無チェック
+                if (!DataStorage.hasData()) {
+                    document.getElementById('init-message').style.display = 'block';
+                } else {
+                    document.getElementById('init-message').style.display = 'none';
+                    // 初回データ読み込み
+                    generateSalesTable();
+                    generateExpenseTable();
+                }
             }
             
-            // Phase 2修正: 自動更新機能追加（1秒ごとにチェック）
+            // Phase 3修正: 自動更新機能追加（1秒ごとにチェック）
             setInterval(() => {
-                if (DataStorage.hasData()) {
+                // 一括送信フラグチェック
+                if (DataStorage.checkBatchFlag()) {
+                    checkAndProcessBatchData();
+                } else if (DataStorage.hasData()) {
                     generateSalesTable();
                     generateExpenseTable();
                 }
