@@ -118,6 +118,11 @@
             background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
         }
 
+        .kpi-card.negative {
+            border-color: #e74c3c;
+            background: linear-gradient(135deg, #fdf2f2 0%, #fef5f5 100%);
+        }
+
         .kpi-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -138,6 +143,10 @@
 
         .kpi-value.positive {
             color: #27ae60;
+        }
+
+        .kpi-value.negative {
+            color: #e74c3c;
         }
 
         .header-row4 {
@@ -466,35 +475,165 @@
         </main>
     </div>
 
+    <!-- ===== 【保護領域開始】絶対に変更禁止 ===== -->
     <script>
-        // データ保護戦略の維持 - 変更禁止領域
+        // 統合システム用LocalStorageキー管理 - 変更禁止
         const STORAGE_KEYS = {
             rc: 'pl_system_rc_data',
             rc_settings: 'pl_system_rc_settings',
+            sr: 'pl_system_sr_data',
+            w: 'pl_system_w_data',
+            rcd: 'pl_system_rcd_data',
+            integrated: 'pl_system_integrated_data',
             integration_status: 'pl_system_integration_status'
         };
 
+        // データ送信・管理機能群 - 変更禁止
         const DATA_TRANSMISSION = {
-            endpoint: 'integrated-pl.html',
-            format: 'json',
-            compression: true
-        };
+            createIntegrationData: function(departmentData) {
+                const integrationData = {
+                    department: departmentData.department,
+                    timestamp: new Date().toISOString(),
+                    annual: departmentData.annual,
+                    monthly: departmentData.monthly,
+                    linkageActive: departmentData.linkageActive,
+                    metadata: {
+                        version: '1.0',
+                        source: 'pl_system_integration',
+                        validated: true
+                    }
+                };
+                return integrationData;
+            },
 
-        // RC卸事業部データ構造（v3.0対応）
-        let rcData = {
-            sales: new Array(12).fill(0),
-            cogs: new Array(12).fill(0), 
-            personnel: new Array(12).fill(0),
-            expenses: new Array(12).fill(0), // 新規追加：販管費配列
-            metadata: {
-                lastUpdate: new Date().toISOString(),
-                dataSource: "RC卸事業部",
-                version: "3.0",
-                calculationEngine: "dynamic"
+            sendToIntegrated: function(integrationData) {
+                try {
+                    localStorage.setItem(STORAGE_KEYS.integrated, JSON.stringify(integrationData));
+                    localStorage.setItem('last_integration_update', new Date().toISOString());
+                    return { success: true, message: 'データ送信成功' };
+                } catch (error) {
+                    console.error('統合データ送信エラー:', error);
+                    return { success: false, message: `送信エラー: ${error.message}` };
+                }
+            },
+
+            updateSendStatus: function(department, status) {
+                const statusKey = `${department}_send_status`;
+                const statusData = {
+                    status: status,
+                    timestamp: new Date().toISOString(),
+                    department: department
+                };
+                localStorage.setItem(statusKey, JSON.stringify(statusData));
+            },
+
+            validateData: function(data) {
+                const requiredFields = ['department', 'annual', 'monthly'];
+                for (let field of requiredFields) {
+                    if (!data[field]) {
+                        return { valid: false, message: `必須フィールド ${field} が不足` };
+                    }
+                }
+                if (!Array.isArray(data.monthly) || data.monthly.length !== 12) {
+                    return { valid: false, message: '月次データは12ヶ月分必要です' };
+                }
+                return { valid: true, message: 'データ検証成功' };
+            },
+
+            checkIntegrationStatus: function() {
+                try {
+                    const integratedData = localStorage.getItem(STORAGE_KEYS.integrated);
+                    const lastUpdate = localStorage.getItem('last_integration_update');
+                    
+                    if (integratedData && lastUpdate) {
+                        const updateTime = new Date(lastUpdate);
+                        const timeDiff = Date.now() - updateTime.getTime();
+                        const hoursAgo = Math.floor(timeDiff / (1000 * 60 * 60));
+                        
+                        return {
+                            status: 'active',
+                            lastUpdate: updateTime.toLocaleString(),
+                            hoursAgo: hoursAgo,
+                            dataSize: integratedData.length
+                        };
+                    } else {
+                        return {
+                            status: 'inactive',
+                            message: '統合データが見つかりません'
+                        };
+                    }
+                } catch (error) {
+                    return {
+                        status: 'error',
+                        message: `確認エラー: ${error.message}`
+                    };
+                }
             }
         };
 
-        // 計算エンジン（カスタマイズ可能領域）
+        // 自動データ送信実行関数 - 変更禁止
+        function autoSendData(departmentData) {
+            const validation = DATA_TRANSMISSION.validateData(departmentData);
+            if (!validation.valid) {
+                console.error('データ検証失敗:', validation.message);
+                DATA_TRANSMISSION.updateSendStatus(departmentData.department, 'validation_failed');
+                return { success: false, message: validation.message };
+            }
+
+            const integrationData = DATA_TRANSMISSION.createIntegrationData(departmentData);
+            const sendResult = DATA_TRANSMISSION.sendToIntegrated(integrationData);
+            
+            if (sendResult.success) {
+                DATA_TRANSMISSION.updateSendStatus(departmentData.department, 'sent_successfully');
+                console.log(`${departmentData.department} データ自動送信完了:`, integrationData);
+            } else {
+                DATA_TRANSMISSION.updateSendStatus(departmentData.department, 'send_failed');
+                console.error(`${departmentData.department} データ送信失敗:`, sendResult.message);
+            }
+
+            return sendResult;
+        }
+
+        // 手動データ送信関数 - 変更禁止
+        function manualDataSend() {
+            if (!window.currentRCResults) {
+                alert('送信するデータがありません。計算を実行してください。');
+                return;
+            }
+
+            const departmentData = window.currentRCResults;
+            const result = autoSendData(departmentData);
+            
+            if (result.success) {
+                alert('データを統合システムに送信しました。');
+                updateLinkageStatus('success', '手動送信完了: ' + new Date().toLocaleString());
+            } else {
+                alert('データ送信に失敗しました: ' + result.message);
+                updateLinkageStatus('error', 'データ送信失敗: ' + result.message);
+            }
+        }
+
+        // 統合システム確認関数 - 変更禁止
+        function checkIntegrationStatus() {
+            const status = DATA_TRANSMISSION.checkIntegrationStatus();
+            
+            let message = '';
+            if (status.status === 'active') {
+                message = `統合システム稼働中\n最終更新: ${status.lastUpdate}\n経過時間: ${status.hoursAgo}時間前\nデータサイズ: ${status.dataSize}バイト`;
+            } else if (status.status === 'inactive') {
+                message = '統合システム: データなし\n' + status.message;
+            } else {
+                message = '統合システム: エラー\n' + status.message;
+            }
+            
+            alert(message);
+        }
+    </script>
+    <!-- ===== 【保護領域終了】 ===== -->
+
+    <!-- ===== 【カスタマイズ領域開始】計算ロジック変更可能 ===== -->
+    <script>
+        // RC卸事業部固有の計算定数・ロジック - カスタマイズ対象
         const CALCULATION_ENGINE = {
             baseSales: 1550, // デフォルトの基準売上
             cogsRate: 0.352, // 仕入原価率35.2%
@@ -522,6 +661,93 @@
             }
         };
 
+        // 【新規追加】統一データ構造変換関数
+        const UNIFIED_CONVERTER = {
+            // 統一データ構造テンプレート
+            createUnifiedStructure: function() {
+                return {
+                    metadata: {
+                        department: 'RC',
+                        lastUpdate: new Date().toISOString(),
+                        version: '3.0'
+                    },
+                    
+                    // 売上・原価データ（12ヶ月分の配列）
+                    sales: [0,0,0,0,0,0,0,0,0,0,0,0],
+                    cogs: [0,0,0,0,0,0,0,0,0,0,0,0],
+                    
+                    // 販管費データ（項目ID別）- 統一構造19項目
+                    expenses: {
+                        1: [0,0,0,0,0,0,0,0,0,0,0,0],  // 人件費統合（固定50万円/月）
+                        2: [0,0,0,0,0,0,0,0,0,0,0,0],  // 法定福利費（固定6万円/月）
+                        3: [0,0,0,0,0,0,0,0,0,0,0,0],  // 衛生費（該当なし）
+                        4: [0,0,0,0,0,0,0,0,0,0,0,0],  // 物流管理費（月額67万円）
+                        5: [0,0,0,0,0,0,0,0,0,0,0,0],  // 地代家賃（該当なし）
+                        6: [0,0,0,0,0,0,0,0,0,0,0,0],  // 外注費（該当なし）
+                        7: [0,0,0,0,0,0,0,0,0,0,0,0],  // 荷造運賃（該当なし）
+                        8: [0,0,0,0,0,0,0,0,0,0,0,0],  // 広告宣伝費（営業ソーシング想定費：月額40万円）
+                        9: [0,0,0,0,0,0,0,0,0,0,0,0],  // 旅費交通費（月額15万円）
+                        10: [0,0,0,0,0,0,0,0,0,0,0,0], // 通信費（月額1万円）
+                        11: [0,0,0,0,0,0,0,0,0,0,0,0], // 販売促進費（展示会費用：5月・12月に90万円追加）
+                        12: [0,0,0,0,0,0,0,0,0,0,0,0], // 消耗品費（該当なし）
+                        13: [0,0,0,0,0,0,0,0,0,0,0,0], // 事務用品費（月額10万円）
+                        14: [0,0,0,0,0,0,0,0,0,0,0,0], // 水道光熱費（月額2万円）
+                        15: [0,0,0,0,0,0,0,0,0,0,0,0], // 支払手数料（固定70万円/月）
+                        16: [0,0,0,0,0,0,0,0,0,0,0,0], // リース料（該当なし）
+                        17: [0,0,0,0,0,0,0,0,0,0,0,0], // 保険料（月額1万円）
+                        18: [0,0,0,0,0,0,0,0,0,0,0,0], // 支払報酬料（月額10万円）
+                        19: [0,0,0,0,0,0,0,0,0,0,0,0]  // 減価償却費（月額7万円）
+                    }
+                };
+            },
+
+            // RC卸事業部データ→統一構造変換
+            convertRCToUnified: function(rcData) {
+                const unified = this.createUnifiedStructure();
+                
+                // 売上・原価データ
+                unified.sales = rcData.sales;
+                unified.cogs = rcData.cogs;
+                
+                // 19項目販管費マッピング（RC卸事業部特有の配分）
+                unified.expenses[1] = rcData.personnel;                          // 人件費統合（固定50万円/月）
+                unified.expenses[2] = new Array(12).fill(6);                    // 法定福利費（固定6万円/月）
+                unified.expenses[4] = new Array(12).fill(67);                   // 物流管理費（月額67万円）
+                unified.expenses[8] = new Array(12).fill(40);                   // 広告宣伝費（営業ソーシング想定費）
+                unified.expenses[9] = new Array(12).fill(15);                   // 旅費交通費（月額15万円）
+                unified.expenses[10] = new Array(12).fill(1);                   // 通信費（月額1万円）
+                unified.expenses[13] = new Array(12).fill(10);                  // 事務用品費（月額10万円）
+                unified.expenses[14] = new Array(12).fill(2);                   // 水道光熱費（月額2万円）
+                unified.expenses[15] = new Array(12).fill(70);                  // 支払手数料（固定70万円/月）
+                unified.expenses[17] = new Array(12).fill(1);                   // 保険料（月額1万円）
+                unified.expenses[18] = new Array(12).fill(10);                  // 支払報酬料（月額10万円）
+                unified.expenses[19] = new Array(12).fill(7);                   // 減価償却費（月額7万円）
+                
+                // 販売促進費（展示会費用）の特殊処理
+                const promotionBase = new Array(12).fill(10); // 基本10万円/月
+                promotionBase[4] += CALCULATION_ENGINE.expenses.exhibition;  // 5月（インデックス4）
+                promotionBase[11] += CALCULATION_ENGINE.expenses.exhibition; // 12月（インデックス11）
+                unified.expenses[11] = promotionBase;
+                
+                // その他項目は0のまま（該当なし）
+                return unified;
+            }
+        };
+
+        // RC卸事業部データ構造（v3.0対応）
+        let rcData = {
+            sales: new Array(12).fill(0),
+            cogs: new Array(12).fill(0), 
+            personnel: new Array(12).fill(0),
+            expenses: new Array(12).fill(0), // 新規追加：販管費配列
+            metadata: {
+                lastUpdate: new Date().toISOString(),
+                dataSource: "RC卸事業部",
+                version: "3.0",
+                calculationEngine: "dynamic"
+            }
+        };
+
         // 月名の配列（7月から開始）
         const monthNames = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
 
@@ -541,10 +767,32 @@
                 // Phase 2修正: 年間販管費合計を表示
                 const totalAdminExpenses = annualPersonnel + annualExpenses;
 
-                document.getElementById('annual-sales').textContent = `${annualSales.toLocaleString()}万円`;
-                document.getElementById('annual-profit').textContent = `${operatingProfit.toLocaleString()}万円`;
-                document.getElementById('profit-rate').textContent = `${profitRate}%`;
-                document.getElementById('annual-admin-expenses').textContent = `${totalAdminExpenses.toLocaleString()}万円`;
+                // 動的色分け対応
+                const annualSalesElem = document.getElementById('annual-sales');
+                const annualProfitElem = document.getElementById('annual-profit');
+                const profitRateElem = document.getElementById('profit-rate');
+                const adminExpensesElem = document.getElementById('annual-admin-expenses');
+
+                if (annualSalesElem) annualSalesElem.textContent = `${annualSales.toLocaleString()}万円`;
+                if (adminExpensesElem) adminExpensesElem.textContent = `${totalAdminExpenses.toLocaleString()}万円`;
+
+                if (annualProfitElem) {
+                    annualProfitElem.textContent = `${operatingProfit.toLocaleString()}万円`;
+                    annualProfitElem.className = operatingProfit >= 0 ? 'kpi-value positive' : 'kpi-value negative';
+                    const profitCard = annualProfitElem.closest('.kpi-card');
+                    if (profitCard) {
+                        profitCard.className = operatingProfit >= 0 ? 'kpi-card positive' : 'kpi-card negative';
+                    }
+                }
+
+                if (profitRateElem) {
+                    profitRateElem.textContent = `${profitRate}%`;
+                    profitRateElem.className = operatingProfit >= 0 ? 'kpi-value positive' : 'kpi-value negative';
+                    const rateCard = profitRateElem.closest('.kpi-card');
+                    if (rateCard) {
+                        rateCard.className = operatingProfit >= 0 ? 'kpi-card positive' : 'kpi-card negative';
+                    }
+                }
             },
 
             updateTable: function() {
@@ -614,8 +862,8 @@
                 // 修正版: 販売促進費を独立項目として表示
                 const promotionValues = new Array(12).fill(10); // 基本額10万円
                 if (CALCULATION_ENGINE.expenses.exhibition > 0) {
-                    promotionValues[10] = 10 + CALCULATION_ENGINE.expenses.exhibition; // 5月（インデックス10）
-                    promotionValues[5] = 10 + CALCULATION_ENGINE.expenses.exhibition; // 12月（インデックス5）
+                    promotionValues[4] = 10 + CALCULATION_ENGINE.expenses.exhibition; // 5月（インデックス4）
+                    promotionValues[11] = 10 + CALCULATION_ENGINE.expenses.exhibition; // 12月（インデックス11）
                 }
                 expenseItems.push({ name: '販売促進費', values: promotionValues });
                 expenseItems.push({ name: 'その他固定費', values: new Array(12).fill(98) }); // 106→98万円に修正
@@ -624,7 +872,7 @@
                 expenseItems.forEach(item => {
                     html += '<tr class="expense-row"><td class="item-name">' + item.name + '</td>';
                     for (let i = 0; i < 12; i++) {
-                        const isHighlight = (item.name === '販売促進費' && (i === 10 || i === 5) && CALCULATION_ENGINE.expenses.exhibition > 0);
+                        const isHighlight = (item.name === '販売促進費' && (i === 4 || i === 11) && CALCULATION_ENGINE.expenses.exhibition > 0);
                         const style = isHighlight ? ' style="background: #fff3e0; font-weight: bold;"' : '';
                         html += `<td${style}>${item.values[i]}</td>`;
                     }
@@ -769,7 +1017,7 @@
             }
         }
 
-        // RC卸事業部固有の計算処理（修正版）
+        // 【修正版】RC卸事業部固有の計算処理（統一構造対応）
         function calculateRCData() {
             // 売上計算（基準売上 + 月次変動）
             for (let i = 0; i < 12; i++) {
@@ -798,10 +1046,10 @@
                 monthlyExpenses += CALCULATION_ENGINE.expenses.other; // 98万円（修正）
                 
                 // 販売促進費（展示会費用）
-                if (i === 10) { // 5月（インデックス10）
+                if (i === 4) { // 5月（インデックス4）
                     monthlyExpenses += CALCULATION_ENGINE.expenses.promotion.base;
                     monthlyExpenses += CALCULATION_ENGINE.expenses.exhibition;
-                } else if (i === 5) { // 12月（インデックス5）
+                } else if (i === 11) { // 12月（インデックス11）
                     monthlyExpenses += CALCULATION_ENGINE.expenses.promotion.base;
                     monthlyExpenses += CALCULATION_ENGINE.expenses.exhibition;
                 } else {
@@ -814,8 +1062,37 @@
             // メタデータ更新
             rcData.metadata.lastUpdate = new Date().toISOString();
 
+            // 【新規実装】統一データ構造変換
+            const unifiedData = UNIFIED_CONVERTER.convertRCToUnified(rcData);
+            
+            // 統合システム用データ生成（統一構造準拠）
+            const rcIntegrationData = {
+                department: 'RC卸事業部',
+                // 統一構造データ
+                ...unifiedData,
+                // 追加メタデータ（後方互換性のため）
+                annual: {
+                    sales: rcData.sales.reduce((sum, val) => sum + val, 0),
+                    cogs: rcData.cogs.reduce((sum, val) => sum + val, 0),
+                    grossProfit: rcData.sales.reduce((sum, val) => sum + val, 0) - rcData.cogs.reduce((sum, val) => sum + val, 0),
+                    personnel: rcData.personnel.reduce((sum, val) => sum + val, 0),
+                    expenses: rcData.expenses.reduce((sum, val) => sum + val, 0),
+                    operatingProfit: rcData.sales.reduce((sum, val) => sum + val, 0) - rcData.cogs.reduce((sum, val) => sum + val, 0) - rcData.personnel.reduce((sum, val) => sum + val, 0) - rcData.expenses.reduce((sum, val) => sum + val, 0)
+                },
+                monthly: rcData.sales.map((sales, i) => ({
+                    sales: sales,
+                    cogs: rcData.cogs[i],
+                    grossProfit: sales - rcData.cogs[i],
+                    personnel: rcData.personnel[i],
+                    expenses: rcData.expenses[i],
+                    operatingProfit: sales - rcData.cogs[i] - rcData.personnel[i] - rcData.expenses[i]
+                })),
+                linkageActive: true,
+                timestamp: new Date().toISOString()
+            };
+
             // グローバル変数に保存（自動送信用）
-            window.currentRCResults = rcData;
+            window.currentRCResults = rcIntegrationData;
         }
 
         // 自動データ送信（保護領域 - 変更禁止）
@@ -834,7 +1111,7 @@
                 
                 localStorage.setItem(STORAGE_KEYS.integration_status, JSON.stringify(integrationStatus));
                 
-                console.log('RC卸事業部データ自動送信完了', rcData);
+                console.log('RC卸事業部データ自動送信完了（統一構造）', rcData);
                 
             } catch (error) {
                 console.error('データ送信エラー:', error);
@@ -981,6 +1258,16 @@
                 showAutoSendMessage();
             }, 2000); // 2秒後に自動送信メッセージ表示
         });
+
+        // 外部から参照可能にする（デバッグ用）
+        window.updateLinkageStatus = function(type, message) {
+            const statusElement = document.getElementById('linkage-status');
+            if (statusElement) {
+                statusElement.className = `linkage-status linkage-${type}`;
+                statusElement.innerHTML = `<strong>${type === 'success' ? '✓' : type === 'warning' ? '⚠' : '✗'}</strong> ${message}`;
+            }
+        };
     </script>
+    <!-- ===== 【カスタマイズ領域終了】 ===== -->
 </body>
 </html>
