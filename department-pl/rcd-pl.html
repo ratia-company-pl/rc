@@ -695,6 +695,64 @@
             }
         };
 
+        // 【新規追加】統一データ構造変換関数
+        const UNIFIED_CONVERTER = {
+            // 統一データ構造テンプレート
+            createUnifiedStructure: function() {
+                return {
+                    metadata: {
+                        department: 'RCD',
+                        lastUpdate: new Date().toISOString(),
+                        version: '3.0'
+                    },
+                    
+                    // 売上・原価データ（12ヶ月分の配列）
+                    sales: [0,0,0,0,0,0,0,0,0,0,0,0],
+                    cogs: [0,0,0,0,0,0,0,0,0,0,0,0],
+                    
+                    // 販管費データ（項目ID別）- 統一構造19項目
+                    expenses: {
+                        1: [0,0,0,0,0,0,0,0,0,0,0,0],  // 人件費統合（外部委託のため0）
+                        2: [0,0,0,0,0,0,0,0,0,0,0,0],  // 法定福利費（外部委託のため0）
+                        3: [0,0,0,0,0,0,0,0,0,0,0,0],  // 衛生費（外部委託のため0）
+                        4: [0,0,0,0,0,0,0,0,0,0,0,0],  // 物流管理費（外部委託のため0）
+                        5: [0,0,0,0,0,0,0,0,0,0,0,0],  // 地代家賃（外部委託のため0）
+                        6: [0,0,0,0,0,0,0,0,0,0,0,0],  // 外注費（外部委託のため0）
+                        7: [0,0,0,0,0,0,0,0,0,0,0,0],  // 荷造運賃（外部委託のため0）
+                        8: [0,0,0,0,0,0,0,0,0,0,0,0],  // 広告宣伝費（外部委託のため0）
+                        9: [0,0,0,0,0,0,0,0,0,0,0,0],  // 旅費交通費（外部委託のため0）
+                        10: [0,0,0,0,0,0,0,0,0,0,0,0], // 通信費（外部委託のため0）
+                        11: [0,0,0,0,0,0,0,0,0,0,0,0], // 販売促進費（外部委託のため0）
+                        12: [0,0,0,0,0,0,0,0,0,0,0,0], // 消耗品費（外部委託のため0）
+                        13: [0,0,0,0,0,0,0,0,0,0,0,0], // 事務用品費（外部委託のため0）
+                        14: [0,0,0,0,0,0,0,0,0,0,0,0], // 水道光熱費（外部委託のため0）
+                        15: [0,0,0,0,0,0,0,0,0,0,0,0], // 支払手数料（RCD社の主要経費）
+                        16: [0,0,0,0,0,0,0,0,0,0,0,0], // リース料（外部委託のため0）
+                        17: [0,0,0,0,0,0,0,0,0,0,0,0], // 保険料（外部委託のため0）
+                        18: [0,0,0,0,0,0,0,0,0,0,0,0], // 支払報酬料（外部委託のため0）
+                        19: [0,0,0,0,0,0,0,0,0,0,0,0]  // 減価償却費（外部委託のため0）
+                    }
+                };
+            },
+
+            // RCD社データ→統一構造変換
+            convertRCDToUnified: function(monthlyResults) {
+                const unified = this.createUnifiedStructure();
+                
+                // 売上・原価データ
+                unified.sales = monthlyResults.map(m => m.sales);
+                unified.cogs = monthlyResults.map(m => m.cogs);
+                
+                // 支払手数料のみID:15に配置（RCD社の唯一の販管費）
+                unified.expenses[15] = monthlyResults.map(m => m.fees);
+                
+                // その他の販管費は全て0（外部委託のため）
+                // ID:1-14, 16-19は既にデフォルト0で初期化済み
+                
+                return unified;
+            }
+        };
+
         // UI管理機能 - カスタマイズ対象
         const UI_MANAGER = {
             months: ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'],
@@ -1001,7 +1059,7 @@
             }
         }
 
-        // RCD計算実行
+        // 【修正版】RCD計算実行（統一構造対応）
         function executeCalculation() {
             // 月次計算実行
             const monthlyResults = currentData.rcd.purchases.map((purchases, i) => 
@@ -1025,24 +1083,19 @@
             UI_MANAGER.generateRCDTable(monthlyResults, annualData);
             UI_MANAGER.updateChart(monthlyResults);
 
-            // 統合システム用データ生成（v3.0仕様準拠）
+            // 【新規実装】統一データ構造変換
+            const unifiedData = UNIFIED_CONVERTER.convertRCDToUnified(monthlyResults);
+            
+            // 統合システム用データ生成（統一構造準拠）
             const rcdIntegrationData = {
                 department: 'RCD社事業部',
-                // v3.0仕様：完全なデータ構造    
-                sales: monthlyResults.map(m => m.sales),
-                cogs: monthlyResults.map(m => m.cogs),
-                personnel: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], // 外部委託のため0
-                expenses: monthlyResults.map(m => m.expenses), // 主に支払手数料
-                metadata: {
-                    lastUpdate: new Date().toISOString(),
-                    dataSource: 'RCD社事業部',
-                    version: '3.0',
-                    calculationEngine: 'dynamic'
-                },
+                // 統一構造データ
+                ...unifiedData,
+                // 追加メタデータ（後方互換性のため）
                 annual: {
                     sales: annualData.sales,
                     grossProfit: annualData.grossProfit,
-                    expenses: annualData.expenses, // 統合システムが参照
+                    expenses: annualData.expenses,
                     operatingProfit: annualData.operatingProfit,
                     cogs: annualData.cogs,
                     personnel: 0 // 外部委託のため0
@@ -1050,7 +1103,7 @@
                 monthly: monthlyResults.map(month => ({
                     sales: month.sales,
                     grossProfit: month.grossProfit,
-                    expenses: month.expenses, // 統合システムが参照
+                    expenses: month.expenses,
                     operatingProfit: month.operatingProfit,
                     cogs: month.cogs,
                     personnel: 0 // 外部委託のため0
@@ -1062,7 +1115,7 @@
             // LocalStorageに保存（統合システム向け）
             try {
                 localStorage.setItem(STORAGE_KEYS.rcd, JSON.stringify(rcdIntegrationData));
-                console.log('RCD統合データ保存完了（v3.0仕様）:', rcdIntegrationData);
+                console.log('RCD統合データ保存完了（統一構造）:', rcdIntegrationData);
             } catch (error) {
                 console.error('RCD統合データ保存エラー:', error);
             }
@@ -1119,7 +1172,7 @@
 
         // 初期化処理
         function initialize() {
-            console.log('RCD社事業部PLシステム初期化開始（v3.0統合対応）');
+            console.log('RCD社事業部PLシステム初期化開始（統一構造対応）');
             
             // 連携データ読み込み（計算も含む）
             loadLinkageData();
