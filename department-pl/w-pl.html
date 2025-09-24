@@ -507,7 +507,7 @@
                 原価率29.964%・売上レンジ別人件費固定金額方式・支払手数料段階制（999万円まで6%、1000万円以上8%）・広告宣伝費月額30万円（デフォルト）
                 
                 <div class="spec-detail">
-                    <strong>統合PL連携機能追加:</strong> 各月の販管費データを統合PLシステムに送信・LocalStorageキー「pl_system_w_data」・expenses配列による月次販管費動的統合対応・段階的手数料による販管費変動の正確な反映<br>
+                    <strong>統合PL連携機能追加:</strong> 各月の販管費データを統合PLシステムに送信・LocalStorageキー「pl_system_w_data」・expences配列による月次販管費動的統合対応・段階的手数料による販管費変動の正確な反映 <br>
                     <strong>その他月額固定費統合（月額計：85万円）の内訳：</strong><br>
                     衛生費3万円、旅費交通費31万円、減価償却費8万円（30%配分）、通信費1万円、事務用品費11万円、水道光熱費6万円、保険料1万円、支払報酬料11万円、消耗品費11万円、その他経費2万円
                 </div>
@@ -515,17 +515,165 @@
         </main>
     </div>
 
+    <!-- ===== 【保護領域開始】絶対に変更禁止 ===== -->
     <script>
-        // W事業部PL計算システム（統合PL対応版v3.0）
-        
-        // 統合PLシステム用ストレージキー
+        // 統合システム用LocalStorageキー管理 - 変更禁止
         const STORAGE_KEYS = {
             w: 'pl_system_w_data',
             w_settings: 'pl_system_w_settings',
-            w_legacy: 'w_dashboard_data'
+            w_legacy: 'w_dashboard_data',
+            sr: 'pl_system_sr_data',
+            rc: 'pl_system_rc_data',
+            rcd: 'pl_system_rcd_data',
+            integrated: 'pl_system_integrated_data'
         };
 
-        // W事業部計算エンジン（統合PL対応版）
+        // データ送信・管理機能群 - 変更禁止
+        const DATA_TRANSMISSION = {
+            createIntegrationData: function(departmentData) {
+                const integrationData = {
+                    department: departmentData.department,
+                    timestamp: new Date().toISOString(),
+                    annual: departmentData.annual,
+                    monthly: departmentData.monthly,
+                    linkageActive: departmentData.linkageActive,
+                    metadata: {
+                        version: '1.0',
+                        source: 'pl_system_integration',
+                        validated: true
+                    }
+                };
+                return integrationData;
+            },
+
+            sendToIntegrated: function(integrationData) {
+                try {
+                    localStorage.setItem(STORAGE_KEYS.integrated, JSON.stringify(integrationData));
+                    localStorage.setItem('last_integration_update', new Date().toISOString());
+                    return { success: true, message: 'データ送信成功' };
+                } catch (error) {
+                    console.error('統合データ送信エラー:', error);
+                    return { success: false, message: `送信エラー: ${error.message}` };
+                }
+            },
+
+            updateSendStatus: function(department, status) {
+                const statusKey = `${department}_send_status`;
+                const statusData = {
+                    status: status,
+                    timestamp: new Date().toISOString(),
+                    department: department
+                };
+                localStorage.setItem(statusKey, JSON.stringify(statusData));
+            },
+
+            validateData: function(data) {
+                const requiredFields = ['department', 'annual', 'monthly'];
+                for (let field of requiredFields) {
+                    if (!data[field]) {
+                        return { valid: false, message: `必須フィールド ${field} が不足` };
+                    }
+                }
+                if (!Array.isArray(data.monthly) || data.monthly.length !== 12) {
+                    return { valid: false, message: '月次データは12ヶ月分必要です' };
+                }
+                return { valid: true, message: 'データ検証成功' };
+            },
+
+            checkIntegrationStatus: function() {
+                try {
+                    const integratedData = localStorage.getItem(STORAGE_KEYS.integrated);
+                    const lastUpdate = localStorage.getItem('last_integration_update');
+                    
+                    if (integratedData && lastUpdate) {
+                        const updateTime = new Date(lastUpdate);
+                        const timeDiff = Date.now() - updateTime.getTime();
+                        const hoursAgo = Math.floor(timeDiff / (1000 * 60 * 60));
+                        
+                        return {
+                            status: 'active',
+                            lastUpdate: updateTime.toLocaleString(),
+                            hoursAgo: hoursAgo,
+                            dataSize: integratedData.length
+                        };
+                    } else {
+                        return {
+                            status: 'inactive',
+                            message: '統合データが見つかりません'
+                        };
+                    }
+                } catch (error) {
+                    return {
+                        status: 'error',
+                        message: `確認エラー: ${error.message}`
+                    };
+                }
+            }
+        };
+
+        // 自動データ送信実行関数 - 変更禁止
+        function autoSendData(departmentData) {
+            const validation = DATA_TRANSMISSION.validateData(departmentData);
+            if (!validation.valid) {
+                console.error('データ検証失敗:', validation.message);
+                DATA_TRANSMISSION.updateSendStatus(departmentData.department, 'validation_failed');
+                return { success: false, message: validation.message };
+            }
+
+            const integrationData = DATA_TRANSMISSION.createIntegrationData(departmentData);
+            const sendResult = DATA_TRANSMISSION.sendToIntegrated(integrationData);
+            
+            if (sendResult.success) {
+                DATA_TRANSMISSION.updateSendStatus(departmentData.department, 'sent_successfully');
+                console.log(`${departmentData.department} データ自動送信完了:`, integrationData);
+            } else {
+                DATA_TRANSMISSION.updateSendStatus(departmentData.department, 'send_failed');
+                console.error(`${departmentData.department} データ送信失敗:`, sendResult.message);
+            }
+
+            return sendResult;
+        }
+
+        // 手動データ送信関数 - 変更禁止
+        function manualDataSend() {
+            if (!window.wCurrentResults) {
+                alert('送信するデータがありません。計算を実行してください。');
+                return;
+            }
+
+            const departmentData = window.wCurrentResults;
+            const result = autoSendData(departmentData);
+            
+            if (result.success) {
+                alert('データを統合システムに送信しました。');
+                updateLinkageStatus('success', '手動送信完了: ' + new Date().toLocaleString());
+            } else {
+                alert('データ送信に失敗しました: ' + result.message);
+                updateLinkageStatus('error', 'データ送信失敗: ' + result.message);
+            }
+        }
+
+        // 統合システム確認関数 - 変更禁止
+        function checkIntegrationStatus() {
+            const status = DATA_TRANSMISSION.checkIntegrationStatus();
+            
+            let message = '';
+            if (status.status === 'active') {
+                message = `統合システム稼働中\n最終更新: ${status.lastUpdate}\n経過時間: ${status.hoursAgo}時間前\nデータサイズ: ${status.dataSize}バイト`;
+            } else if (status.status === 'inactive') {
+                message = '統合システム: データなし\n' + status.message;
+            } else {
+                message = '統合システム: エラー\n' + status.message;
+            }
+            
+            alert(message);
+        }
+    </script>
+    <!-- ===== 【保護領域終了】 ===== -->
+
+    <!-- ===== 【カスタマイズ領域開始】計算ロジック変更可能 ===== -->
+    <script>
+        // W事業部固有の計算定数・ロジック - カスタマイズ対象
         const CALCULATION_ENGINE = {
             // W事業部計算定数
             constants: {
@@ -607,6 +755,75 @@
             }
         };
 
+        // 【新規追加】統一データ構造変換関数
+        const UNIFIED_CONVERTER = {
+            // 統一データ構造テンプレート
+            createUnifiedStructure: function() {
+                return {
+                    metadata: {
+                        department: 'W',
+                        lastUpdate: new Date().toISOString(),
+                        version: '3.0'
+                    },
+                    
+                    // 売上・原価データ（12ヶ月分の配列）
+                    sales: [0,0,0,0,0,0,0,0,0,0,0,0],
+                    cogs: [0,0,0,0,0,0,0,0,0,0,0,0],
+                    
+                    // 販管費データ（項目ID別）- 統一構造19項目
+                    expenses: {
+                        1: [0,0,0,0,0,0,0,0,0,0,0,0],  // 人件費統合（固定金額方式）
+                        2: [0,0,0,0,0,0,0,0,0,0,0,0],  // 法定福利費（人件費×12.83%）
+                        3: [0,0,0,0,0,0,0,0,0,0,0,0],  // 衛生費（月額3万円）
+                        4: [0,0,0,0,0,0,0,0,0,0,0,0],  // 物流管理費（該当なし）
+                        5: [0,0,0,0,0,0,0,0,0,0,0,0],  // 地代家賃（年額3084万円÷12）
+                        6: [0,0,0,0,0,0,0,0,0,0,0,0],  // 外注費（該当なし）
+                        7: [0,0,0,0,0,0,0,0,0,0,0,0],  // 荷造運賃（該当なし）
+                        8: [0,0,0,0,0,0,0,0,0,0,0,0],  // 広告宣伝費（月額30万円）
+                        9: [0,0,0,0,0,0,0,0,0,0,0,0],  // 旅費交通費（月額31万円）
+                        10: [0,0,0,0,0,0,0,0,0,0,0,0], // 通信費（月額1万円）
+                        11: [0,0,0,0,0,0,0,0,0,0,0,0], // 販売促進費（該当なし）
+                        12: [0,0,0,0,0,0,0,0,0,0,0,0], // 消耗品費（月額11万円）
+                        13: [0,0,0,0,0,0,0,0,0,0,0,0], // 事務用品費（月額11万円）
+                        14: [0,0,0,0,0,0,0,0,0,0,0,0], // 水道光熱費（月額6万円）
+                        15: [0,0,0,0,0,0,0,0,0,0,0,0], // 支払手数料（段階的：999万円まで6%、1000万円以上8%）
+                        16: [0,0,0,0,0,0,0,0,0,0,0,0], // リース料（該当なし）
+                        17: [0,0,0,0,0,0,0,0,0,0,0,0], // 保険料（月額1万円）
+                        18: [0,0,0,0,0,0,0,0,0,0,0,0], // 支払報酬料（月額11万円）
+                        19: [0,0,0,0,0,0,0,0,0,0,0,0]  // 減価償却費（月額8万円）
+                    }
+                };
+            },
+
+            // W事業部データ→統一構造変換
+            convertWToUnified: function(monthlyResults) {
+                const unified = this.createUnifiedStructure();
+                
+                // 売上・原価データ
+                unified.sales = monthlyResults.map(m => m.sales);
+                unified.cogs = monthlyResults.map(m => m.cogs);
+                
+                // 19項目販管費マッピング
+                unified.expenses[1] = monthlyResults.map(m => m.personnel);     // 人件費統合
+                unified.expenses[2] = monthlyResults.map(m => m.welfare);       // 法定福利費
+                unified.expenses[3] = monthlyResults.map(m => 3);               // 衛生費（固定3万円）
+                unified.expenses[5] = monthlyResults.map(m => m.rent);          // 地代家賃
+                unified.expenses[8] = monthlyResults.map(m => m.advertising);   // 広告宣伝費
+                unified.expenses[9] = monthlyResults.map(m => 31);              // 旅費交通費（固定31万円）
+                unified.expenses[10] = monthlyResults.map(m => 1);              // 通信費（固定1万円）
+                unified.expenses[12] = monthlyResults.map(m => 11);             // 消耗品費（固定11万円）
+                unified.expenses[13] = monthlyResults.map(m => 11);             // 事務用品費（固定11万円）
+                unified.expenses[14] = monthlyResults.map(m => 6);              // 水道光熱費（固定6万円）
+                unified.expenses[15] = monthlyResults.map(m => m.fees);         // 支払手数料（段階制）
+                unified.expenses[17] = monthlyResults.map(m => 1);              // 保険料（固定1万円）
+                unified.expenses[18] = monthlyResults.map(m => 11);             // 支払報酬料（固定11万円）
+                unified.expenses[19] = monthlyResults.map(m => 8);              // 減価償却費（固定8万円）
+                
+                // その他項目は0のまま（該当なし）
+                return unified;
+            }
+        };
+
         // UI管理機能（統合PL対応版）
         const UI_MANAGER = {
             months: ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'],
@@ -679,7 +896,7 @@
                 this.updateKPICards();
             },
 
-            // 統合PLシステム用データ送信（新規追加）
+            // 【修正版】統合PLシステム用データ送信（統一構造対応）
             sendIntegrationData: function() {
                 if (!window.wCurrentResults) {
                     alert('計算結果が生成されていません。');
@@ -689,26 +906,15 @@
                 try {
                     const { monthlyResults, annual } = window.wCurrentResults;
                     
-                    // 統合PLシステムが期待するデータ構造（引き継ぎ書仕様準拠）
-                    const integrationData = {
-                        sales: monthlyResults.map(m => m.sales),
-                        cogs: monthlyResults.map(m => m.cogs),
-                        personnel: monthlyResults.map(m => m.personnel),
-                        expenses: monthlyResults.map(m => m.expensesSummary), // 販管費（人件費・法定福利費除く）
-                        metadata: {
-                            lastUpdate: new Date().toISOString(),
-                            dataSource: "W事業部",
-                            version: "3.0",
-                            calculationEngine: "dynamic"
-                        }
-                    };
-
-                    // 統合PLシステム用キーで保存
-                    localStorage.setItem(STORAGE_KEYS.w, JSON.stringify(integrationData));
+                    // 統一データ構造変換
+                    const unifiedData = UNIFIED_CONVERTER.convertWToUnified(monthlyResults);
                     
-                    // レガシー互換性のため既存形式も保持
-                    const legacyData = {
+                    // 統合PLシステム用データ生成（統一構造準拠）
+                    const integrationData = {
                         department: 'W事業部',
+                        // 統一構造データ
+                        ...unifiedData,
+                        // 追加メタデータ（後方互換性のため）
                         annual: {
                             sales: annual.sales,
                             cogs: annual.cogs,
@@ -718,6 +924,26 @@
                             personnel: annual.personnel,
                             welfare: annual.welfare
                         },
+                        monthly: monthlyResults.map(month => ({
+                            sales: month.sales,
+                            cogs: month.cogs,
+                            grossProfit: month.grossProfit,
+                            totalExpenses: month.totalExpenses,
+                            operatingProfit: month.operatingProfit,
+                            personnel: month.personnel,
+                            welfare: month.welfare
+                        })),
+                        linkageActive: this.linkageActive,
+                        timestamp: new Date().toISOString()
+                    };
+
+                    // 統合PLシステム用キーで保存
+                    localStorage.setItem(STORAGE_KEYS.w, JSON.stringify(integrationData));
+                    
+                    // レガシー互換性のため既存形式も保持
+                    const legacyData = {
+                        department: 'W事業部',
+                        annual: annual,
                         monthly: monthlyResults,
                         linkageActive: this.linkageActive,
                         timestamp: new Date().toISOString()
@@ -728,7 +954,7 @@
                     // 成功通知
                     this.updateLinkageStatus('success', `統合PLへデータ送信完了: ${new Date().toLocaleString()}`);
                     
-                    console.log('統合PLシステム用データ送信完了:', {
+                    console.log('統合PLシステム用データ送信完了（統一構造）:', {
                         integration: integrationData,
                         legacy: legacyData
                     });
@@ -1078,6 +1304,10 @@
 
         // ページ読み込み時に初期化実行
         window.addEventListener('load', initialize);
+        
+        // 外部から参照可能にする（デバッグ用）
+        window.updateLinkageStatus = UI_MANAGER.updateLinkageStatus;
     </script>
+    <!-- ===== 【カスタマイズ領域終了】 ===== -->
 </body>
 </html>
