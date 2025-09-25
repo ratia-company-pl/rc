@@ -745,12 +745,12 @@
 
             <div class="header-row2">
                 <div class="nav-buttons">
-                    <a href="dashboard_corrected.html" class="btn btn-active-dashboard">ダッシュボード</a>
+                    <a href="../index.html" class="btn btn-active-dashboard">ダッシュボード</a>
                     <a href="#" class="btn btn-active-sr">SR事業部PL</a>
                     <a href="w-pl.html" class="btn btn-active-w">W事業部PL</a>
                     <a href="rc-pl.html" class="btn btn-active-rc">RC事業部PL</a>
                     <a href="rcd-pl.html" class="btn btn-active-rcd">RCD事業部PL</a>
-                    <a href="combined-dashboard/index.html" class="btn btn-active-analysis">全体PL分析</a>
+                    <a href="../combined-dashboard/index.html" class="btn btn-active-analysis">全体PL分析</a>
                 </div>
             </div>
 
@@ -1425,10 +1425,8 @@
         }
 
         function goToInputSystem() {
-            if (confirm('入力システムに戻りますか？\n現在の入力内容は保持されます。')) {
-                window.location.href = 'budget-input.html';
-            }
-        }
+    alert('入力システムは廃止されました。');
+}
 
         function skipToFinalPL() {
             if (confirm('統合PLに直接移動しますか？\n現在のSR事業部データは送信されません。')) {
