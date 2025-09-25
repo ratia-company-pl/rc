@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RC事業部PLシミュレーター Phase 4完成版</title>
+    <title>RC事業部PLシミュレーター BWJ費用可変対応版</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -247,19 +247,19 @@
 
         .preset-buttons {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             flex-wrap: wrap;
         }
 
         .preset-btn {
-            padding: 8px 16px;
+            padding: 6px 12px;
             border: none;
-            border-radius: 20px;
+            border-radius: 16px;
             font-weight: 600;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            min-width: 90px;
+            min-width: 75px;
         }
 
         .preset-btn.green { background: linear-gradient(135deg, #52c41a, #389e0d); color: white; }
@@ -275,26 +275,27 @@
         .settings-inline {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
             background: #fff3e0;
-            padding: 10px 15px;
+            padding: 8px 12px;
             border-radius: 8px;
             border: 2px solid #ff9800;
+            flex-wrap: wrap;
         }
 
         .setting-label {
             font-weight: 600;
             color: #e65100;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             white-space: nowrap;
         }
 
         .setting-input {
-            width: 80px;
-            padding: 6px 8px;
+            width: 65px;
+            padding: 4px 6px;
             border: 2px solid #ffcc02;
             border-radius: 4px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             text-align: center;
         }
 
@@ -481,7 +482,9 @@
             .btn-nav { padding: 6px 10px; font-size: 0.7rem; }
             .input-controls { flex-direction: column; align-items: stretch; }
             .preset-buttons { justify-content: center; }
-            .settings-inline { justify-content: center; }
+            .settings-inline { justify-content: center; flex-wrap: wrap; gap: 4px; }
+            .setting-input { width: 55px; }
+            .setting-label { font-size: 0.7rem; }
             .kpi-display { flex-direction: column; gap: 15px; }
         }
     </style>
@@ -514,10 +517,10 @@
                     <span style="color: #f39c12; font-weight: 600;">合計PL統合</span>
                 </div>
                 <div class="workflow-actions">
-                    <button class="action-btn btn-primary" onclick="sendRCDataAndNavigateToNext()">
-                        RC事業部データ送信 → 次のステップ (RCD社)
+                    <button class="action-btn btn-primary" onclick="sendDataAndNavigate()">
+                        RC事業部データ送信 → 次のステップ
                     </button>
-                    <button class="action-btn btn-csv" onclick="exportRCCSV()">
+                    <button class="action-btn btn-csv" onclick="exportCSV()">
                         CSV出力
                     </button>
                     <button class="action-btn btn-secondary" onclick="location.href='../combined-dashboard/index.html'">
@@ -529,7 +532,7 @@
 
         <div class="chart-section">
             <div class="chart-header">
-                参考前年数値との比較グラフ（統一構造 Version 3.0）
+                参考前年数値との比較グラフ（BWJ費用可変対応版）
             </div>
             
             <div class="kpi-display">
@@ -558,7 +561,7 @@
                         <span>予算</span>
                     </div>
                 </div>
-                <canvas id="rc-comparison-chart"></canvas>
+                <canvas id="comparison-chart"></canvas>
             </div>
         </div>
 
@@ -569,16 +572,28 @@
             
             <div class="input-controls">
                 <div class="preset-buttons">
-                    <button class="preset-btn green" onclick="applyRCPreset('reference')">実績パターン</button>
-                    <button class="preset-btn blue" onclick="applyRCPreset('standard')">標準設定</button>
-                    <button class="preset-btn purple" onclick="applyRCPreset('growth4')">成長モデル(4%)</button>
-                    <button class="preset-btn red" onclick="applyRCPreset('improvement7')">大幅改善(7%)</button>
+                    <button class="preset-btn green" onclick="applyPreset('reference')">実績パターン</button>
+                    <button class="preset-btn blue" onclick="applyPreset('standard')">標準設定</button>
+                    <button class="preset-btn purple" onclick="applyPreset('growth4')">成長4%</button>
+                    <button class="preset-btn red" onclick="applyPreset('improvement7')">改善7%</button>
                 </div>
 
                 <div class="settings-inline">
-                    <label class="setting-label">広告宣伝費(営業委託予算想定)</label>
-                    <input type="number" class="setting-input" id="advertising" value="40" onchange="updateRCSales()">
+                    <label class="setting-label">広告宣伝費</label>
+                    <input type="number" class="setting-input" id="advertising" value="40">
                     <span class="setting-label">万円/月</span>
+                    
+                    <div style="border-left: 2px solid #ff9800; height: 25px; margin: 0 8px;"></div>
+                    
+                    <label class="setting-label">BWJ施工費</label>
+                    <input type="number" class="setting-input" id="bwj-construction" value="90">
+                    <span class="setting-label">万円</span>
+                    
+                    <div style="border-left: 2px solid #ff9800; height: 25px; margin: 0 8px;"></div>
+                    
+                    <label class="setting-label">BWJ東京ブース費</label>
+                    <input type="number" class="setting-input" id="bwj-tokyo" value="90">
+                    <span class="setting-label">万円</span>
                 </div>
             </div>
 
@@ -593,48 +608,48 @@
                 <tbody>
                     <tr>
                         <td class="row-header">増減額</td>
-                        <td><input type="number" data-month="0" value="0" onchange="updateRCSales()" /></td>
-                        <td><input type="number" data-month="1" value="0" onchange="updateRCSales()" /></td>
-                        <td><input type="number" data-month="2" value="0" onchange="updateRCSales()" /></td>
-                        <td><input type="number" data-month="3" value="0" onchange="updateRCSales()" /></td>
-                        <td><input type="number" data-month="4" value="0" onchange="updateRCSales()" /></td>
-                        <td><input type="number" data-month="5" value="0" onchange="updateRCSales()" /></td>
-                        <td><input type="number" data-month="6" value="0" onchange="updateRCSales()" /></td>
-                        <td><input type="number" data-month="7" value="0" onchange="updateRCSales()" /></td>
-                        <td><input type="number" data-month="8" value="0" onchange="updateRCSales()" /></td>
-                        <td><input type="number" data-month="9" value="0" onchange="updateRCSales()" /></td>
-                        <td><input type="number" data-month="10" value="0" onchange="updateRCSales()" /></td>
-                        <td><input type="number" data-month="11" value="0" onchange="updateRCSales()" /></td>
+                        <td><input type="number" data-month="0" value="0" /></td>
+                        <td><input type="number" data-month="1" value="0" /></td>
+                        <td><input type="number" data-month="2" value="0" /></td>
+                        <td><input type="number" data-month="3" value="0" /></td>
+                        <td><input type="number" data-month="4" value="0" /></td>
+                        <td><input type="number" data-month="5" value="0" /></td>
+                        <td><input type="number" data-month="6" value="0" /></td>
+                        <td><input type="number" data-month="7" value="0" /></td>
+                        <td><input type="number" data-month="8" value="0" /></td>
+                        <td><input type="number" data-month="9" value="0" /></td>
+                        <td><input type="number" data-month="10" value="0" /></td>
+                        <td><input type="number" data-month="11" value="0" /></td>
                     </tr>
                     <tr>
                         <td class="row-header">売上</td>
-                        <td class="calculated-value" data-sales="0">1550</td>
-                        <td class="calculated-value" data-sales="1">1550</td>
-                        <td class="calculated-value" data-sales="2">1550</td>
-                        <td class="calculated-value" data-sales="3">1550</td>
-                        <td class="calculated-value" data-sales="4">1550</td>
-                        <td class="calculated-value" data-sales="5">1550</td>
-                        <td class="calculated-value" data-sales="6">1550</td>
-                        <td class="calculated-value" data-sales="7">1550</td>
-                        <td class="calculated-value" data-sales="8">1550</td>
-                        <td class="calculated-value" data-sales="9">1550</td>
-                        <td class="calculated-value" data-sales="10">1550</td>
-                        <td class="calculated-value" data-sales="11">1550</td>
+                        <td class="calculated-value" id="sales-0">1550</td>
+                        <td class="calculated-value" id="sales-1">1550</td>
+                        <td class="calculated-value" id="sales-2">1550</td>
+                        <td class="calculated-value" id="sales-3">1550</td>
+                        <td class="calculated-value" id="sales-4">1550</td>
+                        <td class="calculated-value" id="sales-5">1550</td>
+                        <td class="calculated-value" id="sales-6">1550</td>
+                        <td class="calculated-value" id="sales-7">1550</td>
+                        <td class="calculated-value" id="sales-8">1550</td>
+                        <td class="calculated-value" id="sales-9">1550</td>
+                        <td class="calculated-value" id="sales-10">1550</td>
+                        <td class="calculated-value" id="sales-11">1550</td>
                     </tr>
                     <tr>
                         <td class="row-header">増減</td>
-                        <td class="diff-value" data-diff="0">-20%</td>
-                        <td class="diff-value" data-diff="1">-6%</td>
-                        <td class="diff-value" data-diff="2">1%</td>
-                        <td class="diff-value" data-diff="3">-10%</td>
-                        <td class="diff-value" data-diff="4">33%</td>
-                        <td class="diff-value" data-diff="5">-16%</td>
-                        <td class="diff-value" data-diff="6">5%</td>
-                        <td class="diff-value" data-diff="7">-2%</td>
-                        <td class="diff-value" data-diff="8">25%</td>
-                        <td class="diff-value" data-diff="9">32%</td>
-                        <td class="diff-value" data-diff="10">-3%</td>
-                        <td class="diff-value" data-diff="11">9%</td>
+                        <td class="diff-value" id="diff-0">-20%</td>
+                        <td class="diff-value" id="diff-1">-6%</td>
+                        <td class="diff-value" id="diff-2">1%</td>
+                        <td class="diff-value" id="diff-3">-10%</td>
+                        <td class="diff-value" id="diff-4">33%</td>
+                        <td class="diff-value" id="diff-5">-16%</td>
+                        <td class="diff-value" id="diff-6">5%</td>
+                        <td class="diff-value" id="diff-7">-2%</td>
+                        <td class="diff-value" id="diff-8">25%</td>
+                        <td class="diff-value" id="diff-9">32%</td>
+                        <td class="diff-value" id="diff-10">-3%</td>
+                        <td class="diff-value" id="diff-11">9%</td>
                     </tr>
                     <tr>
                         <td class="row-header">参考</td>
@@ -657,7 +672,7 @@
 
         <div class="profit-section">
             <div class="profit-header">
-                売上総利益・営業利益月額表（統一構造 Version 3.0）
+                売上総利益・営業利益月額表（BWJ費用可変対応版）
             </div>
             <table class="profit-table">
                 <thead>
@@ -676,7 +691,7 @@
 
         <div class="expense-section">
             <div class="expense-header">
-                販管費19項目詳細表示（統一構造 Version 3.0）
+                販管費19項目詳細表示（BWJ費用可変対応版）
             </div>
             <table class="expense-table">
                 <thead>
@@ -698,83 +713,76 @@
     </div>
 
     <script>
-        const rcReferenceData = [1947, 1645, 1530, 1730, 1165, 1846, 1475, 1585, 1241, 1173, 1602, 1420];
+        // グローバル変数
+        const referenceData = [1947, 1645, 1530, 1730, 1165, 1846, 1475, 1585, 1241, 1173, 1602, 1420];
         const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
         
-        let rcData = {
+        let appData = {
             baseSales: 1550,
             variations: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             advertising: 40,
+            bwjConstruction: 90,
+            bwjTokyo: 90,
             cogsRate: 0.352,
-            fixedPersonnel: 50,
-            welfareRate: 0.13002
+            fixedPersonnel: 50
         };
 
-        let rcChart = null;
+        let chart = null;
 
-        // 販管費19項目の名称と計算ロジック（整数万円単位・会場賃料削除版）
-        const expenseItems = {
-            1: { name: '人件費', calculate: () => rcData.fixedPersonnel }, // 固定50万円/月
-            2: { name: '法定福利費', calculate: () => 7 }, // 整数化：7万円/月
-            3: { name: '衛生費', calculate: () => 0 },
-            4: { name: '物流管理費', calculate: () => 74 }, // 年890万円÷12ヶ月=74万円/月
-            5: { name: '地代家賃', calculate: () => 0 }, // 会場賃料削除版により0円
-            6: { name: '外注費', calculate: () => 0 },
-            7: { name: '貨物運賃', calculate: () => 0 },
-            8: { name: '広告宣伝費', calculate: () => rcData.advertising }, // 営業ソーシング想定費・デフォルト40万円
-            9: { name: '旅費交通費', calculate: () => 15 }, // 固定15万円/月
-            10: { name: '通信費', calculate: () => 1 }, // 年5万円→整数化1万円/月
-            11: { name: '販売促進費', calculate: (month) => {
-                let base = 10; // 基本月10万円
-                if (month === 4) base += 90;  // 5月BWJ施工費
-                if (month === 11) base += 90; // 12月BWJ東京ブース費
+        // 販管費19項目の設定
+        const expenseItems = [
+            { name: '人件費', calculate: () => appData.fixedPersonnel },
+            { name: '法定福利費', calculate: () => 7 },
+            { name: '衛生費', calculate: () => 0 },
+            { name: '物流管理費', calculate: () => 74 },
+            { name: '地代家賃', calculate: () => 0 },
+            { name: '外注費', calculate: () => 0 },
+            { name: '貨物運賃', calculate: () => 0 },
+            { name: '広告宣伝費', calculate: () => appData.advertising },
+            { name: '旅費交通費', calculate: () => 15 },
+            { name: '通信費', calculate: () => 1 },
+            { name: '販売促進費', calculate: (month) => {
+                let base = 10; // 基本額固定
+                if (month === 4) base += appData.bwjConstruction;  // 5月BWJ施工費
+                if (month === 11) base += appData.bwjTokyo; // 12月BWJ東京ブース費
                 return base;
             }},
-            12: { name: '消耗品費', calculate: () => 0 },
-            13: { name: '事務用品費', calculate: () => 10 }, // 年120万円÷12ヶ月=10万円/月
-            14: { name: '水道光熱費', calculate: () => 2 }, // 年25万円→整数化2万円/月
-            15: { name: '支払手数料', calculate: () => 70 }, // 固定70万円/月
-            16: { name: 'リース料', calculate: () => 0 },
-            17: { name: '保険料', calculate: () => 1 }, // 年10万円→整数化1万円/月
-            18: { name: '支払報酬料', calculate: () => 10 }, // 年120万円÷12ヶ月=10万円/月
-            19: { name: '減価償却費', calculate: () => 7 } // 年85万円→整数化7万円/月
-        };
+            { name: '消耗品費', calculate: () => 0 },
+            { name: '事務用品費', calculate: () => 10 },
+            { name: '水道光熱費', calculate: () => 2 },
+            { name: '支払手数料', calculate: () => 70 },
+            { name: 'リース料', calculate: () => 0 },
+            { name: '保険料', calculate: () => 1 },
+            { name: '支払報酬料', calculate: () => 10 },
+            { name: '減価償却費', calculate: () => 7 }
+        ];
 
-        function calculateRC() {
+        // メイン計算関数
+        function calculate() {
+            // 入力値収集
+            collectInputs();
+
             const results = {
                 monthlyResults: [],
                 expenses: {},
                 annual: {}
             };
 
-            // 入力データ収集
-            const inputs = document.querySelectorAll('input[data-month]');
-            inputs.forEach(input => {
-                const month = parseInt(input.dataset.month);
-                const value = parseInt(input.value) || 0;
-                rcData.variations[month] = value;
-            });
-
-            rcData.advertising = parseInt(document.getElementById('advertising').value) || 40;
-
-            // 月次計算実行
-            results.monthlyResults = rcData.variations.map((variation, i) => {
-                const sales = rcData.baseSales + variation;
-                const cogs = Math.round(sales * rcData.cogsRate);
+            // 月次売上・原価計算
+            results.monthlyResults = appData.variations.map((variation, i) => {
+                const sales = appData.baseSales + variation;
+                const cogs = Math.round(sales * appData.cogsRate);
                 const grossProfit = sales - cogs;
-
                 return { sales, cogs, grossProfit };
             });
 
-            // 販管費計算（19項目）
-            results.expenses = {};
-            for (let itemId = 1; itemId <= 19; itemId++) {
-                results.expenses[itemId] = [];
+            // 販管費計算
+            expenseItems.forEach((item, index) => {
+                results.expenses[index] = [];
                 for (let month = 0; month < 12; month++) {
-                    const expense = expenseItems[itemId].calculate(month);
-                    results.expenses[itemId][month] = expense;
+                    results.expenses[index][month] = item.calculate(month);
                 }
-            }
+            });
 
             // 年間集計
             results.annual = {
@@ -789,9 +797,30 @@
             return results;
         }
 
-        function updateRCSales() {
-            const results = calculateRC();
+        // 入力値収集
+        function collectInputs() {
+            // 月別増減額
+            const inputs = document.querySelectorAll('input[data-month]');
+            inputs.forEach(input => {
+                const month = parseInt(input.dataset.month);
+                const value = parseInt(input.value) || 0;
+                appData.variations[month] = value;
+            });
 
+            // 可変費用項目
+            const adElement = document.getElementById('advertising');
+            const bwjCElement = document.getElementById('bwj-construction');
+            const bwjTElement = document.getElementById('bwj-tokyo');
+            
+            if (adElement) appData.advertising = parseInt(adElement.value) || 40;
+            if (bwjCElement) appData.bwjConstruction = parseInt(bwjCElement.value) || 90;
+            if (bwjTElement) appData.bwjTokyo = parseInt(bwjTElement.value) || 90;
+        }
+
+        // 画面更新
+        function updateDisplay() {
+            const results = calculate();
+            
             updateSalesDisplay();
             updateDifferenceDisplay();
             updateKPIDisplay(results.annual);
@@ -800,63 +829,66 @@
             updateExpenseTable(results.expenses);
         }
 
+        // 売上表示更新
         function updateSalesDisplay() {
-            rcData.variations.forEach((variation, i) => {
-                const salesElement = document.querySelector(`[data-sales="${i}"]`);
-                if (salesElement) {
-                    salesElement.textContent = formatNumber(rcData.baseSales + variation);
+            appData.variations.forEach((variation, i) => {
+                const element = document.getElementById(`sales-${i}`);
+                if (element) {
+                    element.textContent = formatNumber(appData.baseSales + variation);
                 }
             });
         }
 
+        // 差異表示更新
         function updateDifferenceDisplay() {
-            rcData.variations.forEach((variation, i) => {
-                const currentSales = rcData.baseSales + variation;
-                const referenceValue = rcReferenceData[i];
+            appData.variations.forEach((variation, i) => {
+                const currentSales = appData.baseSales + variation;
+                const referenceValue = referenceData[i];
                 const diffPercent = ((currentSales - referenceValue) / referenceValue * 100).toFixed(0);
                 
-                const diffElement = document.querySelector(`[data-diff="${i}"]`);
-                if (diffElement) {
-                    diffElement.textContent = (diffPercent >= 0 ? '+' : '') + diffPercent + '%';
-                    diffElement.className = diffPercent >= 0 ? 'diff-value diff-positive' : 'diff-value diff-negative';
+                const element = document.getElementById(`diff-${i}`);
+                if (element) {
+                    element.textContent = (diffPercent >= 0 ? '+' : '') + diffPercent + '%';
+                    element.className = diffPercent >= 0 ? 'diff-value diff-positive' : 'diff-value diff-negative';
                 }
             });
         }
 
+        // KPI表示更新
         function updateKPIDisplay(annual) {
-            const refTotal = rcReferenceData.reduce((sum, val) => sum + val, 0);
+            const refTotal = referenceData.reduce((sum, val) => sum + val, 0);
             const salesDiff = annual.sales - refTotal;
             const profitRate = annual.sales > 0 ? (annual.operatingProfit / annual.sales * 100).toFixed(1) : '0.0';
 
-            document.getElementById('annual-sales').textContent = formatNumber(annual.sales) + '万円';
-            document.getElementById('sales-diff').textContent = (salesDiff >= 0 ? '+' : '') + formatNumber(salesDiff) + '万円';
-            document.getElementById('profit-rate').textContent = profitRate + '%';
+            const salesElement = document.getElementById('annual-sales');
+            const diffElement = document.getElementById('sales-diff');
+            const rateElement = document.getElementById('profit-rate');
 
-            // 営業利益率の色分け
-            const profitRateElement = document.getElementById('profit-rate');
-            if (annual.operatingProfit >= 0) {
-                profitRateElement.className = 'kpi-value';
-            } else {
-                profitRateElement.className = 'kpi-value negative';
+            if (salesElement) salesElement.textContent = formatNumber(annual.sales) + '万円';
+            if (diffElement) diffElement.textContent = (salesDiff >= 0 ? '+' : '') + formatNumber(salesDiff) + '万円';
+            if (rateElement) {
+                rateElement.textContent = profitRate + '%';
+                rateElement.className = annual.operatingProfit >= 0 ? 'kpi-value' : 'kpi-value negative';
             }
         }
 
+        // グラフ更新
         function updateChart() {
-            const ctx = document.getElementById('rc-comparison-chart');
+            const ctx = document.getElementById('comparison-chart');
             if (!ctx) return;
 
-            if (rcChart) rcChart.destroy();
+            if (chart) chart.destroy();
 
-            const currentSales = rcData.variations.map(variation => rcData.baseSales + variation);
+            const currentSales = appData.variations.map(variation => appData.baseSales + variation);
 
-            rcChart = new Chart(ctx, {
+            chart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: months,
                     datasets: [
                         {
                             label: '参考売上',
-                            data: rcReferenceData,
+                            data: referenceData,
                             backgroundColor: 'rgba(59, 130, 246, 0.7)',
                             borderColor: 'rgba(59, 130, 246, 1)',
                             borderWidth: 2
@@ -882,6 +914,7 @@
             });
         }
 
+        // 利益表更新
         function updateProfitTable(results) {
             const tbody = document.getElementById('profit-table-body');
             if (!tbody) return;
@@ -939,28 +972,23 @@
             });
         }
 
+        // 費用表更新
         function updateExpenseTable(expenses) {
-            const expenseNames = [
-                '人件費統合', '法定福利費', '衛生費', '物流管理費', '地代家賃',
-                '外注費', '貨物運賃', '広告宣伝費', '旅費交通費', '通信費',
-                '販売促進費', '消耗品費', '事務用品費', '水道光熱費', '支払手数料',
-                'リース料', '保険料', '支払報酬料', '減価償却費'
-            ];
-
             const tbody = document.getElementById('expense-table-body');
             const tfoot = document.getElementById('expense-table-footer');
+            if (!tbody || !tfoot) return;
+            
             tbody.innerHTML = '';
             tfoot.innerHTML = '';
 
             const monthlyTotals = new Array(12).fill(0);
             let grandTotal = 0;
 
-            expenseNames.forEach((name, index) => {
-                const expenseId = index + 1;
-                const monthlyExpenses = expenses[expenseId];
+            expenseItems.forEach((item, index) => {
+                const monthlyExpenses = expenses[index];
                 const annual = monthlyExpenses.reduce((sum, val) => sum + val, 0);
 
-                // 0円項目は非表示・データ構造保持
+                // 0円項目は非表示
                 if (annual === 0) return;
 
                 monthlyExpenses.forEach((val, monthIndex) => {
@@ -970,8 +998,8 @@
 
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td style="font-weight: 600; background: #f8f9fa; text-align: center;">${expenseId}</td>
-                    <td class="expense-name">${name}</td>
+                    <td style="font-weight: 600; background: #f8f9fa; text-align: center;">${index + 1}</td>
+                    <td class="expense-name">${item.name}</td>
                     ${monthlyExpenses.map(val => `<td>${formatNumber(val)}</td>`).join('')}
                     <td style="font-weight: 700; background: #f8f9fa;">${formatNumber(annual)}</td>
                     <td style="font-weight: 700; background: #e8f5e8; color: #27ae60;">${formatNumber(Math.round(annual / 12))}</td>
@@ -994,91 +1022,68 @@
             tfoot.appendChild(totalRow);
         }
 
-        function applyRCPreset(presetType) {
+        // プリセット適用
+        function applyPreset(presetType) {
             const inputs = document.querySelectorAll('input[data-month]');
             
             switch(presetType) {
                 case 'reference':
-                    // 前年実績と同水準
-                    rcReferenceData.forEach((value, i) => {
-                        const variation = value - rcData.baseSales;
-                        rcData.variations[i] = variation;
-                        inputs[i].value = variation;
+                    referenceData.forEach((value, i) => {
+                        const variation = value - appData.baseSales;
+                        appData.variations[i] = variation;
+                        if (inputs[i]) inputs[i].value = variation;
                     });
                     break;
                 case 'standard':
-                    // 標準設定（基準売上維持）
-                    rcData.variations.fill(0);
+                    appData.variations.fill(0);
                     inputs.forEach(input => input.value = 0);
                     break;
                 case 'growth4':
-                    // 成長モデル4%
-                    rcReferenceData.forEach((value, i) => {
+                    referenceData.forEach((value, i) => {
                         const targetSales = Math.round(value * 1.04);
-                        const variation = targetSales - rcData.baseSales;
-                        rcData.variations[i] = variation;
-                        inputs[i].value = variation;
+                        const variation = targetSales - appData.baseSales;
+                        appData.variations[i] = variation;
+                        if (inputs[i]) inputs[i].value = variation;
                     });
                     break;
                 case 'improvement7':
-                    // 大幅改善7%
-                    rcReferenceData.forEach((value, i) => {
+                    referenceData.forEach((value, i) => {
                         const targetSales = Math.round(value * 1.07);
-                        const variation = targetSales - rcData.baseSales;
-                        rcData.variations[i] = variation;
-                        inputs[i].value = variation;
+                        const variation = targetSales - appData.baseSales;
+                        appData.variations[i] = variation;
+                        if (inputs[i]) inputs[i].value = variation;
                     });
                     break;
             }
             
-            updateRCSales();
+            updateDisplay();
         }
 
-        // CSV出力機能（RC事業部版）
-        function exportRCCSV() {
+        // CSV出力
+        function exportCSV() {
             try {
-                const results = calculateRC();
-
-                // CSV出力データ生成（37項目統一仕様）
+                const results = calculate();
                 const csvData = [];
-                const months = ['項目名', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月', '年間合計'];
-                csvData.push(months);
+                const headers = ['項目名', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月', '年間合計'];
+                csvData.push(headers);
 
-                // 基本PL項目（3項目）
+                // 基本PL項目
                 csvData.push(['売上高', ...results.monthlyResults.map(m => m.sales), results.annual.sales]);
                 csvData.push(['売上原価', ...results.monthlyResults.map(m => m.cogs), results.annual.cogs]);
                 csvData.push(['売上総利益', ...results.monthlyResults.map(m => m.grossProfit), results.annual.grossProfit]);
 
-                // 販管費19項目（RC事業部保有データ）
-                const expenseNames = [
-                    '人件費統合', '法定福利費', '衛生費', '物流管理費', '地代家賃',
-                    '外注費', '貨物運賃', '広告宣伝費', '旅費交通費', '通信費',
-                    '販売促進費', '消耗品費', '事務用品費', '水道光熱費', '支払手数料',
-                    'リース料', '保険料', '支払報酬料', '減価償却費'
-                ];
-
-                expenseNames.forEach((name, index) => {
-                    const expenseId = index + 1;
-                    const monthlyExpenses = results.expenses[expenseId];
+                // 販管費項目
+                expenseItems.forEach((item, index) => {
+                    const monthlyExpenses = results.expenses[index];
                     const annual = monthlyExpenses.reduce((sum, val) => sum + val, 0);
-                    csvData.push([name, ...monthlyExpenses, annual]);
+                    csvData.push([item.name, ...monthlyExpenses, annual]);
                 });
 
-                // 統合PL専用項目（RC事業部では0円出力）
+                // 統合PL用ゼロ項目
                 const zeroData = Array(12).fill(0);
-                csvData.push(['役員報酬', ...zeroData, 0]);
-                csvData.push(['役員法定福利費', ...zeroData, 0]);
-                csvData.push(['管理諸費', ...zeroData, 0]);
-                csvData.push(['修繕費', ...zeroData, 0]);
-                csvData.push(['車両費', ...zeroData, 0]);
-                csvData.push(['租税公課', ...zeroData, 0]);
-                csvData.push(['交際費', ...zeroData, 0]);
-                csvData.push(['諸会費', ...zeroData, 0]);
-                csvData.push(['会議費', ...zeroData, 0]);
-                csvData.push(['福利厚生費', ...zeroData, 0]);
-                csvData.push(['研修費', ...zeroData, 0]);
-                csvData.push(['雑費', ...zeroData, 0]);
-                csvData.push(['寄付金', ...zeroData, 0]);
+                ['役員報酬', '役員法定福利費', '管理諸費', '修繕費', '車両費', '租税公課', '交際費', '諸会費', '会議費', '福利厚生費', '研修費', '雑費', '寄付金'].forEach(name => {
+                    csvData.push([name, ...zeroData, 0]);
+                });
 
                 // 計算項目
                 const totalExpensesData = new Array(12).fill(0);
@@ -1092,54 +1097,45 @@
                 csvData.push(['販管費合計', ...totalExpensesData, results.annual.totalExpenses]);
                 csvData.push(['営業利益', ...operatingProfitData, results.annual.operatingProfit]);
 
-                // CSV文字列生成
+                // CSV生成・ダウンロード
                 const csvString = '\uFEFF' + csvData.map(row => row.join(',')).join('\n');
-                
-                // ダウンロード実行
                 const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
                 link.download = `RC事業部_PL_${new Date().toISOString().split('T')[0]}.csv`;
                 link.click();
                 
-                alert('RC事業部PLデータのCSV出力が完了しました。');
-
+                alert('CSV出力が完了しました。');
             } catch (error) {
                 alert('CSV出力でエラーが発生しました: ' + error.message);
-                console.error('CSV出力エラー:', error);
             }
         }
 
-        function sendRCDataAndNavigateToNext() {
+        // データ送信・画面移動
+        function sendDataAndNavigate() {
             try {
-                const results = calculateRC();
+                const results = calculate();
                 
-                // 統一構造データ生成（引継書準拠）
                 const unifiedData = {
                     metadata: {
                         department: 'RC',
                         lastUpdate: new Date().toISOString(),
                         version: '3.0',
-                        unifiedStructure: true,
-                        baseSales: rcData.baseSales,
-                        variations: rcData.variations,
-                        cogsRate: rcData.cogsRate,
-                        fixedPersonnel: rcData.fixedPersonnel,
-                        advertising: rcData.advertising
+                        baseSales: appData.baseSales,
+                        variations: appData.variations,
+                        cogsRate: appData.cogsRate,
+                        fixedPersonnel: appData.fixedPersonnel,
+                        advertising: appData.advertising,
+                        bwjConstruction: appData.bwjConstruction,
+                        bwjTokyo: appData.bwjTokyo
                     },
-                    
-                    // 売上・原価データ
                     sales: results.monthlyResults.map(m => m.sales),
                     cogs: results.monthlyResults.map(m => m.cogs),
-                    
-                    // 19項目販管費データ（RC事業部仕様）
                     expenses: results.expenses
                 };
 
-                // LocalStorageに保存（統一キー）
                 localStorage.setItem('pl_system_rc_data', JSON.stringify(unifiedData));
                 
-                // ワークフロー進行状況更新
                 const workflowProgress = {
                     step1_SR: 'completed',
                     step2_W: 'completed',
@@ -1150,22 +1146,18 @@
                 };
                 localStorage.setItem('workflow_progress', JSON.stringify(workflowProgress));
                 
-                // 成功通知＆移動
-                alert(`RC事業部データ送信完了！\n\n年間売上: ${formatNumber(results.annual.sales)}万円\n年間営業利益: ${formatNumber(results.annual.operatingProfit)}万円\n営業利益率: ${(results.annual.operatingProfit / results.annual.sales * 100).toFixed(1)}%\n\n次はStep 4: RCD社の設定を行います。\n3秒後に自動移動します...`);
+                alert(`RC事業部データ送信完了！\n\n年間売上: ${formatNumber(results.annual.sales)}万円\n年間営業利益: ${formatNumber(results.annual.operatingProfit)}万円\n営業利益率: ${(results.annual.operatingProfit / results.annual.sales * 100).toFixed(1)}%\n\n次のステップに移動します...`);
                 
                 setTimeout(() => {
                     window.location.href = 'rcd-pl.html';
                 }, 3000);
 
-                return results.annual.sales;
-
             } catch (error) {
                 alert('データ送信に失敗しました: ' + error.message);
-                console.error('RC送信エラー:', error);
-                return 0;
             }
         }
 
+        // ユーティリティ関数
         function formatNumber(num) {
             return Math.round(num).toLocaleString();
         }
@@ -1182,22 +1174,35 @@
             };
         }
 
+        // イベントリスナー設定
+        function setupEventListeners() {
+            // 月別増減額入力
+            const monthInputs = document.querySelectorAll('input[data-month]');
+            monthInputs.forEach(input => {
+                input.addEventListener('input', debounce(updateDisplay, 300));
+            });
+
+            // 可変費用入力
+            const variableInputs = ['advertising', 'bwj-construction', 'bwj-tokyo'];
+            variableInputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', debounce(updateDisplay, 300));
+                }
+            });
+        }
+
+        // 初期化
         function initialize() {
             try {
-                updateRCSales();
-                
-                const inputs = document.querySelectorAll('input[data-month]');
-                inputs.forEach(input => {
-                    input.addEventListener('input', debounce(updateRCSales, 300));
-                });
-                
-                document.getElementById('advertising').addEventListener('input', debounce(updateRCSales, 300));
-                
+                updateDisplay();
+                setupEventListeners();
             } catch (error) {
                 console.error('初期化エラー:', error);
             }
         }
 
+        // ページ読み込み完了時に初期化
         window.addEventListener('load', initialize);
     </script>
 </body>
