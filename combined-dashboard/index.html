@@ -54,7 +54,7 @@
             border: 1px solid rgba(243, 156, 18, 0.3);
         }
 
-        /* 2行目: グローバルナビゲーション */
+        /* 2行目: グローバルナビゲーション - 修正版 */
         .header-row2 {
             background: linear-gradient(135deg, #fdf2e9 0%, #fcf3cf 100%);
             padding: 8px 15px;
@@ -482,14 +482,14 @@
             <div class="version-badge">統一構造 Version 3.0 + 19項目販管費 + 7月開始年度対応</div>
         </div>
 
-        <!-- 2行目: グローバルナビゲーション -->
+        <!-- 2行目: グローバルナビゲーション - 修正版 -->
         <div class="header-row2">
             <div class="nav-buttons">
-                <a href="index.html" class="btn btn-active-dashboard">ダッシュボード</a>
-                <a href="department-pl/sr-pl.html" class="btn btn-active-sr">SR事業部PL</a>
-                <a href="department-pl/w-pl.html" class="btn btn-active-w">W事業部PL</a>
-                <a href="department-pl/rc-pl.html" class="btn btn-active-rc">RC事業部PL</a>
-                <a href="department-pl/rcd-pl.html" class="btn btn-active-rcd">RCD事業部PL</a>
+                <a href="../index.html" class="btn btn-active-dashboard">ダッシュボード</a>
+                <a href="../department-pl/sr-pl.html" class="btn btn-active-sr">SR事業部PL</a>
+                <a href="../department-pl/w-pl.html" class="btn btn-active-w">W事業部PL</a>
+                <a href="../department-pl/rc-pl.html" class="btn btn-active-rc">RC事業部PL</a>
+                <a href="../department-pl/rcd-pl.html" class="btn btn-active-rcd">RCD事業部PL</a>
                 <a href="#" class="btn btn-active-analysis">全体PL分析</a>
             </div>
         </div>
@@ -706,8 +706,7 @@
                     sr: 'pl_system_sr_data',
                     w: 'pl_system_w_data',
                     rc: 'pl_system_rc_data',
-                    rcd: 'pl_system_rcd_data',
-                    dashboard: 'dashboard_integration_data'
+                    rcd: 'pl_system_rcd_data'
                 };
 
                 // 販管費19項目統一構造マッピング（Version 3.0）
@@ -733,7 +732,7 @@
                     19: '減価償却費'
                 };
 
-                // 全社共通費データ（万円単位・CSVから更新）
+                // 全社共通費データ（万円単位・CSV更新対応）
                 this.commonExpenseData = {
                     '管理諸費': [34, 37, 41, 34, 37, 44, 36, 39, 44, 36, 39, 44],
                     '修繕費': [22, 0, 1, 0, 0, 12, 13, 0, 7, 0, 3, 0],
@@ -758,11 +757,11 @@
                 this.startAutoRefresh();
             }
 
+            // 修正1: データ受信キーの統一
             loadAllDepartmentData() {
                 this.departmentData = {};
                 
                 Object.keys(this.STORAGE_KEYS).forEach(dept => {
-                    if (dept === 'dashboard') return;
                     const data = localStorage.getItem(this.STORAGE_KEYS[dept]);
                     if (data) {
                         try {
@@ -782,19 +781,20 @@
 
             loadExecutiveDataFromDashboard() {
                 try {
-                    const dashboardData = localStorage.getItem('dashboard_integration_data');
-                    if (dashboardData) {
-                        const data = JSON.parse(dashboardData);
-                        if (data.executiveData) {
-                            // ダッシュボードから送られる完全な役員報酬データ（賞与・法定福利費含む）
-                            this.executiveData = data.executiveData;
-                        } else {
-                            // デフォルトデータ（ダッシュボード未連携時）
-                            this.executiveData = {
-                                compensation: [826, 826, 826, 676, 676, 676, 676, 676, 676, 676, 676, 676],
-                                welfare: [107, 107, 107, 88, 88, 88, 88, 88, 88, 88, 88, 88]
-                            };
-                        }
+                    // 修正: 直接ダッシュボードのLocalStorageから読み込み
+                    const executiveSettings = localStorage.getItem('executive_compensation_csv_settings');
+                    if (executiveSettings) {
+                        const settings = JSON.parse(executiveSettings);
+                        this.executiveData = {
+                            compensation: settings.monthlyCompensation || [826, 826, 826, 676, 676, 676, 676, 676, 676, 676, 676, 676],
+                            welfare: settings.welfare || [107, 107, 107, 88, 88, 88, 88, 88, 88, 88, 88, 88]
+                        };
+                    } else {
+                        // デフォルトデータ（ダッシュボード未連携時）
+                        this.executiveData = {
+                            compensation: [826, 826, 826, 676, 676, 676, 676, 676, 676, 676, 676, 676],
+                            welfare: [107, 107, 107, 88, 88, 88, 88, 88, 88, 88, 88, 88]
+                        };
                     }
                 } catch (error) {
                     console.error('役員報酬データ取得エラー:', error);
@@ -859,14 +859,14 @@
                         monthlyDeptExpenses += this.unifiedData.expenses[expenseId][month];
                     }
 
-                    // 役員報酬追加（ダッシュボードから受信・万円単位で加算）
-                    const executiveTotal = ((this.executiveData.compensation[month] || 0) + 
-                                          (this.executiveData.welfare[month] || 0)) * 10000;
+                    // 役員報酬追加（ダッシュボードから受信・万円単位）
+                    const executiveTotal = (this.executiveData.compensation[month] || 0) + 
+                                          (this.executiveData.welfare[month] || 0);
                     
-                    // 全社共通費追加（万円単位で加算）
+                    // 全社共通費追加（万円単位）
                     let commonExpenseTotal = 0;
                     Object.values(this.commonExpenseData).forEach(monthlyData => {
-                        commonExpenseTotal += monthlyData[month] * 10000;
+                        commonExpenseTotal += monthlyData[month];
                     });
 
                     // 月次全体販管費
@@ -902,9 +902,9 @@
                 const totalOperatingProfit = this.monthlyOperatingProfit.reduce((sum, val) => sum + val, 0);
                 const profitMargin = totalSales > 0 ? (totalOperatingProfit / totalSales * 100) : 0;
 
-                document.getElementById('totalSalesKPI').textContent = `${Math.round(totalSales / 10000).toLocaleString()}万円`;
-                document.getElementById('totalExpensesKPI').textContent = `${Math.round(totalExpenses / 10000).toLocaleString()}万円`;
-                document.getElementById('operatingProfitKPI').textContent = `${Math.round(totalOperatingProfit / 10000).toLocaleString()}万円`;
+                document.getElementById('totalSalesKPI').textContent = `${Math.round(totalSales).toLocaleString()}万円`;
+                document.getElementById('totalExpensesKPI').textContent = `${Math.round(totalExpenses).toLocaleString()}万円`;
+                document.getElementById('operatingProfitKPI').textContent = `${Math.round(totalOperatingProfit).toLocaleString()}万円`;
                 document.getElementById('profitMarginKPI').textContent = `${profitMargin.toFixed(1)}%`;
             }
 
@@ -976,16 +976,17 @@
 
                 // RC全体販管費
                 const totalExpensesRow = this.createUnifiedRow('', 'RC全体販管費', 
-                    this.monthlyTotalExpenses.map(val => Math.round(val / 10000)), 'total-row');
+                    this.monthlyTotalExpenses, 'total-row');
                 tbody.appendChild(totalExpensesRow);
 
                 // 全体営業利益
                 const operatingProfitClass = this.monthlyOperatingProfit.some(val => val < 0) ? 'final-profit-negative' : 'final-profit-positive';
                 const operatingProfitRow = this.createUnifiedRow('', '全体営業利益', 
-                    this.monthlyOperatingProfit.map(val => Math.round(val / 10000)), operatingProfitClass);
+                    this.monthlyOperatingProfit, operatingProfitClass);
                 tbody.appendChild(operatingProfitRow);
             }
 
+            // 修正2: 桁数計算の修正
             createUnifiedRow(id, label, data, className) {
                 const row = document.createElement('tr');
                 if (className) row.className = className;
@@ -1007,20 +1008,16 @@
                     const cell = document.createElement('td');
                     const value = data[month] || 0;
                     yearTotal += value;
-                    // 万円単位での表示判定
-                    const displayValue = (typeof value === 'number' && Math.abs(value) >= 10000) 
-                        ? Math.round(value / 10000) 
-                        : Math.round(value);
+                    // 修正: 万円単位として直接表示（除算不要）
+                    const displayValue = Math.round(value);
                     cell.textContent = displayValue.toLocaleString();
                     row.appendChild(cell);
                 }
 
                 // 年間合計カラム（統一レイアウト）
                 const totalCell = document.createElement('td');
-                const totalDisplayValue = (typeof yearTotal === 'number' && Math.abs(yearTotal) >= 10000) 
-                    ? Math.round(yearTotal / 10000) 
-                    : Math.round(yearTotal);
-                totalCell.textContent = totalDisplayValue.toLocaleString();
+                // 修正: 万円単位として直接表示
+                totalCell.textContent = Math.round(yearTotal).toLocaleString();
                 row.appendChild(totalCell);
 
                 return row;
@@ -1068,7 +1065,7 @@
                             {
                                 type: 'bar',
                                 label: '月次売上高（万円）',
-                                data: this.unifiedData.sales.map(val => Math.round(val / 10000)),
+                                data: this.unifiedData.sales,
                                 backgroundColor: 'rgba(243, 156, 18, 0.7)',
                                 borderColor: '#f39c12',
                                 borderWidth: 1,
@@ -1077,7 +1074,7 @@
                             {
                                 type: 'bar',
                                 label: 'RC全体販管費（万円）',
-                                data: this.monthlyTotalExpenses.map(val => Math.round(val / 10000)),
+                                data: this.monthlyTotalExpenses,
                                 backgroundColor: 'rgba(52, 152, 219, 0.7)',
                                 borderColor: '#3498db',
                                 borderWidth: 1,
@@ -1086,7 +1083,7 @@
                             {
                                 type: 'line',
                                 label: '全体営業利益累計（万円）',
-                                data: this.cumulativeOperatingProfit.map(val => Math.round(val / 10000)),
+                                data: this.cumulativeOperatingProfit,
                                 borderColor: '#e74c3c',
                                 backgroundColor: 'rgba(231, 76, 60, 0.1)',
                                 borderWidth: 4,
