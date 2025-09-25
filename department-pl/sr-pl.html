@@ -25,7 +25,7 @@
             margin: 0 auto;
         }
 
-        /* 共通ナビゲーション統一化: 4行ヘッダー構造 */
+        /* W事業部統一ナビゲーション */
         .header {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 10px;
@@ -34,7 +34,6 @@
             overflow: hidden;
         }
 
-        /* 1行目: SRタイトル */
         .header-row1 {
             background: linear-gradient(135deg, #C477CC 0%, #DF98E6 100%);
             color: white;
@@ -47,7 +46,6 @@
             margin: 0;
         }
 
-        /* 2行目: 6ボタンナビゲーション */
         .header-row2 {
             background: linear-gradient(135deg, #B366BD 0%, #C477CC 100%);
             padding: 8px 15px;
@@ -83,15 +81,37 @@
             transform: translateY(-1px);
         }
 
-        /* アクティブボタン */
-        .btn-active-dashboard { background: #667eea !important; border-color: #667eea !important; }
-        .btn-active-sr { background: #C477CC !important; border-color: #C477CC !important; }
-        .btn-active-w { background: #3498db !important; border-color: #3498db !important; }
-        .btn-active-rc { background: #27ae60 !important; border-color: #27ae60 !important; }
-        .btn-active-rcd { background: #9b59b6 !important; border-color: #9b59b6 !important; }
-        .btn-active-analysis { background: #f39c12 !important; border-color: #f39c12 !important; }
+        .btn-active-dashboard { 
+            background: #667eea;
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .btn-active-sr { 
+            background: #C477CC;
+            border-color: #C477CC;
+            box-shadow: 0 4px 12px rgba(196, 119, 204, 0.4);
+        }
+        .btn-active-w { 
+            background: #3498db;
+            border-color: #3498db;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+        }
+        .btn-active-rc { 
+            background: #38a169;
+            border-color: #38a169;
+            box-shadow: 0 4px 12px rgba(56, 161, 105, 0.4);
+        }
+        .btn-active-rcd { 
+            background: #9b59b6;
+            border-color: #9b59b6;
+            box-shadow: 0 4px 12px rgba(155, 89, 182, 0.4);
+        }
+        .btn-active-analysis { 
+            background: #f39c12;
+            border-color: #f39c12;
+            box-shadow: 0 4px 12px rgba(243, 156, 18, 0.4);
+        }
 
-        /* 3行目: ワークフロー表示 */
         .header-row3 {
             background: #f8f9fa;
             padding: 8px 15px;
@@ -128,6 +148,10 @@
             font-size: 0.75em;
             font-weight: 600;
             color: white;
+        }
+
+        .workflow-step.completed {
+            background: #27ae60;
         }
 
         .workflow-step.active {
@@ -169,7 +193,6 @@
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
         }
 
-        /* 4行目: 連携ステータス */
         .header-row4 {
             background: #ecf0f1;
             padding: 10px 15px;
@@ -202,56 +225,79 @@
             font-weight: 600;
         }
 
-        /* プレビューセクション */
+        /* W事業部統一プレビューセクション */
         .results-preview-section {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 10px;
-            padding: 15px;
+            padding: 20px;
             margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border-left: 5px solid #27ae60;
+            border-left: 5px solid #C477CC;
         }
 
         .preview-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .preview-title {
             color: #2c3e50;
-            font-size: 1.2em;
+            font-size: 1.3em;
             font-weight: 700;
         }
 
-        .annual-summary {
+        .kpi-summary {
+            display: flex;
+            gap: 25px;
+            align-items: center;
             font-size: 0.9em;
-            color: #2c3e50;
-            font-weight: 600;
+            flex-wrap: wrap;
         }
 
-        .annual-total { color: #27ae60; }
-        .annual-diff { color: #e74c3c; }
+        .kpi-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
 
-        /* チャート */
+        .kpi-label {
+            font-size: 0.75em;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .kpi-value {
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+
+        .kpi-sales { color: #28a745; }
+        .kpi-profit { color: #007bff; }
+        .kpi-diff-positive { color: #28a745; }
+        .kpi-diff-negative { color: #dc3545; }
+
         .chart-container {
             position: relative;
-            height: 200px;
+            height: 220px;
             width: 100%;
             margin: 15px 0;
             background: white;
             border-radius: 8px;
-            padding: 10px;
+            padding: 15px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .chart-legend {
             position: absolute;
-            top: 8px;
-            right: 12px;
+            top: 12px;
+            right: 16px;
             display: flex;
-            gap: 12px;
+            gap: 15px;
             font-size: 0.8em;
             z-index: 10;
         }
@@ -263,15 +309,15 @@
         }
 
         .legend-color {
-            width: 10px;
-            height: 10px;
-            border-radius: 2px;
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
         }
 
-        .legend-blue { background: rgba(59, 130, 246, 0.7); }
-        .legend-green { background: rgba(34, 197, 94, 0.7); }
+        .legend-blue { background: rgba(59, 130, 246, 0.8); }
+        .legend-green { background: rgba(34, 197, 94, 0.8); }
 
-        /* 入力セクション */
+        /* W事業部統一入力セクション */
         .input-section {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 10px;
@@ -281,183 +327,287 @@
             border-left: 5px solid #C477CC;
         }
 
+        /* 省スペース化レイアウト - 新構造 */
+        .input-header-row1 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
         .input-title {
             color: #2c3e50;
             font-size: 1.3em;
             font-weight: 700;
-            margin-bottom: 15px;
+            margin: 0;
+            flex-shrink: 0;
         }
 
-        /* プリセットボタン（全体用） */
-        .preset-buttons-top {
+        .settings-inline {
             display: flex;
-            gap: 8px;
-            margin-bottom: 15px;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .setting-item-inline {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 80px;
+        }
+
+        .setting-label-inline {
+            font-size: 0.7em;
+            font-weight: 600;
+            color: #495057;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .setting-input-inline {
+            padding: 6px 8px;
+            border: 2px solid #ced4da;
+            border-radius: 4px;
+            font-size: 0.8em;
+            background: white;
+            text-align: center;
+            font-weight: 600;
+            width: 70px;
+        }
+
+        .setting-input-inline:focus {
+            border-color: #C477CC;
+            outline: none;
+            box-shadow: 0 0 0 0.2rem rgba(196, 119, 204, 0.25);
+        }
+
+        .input-header-row2 {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .preset-buttons {
+            display: flex;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
         .preset-btn {
-            padding: 6px 12px;
+            padding: 8px 16px;
             border: none;
             border-radius: 6px;
-            font-size: 0.8em;
+            font-size: 0.85em;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             color: white;
+            min-width: 100px;
         }
 
-        .preset-btn.green { background: #48bb78; }
-        .preset-btn.orange { background: #ed8936; }
-        .preset-btn.red { background: #e53e3e; }
+        .preset-btn.actual { background: #28a745; }
+        .preset-btn.growth { background: #17a2b8; }
+        .preset-btn.moderate { background: #fd7e14; }
+        .preset-btn.aggressive { background: #dc3545; }
 
         .preset-btn:hover {
             transform: translateY(-1px);
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
         }
 
-        /* テーブル */
-        .sales-input-table {
+        /* W事業部統一テーブルシステム - 修正版 */
+        .sales-input-table, .profit-table-container, .expense-table-container {
             background: white;
             border: 2px solid #e9ecef;
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
         }
 
-        .input-table {
+        .input-table, .profit-table, .expense-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.75em;
+            table-layout: fixed;
         }
 
-        .input-table th {
-            background: linear-gradient(135deg, #C477CC 0%, #B366BD 100%);
+        .input-table th, .profit-table th, .expense-table th {
             color: white;
             padding: 8px 4px;
             text-align: center;
             font-weight: 600;
             font-size: 0.8em;
+            border: none;
         }
 
-        .input-table td {
-            padding: 4px 3px;
+        /* SR事業部用ヘッダー色 */
+        .input-table th {
+            background: linear-gradient(135deg, #C477CC 0%, #B366BD 100%);
+        }
+
+        .profit-table th {
+            background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
+        }
+
+        .expense-table th {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        /* 列幅統一 - 修正版 */
+        .input-table th:first-child { width: 80px; }
+        .input-table th:nth-child(2) { width: 40px; }
+        .input-table th:not(:first-child):not(:nth-child(2)) { width: 60px; }
+
+        .profit-table th:first-child { width: 120px; }
+        .profit-table th:not(:first-child):not(:last-child) { width: 60px; }
+        .profit-table th:last-child { width: 80px; }
+
+        .expense-table th:first-child { width: 40px; }
+        .expense-table th:nth-child(2) { width: 120px; }
+        .expense-table th:not(:first-child):not(:nth-child(2)) { width: 60px; }
+
+        .input-table td, .profit-table td, .expense-table td {
+            padding: 6px 4px;
             text-align: center;
             border: 1px solid #e2e8f0;
             font-size: 0.75em;
+            background: white;
         }
 
-        /* 合計行 */
+        /* 修正1: 合計行の背景を白に、文字を大きく青色に */
         .total-row {
-            background: #ebf8ff;
-            border-left: 4px solid #3182ce;
+            background: white;
         }
 
         .total-header {
-            background: #3182ce !important;
-            color: white !important;
-            font-weight: 600;
-            width: 80px;
+            background: white;
+            color: #1e40af;
+            font-weight: 700;
+            font-size: 1.1em;
+            border-left: 4px solid #3182ce;
         }
 
-        .total-sales { color: #1e40af; font-weight: 600; }
-        .total-diff-positive { color: #059669; font-weight: 600; }
-        .total-diff-negative { color: #dc2626; font-weight: 600; }
-        .reference-cell { color: #6b7280; font-size: 0.7em; }
+        .total-sales { 
+            color: #1e40af; 
+            font-weight: 700; 
+            font-size: 0.85em;
+        }
+        .total-diff-positive { 
+            color: #059669; 
+            font-weight: 700; 
+            font-size: 0.85em;
+        }
+        .total-diff-negative { 
+            color: #dc2626; 
+            font-weight: 700; 
+            font-size: 0.85em;
+        }
+        .reference-cell { 
+            color: #6b7280; 
+            font-size: 0.7em; 
+            background: #f9fafb;
+        }
 
-        /* 店舗行（1列内2段構造） */
+        /* 修正2: 店舗セルの背景色を確実に薄グレーに */
         .store-cell {
             background: #f8f9fa;
-            padding: 4px;
-            width: 80px;
+            padding: 6px;
             text-align: center;
+            border: 1px solid #e2e8f0;
         }
 
         .store-name {
             font-weight: 600;
             color: #495057;
             font-size: 0.8em;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
-        /* 店舗別ボタン（2×2配置） */
         .store-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1px;
+            gap: 2px;
         }
 
         .store-btn {
-            padding: 1px 2px;
+            padding: 2px 4px;
             border: none;
-            border-radius: 2px;
+            border-radius: 3px;
             font-size: 0.6em;
             font-weight: 600;
             cursor: pointer;
             color: white;
-            line-height: 1.2;
+            line-height: 1.3;
         }
 
-        .store-btn.orange { background: #ed8936; }
-        .store-btn.red { background: #e53e3e; }
-        .store-btn.green { background: #48bb78; }
+        .store-btn.orange { background: #fd7e14; }
+        .store-btn.red { background: #dc3545; }
+        .store-btn.green { background: #28a745; }
 
-        .store-btn:hover { opacity: 0.8; }
+        .store-btn:hover { 
+            opacity: 0.8; 
+            transform: scale(0.95);
+        }
 
-        /* 入力フィールド */
         .month-input {
             width: 100%;
-            padding: 2px;
+            padding: 4px 2px;
             border: 1px solid #cbd5e0;
             border-radius: 3px;
             text-align: center;
             font-size: 0.7em;
-            background: rgba(66, 153, 225, 0.05);
-            height: 22px;
+            background: rgba(196, 119, 204, 0.05);
+            height: 24px;
+            font-weight: 500;
         }
 
         .month-input:focus {
             border-color: #C477CC;
             outline: none;
-            background: rgba(196, 119, 204, 0.05);
+            background: rgba(196, 119, 204, 0.1);
+            box-shadow: 0 0 0 2px rgba(196, 119, 204, 0.2);
         }
 
-        /* 設定セクション */
-        .settings-section {
-            background: #fff3e0;
-            border: 2px solid #ff9800;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 20px 0;
+        /* 修正3: W事業部統一利益セクション - 色分けシステム修正 */
+        .profit-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #52c41a;
         }
 
-        .settings-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+        .profit-title {
+            color: #2c3e50;
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 15px;
         }
 
-        .setting-item {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
+        /* 修正4: 売上総利益・営業利益表の色分け修正 */
+        .sales-row td { background: #f6ffed; }
+        .cogs-row td { background: #fff7e6; }
+        .gross-profit-row td { background: #e6f7ff; }
+        .total-expenses-row td { background: #fff0f6; }
+        .operating-profit-row td { background: #f9f0ff; }
 
-        .setting-label {
+        .profit-amount {
+            color: #2c3e50;
             font-weight: 600;
-            color: #e65100;
+        }
+
+        .annual-amount {
+            color: #1890ff;
+            font-weight: 700;
             font-size: 0.9em;
         }
 
-        .setting-input {
-            padding: 8px 12px;
-            border: 2px solid #ffcc02;
-            border-radius: 6px;
-            font-size: 0.9em;
-            background: white;
-        }
-
-        /* 販管費セクション */
+        /* 修正5: W事業部統一販管費セクション */
         .expense-details-section {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 10px;
@@ -474,30 +624,6 @@
             margin-bottom: 15px;
         }
 
-        .expense-table {
-            background: white;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .expense-table th {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-            color: white;
-            padding: 12px 8px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 0.8em;
-        }
-
-        .expense-table td {
-            padding: 6px;
-            text-align: center;
-            border-bottom: 1px solid #e9ecef;
-            font-size: 0.75em;
-        }
-
         .expense-id {
             background: #f8f9fa;
             font-weight: 600;
@@ -509,29 +635,109 @@
             font-weight: 600;
             color: #2c3e50;
             text-align: left;
-            padding-left: 10px;
-            min-width: 120px;
+            padding-left: 12px;
         }
 
         .expense-amount {
             color: #2c3e50;
             font-weight: 500;
+            background: white;
         }
 
-        /* レスポンシブ */
+        /* 修正6: 販管費合計行の色分け修正 */
+        .expense-total-row td {
+            background: #fff0f6;
+            border-top: 2px solid #e74c3c;
+            font-weight: 700;
+        }
+
+        .expense-total-id {
+            background: #e74c3c;
+            color: white;
+            font-weight: 700;
+        }
+
+        .expense-total-name {
+            background: #e74c3c;
+            color: white;
+            font-weight: 700;
+            text-align: left;
+            padding-left: 12px;
+        }
+
+        .expense-total-amount {
+            color: #e74c3c;
+            font-weight: 700;
+            font-size: 0.85em;
+        }
+
+        /* 修正7: レスポンシブ対応強化 */
+        @media (max-width: 1200px) {
+            .input-header-row1 { 
+                flex-direction: column; 
+                gap: 20px; 
+                align-items: flex-start;
+            }
+            .settings-inline { 
+                flex-direction: column; 
+                gap: 15px; 
+                width: 100%;
+            }
+            .settings-inline {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            .setting-item-inline {
+                min-width: auto;
+            }
+        }
+
         @media (max-width: 768px) {
             .container { padding: 5px; }
             .nav-buttons { flex-direction: column; }
             .btn { min-width: auto; max-width: none; }
-            .workflow-compact { flex-direction: column; gap: 8px; }
-            .action-buttons-compact { flex-direction: column; gap: 5px; }
-            .preset-buttons-top { flex-direction: column; gap: 5px; }
+            .workflow-compact { 
+                flex-direction: column; 
+                gap: 8px; 
+                text-align: center;
+            }
+            .action-buttons-compact { 
+                flex-direction: column; 
+                gap: 5px; 
+            }
+            .kpi-summary { 
+                flex-direction: column; 
+                gap: 10px; 
+                align-items: center;
+            }
+            .settings-inline { 
+                grid-template-columns: 1fr; 
+            }
+            .preset-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            .preset-btn {
+                width: 100%;
+            }
+            
+            /* テーブルのモバイル対応 */
+            .input-table, .profit-table, .expense-table {
+                font-size: 0.65em;
+            }
+            
+            .input-table th:not(:first-child):not(:nth-child(2)),
+            .profit-table th:not(:first-child):not(:last-child),
+            .expense-table th:not(:first-child):not(:nth-child(2)) {
+                width: 45px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- 統一4行ヘッダー構造 -->
+        <!-- W事業部統一ヘッダー -->
         <header class="header">
             <div class="header-row1">
                 <h1 class="main-title">SR事業部PLシミュレーター Phase 4完成版</h1>
@@ -539,29 +745,27 @@
 
             <div class="header-row2">
                 <div class="nav-buttons">
-                    <a href="../dashboard_corrected.html" class="btn btn-active-dashboard">ダッシュボード</a>
+                    <a href="dashboard_corrected.html" class="btn btn-active-dashboard">ダッシュボード</a>
                     <a href="#" class="btn btn-active-sr">SR事業部PL</a>
-                    <a href="../w-pl.html" class="btn btn-active-w">W事業部PL</a>
-                    <a href="../rc-pl.html" class="btn btn-active-rc">RC事業部PL</a>
-                    <a href="../rcd-pl.html" class="btn btn-active-rcd">RCD事業部PL</a>
-                    <a href="../combined-dashboard/index.html" class="btn btn-active-analysis">全体PL分析</a>
+                    <a href="w-pl.html" class="btn btn-active-w">W事業部PL</a>
+                    <a href="rc-pl.html" class="btn btn-active-rc">RC事業部PL</a>
+                    <a href="rcd-pl.html" class="btn btn-active-rcd">RCD事業部PL</a>
+                    <a href="combined-dashboard/index.html" class="btn btn-active-analysis">全体PL分析</a>
                 </div>
             </div>
 
             <div class="header-row3">
                 <div class="workflow-action-bar">
                     <div class="workflow-compact">
-                        <div class="workflow-title">Phase 4 統合PLシステム ワークフロー</div>
+                        <div class="workflow-title">Step 1/4 統合PLシステム ワークフロー</div>
                         <div class="workflow-steps">
-                            <div class="workflow-step active">SR事業部</div>
+                            <div class="workflow-step active">SR●進行中</div>
                             <div class="workflow-arrow">→</div>
-                            <div class="workflow-step pending">W事業部</div>
+                            <div class="workflow-step pending">W待機</div>
                             <div class="workflow-arrow">→</div>
-                            <div class="workflow-step pending">RC事業部</div>
+                            <div class="workflow-step pending">RC待機</div>
                             <div class="workflow-arrow">→</div>
-                            <div class="workflow-step pending">RCD事業部</div>
-                            <div class="workflow-arrow">→</div>
-                            <div class="workflow-step pending">統合PL</div>
+                            <div class="workflow-step pending">RCD待機</div>
                         </div>
                     </div>
                     <div class="action-buttons-compact">
@@ -585,19 +789,29 @@
                         <span>統合PLシステム連携: 準備完了</span>
                     </div>
                     <div class="department-info">
-                        SR事業部 - 売上レンジ別人件費係数 + 営業コミッション・賞与システム 
+                        SR事業部 - 売上レンジ別人件費係数 + 営業コミッション・賞与システム  
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- プレビューセクション -->
+        <!-- W事業部統一プレビューセクション -->
         <div class="results-preview-section">
             <div class="preview-header">
-                <div class="preview-title">📊 SR事業部</div>
-                <div class="annual-summary">
-                    年間合計: <span class="annual-total" id="annual-total">---万円</span>
-                    前年増減: <span class="annual-diff" id="annual-diff">---万円</span>
+                <div class="preview-title">前年対比グラフ + KPI統合表示</div>
+                <div class="kpi-summary">
+                    <div class="kpi-item">
+                        <div class="kpi-label">年間売上</div>
+                        <div class="kpi-value kpi-sales" id="annual-total">---万円</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="kpi-label">営業利益</div>
+                        <div class="kpi-value kpi-profit" id="annual-profit">---万円</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="kpi-label">前年増減</div>
+                        <div class="kpi-value" id="annual-diff">---万円</div>
+                    </div>
                 </div>
             </div>
 
@@ -605,35 +819,58 @@
                 <div class="chart-legend">
                     <div class="legend-item">
                         <div class="legend-color legend-blue"></div>
-                        <span>参考</span>
+                        <span>前年実績</span>
                     </div>
                     <div class="legend-item">
                         <div class="legend-color legend-green"></div>
-                        <span>予算</span>
+                        <span>予算設定</span>
                     </div>
                 </div>
                 <canvas id="monthlyChart"></canvas>
             </div>
         </div>
 
-        <!-- 入力セクション -->
+        <!-- 省スペース化入力セクション -->
         <div class="input-section">
-            <div class="input-title">📊 6店舗別売上入力（万円）</div>
+            <!-- 1行目: タイトル + 設定項目 -->
+            <div class="input-header-row1">
+                <div class="input-title">6店舗別売上入力（万円）</div>
+                <div class="settings-inline">
+                    <div class="setting-item-inline">
+                        <label class="setting-label-inline">営業手当</label>
+                        <input type="number" class="setting-input-inline" id="commission" value="100">
+                    </div>
+                    <div class="setting-item-inline">
+                        <label class="setting-label-inline">6月賞与</label>
+                        <input type="number" class="setting-input-inline" id="bonus6" value="100">
+                    </div>
+                    <div class="setting-item-inline">
+                        <label class="setting-label-inline">12月賞与</label>
+                        <input type="number" class="setting-input-inline" id="bonus12" value="0">
+                    </div>
+                    <div class="setting-item-inline">
+                        <label class="setting-label-inline">広告宣伝費</label>
+                        <input type="number" class="setting-input-inline" id="advertising" value="30">
+                    </div>
+                </div>
+            </div>
             
-            <!-- 全体プリセットボタン -->
-            <div class="preset-buttons-top">
-                <button class="preset-btn green" onclick="applySRPreset('actual')">実績値</button>
-                <button class="preset-btn orange" onclick="applySRPreset('50p')">各店50万増</button>
-                <button class="preset-btn orange" onclick="applySRPreset('100p')">各店100万増</button>
-                <button class="preset-btn red" onclick="applySRPreset('150p')">各店150万増</button>
+            <!-- 2行目: プリセットボタン -->
+            <div class="input-header-row2">
+                <div class="preset-buttons">
+                    <button class="preset-btn actual" onclick="applySRPreset('actual')">実績パターン</button>
+                    <button class="preset-btn growth" onclick="applySRPreset('50p')">標準設定</button>
+                    <button class="preset-btn moderate" onclick="applySRPreset('100p')">成長モデル</button>
+                    <button class="preset-btn aggressive" onclick="applySRPreset('150p')">各店150万増</button>
+                </div>
             </div>
             
             <div class="sales-input-table">
                 <table class="input-table">
                     <thead>
                         <tr>
-                            <th style="width: 80px;">店舗名</th>
-                            <th style="width: 30px;">項目</th>
+                            <th>店舗名</th>
+                            <th>項目</th>
                             <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
                             <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
                         </tr>
@@ -643,40 +880,39 @@
                     </tbody>
                 </table>
             </div>
+        </div>
 
-            <!-- 設定項目 -->
-            <div class="settings-section">
-                <div class="settings-grid">
-                    <div class="setting-item">
-                        <label class="setting-label">営業手当 (万円/月)</label>
-                        <input type="number" class="setting-input" id="commission" value="100">
-                    </div>
-                    <div class="setting-item">
-                        <label class="setting-label">6月賞与 (万円)</label>
-                        <input type="number" class="setting-input" id="bonus6" value="100">
-                    </div>
-                    <div class="setting-item">
-                        <label class="setting-label">12月賞与 (万円)</label>
-                        <input type="number" class="setting-input" id="bonus12" value="0">
-                    </div>
-                    <div class="setting-item">
-                        <label class="setting-label">広告宣伝費 (万円/月)</label>
-                        <input type="number" class="setting-input" id="advertising" value="30">
-                    </div>
-                </div>
+        <!-- W事業部統一利益セクション -->
+        <div class="profit-section">
+            <div class="profit-title">売上総利益・営業利益月額表</div>
+            
+            <div class="profit-table-container">
+                <table class="profit-table">
+                    <thead>
+                        <tr>
+                            <th>項目</th>
+                            <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
+                            <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
+                            <th>年間合計</th>
+                        </tr>
+                    </thead>
+                    <tbody id="profit-table-body">
+                        <!-- JavaScript動的生成 -->
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <!-- 販管費19項目詳細表示セクション -->
+        <!-- W事業部統一販管費セクション -->
         <div class="expense-details-section">
-            <div class="expense-title">📋 販管費19項目詳細表示（統一構造Version 3.0）</div>
+            <div class="expense-title">販管費19項目詳細表示（統一構造Version 3.0）</div>
             
-            <div class="expense-table">
-                <table class="input-table">
+            <div class="expense-table-container">
+                <table class="expense-table">
                     <thead>
                         <tr>
-                            <th style="width: 40px;">ID</th>
-                            <th style="width: 120px;">費目名</th>
+                            <th>ID</th>
+                            <th>費目名</th>
                             <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
                             <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
                         </tr>
@@ -690,7 +926,7 @@
     </div>
 
     <script>
-        // データ管理（前年実績をデフォルト値）
+        // データ管理
         let srData = {
             stores: {
                 '清水店': [416, 397, 421, 502, 471, 544, 567, 476, 355, 408, 299, 346],
@@ -734,7 +970,7 @@
             19: { name: "減価償却費", type: "fixed", annual: 230 }
         };
 
-        // テーブル生成（店舗名に2×2ボタン配置）
+        // テーブル生成
         function generateSRInputTable() {
             const tbody = document.getElementById('sr-input-table-body');
             if (!tbody) return;
@@ -751,7 +987,7 @@
                 totals.push(monthTotal);
             }
 
-            // 合計行
+            // 合計行 - 修正版
             html += `
                 <tr class="total-row">
                     <td rowspan="3" class="total-header">合計</td>
@@ -759,20 +995,20 @@
                     ${totals.map(total => `<td class="total-sales">${formatNumber(total)}</td>`).join('')}
                 </tr>
                 <tr class="total-row">
-                    <td style="color: #059669;">増減</td>
+                    <td class="total-sales">増減</td>
                     ${totals.map((total, i) => {
                         const diff = total - referenceData[i];
                         const className = diff >= 0 ? 'total-diff-positive' : 'total-diff-negative';
                         return `<td class="${className}">${diff >= 0 ? '+' : ''}${formatNumber(diff)}</td>`;
                     }).join('')}
                 </tr>
-                <tr style="background: #f3f4f6;">
+                <tr class="total-row">
                     <td class="reference-cell">参考</td>
                     ${referenceData.map(val => `<td class="reference-cell">${formatNumber(val)}</td>`).join('')}
                 </tr>
             `;
 
-            // 各店舗行（1列内2段構造）
+            // 各店舗行
             Object.entries(srData.stores).forEach(([storeName, values]) => {
                 html += `
                     <tr>
@@ -785,7 +1021,7 @@
                                 <button class="store-btn green" onclick="resetStoreToActual('${storeName}')">実績値</button>
                             </div>
                         </td>
-                        <td style="color: #3182ce; font-weight: 600;">売上</td>
+                        <td style="color: #3182ce; font-weight: 600; background: white;">売上</td>
                         ${values.map((val, i) => `
                             <td>
                                 <input type="number" class="month-input" 
@@ -796,7 +1032,7 @@
                             </td>
                         `).join('')}
                     </tr>
-                    <tr style="background: #f9fafb;">
+                    <tr style="background: white;">
                         <td class="reference-cell">参考</td>
                         ${values.map(val => `<td class="reference-cell">${formatNumber(val)}</td>`).join('')}
                     </tr>
@@ -806,7 +1042,51 @@
             tbody.innerHTML = html;
         }
 
-        // 店舗データ更新
+        // 売上総利益・営業利益月額表生成 - 修正版
+        function updateProfitTable(results) {
+            const tbody = document.getElementById('profit-table-body');
+            if (!tbody || !results) return;
+
+            const { monthlyResults } = results;
+            
+            // 年間合計計算
+            const annualSales = monthlyResults.reduce((sum, m) => sum + m.sales, 0);
+            const annualCogs = monthlyResults.reduce((sum, m) => sum + m.cogs, 0);
+            const annualGrossProfit = monthlyResults.reduce((sum, m) => sum + m.grossProfit, 0);
+            const annualTotalExpenses = monthlyResults.reduce((sum, m) => sum + m.totalExpenses, 0);
+            const annualOperatingProfit = monthlyResults.reduce((sum, m) => sum + m.operatingProfit, 0);
+
+            let html = `
+                <tr class="sales-row">
+                    <td class="profit-amount">売上高</td>
+                    ${monthlyResults.map(m => `<td class="profit-amount">${formatNumber(m.sales)}</td>`).join('')}
+                    <td class="annual-amount">${formatNumber(annualSales)}</td>
+                </tr>
+                <tr class="cogs-row">
+                    <td class="profit-amount">仕入原価</td>
+                    ${monthlyResults.map(m => `<td class="profit-amount">${formatNumber(m.cogs)}</td>`).join('')}
+                    <td class="annual-amount">${formatNumber(annualCogs)}</td>
+                </tr>
+                <tr class="gross-profit-row">
+                    <td class="profit-amount">売上総利益</td>
+                    ${monthlyResults.map(m => `<td class="profit-amount">${formatNumber(m.grossProfit)}</td>`).join('')}
+                    <td class="annual-amount">${formatNumber(annualGrossProfit)}</td>
+                </tr>
+                <tr class="total-expenses-row">
+                    <td class="profit-amount">販管費合計</td>
+                    ${monthlyResults.map(m => `<td class="profit-amount">${formatNumber(m.totalExpenses)}</td>`).join('')}
+                    <td class="annual-amount">${formatNumber(annualTotalExpenses)}</td>
+                </tr>
+                <tr class="operating-profit-row">
+                    <td class="profit-amount">営業利益</td>
+                    ${monthlyResults.map(m => `<td class="profit-amount">${formatNumber(m.operatingProfit)}</td>`).join('')}
+                    <td class="annual-amount">${formatNumber(annualOperatingProfit)}</td>
+                </tr>
+            `;
+
+            tbody.innerHTML = html;
+        }
+
         function updateStoreData(input) {
             const store = input.dataset.store;
             const month = parseInt(input.dataset.month);
@@ -818,7 +1098,6 @@
             updateChart();
         }
 
-        // 店舗別増額
         function incrementStore(storeName, amount) {
             if (!srData.stores[storeName]) return;
             
@@ -831,7 +1110,6 @@
             updateChart();
         }
 
-        // 実績値復元
         function resetStoreToActual(storeName) {
             const actualData = {
                 '清水店': [416, 397, 421, 502, 471, 544, 567, 476, 355, 408, 299, 346],
@@ -851,20 +1129,24 @@
             updateChart();
         }
 
-        // プリセット機能
         function applySRPreset(presetType) {
+            const actualData = {
+                '清水店': [416, 397, 421, 502, 471, 544, 567, 476, 355, 408, 299, 346],
+                '静岡店': [369, 386, 600, 535, 285, 437, 351, 270, 369, 391, 256, 242],
+                '掛川店': [284, 375, 508, 278, 394, 394, 377, 309, 248, 469, 448, 535],
+                '市野店': [328, 547, 723, 520, 528, 607, 574, 318, 714, 657, 700, 600],
+                '佐鳴台店': [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
+                '広島店': [490, 493, 427, 542, 558, 416, 622, 641, 496, 385, 253, 620]
+            };
+            
+            // 実績値をベースに設定
+            srData.stores = JSON.parse(JSON.stringify(actualData));
+            
             const storeNames = Object.keys(srData.stores);
             
             switch(presetType) {
                 case 'actual':
-                    srData.stores = {
-                        '清水店': [416, 397, 421, 502, 471, 544, 567, 476, 355, 408, 299, 346],
-                        '静岡店': [369, 386, 600, 535, 285, 437, 351, 270, 369, 391, 256, 242],
-                        '掛川店': [284, 375, 508, 278, 394, 394, 377, 309, 248, 469, 448, 535],
-                        '市野店': [328, 547, 723, 520, 528, 607, 574, 318, 714, 657, 700, 600],
-                        '佐鳴台店': [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
-                        '広島店': [490, 493, 427, 542, 558, 416, 622, 641, 496, 385, 253, 620]
-                    };
+                    // 実績値のまま
                     break;
                 case '50p':
                     storeNames.forEach(storeName => {
@@ -894,7 +1176,6 @@
             updateChart();
         }
 
-        // 入力値収集
         function collectInputData() {
             srData.settings.commission = parseInt(document.getElementById('commission').value) || 100;
             srData.settings.bonus6 = parseInt(document.getElementById('bonus6').value) || 100;
@@ -903,7 +1184,6 @@
             return srData;
         }
 
-        // SR計算
         function calculateSR() {
             collectInputData();
             
@@ -962,13 +1242,13 @@
             };
 
             updateResultsDisplay(annual);
+            updateProfitTable({ monthlyResults });
             updateExpenseTable(expenseDetails);
             
             window.srResults = { monthlyResults, annual, monthlySales, expenseDetails };
             return { monthlyResults, annual };
         }
 
-        // 販管費項目計算
         function calculateExpenseItem(id, monthResult, monthIndex) {
             const item = expenseItems[id];
             
@@ -989,41 +1269,68 @@
             }
         }
 
-        // 販管費テーブル更新
+        // 販管費テーブル更新 - 修正版
         function updateExpenseTable(expenseDetails) {
             const tbody = document.getElementById('expense-table-body');
             if (!tbody) return;
 
             let html = '';
+            
             for (let id = 1; id <= 19; id++) {
-                html += `
-                    <tr>
-                        <td class="expense-id">${id}</td>
-                        <td class="expense-name">${expenseItems[id].name}</td>
-                        ${expenseDetails[id].map(amount => 
-                            `<td class="expense-amount">${formatNumber(amount)}</td>`
-                        ).join('')}
-                    </tr>
-                `;
+                const annualTotal = expenseDetails[id].reduce((sum, val) => sum + val, 0);
+                
+                if (annualTotal > 0) {
+                    html += `
+                        <tr>
+                            <td class="expense-id">${id}</td>
+                            <td class="expense-name">${expenseItems[id].name}</td>
+                            ${expenseDetails[id].map(amount => 
+                                `<td class="expense-amount">${formatNumber(amount)}</td>`
+                            ).join('')}
+                        </tr>
+                    `;
+                }
             }
+
+            const monthlyTotals = [];
+            for (let month = 0; month < 12; month++) {
+                let monthTotal = 0;
+                for (let id = 1; id <= 19; id++) {
+                    monthTotal += expenseDetails[id][month];
+                }
+                monthlyTotals.push(monthTotal);
+            }
+
+            html += `
+                <tr class="expense-total-row">
+                    <td class="expense-total-id">合計</td>
+                    <td class="expense-total-name">販管費合計</td>
+                    ${monthlyTotals.map(total => 
+                        `<td class="expense-total-amount">${formatNumber(total)}</td>`
+                    ).join('')}
+                </tr>
+            `;
+
             tbody.innerHTML = html;
         }
 
-        // 結果表示更新
+        // KPI表示更新 - 修正版
         function updateResultsDisplay(annual) {
             const totalElement = document.getElementById('annual-total');
+            const profitElement = document.getElementById('annual-profit');
             const diffElement = document.getElementById('annual-diff');
             
             if (totalElement) totalElement.textContent = formatNumber(annual.sales) + '万円';
+            if (profitElement) profitElement.textContent = formatNumber(annual.operatingProfit) + '万円';
             
             if (diffElement) {
                 const refTotal = referenceData.reduce((sum, val) => sum + val, 0);
                 const diff = annual.sales - refTotal;
                 diffElement.textContent = (diff >= 0 ? '+' : '') + formatNumber(diff) + '万円';
+                diffElement.className = 'kpi-value ' + (diff >= 0 ? 'kpi-diff-positive' : 'kpi-diff-negative');
             }
         }
 
-        // チャート更新
         function updateChart() {
             const ctx = document.getElementById('monthlyChart');
             if (!ctx) return;
@@ -1049,18 +1356,18 @@
                     labels: months,
                     datasets: [
                         {
-                            label: '参考売上',
+                            label: '前年実績',
                             data: referenceData,
-                            backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.8)',
                             borderColor: 'rgba(59, 130, 246, 1)',
-                            borderWidth: 1
+                            borderWidth: 2
                         },
                         {
                             label: '予算設定',
                             data: currentData,
-                            backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                            backgroundColor: 'rgba(34, 197, 94, 0.8)',
                             borderColor: 'rgba(34, 197, 94, 1)',
-                            borderWidth: 1
+                            borderWidth: 2
                         }
                     ]
                 },
@@ -1069,14 +1376,13 @@
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        y: { beginAtZero: true, ticks: { font: { size: 8 } } },
-                        x: { ticks: { font: { size: 8 } } }
+                        y: { beginAtZero: true, ticks: { font: { size: 10 } } },
+                        x: { ticks: { font: { size: 10 } } }
                     }
                 }
             });
         }
 
-        // データ送信
         function sendDataAndNavigateToNext() {
             if (!window.srResults) {
                 alert('先に計算を実行してください。');
@@ -1104,13 +1410,13 @@
 
                 localStorage.setItem('pl_system_sr_data', JSON.stringify(unifiedData));
                 
-                alert('✅ SR事業部データを統合PLシステムに送信しました！\n\n' +
+                alert('SR事業部データを統合PLシステムに送信しました！\n\n' +
                       `年間売上: ${formatNumber(annual.sales)}万円\n` +
                       `年間営業利益: ${formatNumber(annual.operatingProfit)}万円\n` +
                       `販管費19項目: 完全復旧済み\n\n` +
                       '次はW事業部の設定を行います。');
                 
-                window.location.href = '../w-pl.html';
+                window.location.href = 'w-pl.html';
                 
             } catch (error) {
                 alert('データ送信に失敗しました: ' + error.message);
@@ -1120,17 +1426,16 @@
 
         function goToInputSystem() {
             if (confirm('入力システムに戻りますか？\n現在の入力内容は保持されます。')) {
-                window.location.href = '../budget-input.html';
+                window.location.href = 'budget-input.html';
             }
         }
 
         function skipToFinalPL() {
             if (confirm('統合PLに直接移動しますか？\n現在のSR事業部データは送信されません。')) {
-                window.location.href = '../combined-dashboard/index.html';
+                window.location.href = 'combined-dashboard/index.html';
             }
         }
 
-        // ヘルパー関数
         function getPersonnelCoefficient(salesAmount) {
             const ranges = [
                 { min: 0, max: 500, coeff: 1.0 },
@@ -1161,9 +1466,8 @@
             return Math.round(num).toLocaleString();
         }
 
-        // 設定変更時の自動再計算
         function setupAutoCalculation() {
-            const settings = document.querySelectorAll('.setting-input');
+            const settings = document.querySelectorAll('.setting-input-inline');
             settings.forEach(input => {
                 input.addEventListener('input', debounce(calculateSR, 300));
             });
@@ -1181,7 +1485,6 @@
             };
         }
 
-        // 初期化
         function initialize() {
             generateSRInputTable();
             calculateSR();
