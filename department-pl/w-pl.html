@@ -125,6 +125,11 @@
             color: white;
         }
 
+        .btn-csv {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+
         .action-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -508,6 +513,9 @@
                     <button class="action-btn btn-primary" onclick="sendWDataAndNavigateToNext()">
                         W事業部データ送信 → 次のステップ (RC事業部)
                     </button>
+                    <button class="action-btn btn-csv" onclick="exportWCSV()">
+                        CSV出力
+                    </button>
                     <button class="action-btn btn-secondary" onclick="location.href='../combined-dashboard/index.html'">
                         全体PL分析へ
                     </button>
@@ -517,7 +525,7 @@
 
         <div class="chart-section">
             <div class="chart-header">
-                参考前年数値との比較グラフ（統一構造Version 3.0）
+                参考前年数値との比較グラフ（統一構造 Version 3.0）
             </div>
             
             <div class="kpi-display">
@@ -630,7 +638,7 @@
 
         <div class="profit-section">
             <div class="profit-header">
-                売上総利益・営業利益月額表（統一構造Version 3.0）
+                売上総利益・営業利益月額表（統一構造 Version 3.0）
             </div>
             <table class="profit-table">
                 <thead>
@@ -649,7 +657,7 @@
 
         <div class="expense-section">
             <div class="expense-header">
-                販管費19項目詳細表示（統一構造Version 3.0）
+                販管費19項目詳細表示（統一構造 Version 3.0）
             </div>
             <table class="expense-table">
                 <thead>
@@ -958,6 +966,82 @@
             }
             
             updateWSales();
+        }
+
+        // CSV出力機能（W事業部版）
+        function exportWCSV() {
+            try {
+                const results = calculateW();
+
+                // CSV出力データ生成（37項目統一仕様）
+                const csvData = [];
+                const months = ['項目名', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月', '年間合計'];
+                csvData.push(months);
+
+                // 基本PL項目（3項目）
+                csvData.push(['売上高', ...wData.sales, results.annual.sales]);
+                csvData.push(['売上原価', ...results.monthlyResults.map(m => m.cogs), results.annual.cogs]);
+                csvData.push(['売上総利益', ...results.monthlyResults.map(m => m.grossProfit), results.annual.grossProfit]);
+
+                // 販管費19項目（W事業部保有データ）
+                const expenseNames = [
+                    '人件費統合', '法定福利費', '衛生費', '物流管理費', '地代家賃',
+                    '外注費', '貨物運賃', '広告宣伝費', '旅費交通費', '通信費',
+                    '販売促進費', '消耗品費', '事務用品費', '水道光熱費', '支払手数料',
+                    'リース料', '保険料', '支払報酬料', '減価償却費'
+                ];
+
+                expenseNames.forEach((name, index) => {
+                    const expenseId = index + 1;
+                    const monthlyExpenses = results.expenses[expenseId];
+                    const annual = monthlyExpenses.reduce((sum, val) => sum + val, 0);
+                    csvData.push([name, ...monthlyExpenses, annual]);
+                });
+
+                // 統合PL専用項目（W事業部では0円出力）
+                const zeroData = Array(12).fill(0);
+                csvData.push(['役員報酬', ...zeroData, 0]);
+                csvData.push(['役員法定福利費', ...zeroData, 0]);
+                csvData.push(['管理諸費', ...zeroData, 0]);
+                csvData.push(['修繕費', ...zeroData, 0]);
+                csvData.push(['車両費', ...zeroData, 0]);
+                csvData.push(['租税公課', ...zeroData, 0]);
+                csvData.push(['交際費', ...zeroData, 0]);
+                csvData.push(['諸会費', ...zeroData, 0]);
+                csvData.push(['会議費', ...zeroData, 0]);
+                csvData.push(['福利厚生費', ...zeroData, 0]);
+                csvData.push(['研修費', ...zeroData, 0]);
+                csvData.push(['雑費', ...zeroData, 0]);
+                csvData.push(['寄付金', ...zeroData, 0]);
+
+                // 計算項目
+                const totalExpensesData = new Array(12).fill(0);
+                Object.values(results.expenses).forEach(expenseArray => {
+                    expenseArray.forEach((val, monthIndex) => {
+                        totalExpensesData[monthIndex] += val;
+                    });
+                });
+
+                const operatingProfitData = results.monthlyResults.map((m, i) => m.grossProfit - totalExpensesData[i]);
+                csvData.push(['販管費合計', ...totalExpensesData, results.annual.totalExpenses]);
+                csvData.push(['営業利益', ...operatingProfitData, results.annual.operatingProfit]);
+
+                // CSV文字列生成
+                const csvString = '\uFEFF' + csvData.map(row => row.join(',')).join('\n');
+                
+                // ダウンロード実行
+                const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `W事業部_PL_${new Date().toISOString().split('T')[0]}.csv`;
+                link.click();
+                
+                alert('W事業部PLデータのCSV出力が完了しました。');
+
+            } catch (error) {
+                alert('CSV出力でエラーが発生しました: ' + error.message);
+                console.error('CSV出力エラー:', error);
+            }
         }
 
         function sendWDataAndNavigateToNext() {
