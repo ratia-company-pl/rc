@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SR事業部PLシミュレーター Phase 4版（分散型入力システム対応）</title>
+    <title>SR事業部PLシミュレーター Phase 4完成版</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -25,74 +25,253 @@
             margin: 0 auto;
         }
 
-        /* === Phase 4新機能: 進捗管理ヘッダー === */
-        .progress-header {
-            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-            color: white;
-            padding: 15px 20px;
+        /* 共通ナビゲーション統一化: 4行ヘッダー構造 */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 10px;
             margin-bottom: 15px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
 
-        .progress-title {
-            font-size: 1.2em;
+        /* 1行目: SRタイトル */
+        .header-row1 {
+            background: linear-gradient(135deg, #C477CC 0%, #DF98E6 100%);
+            color: white;
+            padding: 15px 20px;
+        }
+
+        .main-title {
+            font-size: 1.8em;
             font-weight: 700;
-            margin-bottom: 10px;
-            text-align: center;
+            margin: 0;
         }
 
-        .workflow-progress {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
+        /* 2行目: 6ボタンナビゲーション */
+        .header-row2 {
+            background: linear-gradient(135deg, #B366BD 0%, #C477CC 100%);
+            padding: 8px 15px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 140px;
+            max-width: 180px;
+            padding: 8px 16px;
+            font-size: 0.8em;
+            border-radius: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        /* アクティブボタン */
+        .btn-active-dashboard { background: #667eea !important; border-color: #667eea !important; }
+        .btn-active-sr { background: #C477CC !important; border-color: #C477CC !important; }
+        .btn-active-w { background: #3498db !important; border-color: #3498db !important; }
+        .btn-active-rc { background: #27ae60 !important; border-color: #27ae60 !important; }
+        .btn-active-rcd { background: #9b59b6 !important; border-color: #9b59b6 !important; }
+        .btn-active-analysis { background: #f39c12 !important; border-color: #f39c12 !important; }
+
+        /* 3行目: ワークフロー表示 */
+        .header-row3 {
+            background: #f8f9fa;
+            padding: 8px 15px;
+        }
+
+        .workflow-action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .workflow-compact {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.8em;
+        }
+
+        .workflow-title {
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .workflow-steps {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .workflow-step {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+            color: white;
+        }
+
+        .workflow-step.active {
+            background: #C477CC;
+        }
+
+        .workflow-step.pending {
+            background: #bdc3c7;
+        }
+
+        .workflow-arrow {
+            color: #7f8c8d;
+            font-weight: bold;
+        }
+
+        .action-buttons-compact {
+            display: flex;
             gap: 10px;
+        }
+
+        .action-btn-compact {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-send-next-compact { background: #27ae60; color: white; }
+        .btn-back-compact { background: #95a5a6; color: white; }
+        .btn-skip-compact { background: #e74c3c; color: white; }
+
+        .action-btn-compact:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 4行目: 連携ステータス */
+        .header-row4 {
+            background: #ecf0f1;
+            padding: 10px 15px;
+            font-size: 0.85em;
+            color: #2c3e50;
+        }
+
+        .status-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #27ae60;
+        }
+
+        .department-info {
+            font-weight: 600;
+        }
+
+        /* プレビューセクション */
+        .results-preview-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #27ae60;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 15px;
         }
 
-        .step-card {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 0.85em;
+        .preview-title {
+            color: #2c3e50;
+            font-size: 1.2em;
+            font-weight: 700;
+        }
+
+        .annual-summary {
+            font-size: 0.9em;
+            color: #2c3e50;
             font-weight: 600;
-            border: 2px solid transparent;
-            transition: all 0.3s ease;
         }
 
-        .step-card.active {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.6);
-            transform: scale(1.05);
+        .annual-total { color: #27ae60; }
+        .annual-diff { color: #e74c3c; }
+
+        /* チャート */
+        .chart-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+            margin: 15px 0;
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .step-card.completed {
-            background: rgba(255, 255, 255, 0.4);
-            border-color: rgba(255, 255, 255, 0.8);
+        .chart-legend {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            display: flex;
+            gap: 12px;
+            font-size: 0.8em;
+            z-index: 10;
         }
 
-        .progress-bar-container {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 3px;
-            margin-top: 10px;
-        }
-
-        .progress-bar {
-            background: rgba(255, 255, 255, 0.8);
-            height: 20px;
-            border-radius: 18px;
-            width: 25%;
+        .legend-item {
             display: flex;
             align-items: center;
-            justify-content: center;
-            color: #27ae60;
-            font-weight: bold;
-            font-size: 0.8em;
-            transition: width 0.5s ease;
+            gap: 6px;
         }
 
-        /* === Phase 4新機能: 入力セクション === */
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+        }
+
+        .legend-blue { background: rgba(59, 130, 246, 0.7); }
+        .legend-green { background: rgba(34, 197, 94, 0.7); }
+
+        /* 入力セクション */
         .input-section {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 10px;
@@ -107,16 +286,37 @@
             font-size: 1.3em;
             font-weight: 700;
             margin-bottom: 15px;
+        }
+
+        /* プリセットボタン（全体用） */
+        .preset-buttons-top {
             display: flex;
-            align-items: center;
-            gap: 10px;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
         }
 
-        .input-title::before {
-            content: "📝";
-            font-size: 1.2em;
+        .preset-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
         }
 
+        .preset-btn.green { background: #48bb78; }
+        .preset-btn.orange { background: #ed8936; }
+        .preset-btn.red { background: #e53e3e; }
+
+        .preset-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* テーブル */
         .sales-input-table {
             background: white;
             border: 2px solid #e9ecef;
@@ -128,53 +328,101 @@
         .input-table {
             width: 100%;
             border-collapse: collapse;
+            font-size: 0.75em;
         }
 
         .input-table th {
             background: linear-gradient(135deg, #C477CC 0%, #B366BD 100%);
             color: white;
-            padding: 12px 8px;
+            padding: 8px 4px;
             text-align: center;
             font-weight: 600;
-            font-size: 0.85em;
+            font-size: 0.8em;
         }
 
         .input-table td {
-            padding: 8px;
+            padding: 4px 3px;
             text-align: center;
-            border-bottom: 1px solid #e9ecef;
+            border: 1px solid #e2e8f0;
+            font-size: 0.75em;
+        }
+
+        /* 合計行 */
+        .total-row {
+            background: #ebf8ff;
+            border-left: 4px solid #3182ce;
+        }
+
+        .total-header {
+            background: #3182ce !important;
+            color: white !important;
+            font-weight: 600;
+            width: 80px;
+        }
+
+        .total-sales { color: #1e40af; font-weight: 600; }
+        .total-diff-positive { color: #059669; font-weight: 600; }
+        .total-diff-negative { color: #dc2626; font-weight: 600; }
+        .reference-cell { color: #6b7280; font-size: 0.7em; }
+
+        /* 店舗行（1列内2段構造） */
+        .store-cell {
+            background: #f8f9fa;
+            padding: 4px;
+            width: 80px;
+            text-align: center;
         }
 
         .store-name {
-            background: #f8f9fa;
             font-weight: 600;
             color: #495057;
-            text-align: left;
-            padding-left: 15px;
-            min-width: 100px;
+            font-size: 0.8em;
+            margin-bottom: 4px;
         }
 
+        /* 店舗別ボタン（2×2配置） */
+        .store-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+        }
+
+        .store-btn {
+            padding: 1px 2px;
+            border: none;
+            border-radius: 2px;
+            font-size: 0.6em;
+            font-weight: 600;
+            cursor: pointer;
+            color: white;
+            line-height: 1.2;
+        }
+
+        .store-btn.orange { background: #ed8936; }
+        .store-btn.red { background: #e53e3e; }
+        .store-btn.green { background: #48bb78; }
+
+        .store-btn:hover { opacity: 0.8; }
+
+        /* 入力フィールド */
         .month-input {
             width: 100%;
-            padding: 6px 8px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
+            padding: 2px;
+            border: 1px solid #cbd5e0;
+            border-radius: 3px;
             text-align: center;
-            font-size: 0.8em;
-            background: white;
-            transition: all 0.2s ease;
+            font-size: 0.7em;
+            background: rgba(66, 153, 225, 0.05);
+            height: 22px;
         }
 
         .month-input:focus {
             border-color: #C477CC;
-            box-shadow: 0 0 0 2px rgba(196, 119, 204, 0.2);
             outline: none;
-        }
-
-        .input-table tr:hover {
             background: rgba(196, 119, 204, 0.05);
         }
 
+        /* 設定セクション */
         .settings-section {
             background: #fff3e0;
             border: 2px solid #ff9800;
@@ -209,285 +457,189 @@
             background: white;
         }
 
-        .setting-input:focus {
-            border-color: #ff9800;
-            outline: none;
-        }
-
-        /* === Phase 4新機能: ナビゲーションボタン === */
-        .navigation-section {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            text-align: center;
-        }
-
-        .nav-title {
-            font-size: 1.1em;
-            font-weight: 700;
-            margin-bottom: 15px;
-        }
-
-        .nav-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .nav-btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 25px;
-            font-weight: 700;
-            font-size: 1em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-send-next {
-            background: #27ae60;
-            color: white;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-send-next:hover {
-            background: #2ecc71;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .btn-back {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.4);
-        }
-
-        .btn-back:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-skip {
-            background: #e74c3c;
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-skip:hover {
-            background: #c0392b;
-        }
-
-        /* === 既存スタイル継承 === */
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 10px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .header-row1 {
-            background: linear-gradient(135deg, #C477CC 0%, #DF98E6 100%);
-            color: white;
-            padding: 15px 20px;
-        }
-
-        .main-title {
-            font-size: 1.8em;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .main-content {
+        /* 販管費セクション */
+        .expense-details-section {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 10px;
             padding: 20px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #e74c3c;
         }
 
-        .section-title {
+        .expense-title {
             color: #2c3e50;
-            margin-bottom: 15px;
-            font-size: 1.4em;
+            font-size: 1.3em;
             font-weight: 700;
-            border-bottom: 3px solid #C477CC;
-            padding-bottom: 8px;
+            margin-bottom: 15px;
         }
 
-        .chart-container {
-            position: relative;
-            height: 140px;
-            width: 100%;
-            margin: 15px 0;
-            background: #f8f9fa;
+        .expense-table {
+            background: white;
+            border: 2px solid #e9ecef;
             border-radius: 8px;
-            padding: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        /* レスポンシブ対応 */
+        .expense-table th {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.8em;
+        }
+
+        .expense-table td {
+            padding: 6px;
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.75em;
+        }
+
+        .expense-id {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #e74c3c;
+        }
+
+        .expense-name {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+            text-align: left;
+            padding-left: 10px;
+            min-width: 120px;
+        }
+
+        .expense-amount {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        /* レスポンシブ */
         @media (max-width: 768px) {
             .container { padding: 5px; }
-            .workflow-progress { grid-template-columns: repeat(2, 1fr); }
-            .sales-input-grid { grid-template-columns: 1fr; }
-            .month-inputs { grid-template-columns: repeat(3, 1fr); }
             .nav-buttons { flex-direction: column; }
+            .btn { min-width: auto; max-width: none; }
+            .workflow-compact { flex-direction: column; gap: 8px; }
+            .action-buttons-compact { flex-direction: column; gap: 5px; }
+            .preset-buttons-top { flex-direction: column; gap: 5px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Phase 4新機能: 進捗管理ヘッダー -->
-        <div class="progress-header">
-            <div class="progress-title">🎯 分散型事業部別入力システム Phase 4</div>
-            <div class="workflow-progress">
-                <div class="step-card active">
-                    <div>Step 1</div>
-                    <div>SR事業部</div>
-                </div>
-                <div class="step-card">
-                    <div>Step 2</div>
-                    <div>W事業部</div>
-                </div>
-                <div class="step-card">
-                    <div>Step 3</div>
-                    <div>RC支店</div>
-                </div>
-                <div class="step-card">
-                    <div>Step 4</div>
-                    <div>RCD社</div>
-                </div>
-            </div>
-            <div class="progress-bar-container">
-                <div class="progress-bar">1/4 完了 (25%)</div>
-            </div>
-        </div>
-
-        <!-- 従来のヘッダー（簡略版） -->
+        <!-- 統一4行ヘッダー構造 -->
         <header class="header">
             <div class="header-row1">
-                <h1 class="main-title">SR事業部PLシミュレーター Phase 4版</h1>
+                <h1 class="main-title">SR事業部PLシミュレーター Phase 4完成版</h1>
+            </div>
+
+            <div class="header-row2">
+                <div class="nav-buttons">
+                    <a href="../dashboard_corrected.html" class="btn btn-active-dashboard">ダッシュボード</a>
+                    <a href="#" class="btn btn-active-sr">SR事業部PL</a>
+                    <a href="../w-pl.html" class="btn btn-active-w">W事業部PL</a>
+                    <a href="../rc-pl.html" class="btn btn-active-rc">RC事業部PL</a>
+                    <a href="../rcd-pl.html" class="btn btn-active-rcd">RCD事業部PL</a>
+                    <a href="../combined-dashboard/index.html" class="btn btn-active-analysis">全体PL分析</a>
+                </div>
+            </div>
+
+            <div class="header-row3">
+                <div class="workflow-action-bar">
+                    <div class="workflow-compact">
+                        <div class="workflow-title">Phase 4 統合PLシステム ワークフロー</div>
+                        <div class="workflow-steps">
+                            <div class="workflow-step active">SR事業部</div>
+                            <div class="workflow-arrow">→</div>
+                            <div class="workflow-step pending">W事業部</div>
+                            <div class="workflow-arrow">→</div>
+                            <div class="workflow-step pending">RC事業部</div>
+                            <div class="workflow-arrow">→</div>
+                            <div class="workflow-step pending">RCD事業部</div>
+                            <div class="workflow-arrow">→</div>
+                            <div class="workflow-step pending">統合PL</div>
+                        </div>
+                    </div>
+                    <div class="action-buttons-compact">
+                        <button class="action-btn-compact btn-send-next-compact" onclick="sendDataAndNavigateToNext()">
+                            SRデータ送信して次へ
+                        </button>
+                        <button class="action-btn-compact btn-back-compact" onclick="goToInputSystem()">
+                            入力システムに戻る
+                        </button>
+                        <button class="action-btn-compact btn-skip-compact" onclick="skipToFinalPL()">
+                            統合PLに直接移動
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header-row4">
+                <div class="status-info">
+                    <div class="connection-status">
+                        <div class="status-indicator"></div>
+                        <span>統合PLシステム連携: 準備完了</span>
+                    </div>
+                    <div class="department-info">
+                        SR事業部 - 売上レンジ別人件費係数 + 営業コミッション・賞与システム 
+                    </div>
+                </div>
             </div>
         </header>
 
-        <!-- Phase 4新機能: 6店舗別売上入力セクション -->
+        <!-- プレビューセクション -->
+        <div class="results-preview-section">
+            <div class="preview-header">
+                <div class="preview-title">📊 SR事業部</div>
+                <div class="annual-summary">
+                    年間合計: <span class="annual-total" id="annual-total">---万円</span>
+                    前年増減: <span class="annual-diff" id="annual-diff">---万円</span>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <div class="legend-color legend-blue"></div>
+                        <span>参考</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color legend-green"></div>
+                        <span>予算</span>
+                    </div>
+                </div>
+                <canvas id="monthlyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- 入力セクション -->
         <div class="input-section">
-            <div class="input-title">6店舗別売上入力</div>
+            <div class="input-title">📊 6店舗別売上入力（万円）</div>
+            
+            <!-- 全体プリセットボタン -->
+            <div class="preset-buttons-top">
+                <button class="preset-btn green" onclick="applySRPreset('actual')">実績値</button>
+                <button class="preset-btn orange" onclick="applySRPreset('50p')">各店50万増</button>
+                <button class="preset-btn orange" onclick="applySRPreset('100p')">各店100万増</button>
+                <button class="preset-btn red" onclick="applySRPreset('150p')">各店150万増</button>
+            </div>
             
             <div class="sales-input-table">
                 <table class="input-table">
                     <thead>
                         <tr>
-                            <th style="width: 100px;">店舗名</th>
-                            <th>7月</th>
-                            <th>8月</th>
-                            <th>9月</th>
-                            <th>10月</th>
-                            <th>11月</th>
-                            <th>12月</th>
-                            <th>1月</th>
-                            <th>2月</th>
-                            <th>3月</th>
-                            <th>4月</th>
-                            <th>5月</th>
-                            <th>6月</th>
+                            <th style="width: 80px;">店舗名</th>
+                            <th style="width: 30px;">項目</th>
+                            <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
+                            <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td class="store-name">清水店</td>
-                            <td><input type="number" class="month-input" data-store="清水店" data-month="0" value="416"></td>
-                            <td><input type="number" class="month-input" data-store="清水店" data-month="1" value="397"></td>
-                            <td><input type="number" class="month-input" data-store="清水店" data-month="2" value="421"></td>
-                            <td><input type="number" class="month-input" data-store="清水店" data-month="3" value="502"></td>
-                            <td><input type="number" class="month-input" data-store="清水店" data-month="4" value="471"></td>
-                            <td><input type="number" class="month-input" data-store="清水店" data-month="5" value="544"></td>
-                            <td><input type="number" class="month-input" data-store="清水店" data-month="6" value="567"></td>
-                            <td><input type="number" class="month-input" data-store="清水店" data-month="7" value="476"></td>
-                            <td><input type="number" class="month-input" data-store="清水店" data-month="8" value="355"></td>
-                            <td><input type="number" class="month-input" data-store="清水店" data-month="9" value="408"></td>
-                            <td><input type="number" class="month-input" data-store="清水店" data-month="10" value="299"></td>
-                            <td><input type="number" class="month-input" data-store="清水店" data-month="11" value="346"></td>
-                        </tr>
-                        <tr>
-                            <td class="store-name">静岡店</td>
-                            <td><input type="number" class="month-input" data-store="静岡店" data-month="0" value="369"></td>
-                            <td><input type="number" class="month-input" data-store="静岡店" data-month="1" value="386"></td>
-                            <td><input type="number" class="month-input" data-store="静岡店" data-month="2" value="600"></td>
-                            <td><input type="number" class="month-input" data-store="静岡店" data-month="3" value="535"></td>
-                            <td><input type="number" class="month-input" data-store="静岡店" data-month="4" value="285"></td>
-                            <td><input type="number" class="month-input" data-store="静岡店" data-month="5" value="437"></td>
-                            <td><input type="number" class="month-input" data-store="静岡店" data-month="6" value="351"></td>
-                            <td><input type="number" class="month-input" data-store="静岡店" data-month="7" value="270"></td>
-                            <td><input type="number" class="month-input" data-store="静岡店" data-month="8" value="369"></td>
-                            <td><input type="number" class="month-input" data-store="静岡店" data-month="9" value="391"></td>
-                            <td><input type="number" class="month-input" data-store="静岡店" data-month="10" value="256"></td>
-                            <td><input type="number" class="month-input" data-store="静岡店" data-month="11" value="242"></td>
-                        </tr>
-                        <tr>
-                            <td class="store-name">掛川店</td>
-                            <td><input type="number" class="month-input" data-store="掛川店" data-month="0" value="284"></td>
-                            <td><input type="number" class="month-input" data-store="掛川店" data-month="1" value="375"></td>
-                            <td><input type="number" class="month-input" data-store="掛川店" data-month="2" value="508"></td>
-                            <td><input type="number" class="month-input" data-store="掛川店" data-month="3" value="278"></td>
-                            <td><input type="number" class="month-input" data-store="掛川店" data-month="4" value="394"></td>
-                            <td><input type="number" class="month-input" data-store="掛川店" data-month="5" value="394"></td>
-                            <td><input type="number" class="month-input" data-store="掛川店" data-month="6" value="377"></td>
-                            <td><input type="number" class="month-input" data-store="掛川店" data-month="7" value="309"></td>
-                            <td><input type="number" class="month-input" data-store="掛川店" data-month="8" value="248"></td>
-                            <td><input type="number" class="month-input" data-store="掛川店" data-month="9" value="469"></td>
-                            <td><input type="number" class="month-input" data-store="掛川店" data-month="10" value="448"></td>
-                            <td><input type="number" class="month-input" data-store="掛川店" data-month="11" value="535"></td>
-                        </tr>
-                        <tr>
-                            <td class="store-name">市野店</td>
-                            <td><input type="number" class="month-input" data-store="市野店" data-month="0" value="328"></td>
-                            <td><input type="number" class="month-input" data-store="市野店" data-month="1" value="547"></td>
-                            <td><input type="number" class="month-input" data-store="市野店" data-month="2" value="723"></td>
-                            <td><input type="number" class="month-input" data-store="市野店" data-month="3" value="520"></td>
-                            <td><input type="number" class="month-input" data-store="市野店" data-month="4" value="528"></td>
-                            <td><input type="number" class="month-input" data-store="市野店" data-month="5" value="607"></td>
-                            <td><input type="number" class="month-input" data-store="市野店" data-month="6" value="574"></td>
-                            <td><input type="number" class="month-input" data-store="市野店" data-month="7" value="318"></td>
-                            <td><input type="number" class="month-input" data-store="市野店" data-month="8" value="714"></td>
-                            <td><input type="number" class="month-input" data-store="市野店" data-month="9" value="657"></td>
-                            <td><input type="number" class="month-input" data-store="市野店" data-month="10" value="700"></td>
-                            <td><input type="number" class="month-input" data-store="市野店" data-month="11" value="600"></td>
-                        </tr>
-                        <tr>
-                            <td class="store-name">佐鳴台店</td>
-                            <td><input type="number" class="month-input" data-store="佐鳴台店" data-month="0" value="349"></td>
-                            <td><input type="number" class="month-input" data-store="佐鳴台店" data-month="1" value="719"></td>
-                            <td><input type="number" class="month-input" data-store="佐鳴台店" data-month="2" value="247"></td>
-                            <td><input type="number" class="month-input" data-store="佐鳴台店" data-month="3" value="433"></td>
-                            <td><input type="number" class="month-input" data-store="佐鳴台店" data-month="4" value="308"></td>
-                            <td><input type="number" class="month-input" data-store="佐鳴台店" data-month="5" value="265"></td>
-                            <td><input type="number" class="month-input" data-store="佐鳴台店" data-month="6" value="516"></td>
-                            <td><input type="number" class="month-input" data-store="佐鳴台店" data-month="7" value="311"></td>
-                            <td><input type="number" class="month-input" data-store="佐鳴台店" data-month="8" value="222"></td>
-                            <td><input type="number" class="month-input" data-store="佐鳴台店" data-month="9" value="293"></td>
-                            <td><input type="number" class="month-input" data-store="佐鳴台店" data-month="10" value="272"></td>
-                            <td><input type="number" class="month-input" data-store="佐鳴台店" data-month="11" value="379"></td>
-                        </tr>
-                        <tr>
-                            <td class="store-name">広島店</td>
-                            <td><input type="number" class="month-input" data-store="広島店" data-month="0" value="490"></td>
-                            <td><input type="number" class="month-input" data-store="広島店" data-month="1" value="493"></td>
-                            <td><input type="number" class="month-input" data-store="広島店" data-month="2" value="427"></td>
-                            <td><input type="number" class="month-input" data-store="広島店" data-month="3" value="542"></td>
-                            <td><input type="number" class="month-input" data-store="広島店" data-month="4" value="558"></td>
-                            <td><input type="number" class="month-input" data-store="広島店" data-month="5" value="416"></td>
-                            <td><input type="number" class="month-input" data-store="広島店" data-month="6" value="622"></td>
-                            <td><input type="number" class="month-input" data-store="広島店" data-month="7" value="641"></td>
-                            <td><input type="number" class="month-input" data-store="広島店" data-month="8" value="496"></td>
-                            <td><input type="number" class="month-input" data-store="広島店" data-month="9" value="385"></td>
-                            <td><input type="number" class="month-input" data-store="広島店" data-month="10" value="253"></td>
-                            <td><input type="number" class="month-input" data-store="広島店" data-month="11" value="620"></td>
-                        </tr>
+                    <tbody id="sr-input-table-body">
+                        <!-- JavaScript動的生成 -->
                     </tbody>
                 </table>
             </div>
@@ -515,64 +667,38 @@
             </div>
         </div>
 
-        <!-- Phase 4新機能: ナビゲーションセクション -->
-        <div class="navigation-section">
-            <div class="nav-title">🎯 Phase 4 分散型ワークフロー</div>
-            <p style="margin-bottom: 15px; opacity: 0.9; font-size: 0.95em;">
-                各事業部を順次設定し、統合PLで結果を確認する新しいワークフローです
-            </p>
+        <!-- 販管費19項目詳細表示セクション -->
+        <div class="expense-details-section">
+            <div class="expense-title">📋 販管費19項目詳細表示（統一構造Version 3.0）</div>
             
-            <div class="nav-buttons">
-                <button class="nav-btn btn-send-next" onclick="sendDataAndNavigateToNext()">
-                    ✅ SR事業部データ送信して次へ (W事業部)
-                </button>
-                <button class="nav-btn btn-back" onclick="goToInputSystem()">
-                    ⬅️ 入力システムに戻る
-                </button>
-                <button class="nav-btn btn-skip" onclick="skipToFinalPL()">
-                    ⏭️ 統合PLに直接移動
-                </button>
+            <div class="expense-table">
+                <table class="input-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;">ID</th>
+                            <th style="width: 120px;">費目名</th>
+                            <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
+                            <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expense-table-body">
+                        <!-- JavaScript動的生成 -->
+                    </tbody>
+                </table>
             </div>
         </div>
-
-        <!-- 既存の表示エリア（簡略版） -->
-        <main class="main-content">
-            <h2 class="section-title">SR事業部 計算結果プレビュー</h2>
-            
-            <div class="chart-container">
-                <canvas id="monthlyChart"></canvas>
-            </div>
-
-            <div id="results-summary" style="background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0;">
-                <h3 style="color: #2c3e50; margin-bottom: 10px;">📊 年間集計結果</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
-                    <div style="background: white; padding: 10px; border-radius: 6px; border: 2px solid #27ae60;">
-                        <div style="font-size: 0.8em; color: #666;">年間売上高</div>
-                        <div style="font-size: 1.2em; font-weight: bold; color: #27ae60;" id="total-sales">---万円</div>
-                    </div>
-                    <div style="background: white; padding: 10px; border-radius: 6px; border: 2px solid #3498db;">
-                        <div style="font-size: 0.8em; color: #666;">年間営業利益</div>
-                        <div style="font-size: 1.2em; font-weight: bold; color: #3498db;" id="total-profit">---万円</div>
-                    </div>
-                    <div style="background: white; padding: 10px; border-radius: 6px; border: 2px solid #e74c3c;">
-                        <div style="font-size: 0.8em; color: #666;">営業利益率</div>
-                        <div style="font-size: 1.2em; font-weight: bold; color: #e74c3c;" id="profit-rate">---%</div>
-                    </div>
-                </div>
-            </div>
-        </main>
     </div>
 
     <script>
-        // Phase 4: SR事業部用データ管理
+        // データ管理（前年実績をデフォルト値）
         let srData = {
             stores: {
-                '清水店': new Array(12).fill(0),
-                '静岡店': new Array(12).fill(0),
-                '掛川店': new Array(12).fill(0),
-                '市野店': new Array(12).fill(0),
-                '佐鳴台店': new Array(12).fill(0),
-                '広島店': new Array(12).fill(0)
+                '清水店': [416, 397, 421, 502, 471, 544, 567, 476, 355, 408, 299, 346],
+                '静岡店': [369, 386, 600, 535, 285, 437, 351, 270, 369, 391, 256, 242],
+                '掛川店': [284, 375, 508, 278, 394, 394, 377, 309, 248, 469, 448, 535],
+                '市野店': [328, 547, 723, 520, 528, 607, 574, 318, 714, 657, 700, 600],
+                '佐鳴台店': [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
+                '広島店': [490, 493, 427, 542, 558, 416, 622, 641, 496, 385, 253, 620]
             },
             settings: {
                 commission: 100,
@@ -582,33 +708,205 @@
             }
         };
 
+        const referenceData = [2236, 2916, 2927, 2810, 2544, 2663, 3008, 2324, 2403, 2602, 2228, 2721];
         let monthlyChart = null;
 
-        // Phase 4: 入力値の自動収集
-        function collectInputData() {
-            // 店舗別売上データ収集
-            const inputs = document.querySelectorAll('.month-input');
-            inputs.forEach(input => {
-                const store = input.dataset.store;
-                const month = parseInt(input.dataset.month);
-                const value = parseInt(input.value) || 0;
-                srData.stores[store][month] = value;
+        // 販管費19項目定義
+        const expenseItems = {
+            1: { name: "人件費統合", type: "variable" },
+            2: { name: "法定福利費", type: "calculated" },
+            3: { name: "衛生費", type: "fixed", annual: 166 },
+            4: { name: "物流管理費", type: "fixed", annual: 2500 },
+            5: { name: "地代家賃", type: "fixed", annual: 2574 },
+            6: { name: "外注費", type: "fixed", annual: 1470 },
+            7: { name: "貨物運賃", type: "variable_coeff", annual: 851 },
+            8: { name: "広告宣伝費", type: "setting" },
+            9: { name: "旅費交通費", type: "fixed", annual: 374 },
+            10: { name: "通信費", type: "fixed", annual: 227 },
+            11: { name: "販売促進費", type: "fixed", annual: 468 },
+            12: { name: "消耗品費", type: "fixed", annual: 43 },
+            13: { name: "事務用品費", type: "fixed", annual: 127 },
+            14: { name: "水道光熱費", type: "variable_coeff", annual: 579 },
+            15: { name: "支払手数料", type: "variable_coeff", annual: 1057 },
+            16: { name: "リース料", type: "fixed", annual: 14 },
+            17: { name: "保険料", type: "fixed", annual: 67 },
+            18: { name: "支払報酬料", type: "fixed", annual: 408 },
+            19: { name: "減価償却費", type: "fixed", annual: 230 }
+        };
+
+        // テーブル生成（店舗名に2×2ボタン配置）
+        function generateSRInputTable() {
+            const tbody = document.getElementById('sr-input-table-body');
+            if (!tbody) return;
+
+            let html = '';
+            
+            // 月次売上合計計算
+            const totals = [];
+            for (let month = 0; month < 12; month++) {
+                let monthTotal = 0;
+                Object.values(srData.stores).forEach(storeData => {
+                    monthTotal += storeData[month];
+                });
+                totals.push(monthTotal);
+            }
+
+            // 合計行
+            html += `
+                <tr class="total-row">
+                    <td rowspan="3" class="total-header">合計</td>
+                    <td class="total-sales">売上</td>
+                    ${totals.map(total => `<td class="total-sales">${formatNumber(total)}</td>`).join('')}
+                </tr>
+                <tr class="total-row">
+                    <td style="color: #059669;">増減</td>
+                    ${totals.map((total, i) => {
+                        const diff = total - referenceData[i];
+                        const className = diff >= 0 ? 'total-diff-positive' : 'total-diff-negative';
+                        return `<td class="${className}">${diff >= 0 ? '+' : ''}${formatNumber(diff)}</td>`;
+                    }).join('')}
+                </tr>
+                <tr style="background: #f3f4f6;">
+                    <td class="reference-cell">参考</td>
+                    ${referenceData.map(val => `<td class="reference-cell">${formatNumber(val)}</td>`).join('')}
+                </tr>
+            `;
+
+            // 各店舗行（1列内2段構造）
+            Object.entries(srData.stores).forEach(([storeName, values]) => {
+                html += `
+                    <tr>
+                        <td rowspan="2" class="store-cell">
+                            <div class="store-name">${storeName}</div>
+                            <div class="store-buttons">
+                                <button class="store-btn orange" onclick="incrementStore('${storeName}', 50)">+50万</button>
+                                <button class="store-btn orange" onclick="incrementStore('${storeName}', 100)">+100万</button>
+                                <button class="store-btn red" onclick="incrementStore('${storeName}', 150)">+150万</button>
+                                <button class="store-btn green" onclick="resetStoreToActual('${storeName}')">実績値</button>
+                            </div>
+                        </td>
+                        <td style="color: #3182ce; font-weight: 600;">売上</td>
+                        ${values.map((val, i) => `
+                            <td>
+                                <input type="number" class="month-input" 
+                                       value="${val}" 
+                                       data-store="${storeName}" 
+                                       data-month="${i}"
+                                       onchange="updateStoreData(this)">
+                            </td>
+                        `).join('')}
+                    </tr>
+                    <tr style="background: #f9fafb;">
+                        <td class="reference-cell">参考</td>
+                        ${values.map(val => `<td class="reference-cell">${formatNumber(val)}</td>`).join('')}
+                    </tr>
+                `;
             });
 
-            // 設定項目収集
+            tbody.innerHTML = html;
+        }
+
+        // 店舗データ更新
+        function updateStoreData(input) {
+            const store = input.dataset.store;
+            const month = parseInt(input.dataset.month);
+            const value = parseInt(input.value) || 0;
+            
+            srData.stores[store][month] = value;
+            calculateSR();
+            generateSRInputTable();
+            updateChart();
+        }
+
+        // 店舗別増額
+        function incrementStore(storeName, amount) {
+            if (!srData.stores[storeName]) return;
+            
+            for (let month = 0; month < 12; month++) {
+                srData.stores[storeName][month] += amount;
+            }
+            
+            calculateSR();
+            generateSRInputTable();
+            updateChart();
+        }
+
+        // 実績値復元
+        function resetStoreToActual(storeName) {
+            const actualData = {
+                '清水店': [416, 397, 421, 502, 471, 544, 567, 476, 355, 408, 299, 346],
+                '静岡店': [369, 386, 600, 535, 285, 437, 351, 270, 369, 391, 256, 242],
+                '掛川店': [284, 375, 508, 278, 394, 394, 377, 309, 248, 469, 448, 535],
+                '市野店': [328, 547, 723, 520, 528, 607, 574, 318, 714, 657, 700, 600],
+                '佐鳴台店': [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
+                '広島店': [490, 493, 427, 542, 558, 416, 622, 641, 496, 385, 253, 620]
+            };
+            
+            if (actualData[storeName]) {
+                srData.stores[storeName] = [...actualData[storeName]];
+            }
+            
+            calculateSR();
+            generateSRInputTable();
+            updateChart();
+        }
+
+        // プリセット機能
+        function applySRPreset(presetType) {
+            const storeNames = Object.keys(srData.stores);
+            
+            switch(presetType) {
+                case 'actual':
+                    srData.stores = {
+                        '清水店': [416, 397, 421, 502, 471, 544, 567, 476, 355, 408, 299, 346],
+                        '静岡店': [369, 386, 600, 535, 285, 437, 351, 270, 369, 391, 256, 242],
+                        '掛川店': [284, 375, 508, 278, 394, 394, 377, 309, 248, 469, 448, 535],
+                        '市野店': [328, 547, 723, 520, 528, 607, 574, 318, 714, 657, 700, 600],
+                        '佐鳴台店': [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
+                        '広島店': [490, 493, 427, 542, 558, 416, 622, 641, 496, 385, 253, 620]
+                    };
+                    break;
+                case '50p':
+                    storeNames.forEach(storeName => {
+                        for (let i = 0; i < 12; i++) {
+                            srData.stores[storeName][i] += 50;
+                        }
+                    });
+                    break;
+                case '100p':
+                    storeNames.forEach(storeName => {
+                        for (let i = 0; i < 12; i++) {
+                            srData.stores[storeName][i] += 100;
+                        }
+                    });
+                    break;
+                case '150p':
+                    storeNames.forEach(storeName => {
+                        for (let i = 0; i < 12; i++) {
+                            srData.stores[storeName][i] += 150;
+                        }
+                    });
+                    break;
+            }
+            
+            calculateSR();
+            generateSRInputTable();
+            updateChart();
+        }
+
+        // 入力値収集
+        function collectInputData() {
             srData.settings.commission = parseInt(document.getElementById('commission').value) || 100;
             srData.settings.bonus6 = parseInt(document.getElementById('bonus6').value) || 100;
             srData.settings.bonus12 = parseInt(document.getElementById('bonus12').value) || 0;
             srData.settings.advertising = parseInt(document.getElementById('advertising').value) || 30;
-
             return srData;
         }
 
-        // Phase 4: SR計算実行（統一構造対応）
+        // SR計算
         function calculateSR() {
             collectInputData();
             
-            // 月次売上合計計算
             const monthlySales = [];
             for (let month = 0; month < 12; month++) {
                 let monthTotal = 0;
@@ -618,42 +916,29 @@
                 monthlySales.push(monthTotal);
             }
 
-            // SR事業部PL計算（既存ロジック継承）
             const monthlyResults = monthlySales.map((sales, i) => {
-                const cogs = Math.round(sales * 0.272); // 仕入原価率27.2%
+                const cogs = Math.round(sales * 0.272);
                 const grossProfit = sales - cogs;
                 
-                // 人件費計算（売上レンジ別係数）
                 const basePersonnel = sales * 0.10;
                 const coefficient = getPersonnelCoefficient(sales);
                 let personnel = Math.round(basePersonnel * coefficient);
                 
-                // 特殊手当追加
-                if (i === 11 || i === 3 || i === 7) personnel += srData.settings.commission; // 営業コミッション
-                if (i === 11) personnel += srData.settings.bonus6; // 6月賞与
-                if (i === 5) personnel += srData.settings.bonus12; // 12月賞与
+                if (i === 11 || i === 3 || i === 7) personnel += srData.settings.commission;
+                if (i === 11) personnel += srData.settings.bonus6;
+                if (i === 5) personnel += srData.settings.bonus12;
                 
-                const welfare = Math.round(personnel * 0.1284); // 法定福利費
+                const welfare = Math.round(personnel * 0.1284);
                 const advertising = srData.settings.advertising;
                 
-                // その他経費（年額を月割り + 変動費）
                 const otherExpenses = 
-                    Math.round(166/12) + // 衛生費
-                    Math.round(2500/12) + // 物流管理費
-                    Math.round(2574/12) + // 地代家賃
-                    Math.round(1470/12) + // 外注費
-                    Math.round(851/12 * getVariableCoeff('freight', i)) + // 貨物運賃
-                    Math.round(374/12) + // 旅費交通費
-                    Math.round(227/12) + // 通信費
-                    Math.round(468/12) + // 販売促進費
-                    Math.round(43/12) + // 消耗品費
-                    Math.round(127/12) + // 事務用品費
-                    Math.round(579/12 * getVariableCoeff('utilities', i)) + // 水道光熱費
-                    Math.round(1057/12 * getVariableCoeff('fees', i)) + // 支払手数料
-                    Math.round(14/12) + // リース料
-                    Math.round(67/12) + // 保険料
-                    Math.round(408/12) + // 支払報酬料
-                    Math.round(230/12); // 減価償却費
+                    Math.round(166/12) + Math.round(2500/12) + Math.round(2574/12) + 
+                    Math.round(1470/12) + Math.round(851/12 * getVariableCoeff('freight', i)) + 
+                    Math.round(374/12) + Math.round(227/12) + Math.round(468/12) + 
+                    Math.round(43/12) + Math.round(127/12) + 
+                    Math.round(579/12 * getVariableCoeff('utilities', i)) + 
+                    Math.round(1057/12 * getVariableCoeff('fees', i)) + 
+                    Math.round(14/12) + Math.round(67/12) + Math.round(408/12) + Math.round(230/12);
                 
                 const totalExpenses = personnel + welfare + advertising + otherExpenses;
                 const operatingProfit = grossProfit - totalExpenses;
@@ -664,36 +949,82 @@
                 };
             });
 
-            // 年間集計
+            const expenseDetails = {};
+            for (let id = 1; id <= 19; id++) {
+                expenseDetails[id] = monthlyResults.map((result, monthIndex) => {
+                    return calculateExpenseItem(id, result, monthIndex);
+                });
+            }
+
             const annual = {
                 sales: monthlyResults.reduce((sum, m) => sum + m.sales, 0),
-                cogs: monthlyResults.reduce((sum, m) => sum + m.cogs, 0),
-                grossProfit: monthlyResults.reduce((sum, m) => sum + m.grossProfit, 0),
-                totalExpenses: monthlyResults.reduce((sum, m) => sum + m.totalExpenses, 0),
                 operatingProfit: monthlyResults.reduce((sum, m) => sum + m.operatingProfit, 0)
             };
 
-            // 結果表示更新
             updateResultsDisplay(annual);
-            updateChart(monthlyResults);
+            updateExpenseTable(expenseDetails);
             
-            // グローバル変数に保存（送信用）
-            window.srResults = { monthlyResults, annual, monthlySales };
-            
+            window.srResults = { monthlyResults, annual, monthlySales, expenseDetails };
             return { monthlyResults, annual };
+        }
+
+        // 販管費項目計算
+        function calculateExpenseItem(id, monthResult, monthIndex) {
+            const item = expenseItems[id];
+            
+            switch (item.type) {
+                case 'variable':
+                    return id === 1 ? monthResult.personnel : 0;
+                case 'calculated':
+                    return id === 2 ? monthResult.welfare : 0;
+                case 'fixed':
+                    return Math.round(item.annual / 12);
+                case 'variable_coeff':
+                    const coeffType = id === 7 ? 'freight' : (id === 14 ? 'utilities' : 'fees');
+                    return Math.round(item.annual / 12 * getVariableCoeff(coeffType, monthIndex));
+                case 'setting':
+                    return id === 8 ? srData.settings.advertising : 0;
+                default:
+                    return 0;
+            }
+        }
+
+        // 販管費テーブル更新
+        function updateExpenseTable(expenseDetails) {
+            const tbody = document.getElementById('expense-table-body');
+            if (!tbody) return;
+
+            let html = '';
+            for (let id = 1; id <= 19; id++) {
+                html += `
+                    <tr>
+                        <td class="expense-id">${id}</td>
+                        <td class="expense-name">${expenseItems[id].name}</td>
+                        ${expenseDetails[id].map(amount => 
+                            `<td class="expense-amount">${formatNumber(amount)}</td>`
+                        ).join('')}
+                    </tr>
+                `;
+            }
+            tbody.innerHTML = html;
         }
 
         // 結果表示更新
         function updateResultsDisplay(annual) {
-            document.getElementById('total-sales').textContent = formatNumber(annual.sales) + '万円';
-            document.getElementById('total-profit').textContent = formatNumber(annual.operatingProfit) + '万円';
+            const totalElement = document.getElementById('annual-total');
+            const diffElement = document.getElementById('annual-diff');
             
-            const profitRate = annual.sales > 0 ? (annual.operatingProfit / annual.sales * 100).toFixed(1) : '0.0';
-            document.getElementById('profit-rate').textContent = profitRate + '%';
+            if (totalElement) totalElement.textContent = formatNumber(annual.sales) + '万円';
+            
+            if (diffElement) {
+                const refTotal = referenceData.reduce((sum, val) => sum + val, 0);
+                const diff = annual.sales - refTotal;
+                diffElement.textContent = (diff >= 0 ? '+' : '') + formatNumber(diff) + '万円';
+            }
         }
 
         // チャート更新
-        function updateChart(monthlyResults) {
+        function updateChart() {
             const ctx = document.getElementById('monthlyChart');
             if (!ctx) return;
             
@@ -703,43 +1034,49 @@
             
             const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
             
+            const currentData = [];
+            for (let month = 0; month < 12; month++) {
+                let monthTotal = 0;
+                Object.values(srData.stores).forEach(storeData => {
+                    monthTotal += storeData[month];
+                });
+                currentData.push(monthTotal);
+            }
+            
             monthlyChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: months,
                     datasets: [
                         {
-                            label: '売上高',
-                            data: monthlyResults.map(m => m.sales),
-                            backgroundColor: 'rgba(196, 119, 204, 0.8)',
-                            borderColor: '#C477CC',
-                            borderWidth: 2
+                            label: '参考売上',
+                            data: referenceData,
+                            backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            borderWidth: 1
                         },
                         {
-                            label: '営業利益',
-                            data: monthlyResults.map(m => m.operatingProfit),
-                            type: 'line',
-                            backgroundColor: 'rgba(39, 174, 96, 0.8)',
-                            borderColor: '#27ae60',
-                            borderWidth: 3,
-                            fill: false
+                            label: '予算設定',
+                            data: currentData,
+                            backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                            borderColor: 'rgba(34, 197, 94, 1)',
+                            borderWidth: 1
                         }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: true, position: 'top' }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
-                        y: { beginAtZero: true, title: { display: true, text: '金額（万円）' } }
+                        y: { beginAtZero: true, ticks: { font: { size: 8 } } },
+                        x: { ticks: { font: { size: 8 } } }
                     }
                 }
             });
         }
 
-        // Phase 4: データ送信＆次の事業部へ移動
+        // データ送信
         function sendDataAndNavigateToNext() {
             if (!window.srResults) {
                 alert('先に計算を実行してください。');
@@ -747,9 +1084,8 @@
             }
 
             try {
-                const { monthlyResults, annual, monthlySales } = window.srResults;
+                const { monthlyResults, annual, monthlySales, expenseDetails } = window.srResults;
                 
-                // 統一構造データ生成（引継ぎ書準拠）
                 const unifiedData = {
                     metadata: {
                         department: 'SR',
@@ -763,43 +1099,18 @@
                     },
                     sales: monthlySales,
                     cogs: monthlyResults.map(m => m.cogs),
-                    expenses: {
-                        1: monthlyResults.map(m => m.personnel),
-                        2: monthlyResults.map(m => m.welfare),
-                        3: new Array(12).fill(Math.round(166/12)),
-                        4: new Array(12).fill(Math.round(2500/12)),
-                        5: new Array(12).fill(Math.round(2574/12)),
-                        6: new Array(12).fill(Math.round(1470/12)),
-                        7: monthlyResults.map((m, i) => Math.round(851/12 * getVariableCoeff('freight', i))),
-                        8: new Array(12).fill(srData.settings.advertising),
-                        9: new Array(12).fill(Math.round(374/12)),
-                        10: new Array(12).fill(Math.round(227/12)),
-                        11: new Array(12).fill(Math.round(468/12)),
-                        12: new Array(12).fill(Math.round(43/12)),
-                        13: new Array(12).fill(Math.round(127/12)),
-                        14: monthlyResults.map((m, i) => Math.round(579/12 * getVariableCoeff('utilities', i))),
-                        15: monthlyResults.map((m, i) => Math.round(1057/12 * getVariableCoeff('fees', i))),
-                        16: new Array(12).fill(Math.round(14/12)),
-                        17: new Array(12).fill(Math.round(67/12)),
-                        18: new Array(12).fill(Math.round(408/12)),
-                        19: new Array(12).fill(Math.round(230/12))
-                    }
+                    expenses: expenseDetails
                 };
 
-                // LocalStorageに保存（統一キー）
                 localStorage.setItem('pl_system_sr_data', JSON.stringify(unifiedData));
                 
-                // 進捗管理更新
-                updateProgress(1, 'completed');
-                
-                // 成功通知＆移動
                 alert('✅ SR事業部データを統合PLシステムに送信しました！\n\n' +
                       `年間売上: ${formatNumber(annual.sales)}万円\n` +
-                      `年間営業利益: ${formatNumber(annual.operatingProfit)}万円\n\n` +
+                      `年間営業利益: ${formatNumber(annual.operatingProfit)}万円\n` +
+                      `販管費19項目: 完全復旧済み\n\n` +
                       '次はW事業部の設定を行います。');
                 
-                // W事業部PLページに移動
-                window.location.href = 'w-pl.html';
+                window.location.href = '../w-pl.html';
                 
             } catch (error) {
                 alert('データ送信に失敗しました: ' + error.message);
@@ -807,22 +1118,6 @@
             }
         }
 
-        // Phase 4: 進捗管理更新
-        function updateProgress(step, status) {
-            const steps = document.querySelectorAll('.step-card');
-            const progressBar = document.querySelector('.progress-bar');
-            
-            if (status === 'completed') {
-                steps[step - 1].classList.add('completed');
-                if (step < 4) {
-                    steps[step].classList.add('active');
-                }
-                progressBar.style.width = `${(step / 4) * 100}%`;
-                progressBar.textContent = `${step}/4 完了 (${Math.round((step / 4) * 100)}%)`;
-            }
-        }
-
-        // Phase 4: その他のナビゲーション機能
         function goToInputSystem() {
             if (confirm('入力システムに戻りますか？\n現在の入力内容は保持されます。')) {
                 window.location.href = '../budget-input.html';
@@ -835,7 +1130,7 @@
             }
         }
 
-        // ヘルパー関数群
+        // ヘルパー関数
         function getPersonnelCoefficient(salesAmount) {
             const ranges = [
                 { min: 0, max: 500, coeff: 1.0 },
@@ -866,21 +1161,12 @@
             return Math.round(num).toLocaleString();
         }
 
-        // Phase 4: 初期化
-        function initialize() {
-            // 初期値設定
-            const inputs = document.querySelectorAll('.month-input');
-            inputs.forEach(input => {
-                input.addEventListener('input', debounce(calculateSR, 300));
-            });
-            
+        // 設定変更時の自動再計算
+        function setupAutoCalculation() {
             const settings = document.querySelectorAll('.setting-input');
             settings.forEach(input => {
                 input.addEventListener('input', debounce(calculateSR, 300));
             });
-            
-            // 初期計算実行
-            calculateSR();
         }
 
         function debounce(func, wait) {
@@ -895,7 +1181,14 @@
             };
         }
 
-        // ページ読み込み時に初期化
+        // 初期化
+        function initialize() {
+            generateSRInputTable();
+            calculateSR();
+            updateChart();
+            setupAutoCalculation();
+        }
+
         window.addEventListener('load', initialize);
     </script>
 </body>
