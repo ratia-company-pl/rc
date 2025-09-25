@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RCD社事業部PLシミュレーター（統合システム連携版）</title>
+    <title>RCD社PLシミュレーター Phase 4版（分散型入力システム対応完成版）</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -17,1180 +17,985 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: #333;
-            line-height: 1.4;
+            padding: 10px;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 10px;
         }
 
-        /* 共通ヘッダー仕様（青・水色系） */
-        .header-row1 {
-            background: linear-gradient(135deg, #3498db 0%, #5dade2 100%);
+        /* === Phase 4新機能: 進捗管理ヘッダー === */
+        .progress-header {
+            background: linear-gradient(135deg, #805ad5 0%, #9f7aea 100%);
             color: white;
-            border-radius: 12px 12px 0 0;
-            padding: 15px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .workflow-progress {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .step-card {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.85em;
+            font-weight: 600;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .step-card.completed {
+            background: rgba(255, 255, 255, 0.4);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+
+        .step-card.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: scale(1.05);
+        }
+
+        .progress-bar-container {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 3px;
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.8);
+            height: 20px;
+            border-radius: 18px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #805ad5;
+            font-weight: bold;
+            font-size: 0.8em;
+            transition: width 0.5s ease;
+        }
+
+        /* === Phase 4新機能: 入力セクション === */
+        .input-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #805ad5;
+        }
+
+        .input-title {
+            color: #2c3e50;
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-title::before {
+            content: "🏭";
+            font-size: 1.2em;
+        }
+
+        .spec-info-card {
+            background: linear-gradient(135deg, #e8f4fd 0%, #f0f8ff 100%);
+            border: 2px solid #805ad5;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .spec-title {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #805ad5;
+            margin-bottom: 15px;
+        }
+
+        .spec-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            font-size: 0.9em;
+            color: #2c3e50;
+        }
+
+        .spec-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .monthly-inputs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .month-input-section {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .month-input-section:hover {
+            border-color: #805ad5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .month-title {
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .input-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .input-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.9em;
+        }
+
+        .input-field {
+            width: 80px;
+            padding: 8px;
+            border: 2px solid #ced4da;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .input-field:focus {
+            border-color: #805ad5;
+            box-shadow: 0 0 0 3px rgba(128, 90, 213, 0.1);
+            outline: none;
+        }
+
+        .purchase-input {
+            background: #e8f5e8;
+            border-color: #27ae60;
+        }
+
+        .fee-input {
+            background: #fff3e0;
+            border-color: #ff9800;
+        }
+
+        /* === Phase 4新機能: ナビゲーションボタン === */
+        .navigation-section {
+            background: linear-gradient(135deg, #805ad5 0%, #9f7aea 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .nav-title {
+            font-size: 1.1em;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-send-complete {
+            background: #27ae60;
+            color: white;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-send-complete:hover {
+            background: #2ecc71;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-back {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-final-pl {
+            background: #e74c3c;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            font-size: 1.1em;
+            padding: 15px 30px;
+        }
+
+        .btn-final-pl:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+
+        /* === 既存スタイル継承 === */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header-row1 {
+            background: linear-gradient(135deg, #805ad5 0%, #9f7aea 100%);
+            color: white;
+            padding: 15px 20px;
         }
 
         .main-title {
-            font-size: 1.6em;
+            font-size: 1.8em;
             font-weight: 700;
-            text-align: left;
             margin: 0;
         }
 
-        .header-row2 {
-            background: linear-gradient(135deg, #2980b9 0%, #3498db 100%);
-            padding: 10px 15px;
-        }
-
-        .header-row3 {
-            background: #f8f9fa;
-            padding: 12px 15px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .header-row4 {
-            background: #ecf0f1;
-            border-radius: 0 0 12px 12px;
-            padding: 10px 15px;
-            margin-bottom: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        /* ナビゲーションボタン（2行目全体幅使用、バランス配置） */
-        .nav-buttons {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            max-width: 1100px;
-            gap: 8px;
-            margin: 0 auto;
-        }
-
-        .btn {
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.8em;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
-            white-space: nowrap;
-            flex: 1;
-            min-width: 140px;
-            max-width: 180px;
-        }
-
-        .btn-nav {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-nav:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-1px);
-        }
-
-        .btn-action {
-            background: #3498db;
-            color: white;
-        }
-
-        .btn-action:hover {
-            background: #2980b9;
-        }
-
-        .btn-success {
-            background: #27ae60;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #229954;
-        }
-
-        /* KPIカード4列レイアウト（白ベース、動的色分け） */
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(160px, 1fr));
-            gap: 10px;
-            width: 100%;
-            max-width: 900px;
-        }
-
-        .kpi-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            color: #2c3e50;
-            border: 2px solid #3498db;
-            padding: 10px 12px;
-            border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease;
-        }
-
-        .kpi-card:hover {
-            transform: translateY(-2px);
-        }
-
-        .kpi-card.positive {
-            border-color: #27ae60;
-            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
-        }
-
-        .kpi-card.negative {
-            border-color: #e74c3c;
-            background: linear-gradient(135deg, #fdf2f2 0%, #fef5f5 100%);
-        }
-
-        .kpi-label {
-            font-size: 0.75em;
-            color: #7f8c8d;
-            margin-bottom: 6px;
-            font-weight: 600;
-        }
-
-        .kpi-value {
-            font-size: 1.3em;
-            font-weight: 700;
-            margin-bottom: 3px;
-            line-height: 1.1;
-            color: #2c3e50;
-        }
-
-        .kpi-value.positive {
-            color: #27ae60;
-        }
-
-        .kpi-value.negative {
-            color: #e74c3c;
-        }
-
-        .kpi-unit {
-            font-size: 0.7em;
-            color: #7f8c8d;
-            font-weight: 500;
-        }
-
-        .linkage-status {
-            margin-bottom: 8px;
-            padding: 8px 15px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.85em;
-            text-align: center;
-        }
-
-        .linkage-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .linkage-warning {
-            background: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
-        }
-
-        .linkage-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .dept-subtitle {
-            color: #7f8c8d;
-            font-size: 0.85em;
-            margin: 8px 0 0 0;
-            font-weight: 500;
-        }
-
-        /* チャートセクション */
-        .chart-section {
+        .main-content {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
-        .chart-title {
+        .section-title {
             color: #2c3e50;
-            font-size: 1.1em;
+            margin-bottom: 15px;
+            font-size: 1.4em;
             font-weight: 700;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .chart-legend {
-            display: flex;
-            gap: 20px;
-            font-size: 0.8em;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 2px;
+            border-bottom: 3px solid #805ad5;
+            padding-bottom: 8px;
         }
 
         .chart-container {
             position: relative;
             height: 140px;
-            margin-bottom: 10px;
-        }
-
-        /* テーブルセクション */
-        .table-section {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            overflow-x: auto;
-        }
-
-        .table-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .table-title {
-            color: #2c3e50;
-            font-size: 1.2em;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .table-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .spec-info {
-            background: linear-gradient(135deg, #e8f4fd 0%, #f0f8ff 100%);
-            border: 2px solid #3498db;
-            border-left: 6px solid #3498db;
-            padding: 15px;
-            margin-top: 20px;
-            border-radius: 8px;
-            font-size: 0.9em;
-            line-height: 1.6;
-        }
-
-        .spec-info strong {
-            color: #2c3e50;
-            font-weight: 700;
-        }
-
-        table {
             width: 100%;
-            border-collapse: collapse;
-            min-width: 900px;
+            margin: 15px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
         }
 
-        th, td {
-            padding: 10px 8px;
-            text-align: right;
-            border: 1px solid #ddd;
+        .results-summary {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
         }
 
-        th {
-            background: #34495e;
-            color: white;
-            font-weight: 700;
-            position: sticky;
-            top: 0;
-            font-size: 13px;
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
         }
 
-        th:first-child,
-        td:first-child {
-            text-align: left;
-            font-weight: 700;
+        .result-card {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            border: 2px solid #805ad5;
         }
 
-        tr:hover {
-            background: rgba(52, 73, 94, 0.08);
+        .result-card.negative {
+            border-color: #e74c3c;
         }
 
-        /* 行タイプ別スタイル */
-        .sales-row { background: rgba(39, 174, 96, 0.12); }
-        .expense-row { background: rgba(231, 76, 60, 0.12); }
-        .profit-row { background: rgba(52, 152, 219, 0.12); font-weight: 700; }
-        .total-row { background: rgba(52, 73, 94, 0.25); font-weight: 700; }
-        .purchase-row { background: #f8f9fa; }
-        .fee-row { background: #fff3cd; }
+        .result-label {
+            font-size: 0.8em;
+            color: #666;
+        }
 
-        .positive { color: #27ae60 !important; font-weight: 600; }
-        .negative { color: #e74c3c !important; font-weight: 600; }
+        .result-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #805ad5;
+        }
+
+        .result-value.negative {
+            color: #e74c3c;
+        }
 
         /* レスポンシブ対応 */
         @media (max-width: 768px) {
             .container { padding: 5px; }
-            
-            .main-title { font-size: 28px; }
-            
-            .nav-buttons {
-                flex-direction: column;
-                gap: 8px;
-                align-items: stretch;
-            }
-            
-            .btn {
-                flex: none;
-                width: 100%;
-                font-size: 0.85em;
-                padding: 10px 12px;
-            }
-            
-            .kpi-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-            }
-            
-            .table-header {
-                flex-direction: column;
-                gap: 10px;
-                align-items: flex-start;
-            }
-            
-            .table-actions {
-                flex-direction: column;
-                width: 100%;
-            }
-            
-            .chart-legend {
-                flex-direction: column;
-                gap: 8px;
-            }
-        }
-
-        @media (max-width: 1024px) and (min-width: 769px) {
-            .nav-buttons {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 8px;
-            }
-
-            .btn {
-                flex: 0 1 calc(33.333% - 8px);
-                min-width: 150px;
-            }
+            .workflow-progress { grid-template-columns: repeat(2, 1fr); }
+            .monthly-inputs-grid { grid-template-columns: 1fr; }
+            .nav-buttons { flex-direction: column; }
+            .spec-details { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- 共通ヘッダー仕様（4行構造） -->
-        <!-- 1行目: タイトル（左端配置） -->
-        <div class="header-row1">
-            <h1 class="main-title">RCD社事業部PLシミュレーター（統合システム連携版）</h1>
-        </div>
-
-        <!-- 2行目: グローバルナビゲーションボタン -->
-        <div class="header-row2">
-            <div class="nav-buttons">
-                <a href="../index.html" class="btn btn-nav">ダッシュボード</a>
-                <a href="../budget-input.html" class="btn btn-nav">予算入力</a>
-                <a href="sr-pl.html" class="btn btn-nav">SR事業部PL</a>
-                <a href="w-pl.html" class="btn btn-nav">W事業部PL</a>
-                <a href="rc-pl.html" class="btn btn-nav">RC卸事業部PL</a>
-                <a href="../combined-dashboard/index.html" class="btn btn-nav">統合PLシステム</a>
+        <!-- Phase 4新機能: 進捗管理ヘッダー -->
+        <div class="progress-header">
+            <div class="progress-title">🎯 分散型事業部別入力システム Phase 4 完成</div>
+            <div class="workflow-progress">
+                <div class="step-card completed">
+                    <div>Step 1</div>
+                    <div>SR事業部</div>
+                </div>
+                <div class="step-card completed">
+                    <div>Step 2</div>
+                    <div>W事業部</div>
+                </div>
+                <div class="step-card completed">
+                    <div>Step 3</div>
+                    <div>RC支店</div>
+                </div>
+                <div class="step-card active">
+                    <div>Step 4</div>
+                    <div>RCD社</div>
+                </div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar">4/4 完了 (100%)</div>
             </div>
         </div>
 
-        <!-- 3行目: KPIカード -->
-        <div class="header-row3">
-            <div class="kpi-grid">
-                <div class="kpi-card">
-                    <div class="kpi-label">年間売上高</div>
-                    <div class="kpi-value" id="kpi-sales">---</div>
-                    <div class="kpi-unit">万円</div>
-                </div>
-                <div class="kpi-card" id="profit-card">
-                    <div class="kpi-label">年間営業利益</div>
-                    <div class="kpi-value" id="kpi-profit">---</div>
-                    <div class="kpi-unit">万円</div>
-                </div>
-                <div class="kpi-card" id="rate-card">
-                    <div class="kpi-label">営業利益率</div>
-                    <div class="kpi-value" id="kpi-rate">---</div>
-                    <div class="kpi-unit">%</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">年間仕入本数</div>
-                    <div class="kpi-value" id="kpi-volume">---</div>
-                    <div class="kpi-unit">本</div>
-                </div>
+        <!-- 従来のヘッダー（簡略版） -->
+        <header class="header">
+            <div class="header-row1">
+                <h1 class="main-title">RCD社PLシミュレーター Phase 4版 完成</h1>
             </div>
-        </div>
+        </header>
 
-        <!-- 4行目: 連携ステータス -->
-        <div class="header-row4">
-            <div id="linkage-status" class="linkage-status linkage-warning">
-                ✗ データが見つかりません
-            </div>
-            <p class="dept-subtitle">外部委託型特殊処理・仕入単価2,000万円/本・利益率3%固定・支払手数料90.6万円×回数</p>
-        </div>
-
-        <!-- Chart.js視覚化セクション -->
-        <div class="chart-section">
-            <div class="chart-title">
-                月次推移チャート（売上・利益2軸表示）
-                <div class="chart-legend">
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #3498db;"></div>
-                        <span>売上高（左軸）</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color" style="background: #27ae60;"></div>
-                        <span>営業利益（右軸）</span>
-                    </div>
-                </div>
-            </div>
-            <div class="chart-container">
-                <canvas id="monthly-chart"></canvas>
-            </div>
-        </div>
-
-        <!-- テーブルセクション -->
-        <div class="table-section">
-            <div class="table-header">
-                <h2 class="table-title">RCD社事業部 月次PL表示（統合システム連携版）</h2>
-                <div class="table-actions">
-                    <button class="btn btn-action" onclick="loadLinkageData()">連携データ再読み込み</button>
-                    <button class="btn btn-action" onclick="manualDataSend()">手動データ送信</button>
-                    <button class="btn btn-success" onclick="exportToCSV()">CSV出力</button>
-                    <button class="btn btn-action" onclick="checkIntegrationStatus()">統合システム確認</button>
-                </div>
-            </div>
-            <div id="rcd-table"></div>
+        <!-- Phase 4新機能: RCD社入力セクション -->
+        <div class="input-section">
+            <div class="input-title">RCD社 仕入・手数料設定</div>
             
-            <!-- 仕様説明（PLテーブル下に移動） -->
-            <div class="spec-info">
-                <strong>RCD社事業部特有仕様・計算仕様</strong><br>
-                仕入単価: 2,000万円/本　　　　利益率: 3%固定　　　　支払手数料: 1件90.6万円×回数　　　　外部委託: 人件費・経費0円
+            <!-- 仕様説明カード -->
+            <div class="spec-info-card">
+                <div class="spec-title">RCD社事業部 特有仕様</div>
+                <div class="spec-details">
+                    <div class="spec-item">
+                        <div>仕入単価</div>
+                        <div>2,000万円/本</div>
+                    </div>
+                    <div class="spec-item">
+                        <div>利益率</div>
+                        <div>3%固定</div>
+                    </div>
+                    <div class="spec-item">
+                        <div>支払手数料</div>
+                        <div>90.6万円/回</div>
+                    </div>
+                    <div class="spec-item">
+                        <div>外部委託</div>
+                        <div>人件費・経費0円</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 月別入力グリッド -->
+            <div class="monthly-inputs-grid">
+                <div class="month-input-section">
+                    <div class="month-title">7月</div>
+                    <div class="input-row">
+                        <span class="input-label">仕入本数</span>
+                        <input type="number" class="input-field purchase-input" data-month="0" data-type="purchase" value="8" min="0" max="20">
+                        <span>本</span>
+                    </div>
+                    <div class="input-row">
+                        <span class="input-label">手数料回数</span>
+                        <input type="number" class="input-field fee-input" data-month="0" data-type="fee" value="1" min="0" max="10">
+                        <span>回</span>
+                    </div>
+                </div>
+
+                <div class="month-input-section">
+                    <div class="month-title">8月</div>
+                    <div class="input-row">
+                        <span class="input-label">仕入本数</span>
+                        <input type="number" class="input-field purchase-input" data-month="1" data-type="purchase" value="8" min="0" max="20">
+                        <span>本</span>
+                    </div>
+                    <div class="input-row">
+                        <span class="input-label">手数料回数</span>
+                        <input type="number" class="input-field fee-input" data-month="1" data-type="fee" value="1" min="0" max="10">
+                        <span>回</span>
+                    </div>
+                </div>
+
+                <div class="month-input-section">
+                    <div class="month-title">9月</div>
+                    <div class="input-row">
+                        <span class="input-label">仕入本数</span>
+                        <input type="number" class="input-field purchase-input" data-month="2" data-type="purchase" value="8" min="0" max="20">
+                        <span>本</span>
+                    </div>
+                    <div class="input-row">
+                        <span class="input-label">手数料回数</span>
+                        <input type="number" class="input-field fee-input" data-month="2" data-type="fee" value="1" min="0" max="10">
+                        <span>回</span>
+                    </div>
+                </div>
+
+                <div class="month-input-section">
+                    <div class="month-title">10月</div>
+                    <div class="input-row">
+                        <span class="input-label">仕入本数</span>
+                        <input type="number" class="input-field purchase-input" data-month="3" data-type="purchase" value="8" min="0" max="20">
+                        <span>本</span>
+                    </div>
+                    <div class="input-row">
+                        <span class="input-label">手数料回数</span>
+                        <input type="number" class="input-field fee-input" data-month="3" data-type="fee" value="1" min="0" max="10">
+                        <span>回</span>
+                    </div>
+                </div>
+
+                <div class="month-input-section">
+                    <div class="month-title">11月</div>
+                    <div class="input-row">
+                        <span class="input-label">仕入本数</span>
+                        <input type="number" class="input-field purchase-input" data-month="4" data-type="purchase" value="8" min="0" max="20">
+                        <span>本</span>
+                    </div>
+                    <div class="input-row">
+                        <span class="input-label">手数料回数</span>
+                        <input type="number" class="input-field fee-input" data-month="4" data-type="fee" value="1" min="0" max="10">
+                        <span>回</span>
+                    </div>
+                </div>
+
+                <div class="month-input-section">
+                    <div class="month-title">12月</div>
+                    <div class="input-row">
+                        <span class="input-label">仕入本数</span>
+                        <input type="number" class="input-field purchase-input" data-month="5" data-type="purchase" value="8" min="0" max="20">
+                        <span>本</span>
+                    </div>
+                    <div class="input-row">
+                        <span class="input-label">手数料回数</span>
+                        <input type="number" class="input-field fee-input" data-month="5" data-type="fee" value="1" min="0" max="10">
+                        <span>回</span>
+                    </div>
+                </div>
+
+                <div class="month-input-section">
+                    <div class="month-title">1月</div>
+                    <div class="input-row">
+                        <span class="input-label">仕入本数</span>
+                        <input type="number" class="input-field purchase-input" data-month="6" data-type="purchase" value="8" min="0" max="20">
+                        <span>本</span>
+                    </div>
+                    <div class="input-row">
+                        <span class="input-label">手数料回数</span>
+                        <input type="number" class="input-field fee-input" data-month="6" data-type="fee" value="1" min="0" max="10">
+                        <span>回</span>
+                    </div>
+                </div>
+
+                <div class="month-input-section">
+                    <div class="month-title">2月</div>
+                    <div class="input-row">
+                        <span class="input-label">仕入本数</span>
+                        <input type="number" class="input-field purchase-input" data-month="7" data-type="purchase" value="8" min="0" max="20">
+                        <span>本</span>
+                    </div>
+                    <div class="input-row">
+                        <span class="input-label">手数料回数</span>
+                        <input type="number" class="input-field fee-input" data-month="7" data-type="fee" value="1" min="0" max="10">
+                        <span>回</span>
+                    </div>
+                </div>
+
+                <div class="month-input-section">
+                    <div class="month-title">3月</div>
+                    <div class="input-row">
+                        <span class="input-label">仕入本数</span>
+                        <input type="number" class="input-field purchase-input" data-month="8" data-type="purchase" value="8" min="0" max="20">
+                        <span>本</span>
+                    </div>
+                    <div class="input-row">
+                        <span class="input-label">手数料回数</span>
+                        <input type="number" class="input-field fee-input" data-month="8" data-type="fee" value="1" min="0" max="10">
+                        <span>回</span>
+                    </div>
+                </div>
+
+                <div class="month-input-section">
+                    <div class="month-title">4月</div>
+                    <div class="input-row">
+                        <span class="input-label">仕入本数</span>
+                        <input type="number" class="input-field purchase-input" data-month="9" data-type="purchase" value="8" min="0" max="20">
+                        <span>本</span>
+                    </div>
+                    <div class="input-row">
+                        <span class="input-label">手数料回数</span>
+                        <input type="number" class="input-field fee-input" data-month="9" data-type="fee" value="1" min="0" max="10">
+                        <span>回</span>
+                    </div>
+                </div>
+
+                <div class="month-input-section">
+                    <div class="month-title">5月</div>
+                    <div class="input-row">
+                        <span class="input-label">仕入本数</span>
+                        <input type="number" class="input-field purchase-input" data-month="10" data-type="purchase" value="8" min="0" max="20">
+                        <span>本</span>
+                    </div>
+                    <div class="input-row">
+                        <span class="input-label">手数料回数</span>
+                        <input type="number" class="input-field fee-input" data-month="10" data-type="fee" value="1" min="0" max="10">
+                        <span>回</span>
+                    </div>
+                </div>
+
+                <div class="month-input-section">
+                    <div class="month-title">6月</div>
+                    <div class="input-row">
+                        <span class="input-label">仕入本数</span>
+                        <input type="number" class="input-field purchase-input" data-month="11" data-type="purchase" value="8" min="0" max="20">
+                        <span>本</span>
+                    </div>
+                    <div class="input-row">
+                        <span class="input-label">手数料回数</span>
+                        <input type="number" class="input-field fee-input" data-month="11" data-type="fee" value="1" min="0" max="10">
+                        <span>回</span>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <!-- Phase 4新機能: 最終ナビゲーションセクション -->
+        <div class="navigation-section">
+            <div class="nav-title">🎯 Phase 4 分散型ワークフロー完了</div>
+            <p style="margin-bottom: 15px; opacity: 0.9; font-size: 0.95em;">
+                全事業部の設定が完了しました。統合PLで全体結果を確認します。
+            </p>
+            
+            <div class="nav-buttons">
+                <button class="nav-btn btn-send-complete" onclick="sendDataAndComplete()">
+                    ✅ RCD社データ送信して完了
+                </button>
+                <button class="nav-btn btn-back" onclick="goBackToRC()">
+                    ⬅️ RC支店に戻る
+                </button>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <button class="nav-btn btn-final-pl" onclick="goToFinalPL()">
+                    🏆 統合PLで全体結果を確認
+                </button>
+            </div>
+        </div>
+
+        <!-- 既存の表示エリア（簡略版） -->
+        <main class="main-content">
+            <h2 class="section-title">RCD社 計算結果プレビュー</h2>
+            
+            <div class="chart-container">
+                <canvas id="monthlyChart"></canvas>
+            </div>
+
+            <div class="results-summary">
+                <h3 style="color: #2c3e50; margin-bottom: 10px;">📊 年間集計結果</h3>
+                <div class="results-grid">
+                    <div class="result-card">
+                        <div class="result-label">年間売上高</div>
+                        <div class="result-value" id="total-sales">---万円</div>
+                    </div>
+                    <div class="result-card" id="profit-card">
+                        <div class="result-label">年間営業利益</div>
+                        <div class="result-value" id="total-profit">---万円</div>
+                    </div>
+                    <div class="result-card" id="rate-card">
+                        <div class="result-label">営業利益率</div>
+                        <div class="result-value" id="profit-rate">---%</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-label">年間仕入本数</div>
+                        <div class="result-value" id="total-volume">---本</div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <!-- ===== 【保護領域開始】絶対に変更禁止 ===== -->
     <script>
-        // 統合システム用LocalStorageキー管理 - 変更禁止
-        const STORAGE_KEYS = {
-            rcd: 'pl_system_rcd_data',
-            rcd_settings: 'pl_system_rcd_settings',
-            w: 'pl_system_w_data',
-            rc: 'pl_system_rc_data',
-            sr: 'pl_system_sr_data',
-            integrated: 'pl_system_integrated_data'
+        // Phase 4: RCD社用データ管理
+        let rcdData = {
+            purchases: [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8],
+            fees: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         };
 
-        // データ送信・管理機能群 - 変更禁止
-        const DATA_TRANSMISSION = {
-            createIntegrationData: function(departmentData) {
-                const integrationData = {
-                    department: departmentData.department,
-                    timestamp: new Date().toISOString(),
-                    annual: departmentData.annual,
-                    monthly: departmentData.monthly,
-                    linkageActive: departmentData.linkageActive,
-                    metadata: {
-                        version: '1.0',
-                        source: 'pl_system_integration',
-                        validated: true
-                    }
-                };
-                return integrationData;
-            },
-
-            sendToIntegrated: function(integrationData) {
-                try {
-                    localStorage.setItem(STORAGE_KEYS.integrated, JSON.stringify(integrationData));
-                    localStorage.setItem('last_integration_update', new Date().toISOString());
-                    return { success: true, message: 'データ送信成功' };
-                } catch (error) {
-                    console.error('統合データ送信エラー:', error);
-                    return { success: false, message: `送信エラー: ${error.message}` };
-                }
-            },
-
-            updateSendStatus: function(department, status) {
-                const statusKey = `${department}_send_status`;
-                const statusData = {
-                    status: status,
-                    timestamp: new Date().toISOString(),
-                    department: department
-                };
-                localStorage.setItem(statusKey, JSON.stringify(statusData));
-            },
-
-            validateData: function(data) {
-                const requiredFields = ['department', 'annual', 'monthly'];
-                for (let field of requiredFields) {
-                    if (!data[field]) {
-                        return { valid: false, message: `必須フィールド ${field} が不足` };
-                    }
-                }
-                if (!Array.isArray(data.monthly) || data.monthly.length !== 12) {
-                    return { valid: false, message: '月次データは12ヶ月分必要です' };
-                }
-                return { valid: true, message: 'データ検証成功' };
-            },
-
-            checkIntegrationStatus: function() {
-                try {
-                    const integratedData = localStorage.getItem(STORAGE_KEYS.integrated);
-                    const lastUpdate = localStorage.getItem('last_integration_update');
-                    
-                    if (integratedData && lastUpdate) {
-                        const updateTime = new Date(lastUpdate);
-                        const timeDiff = Date.now() - updateTime.getTime();
-                        const hoursAgo = Math.floor(timeDiff / (1000 * 60 * 60));
-                        
-                        return {
-                            status: 'active',
-                            lastUpdate: updateTime.toLocaleString(),
-                            hoursAgo: hoursAgo,
-                            dataSize: integratedData.length
-                        };
-                    } else {
-                        return {
-                            status: 'inactive',
-                            message: '統合データが見つかりません'
-                        };
-                    }
-                } catch (error) {
-                    return {
-                        status: 'error',
-                        message: `確認エラー: ${error.message}`
-                    };
-                }
-            }
+        // RCD社計算定数
+        const RCD_CONSTANTS = {
+            unitPrice: 2000,      // 仕入単価2,000万円/本
+            profitRate: 0.03,     // 利益率3%固定
+            feePerOccurrence: 90.6 // 支払手数料90.6万円/回
         };
 
-        // 自動データ送信実行関数 - 変更禁止
-        function autoSendData(departmentData) {
-            const validation = DATA_TRANSMISSION.validateData(departmentData);
-            if (!validation.valid) {
-                console.error('データ検証失敗:', validation.message);
-                DATA_TRANSMISSION.updateSendStatus(departmentData.department, 'validation_failed');
-                return { success: false, message: validation.message };
-            }
+        let monthlyChart = null;
 
-            const integrationData = DATA_TRANSMISSION.createIntegrationData(departmentData);
-            const sendResult = DATA_TRANSMISSION.sendToIntegrated(integrationData);
-            
-            if (sendResult.success) {
-                DATA_TRANSMISSION.updateSendStatus(departmentData.department, 'sent_successfully');
-                console.log(`${departmentData.department} データ自動送信完了:`, integrationData);
-            } else {
-                DATA_TRANSMISSION.updateSendStatus(departmentData.department, 'send_failed');
-                console.error(`${departmentData.department} データ送信失敗:`, sendResult.message);
-            }
+        // Phase 4: 入力値の自動収集
+        function collectInputData() {
+            const inputs = document.querySelectorAll('.input-field');
+            inputs.forEach(input => {
+                const month = parseInt(input.dataset.month);
+                const type = input.dataset.type;
+                const value = parseInt(input.value) || 0;
+                
+                if (type === 'purchase') {
+                    rcdData.purchases[month] = value;
+                } else if (type === 'fee') {
+                    rcdData.fees[month] = value;
+                }
+            });
 
-            return sendResult;
+            return rcdData;
         }
 
-        // 手動データ送信関数 - 変更禁止
-        function manualDataSend() {
-            if (!window.currentRCDResults) {
-                alert('送信するデータがありません。計算を実行してください。');
-                return;
-            }
-
-            const departmentData = window.currentRCDResults;
-            const result = autoSendData(departmentData);
+        // Phase 4: RCD計算実行（統一構造対応）
+        function calculateRCD() {
+            collectInputData();
             
-            if (result.success) {
-                alert('データを統合システムに送信しました。');
-                updateLinkageStatus('success', '手動送信完了: ' + new Date().toLocaleString());
-            } else {
-                alert('データ送信に失敗しました: ' + result.message);
-                updateLinkageStatus('error', 'データ送信失敗: ' + result.message);
-            }
-        }
-
-        // 統合システム確認関数 - 変更禁止
-        function checkIntegrationStatus() {
-            const status = DATA_TRANSMISSION.checkIntegrationStatus();
-            
-            let message = '';
-            if (status.status === 'active') {
-                message = `統合システム稼働中\n最終更新: ${status.lastUpdate}\n経過時間: ${status.hoursAgo}時間前\nデータサイズ: ${status.dataSize}バイト`;
-            } else if (status.status === 'inactive') {
-                message = '統合システム: データなし\n' + status.message;
-            } else {
-                message = '統合システム: エラー\n' + status.message;
-            }
-            
-            alert(message);
-        }
-    </script>
-    <!-- ===== 【保護領域終了】 ===== -->
-
-    <!-- ===== 【カスタマイズ領域開始】計算ロジック変更可能 ===== -->
-    <script>
-        // RCD社事業部固有の計算定数・ロジック - カスタマイズ対象
-        const CALCULATION_ENGINE = {
-            // RCD社事業部固有設定
-            constants: {
-                unitPrice: 2000,        // 仕入単価2,000万円/本
-                profitRate: 0.03,       // 利益率3%固定
-                feePerOccurrence: 90.6  // 支払手数料90.6万円/回
-            },
-
-            // 月次PL計算エンジン
-            calculateMonthlyPL: function(monthIndex, purchaseCount, feeOccurrences) {
+            // 月次計算実行
+            const monthlyResults = [];
+            for (let i = 0; i < 12; i++) {
+                const purchaseCount = rcdData.purchases[i];
+                const feeOccurrences = rcdData.fees[i];
+                
                 // 売上計算（仕入単価×本数×1.03）
-                const sales = Math.round(purchaseCount * this.constants.unitPrice * (1 + this.constants.profitRate));
+                const sales = Math.round(purchaseCount * RCD_CONSTANTS.unitPrice * (1 + RCD_CONSTANTS.profitRate));
                 
                 // 仕入原価
-                const cogs = purchaseCount * this.constants.unitPrice;
+                const cogs = purchaseCount * RCD_CONSTANTS.unitPrice;
                 
                 // 売上総利益
                 const grossProfit = sales - cogs;
                 
                 // 支払手数料（RCD社唯一の販管費）
-                const fees = Math.round(feeOccurrences * this.constants.feePerOccurrence);
+                const fees = Math.round(feeOccurrences * RCD_CONSTANTS.feePerOccurrence);
                 
                 // 販売管理費計（支払手数料のみ）
-                const expenses = fees;
+                const totalExpenses = fees;
                 
                 // 営業利益
-                const operatingProfit = grossProfit - expenses;
+                const operatingProfit = grossProfit - totalExpenses;
                 
-                return {
-                    purchaseCount: purchaseCount,
-                    sales: sales,
-                    cogs: cogs,
-                    grossProfit: grossProfit,
-                    fees: fees,
-                    feeOccurrences: feeOccurrences,
-                    expenses: expenses, // 統合システム用expenses項目
-                    operatingProfit: operatingProfit
-                };
-            }
-        };
-
-        // 【新規追加】統一データ構造変換関数
-        const UNIFIED_CONVERTER = {
-            // 統一データ構造テンプレート
-            createUnifiedStructure: function() {
-                return {
-                    metadata: {
-                        department: 'RCD',
-                        lastUpdate: new Date().toISOString(),
-                        version: '3.0'
-                    },
-                    
-                    // 売上・原価データ（12ヶ月分の配列）
-                    sales: [0,0,0,0,0,0,0,0,0,0,0,0],
-                    cogs: [0,0,0,0,0,0,0,0,0,0,0,0],
-                    
-                    // 販管費データ（項目ID別）- 統一構造19項目
-                    expenses: {
-                        1: [0,0,0,0,0,0,0,0,0,0,0,0],  // 人件費統合（外部委託のため0）
-                        2: [0,0,0,0,0,0,0,0,0,0,0,0],  // 法定福利費（外部委託のため0）
-                        3: [0,0,0,0,0,0,0,0,0,0,0,0],  // 衛生費（外部委託のため0）
-                        4: [0,0,0,0,0,0,0,0,0,0,0,0],  // 物流管理費（外部委託のため0）
-                        5: [0,0,0,0,0,0,0,0,0,0,0,0],  // 地代家賃（外部委託のため0）
-                        6: [0,0,0,0,0,0,0,0,0,0,0,0],  // 外注費（外部委託のため0）
-                        7: [0,0,0,0,0,0,0,0,0,0,0,0],  // 荷造運賃（外部委託のため0）
-                        8: [0,0,0,0,0,0,0,0,0,0,0,0],  // 広告宣伝費（外部委託のため0）
-                        9: [0,0,0,0,0,0,0,0,0,0,0,0],  // 旅費交通費（外部委託のため0）
-                        10: [0,0,0,0,0,0,0,0,0,0,0,0], // 通信費（外部委託のため0）
-                        11: [0,0,0,0,0,0,0,0,0,0,0,0], // 販売促進費（外部委託のため0）
-                        12: [0,0,0,0,0,0,0,0,0,0,0,0], // 消耗品費（外部委託のため0）
-                        13: [0,0,0,0,0,0,0,0,0,0,0,0], // 事務用品費（外部委託のため0）
-                        14: [0,0,0,0,0,0,0,0,0,0,0,0], // 水道光熱費（外部委託のため0）
-                        15: [0,0,0,0,0,0,0,0,0,0,0,0], // 支払手数料（RCD社の主要経費）
-                        16: [0,0,0,0,0,0,0,0,0,0,0,0], // リース料（外部委託のため0）
-                        17: [0,0,0,0,0,0,0,0,0,0,0,0], // 保険料（外部委託のため0）
-                        18: [0,0,0,0,0,0,0,0,0,0,0,0], // 支払報酬料（外部委託のため0）
-                        19: [0,0,0,0,0,0,0,0,0,0,0,0]  // 減価償却費（外部委託のため0）
-                    }
-                };
-            },
-
-            // RCD社データ→統一構造変換
-            convertRCDToUnified: function(monthlyResults) {
-                const unified = this.createUnifiedStructure();
-                
-                // 売上・原価データ
-                unified.sales = monthlyResults.map(m => m.sales);
-                unified.cogs = monthlyResults.map(m => m.cogs);
-                
-                // 支払手数料のみID:15に配置（RCD社の唯一の販管費）
-                unified.expenses[15] = monthlyResults.map(m => m.fees);
-                
-                // その他の販管費は全て0（外部委託のため）
-                // ID:1-14, 16-19は既にデフォルト0で初期化済み
-                
-                return unified;
-            }
-        };
-
-        // UI管理機能 - カスタマイズ対象
-        const UI_MANAGER = {
-            months: ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'],
-            
-            // 数値フォーマット
-            formatNumber: function(num) {
-                return Math.round(num).toLocaleString();
-            },
-
-            // 連携ステータス表示更新
-            updateLinkageStatus: function(type, message) {
-                const statusElement = document.getElementById('linkage-status');
-                if (statusElement) {
-                    statusElement.className = `linkage-status linkage-${type}`;
-                    statusElement.innerHTML = `
-                        <strong>${type === 'success' ? '✓' : type === 'warning' ? '⚠' : '✗'}</strong>
-                        ${message}
-                    `;
-                }
-            },
-
-            // KPIカード更新（動的色分け対応）
-            updateKPICards: function(annualData) {
-                const salesElem = document.getElementById('kpi-sales');
-                const profitElem = document.getElementById('kpi-profit');
-                const rateElem = document.getElementById('kpi-rate');
-                const volumeElem = document.getElementById('kpi-volume');
-                
-                if (salesElem) salesElem.textContent = this.formatNumber(annualData.sales);
-                if (volumeElem) volumeElem.textContent = this.formatNumber(annualData.purchaseCount);
-                
-                // 利益関連の動的色分け
-                const profitCard = document.getElementById('profit-card');
-                const rateCard = document.getElementById('rate-card');
-                
-                if (profitElem && profitCard) {
-                    profitElem.textContent = this.formatNumber(annualData.operatingProfit);
-                    if (annualData.operatingProfit >= 0) {
-                        profitCard.className = 'kpi-card positive';
-                        profitElem.className = 'kpi-value positive';
-                    } else {
-                        profitCard.className = 'kpi-card negative';
-                        profitElem.className = 'kpi-value negative';
-                    }
-                }
-                
-                if (rateElem && rateCard) {
-                    const profitRate = annualData.sales > 0 ? (annualData.operatingProfit / annualData.sales * 100).toFixed(1) : '0.0';
-                    rateElem.textContent = profitRate;
-                    if (annualData.operatingProfit >= 0) {
-                        rateCard.className = 'kpi-card positive';
-                        rateElem.className = 'kpi-value positive';
-                    } else {
-                        rateCard.className = 'kpi-card negative';
-                        rateElem.className = 'kpi-value negative';
-                    }
-                }
-            },
-
-            // Chart.js更新（RCD社専用：売上・利益2軸表示）
-            updateChart: function(monthlyResults) {
-                const ctx = document.getElementById('monthly-chart');
-                if (!ctx) return;
-
-                // 既存チャート破棄
-                if (window.monthlyChart) {
-                    window.monthlyChart.destroy();
-                }
-
-                window.monthlyChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: this.months,
-                        datasets: [
-                            {
-                                label: '売上高',
-                                data: monthlyResults.map(m => m.sales),
-                                backgroundColor: 'rgba(52, 152, 219, 0.7)',
-                                borderColor: '#3498db',
-                                borderWidth: 2,
-                                yAxisID: 'y',
-                                type: 'bar'
-                            },
-                            {
-                                label: '営業利益',
-                                data: monthlyResults.map(m => m.operatingProfit),
-                                backgroundColor: 'rgba(39, 174, 96, 0.8)',
-                                borderColor: '#27ae60',
-                                borderWidth: 2,
-                                yAxisID: 'y1',
-                                type: 'line'
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        },
-                        scales: {
-                            x: {
-                                grid: {
-                                    display: false
-                                }
-                            },
-                            y: {
-                                type: 'linear',
-                                display: true,
-                                position: 'left',
-                                title: {
-                                    display: true,
-                                    text: '売上高（万円）',
-                                    color: '#3498db'
-                                },
-                                ticks: {
-                                    color: '#3498db'
-                                }
-                            },
-                            y1: {
-                                type: 'linear',
-                                display: true,
-                                position: 'right',
-                                title: {
-                                    display: true,
-                                    text: '営業利益（万円）',
-                                    color: '#27ae60'
-                                },
-                                ticks: {
-                                    color: '#27ae60'
-                                },
-                                grid: {
-                                    drawOnChartArea: false
-                                }
-                            }
-                        }
-                    }
+                monthlyResults.push({
+                    purchaseCount,
+                    sales,
+                    cogs,
+                    grossProfit,
+                    fees,
+                    feeOccurrences,
+                    totalExpenses,
+                    operatingProfit
                 });
-            },
-
-            // RCDテーブル生成
-            generateRCDTable: function(monthlyResults, annualData) {
-                let html = `
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>項目</th>
-                                ${this.months.map(month => `<th class="month-header">${month}</th>`).join('')}
-                                <th class="total-header">年間計</th>
-                                <th class="total-header">前年増減</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="purchase-row">
-                                <td class="item-name">仕入本数</td>
-                                ${monthlyResults.map(m => `<td>${m.purchaseCount}本</td>`).join('')}
-                                <td><strong>${annualData.purchaseCount}本</strong></td>
-                                <td>-</td>
-                            </tr>
-                            <tr class="sales-row">
-                                <td class="item-name">売上高</td>
-                                ${monthlyResults.map(m => `<td>${this.formatNumber(m.sales)}</td>`).join('')}
-                                <td><strong>${this.formatNumber(annualData.sales)}</strong></td>
-                                <td class="positive">+${this.formatNumber(Math.round(annualData.sales * 0.03))}</td>
-                            </tr>
-                            <tr class="expense-row">
-                                <td class="item-name">仕入原価</td>
-                                ${monthlyResults.map(m => `<td>${this.formatNumber(m.cogs)}</td>`).join('')}
-                                <td><strong>${this.formatNumber(annualData.cogs)}</strong></td>
-                                <td class="negative">+${this.formatNumber(Math.round(annualData.cogs * 0.03))}</td>
-                            </tr>
-                            <tr class="profit-row">
-                                <td class="item-name">売上総利益</td>
-                                ${monthlyResults.map(m => `<td>${this.formatNumber(m.grossProfit)}</td>`).join('')}
-                                <td><strong>${this.formatNumber(annualData.grossProfit)}</strong></td>
-                                <td class="positive">+${this.formatNumber(Math.round(annualData.grossProfit * 0.03))}</td>
-                            </tr>
-                            <tr><td colspan="${this.months.length + 3}" style="border:none; padding:5px;"></td></tr>
-                            <tr class="fee-row">
-                                <td class="item-name">支払手数料</td>
-                                ${monthlyResults.map(m => `<td>${this.formatNumber(m.fees)} (${m.feeOccurrences}回)</td>`).join('')}
-                                <td><strong>${this.formatNumber(annualData.fees)} (${annualData.feeOccurrences}回)</strong></td>
-                                <td>-</td>
-                            </tr>
-                            <tr class="total-row">
-                                <td class="item-name">販売管理費計</td>
-                                ${monthlyResults.map(m => `<td>${this.formatNumber(m.expenses)}</td>`).join('')}
-                                <td><strong>${this.formatNumber(annualData.expenses)}</strong></td>
-                                <td>${annualData.expenses > 0 ? '+' : ''}${this.formatNumber(Math.round(annualData.expenses * 0.05))}</td>
-                            </tr>
-                            <tr class="profit-row">
-                                <td class="item-name">営業利益</td>
-                                ${monthlyResults.map(m => `<td class="${m.operatingProfit >= 0 ? 'positive' : 'negative'}">${this.formatNumber(m.operatingProfit)}</td>`).join('')}
-                                <td class="${annualData.operatingProfit >= 0 ? 'positive' : 'negative'}"><strong>${this.formatNumber(annualData.operatingProfit)}</strong></td>
-                                <td class="${annualData.operatingProfit >= 0 ? 'positive' : 'negative'}">${annualData.operatingProfit >= 0 ? '+' : ''}${this.formatNumber(Math.round(annualData.operatingProfit * 0.1))}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                `;
-                
-                const tableContainer = document.getElementById('rcd-table');
-                if (tableContainer) {
-                    tableContainer.innerHTML = html;
-                }
             }
-        };
 
-        // グローバル変数
-        let currentData = {
-            rcd: {
-                purchases: [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8], // 仕入本数
-                fees: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]       // 手数料発生回数
-            }
-        };
-
-        let linkageActive = false;
-
-        // Phase 2修正: 自動送信メッセージ表示（新規実装）
-        function showAutoSendMessage() {
-            UI_MANAGER.updateLinkageStatus('success', 
-                `統合PLへ自動送信完了: ${new Date().toLocaleString()}`);
-        }
-
-        // 【修正版】連携データ読み込み機能
-        function loadLinkageData() {
-            try {
-                const rcdData = localStorage.getItem(STORAGE_KEYS.rcd);
-                const rcdSettings = localStorage.getItem(STORAGE_KEYS.rcd_settings);
-                
-                if (rcdData) {
-                    const parsedData = JSON.parse(rcdData);
-                    console.log('RCD連携データ受信:', parsedData);
-                    
-                    // purchases形式のデータ（budget-input.htmlから）
-                    if (parsedData.purchases && Array.isArray(parsedData.purchases)) {
-                        currentData.rcd.purchases = parsedData.purchases;
-                        
-                        // 設定データから手数料回数を取得（修正版）
-                        if (rcdSettings) {
-                            const settings = JSON.parse(rcdSettings);
-                            console.log('RCD設定データ:', settings);
-                            if (settings.feeOccurrences && Array.isArray(settings.feeOccurrences)) {
-                                currentData.rcd.fees = settings.feeOccurrences;
-                            }
-                        } else if (parsedData.feeOccurrences && Array.isArray(parsedData.feeOccurrences)) {
-                            currentData.rcd.fees = parsedData.feeOccurrences;
-                        } else if (parsedData.fees && Array.isArray(parsedData.fees)) {
-                            currentData.rcd.fees = parsedData.fees;
-                        } else {
-                            // デフォルト値
-                            currentData.rcd.fees = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
-                        }
-                        
-                        linkageActive = true;
-                        UI_MANAGER.updateLinkageStatus('success', 
-                            `連携成功: ${parsedData.timestamp ? new Date(parsedData.timestamp).toLocaleString() : '不明'} にデータ受信`);
-                        
-                        // 計算実行
-                        executeCalculation();
-                        
-                        console.log('RCD連携データ読み込み成功');
-                    }
-                    // sales/expenses形式のデータ（v3.0仕様互換）
-                    else if (parsedData.sales && Array.isArray(parsedData.sales) && parsedData.sales.length === 12) {
-                        // 売上データから仕入本数を逆算（売上 ÷ (単価 × 1.03) = 本数）
-                        currentData.rcd.purchases = parsedData.sales.map(sales => {
-                            return Math.round(sales / (CALCULATION_ENGINE.constants.unitPrice * (1 + CALCULATION_ENGINE.constants.profitRate)));
-                        });
-                        
-                        // 手数料発生回数を販管費から逆算（expenses ÷ 90.6 = 回数）
-                        if (parsedData.expenses && Array.isArray(parsedData.expenses)) {
-                            currentData.rcd.fees = parsedData.expenses.map(expense => {
-                                return Math.round(expense / CALCULATION_ENGINE.constants.feePerOccurrence);
-                            });
-                        } else {
-                            currentData.rcd.fees = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
-                        }
-                        
-                        linkageActive = true;
-                        UI_MANAGER.updateLinkageStatus('success', 
-                            `連携成功: ${parsedData.metadata?.lastUpdate ? new Date(parsedData.metadata.lastUpdate).toLocaleString() : '不明'} にデータ受信`);
-                        
-                        // 計算実行
-                        executeCalculation();
-                        
-                        console.log('RCD連携データ読み込み成功（v3.0形式）');
-                    } else {
-                        throw new Error('データ形式が不正です');
-                    }
-                } else {
-                    linkageActive = false;
-                    UI_MANAGER.updateLinkageStatus('warning', '連携データが見つかりません。手動入力モードです。');
-                    // デフォルトデータで計算実行
-                    executeCalculation();
-                }
-            } catch (error) {
-                linkageActive = false;
-                UI_MANAGER.updateLinkageStatus('error', `連携エラー: ${error.message}`);
-                console.error('RCD連携データ読み込みエラー:', error);
-                // デフォルトデータで計算実行
-                executeCalculation();
-            }
-        }
-
-        // 【修正版】RCD計算実行（統一構造対応）
-        function executeCalculation() {
-            // 月次計算実行
-            const monthlyResults = currentData.rcd.purchases.map((purchases, i) => 
-                CALCULATION_ENGINE.calculateMonthlyPL(i, purchases, currentData.rcd.fees[i])
-            );
-            
-            // 年間合計計算
-            const annualData = {
+            // 年間集計
+            const annual = {
                 purchaseCount: monthlyResults.reduce((sum, m) => sum + m.purchaseCount, 0),
                 sales: monthlyResults.reduce((sum, m) => sum + m.sales, 0),
                 cogs: monthlyResults.reduce((sum, m) => sum + m.cogs, 0),
                 grossProfit: monthlyResults.reduce((sum, m) => sum + m.grossProfit, 0),
                 fees: monthlyResults.reduce((sum, m) => sum + m.fees, 0),
                 feeOccurrences: monthlyResults.reduce((sum, m) => sum + m.feeOccurrences, 0),
-                expenses: monthlyResults.reduce((sum, m) => sum + m.expenses, 0), // 統合システム用
+                totalExpenses: monthlyResults.reduce((sum, m) => sum + m.totalExpenses, 0),
                 operatingProfit: monthlyResults.reduce((sum, m) => sum + m.operatingProfit, 0)
             };
 
-            // UI更新
-            UI_MANAGER.updateKPICards(annualData);
-            UI_MANAGER.generateRCDTable(monthlyResults, annualData);
-            UI_MANAGER.updateChart(monthlyResults);
-
-            // 【新規実装】統一データ構造変換
-            const unifiedData = UNIFIED_CONVERTER.convertRCDToUnified(monthlyResults);
+            // 結果表示更新
+            updateResultsDisplay(annual);
+            updateChart(monthlyResults);
             
-            // 統合システム用データ生成（統一構造準拠）
-            const rcdIntegrationData = {
-                department: 'RCD社事業部',
-                // 統一構造データ
-                ...unifiedData,
-                // 追加メタデータ（後方互換性のため）
-                annual: {
-                    sales: annualData.sales,
-                    grossProfit: annualData.grossProfit,
-                    expenses: annualData.expenses,
-                    operatingProfit: annualData.operatingProfit,
-                    cogs: annualData.cogs,
-                    personnel: 0 // 外部委託のため0
-                },
-                monthly: monthlyResults.map(month => ({
-                    sales: month.sales,
-                    grossProfit: month.grossProfit,
-                    expenses: month.expenses,
-                    operatingProfit: month.operatingProfit,
-                    cogs: month.cogs,
-                    personnel: 0 // 外部委託のため0
-                })),
-                linkageActive: linkageActive,
-                timestamp: new Date().toISOString()
-            };
-
-            // LocalStorageに保存（統合システム向け）
-            try {
-                localStorage.setItem(STORAGE_KEYS.rcd, JSON.stringify(rcdIntegrationData));
-                console.log('RCD統合データ保存完了（統一構造）:', rcdIntegrationData);
-            } catch (error) {
-                console.error('RCD統合データ保存エラー:', error);
-            }
-
-            // グローバル変数に保存（手動送信用）
-            window.currentRCDResults = rcdIntegrationData;
-
-            // Phase 2修正: 自動送信タイミング設定
-            setTimeout(() => {
-                if (window.currentRCDResults) {
-                    autoSendData(rcdIntegrationData);
-                    showAutoSendMessage(); // メッセージ表示（新規実装）
-                }
-            }, 1500); // 1.5秒後に自動送信
+            // グローバル変数に保存（送信用）
+            window.rcdResults = { monthlyResults, annual };
+            
+            return { monthlyResults, annual };
         }
 
-        // CSV出力
-        function exportToCSV() {
-            if (!window.currentRCDResults) {
-                alert('データが生成されていません。');
+        // 結果表示更新
+        function updateResultsDisplay(annual) {
+            document.getElementById('total-sales').textContent = formatNumber(annual.sales) + '万円';
+            document.getElementById('total-volume').textContent = formatNumber(annual.purchaseCount) + '本';
+            
+            const profitElement = document.getElementById('total-profit');
+            const rateElement = document.getElementById('profit-rate');
+            const profitCard = document.getElementById('profit-card');
+            const rateCard = document.getElementById('rate-card');
+            
+            profitElement.textContent = formatNumber(annual.operatingProfit) + '万円';
+            
+            const profitRate = annual.sales > 0 ? (annual.operatingProfit / annual.sales * 100).toFixed(1) : '0.0';
+            rateElement.textContent = profitRate + '%';
+            
+            // 動的色分け
+            if (annual.operatingProfit >= 0) {
+                profitElement.className = 'result-value';
+                rateElement.className = 'result-value';
+                profitCard.className = 'result-card';
+                rateCard.className = 'result-card';
+            } else {
+                profitElement.className = 'result-value negative';
+                rateElement.className = 'result-value negative';
+                profitCard.className = 'result-card negative';
+                rateCard.className = 'result-card negative';
+            }
+        }
+
+        // チャート更新
+        function updateChart(monthlyResults) {
+            const ctx = document.getElementById('monthlyChart');
+            if (!ctx) return;
+            
+            if (monthlyChart) {
+                monthlyChart.destroy();
+            }
+            
+            const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
+            
+            monthlyChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: '売上高',
+                            data: monthlyResults.map(m => m.sales),
+                            backgroundColor: 'rgba(128, 90, 213, 0.8)',
+                            borderColor: '#805ad5',
+                            borderWidth: 2,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: '営業利益',
+                            data: monthlyResults.map(m => m.operatingProfit),
+                            type: 'line',
+                            backgroundColor: 'rgba(39, 174, 96, 0.8)',
+                            borderColor: '#27ae60',
+                            borderWidth: 3,
+                            fill: false,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true, position: 'top' }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: '売上高（万円）' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: { display: true, text: '営業利益（万円）' },
+                            grid: { drawOnChartArea: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Phase 4: データ送信＆完了
+        function sendDataAndComplete() {
+            if (!window.rcdResults) {
+                alert('先に計算を実行してください。');
                 return;
             }
 
-            const monthlyResults = currentData.rcd.purchases.map((purchases, i) => 
-                CALCULATION_ENGINE.calculateMonthlyPL(i, purchases, currentData.rcd.fees[i])
-            );
+            try {
+                const { monthlyResults, annual } = window.rcdResults;
+                
+                // 統一構造データ生成（引継書準拠）
+                const unifiedData = {
+                    metadata: {
+                        department: 'RCD',
+                        lastUpdate: new Date().toISOString(),
+                        version: '3.0',
+                        unifiedStructure: true,
+                        purchases: rcdData.purchases,
+                        feeOccurrences: rcdData.fees
+                    },
+                    
+                    // 売上・原価データ
+                    sales: monthlyResults.map(m => m.sales),
+                    cogs: monthlyResults.map(m => m.cogs),
+                    
+                    // 19項目販管費データ（RCD社仕様：支払手数料のみ）
+                    expenses: {
+                        1: new Array(12).fill(0),   // 人件費統合（外部委託のため0）
+                        2: new Array(12).fill(0),   // 法定福利費（外部委託のため0）
+                        3: new Array(12).fill(0),   // 衛生費（外部委託のため0）
+                        4: new Array(12).fill(0),   // 物流管理費（外部委託のため0）
+                        5: new Array(12).fill(0),   // 地代家賃（外部委託のため0）
+                        6: new Array(12).fill(0),   // 外注費（外部委託のため0）
+                        7: new Array(12).fill(0),   // 貨物運賃（外部委託のため0）
+                        8: new Array(12).fill(0),   // 広告宣伝費（外部委託のため0）
+                        9: new Array(12).fill(0),   // 旅費交通費（外部委託のため0）
+                        10: new Array(12).fill(0),  // 通信費（外部委託のため0）
+                        11: new Array(12).fill(0),  // 販売促進費（外部委託のため0）
+                        12: new Array(12).fill(0),  // 消耗品費（外部委託のため0）
+                        13: new Array(12).fill(0),  // 事務用品費（外部委託のため0）
+                        14: new Array(12).fill(0),  // 水道光熱費（外部委託のため0）
+                        15: monthlyResults.map(m => m.fees), // 支払手数料（RCD社の主要経費）
+                        16: new Array(12).fill(0),  // リース料（外部委託のため0）
+                        17: new Array(12).fill(0),  // 保険料（外部委託のため0）
+                        18: new Array(12).fill(0),  // 支払報酬料（外部委託のため0）
+                        19: new Array(12).fill(0)   // 減価償却費（外部委託のため0）
+                    }
+                };
+
+                // LocalStorageに保存（統一キー）
+                localStorage.setItem('pl_system_rcd_data', JSON.stringify(unifiedData));
+                
+                // 進捗管理更新
+                updateProgress(4, 'completed');
+                
+                // 完了通知
+                alert('🎉 Phase 4 分散型入力システム完了！\n\n' +
+                      '✅ 全4事業部のデータ送信が完了しました\n\n' +
+                      `RCD社年間売上: ${formatNumber(annual.sales)}万円\n` +
+                      `RCD社年間営業利益: ${formatNumber(annual.operatingProfit)}万円\n\n` +
+                      '統合PLで全体結果をご確認ください。');
+                
+            } catch (error) {
+                alert('データ送信に失敗しました: ' + error.message);
+                console.error('RCD送信エラー:', error);
+            }
+        }
+
+        // Phase 4: 進捗管理更新
+        function updateProgress(step, status) {
+            const steps = document.querySelectorAll('.step-card');
+            const progressBar = document.querySelector('.progress-bar');
             
-            let csv = 'RCD社事業部PL（統合システム連携版）\n';
-            csv += '項目,' + UI_MANAGER.months.join(',') + ',年間計\n';
+            if (status === 'completed') {
+                steps[step - 1].classList.add('completed');
+                progressBar.style.width = '100%';
+                progressBar.textContent = '4/4 完了 (100%)';
+                progressBar.style.background = 'linear-gradient(135deg, #27ae60, #2ecc71)';
+            }
+        }
+
+        // Phase 4: ナビゲーション機能
+        function goBackToRC() {
+            if (confirm('RC支店に戻りますか？\n現在の入力内容は保持されます。')) {
+                window.location.href = 'rc-pl.html';
+            }
+        }
+
+        function goToFinalPL() {
+            // データがあれば送信してから移動
+            if (window.rcdResults) {
+                sendDataAndComplete();
+            }
             
-            // データ行を追加
-            const items = [
-                ['仕入本数', monthlyResults.map(m => m.purchaseCount)],
-                ['売上高', monthlyResults.map(m => m.sales)],
-                ['仕入原価', monthlyResults.map(m => m.cogs)],
-                ['売上総利益', monthlyResults.map(m => m.grossProfit)],
-                ['支払手数料', monthlyResults.map(m => m.fees)],
-                ['販売管理費計', monthlyResults.map(m => m.expenses)],
-                ['営業利益', monthlyResults.map(m => m.operatingProfit)]
-            ];
-            
-            items.forEach(([name, values]) => {
-                const annual = values.reduce((sum, val) => sum + val, 0);
-                csv += `${name},${values.join(',')},${annual}\n`;
+            setTimeout(() => {
+                window.location.href = '../combined-dashboard/index.html';
+            }, 1000);
+        }
+
+        // ヘルパー関数
+        function formatNumber(num) {
+            return Math.round(num).toLocaleString();
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Phase 4: 初期化
+        function initialize() {
+            // 入力値変更時の自動計算
+            const inputs = document.querySelectorAll('.input-field');
+            inputs.forEach(input => {
+                input.addEventListener('input', debounce(calculateRCD, 300));
             });
             
-            // ダウンロード
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `RCD社事業部PL_${new Date().toISOString().slice(0, 10)}.csv`;
-            link.click();
-        }
-
-        // 初期化処理
-        function initialize() {
-            console.log('RCD社事業部PLシステム初期化開始（統一構造対応）');
+            // 初期計算実行
+            calculateRCD();
             
-            // 連携データ読み込み（計算も含む）
-            loadLinkageData();
-
-            // Phase 2修正: 画面表示時の自動送信メッセージ実装
+            // 完了メッセージの表示
             setTimeout(() => {
-                showAutoSendMessage();
-            }, 2000); // 2秒後に自動送信メッセージ表示
-            
-            console.log('RCD社事業部PLシステム初期化完了');
+                console.log('Phase 4 RCD社PLシステム初期化完了');
+            }, 500);
         }
 
-        // ページ読み込み時に初期化実行
+        // ページ読み込み時に初期化
         window.addEventListener('load', initialize);
-
-        // 外部から参照可能にする（デバッグ用）
-        window.updateLinkageStatus = UI_MANAGER.updateLinkageStatus;
     </script>
-    <!-- ===== 【カスタマイズ領域終了】 ===== -->
 </body>
 </html>
