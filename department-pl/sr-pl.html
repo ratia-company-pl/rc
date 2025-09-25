@@ -13,42 +13,31 @@
         }
 
         body {
-            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: #333;
-            padding: 10px;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
+            padding: 15px;
         }
 
-        /* SR事業部統一ナビゲーション */
-        .header {
+        /* ヘッダーセクション（W事業部スタイル準拠） */
+        .header-section {
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 10px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
 
-        .header-row1 {
-            background: linear-gradient(135deg, #C477CC 0%, #DF98E6 100%);
-            color: white;
-            padding: 15px 20px;
-        }
-
-        .main-title {
-            font-size: 1.8em;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .header-row2 {
-            background: linear-gradient(135deg, #B366BD 0%, #C477CC 100%);
-            padding: 8px 15px;
+        .nav-section {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            padding: 12px 20px;
         }
 
         .nav-buttons {
@@ -58,430 +47,278 @@
             justify-content: center;
         }
 
-        .btn {
-            flex: 1;
-            min-width: 140px;
-            max-width: 180px;
-            padding: 8px 16px;
-            font-size: 0.8em;
-            border-radius: 15px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.2);
+        .btn-nav {
+            padding: 8px 14px;
+            border: 2px solid rgba(255,255,255,0.25);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.15);
             color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
             text-decoration: none;
-            display: inline-block;
-            text-align: center;
-            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+            white-space: nowrap;
         }
 
-        .btn:hover {
-            background: rgba(255, 255, 255, 0.3);
+        .btn-nav:hover {
+            background: rgba(255,255,255,0.25);
             transform: translateY(-1px);
         }
 
-        .btn-active-dashboard { 
-            background: #667eea;
-            border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-        .btn-active-sr { 
-            background: #C477CC;
-            border-color: #C477CC;
+        .btn-nav.btn-sr { 
+            background: #C477CC; 
+            border-color: #C477CC; 
             box-shadow: 0 4px 12px rgba(196, 119, 204, 0.4);
         }
-        .btn-active-w { 
-            background: #3498db;
-            border-color: #3498db;
-            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
-        }
-        .btn-active-rc { 
-            background: #38a169;
-            border-color: #38a169;
-            box-shadow: 0 4px 12px rgba(56, 161, 105, 0.4);
-        }
-        .btn-active-rcd { 
-            background: #9b59b6;
-            border-color: #9b59b6;
-            box-shadow: 0 4px 12px rgba(155, 89, 182, 0.4);
-        }
-        .btn-active-analysis { 
-            background: #f39c12;
-            border-color: #f39c12;
-            box-shadow: 0 4px 12px rgba(243, 156, 18, 0.4);
-        }
 
-        .header-row3 {
-            background: #f8f9fa;
-            padding: 8px 15px;
-        }
-
-        .workflow-action-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .workflow-compact {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            font-size: 0.8em;
+        .workflow-section {
+            background: linear-gradient(135deg, #ecf0f1 0%, #d5dbdb 100%);
+            padding: 18px 20px;
+            border-bottom: 3px solid #C477CC;
         }
 
         .workflow-title {
+            font-size: 1.1rem;
             font-weight: 700;
             color: #2c3e50;
+            margin-bottom: 10px;
+            text-align: center;
         }
 
-        .workflow-steps {
+        .workflow-info {
+            font-size: 0.9rem;
+            color: #34495e;
+            text-align: center;
+            line-height: 1.6;
             display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 8px;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
         }
 
-        .workflow-step {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.75em;
-            font-weight: 600;
-            color: white;
-        }
-
-        .workflow-step.completed {
-            background: #27ae60;
-        }
-
-        .workflow-step.active {
-            background: #C477CC;
-        }
-
-        .workflow-step.pending {
-            background: #bdc3c7;
-        }
-
-        .workflow-arrow {
-            color: #7f8c8d;
-            font-weight: bold;
-        }
-
-        .action-buttons-compact {
+        .workflow-actions {
             display: flex;
-            gap: 10px;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
         }
 
-        .action-btn-compact {
-            padding: 8px 16px;
+        .action-btn {
+            padding: 10px 20px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             font-weight: 600;
-            font-size: 0.8em;
+            font-size: 0.85rem;
             cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
             display: inline-block;
         }
 
-        .btn-send-next-compact { background: #27ae60; color: white; }
-        .btn-back-compact { background: #95a5a6; color: white; }
-        .btn-skip-compact { background: #e74c3c; color: white; }
-        .btn-csv-compact { background: #f39c12; color: white; }
-
-        .action-btn-compact:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+        .btn-primary {
+            background: linear-gradient(135deg, #C477CC, #B366BD);
+            color: white;
         }
 
-        .header-row4 {
-            background: #ecf0f1;
-            padding: 10px 15px;
-            font-size: 0.85em;
-            color: #2c3e50;
+        .btn-csv {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
         }
 
-        .status-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
-        .connection-status {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #27ae60;
-        }
-
-        .department-info {
-            font-weight: 600;
-        }
-
-        /* SR事業部統一プレビューセクション */
-        .results-preview-section {
+        /* チャート・KPIセクション */
+        .chart-section {
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 10px;
-            padding: 20px;
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
             margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             border-left: 5px solid #C477CC;
         }
 
-        .preview-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .preview-title {
-            color: #2c3e50;
-            font-size: 1.3em;
+        .chart-header {
+            background: linear-gradient(135deg, #C477CC 0%, #DF98E6 100%);
+            color: white;
+            padding: 12px 20px;
             font-weight: 700;
+            font-size: 1rem;
         }
 
-        .kpi-summary {
+        .kpi-display {
             display: flex;
-            gap: 25px;
+            justify-content: space-around;
             align-items: center;
-            font-size: 0.9em;
+            background: rgba(196, 119, 204, 0.1);
+            padding: 15px;
+            margin: 10px 20px;
+            border-radius: 8px;
+            border: 2px solid #C477CC;
             flex-wrap: wrap;
+            gap: 10px;
         }
 
         .kpi-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
+            text-align: center;
+            min-width: 120px;
         }
 
         .kpi-label {
-            font-size: 0.75em;
-            color: #6c757d;
-            font-weight: 500;
+            font-size: 0.8rem;
+            color: #34495e;
+            margin-bottom: 5px;
+            font-weight: 600;
         }
 
         .kpi-value {
+            font-size: 1.2rem;
             font-weight: 700;
-            font-size: 1.1em;
+            color: #C477CC;
         }
 
-        .kpi-sales { color: #28a745; }
-        .kpi-profit { color: #007bff; }
-        .kpi-diff-positive { color: #28a745; }
-        .kpi-diff-negative { color: #dc3545; }
-
         .chart-container {
-            position: relative;
-            height: 220px;
-            width: 100%;
-            margin: 15px 0;
+            height: 250px;
+            padding: 20px;
             background: white;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
         }
 
         .chart-legend {
             position: absolute;
-            top: 12px;
-            right: 16px;
+            top: 10px;
+            right: 20px;
             display: flex;
             gap: 15px;
-            font-size: 0.8em;
+            font-size: 0.75rem;
             z-index: 10;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
         }
 
         .legend-color {
             width: 12px;
             height: 12px;
-            border-radius: 3px;
+            border-radius: 2px;
         }
 
-        .legend-blue { background: rgba(59, 130, 246, 0.8); }
-        .legend-green { background: rgba(34, 197, 94, 0.8); }
+        .legend-blue { background: rgba(59, 130, 246, 0.7); }
+        .legend-green { background: rgba(34, 197, 94, 0.7); }
 
-        /* SR事業部統一入力セクション */
+        /* 入力セクション */
         .input-section {
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 10px;
-            padding: 20px;
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
             margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             border-left: 5px solid #C477CC;
         }
 
-        /* 省スペース化レイアウト - 新構造 */
-        .input-header-row1 {
+        .input-header {
+            background: linear-gradient(135deg, #C477CC 0%, #DF98E6 100%);
+            color: white;
+            padding: 12px 20px;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .input-controls {
+            padding: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            gap: 30px;
             flex-wrap: wrap;
-        }
-
-        .input-title {
-            color: #2c3e50;
-            font-size: 1.3em;
-            font-weight: 700;
-            margin: 0;
-            flex-shrink: 0;
-        }
-
-        .settings-inline {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .setting-item-inline {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-            min-width: 80px;
-        }
-
-        .setting-label-inline {
-            font-size: 0.7em;
-            font-weight: 600;
-            color: #495057;
-            text-align: center;
-            white-space: nowrap;
-        }
-
-        .setting-input-inline {
-            padding: 6px 8px;
-            border: 2px solid #ced4da;
-            border-radius: 4px;
-            font-size: 0.8em;
-            background: white;
-            text-align: center;
-            font-weight: 600;
-            width: 70px;
-        }
-
-        .setting-input-inline:focus {
-            border-color: #C477CC;
-            outline: none;
-            box-shadow: 0 0 0 0.2rem rgba(196, 119, 204, 0.25);
-        }
-
-        .input-header-row2 {
-            display: flex;
-            justify-content: flex-start;
-            margin-bottom: 20px;
+            gap: 15px;
         }
 
         .preset-buttons {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
         }
 
         .preset-btn {
             padding: 8px 16px;
             border: none;
-            border-radius: 6px;
-            font-size: 0.85em;
+            border-radius: 20px;
             font-weight: 600;
+            font-size: 0.8rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            color: white;
-            min-width: 100px;
+            min-width: 90px;
         }
 
-        .preset-btn.actual { background: #28a745; }
-        .preset-btn.growth { background: #17a2b8; }
-        .preset-btn.moderate { background: #fd7e14; }
-        .preset-btn.aggressive { background: #dc3545; }
+        .preset-btn.green { background: linear-gradient(135deg, #27ae60, #229954); color: white; }
+        .preset-btn.blue { background: linear-gradient(135deg, #3498db, #2980b9); color: white; }
+        .preset-btn.orange { background: linear-gradient(135deg, #fd7e14, #e67e22); color: white; }
+        .preset-btn.red { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; }
 
         .preset-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
-        /* SR事業部統一テーブルシステム - 修正版 */
-        .sales-input-table, .profit-table-container, .expense-table-container {
+        .settings-inline {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #fff3e0;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 2px solid #ff9800;
+            flex-wrap: wrap;
+        }
+
+        .setting-label {
+            font-weight: 600;
+            color: #e65100;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        .setting-input {
+            width: 80px;
+            padding: 6px 8px;
+            border: 2px solid #ffcc02;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        /* 入力テーブル */
+        .input-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
             background: white;
-            border: 2px solid #e9ecef;
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
+            margin: 20px 0;
         }
 
-        .input-table, .profit-table, .expense-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.75em;
-            table-layout: fixed;
-        }
-
-        .input-table th, .profit-table th, .expense-table th {
-            color: white;
-            padding: 8px 4px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 0.8em;
-            border: none;
-        }
-
-        /* SR事業部用ヘッダー色 */
-        .input-table th {
-            background: linear-gradient(135deg, #C477CC 0%, #B366BD 100%);
-        }
-
-        .profit-table th {
-            background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%);
-        }
-
-        .expense-table th {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-        }
-
-        /* 列幅統一 - 修正版 */
-        .input-table th:first-child { width: 80px; }
-        .input-table th:nth-child(2) { width: 40px; }
-        .input-table th:not(:first-child):not(:nth-child(2)) { width: 60px; }
-
-        .profit-table th:first-child { width: 120px; }
-        .profit-table th:not(:first-child):not(:last-child) { width: 60px; }
-        .profit-table th:last-child { width: 80px; }
-
-        .expense-table th:first-child { width: 40px; }
-        .expense-table th:nth-child(2) { width: 120px; }
-        .expense-table th:not(:first-child):not(:nth-child(2)) { width: 60px; }
-
-        .input-table td, .profit-table td, .expense-table td {
-            padding: 6px 4px;
-            text-align: center;
+        .input-table th,
+        .input-table td {
             border: 1px solid #e2e8f0;
-            font-size: 0.75em;
-            background: white;
+            padding: 8px 6px;
+            text-align: center;
+            line-height: 1.2;
         }
 
-        /* 修正1: 合計行の背景を白に、文字を大きく青色に */
-        .total-row {
-            background: white;
+        .input-table th {
+            background: linear-gradient(135deg, #C477CC, #DF98E6);
+            color: white;
+            font-weight: 600;
+            font-size: 0.7rem;
         }
 
         .total-header {
@@ -495,30 +332,33 @@
         .total-sales { 
             color: #1e40af; 
             font-weight: 700; 
-            font-size: 0.85em;
+            font-size: 1.05em;
         }
+
         .total-diff-positive { 
             color: #059669; 
             font-weight: 700; 
-            font-size: 0.85em;
+            font-size: 1.05em;
         }
+
         .total-diff-negative { 
             color: #dc2626; 
             font-weight: 700; 
-            font-size: 0.85em;
+            font-size: 1.05em;
         }
+
         .reference-cell { 
             color: #6b7280; 
             font-size: 0.7em; 
             background: #f9fafb;
         }
 
-        /* 修正2: 店舗セルの背景色を確実に薄グレーに */
         .store-cell {
             background: #f8f9fa;
             padding: 6px;
             text-align: center;
             border: 1px solid #e2e8f0;
+            min-width: 80px;
         }
 
         .store-name {
@@ -532,6 +372,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2px;
+            margin-top: 4px;
         }
 
         .store-btn {
@@ -543,6 +384,7 @@
             cursor: pointer;
             color: white;
             line-height: 1.3;
+            transition: all 0.2s ease;
         }
 
         .store-btn.orange { background: #fd7e14; }
@@ -556,269 +398,250 @@
 
         .month-input {
             width: 100%;
-            padding: 4px 2px;
-            border: 1px solid #cbd5e0;
+            padding: 4px 6px;
+            border: 1px solid #ddd;
+            background: rgba(196, 119, 204, 0.1);
             border-radius: 3px;
             text-align: center;
-            font-size: 0.7em;
-            background: rgba(196, 119, 204, 0.05);
-            height: 24px;
-            font-weight: 500;
+            font-size: 0.7rem;
+            font-weight: 600;
         }
 
         .month-input:focus {
+            background: rgba(196, 119, 204, 0.2);
             border-color: #C477CC;
             outline: none;
-            background: rgba(196, 119, 204, 0.1);
-            box-shadow: 0 0 0 2px rgba(196, 119, 204, 0.2);
         }
 
-        /* 修正3: SR事業部統一利益セクション - 色分けシステム修正 */
+        /* 利益セクション */
         .profit-section {
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 10px;
-            padding: 20px;
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
             margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             border-left: 5px solid #52c41a;
         }
 
-        .profit-title {
-            color: #2c3e50;
-            font-size: 1.3em;
+        .profit-header {
+            background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%);
+            color: white;
+            padding: 12px 20px;
             font-weight: 700;
-            margin-bottom: 15px;
+            font-size: 1rem;
         }
 
-        /* 修正4: 売上総利益・営業利益表の色分け修正 */
+        .profit-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.7rem;
+            background: white;
+            table-layout: fixed;
+        }
+
+        .profit-table th,
+        .profit-table td {
+            border: 1px solid #e2e8f0;
+            padding: 6px 4px;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .profit-table th:first-child,
+        .profit-table td:first-child {
+            width: 120px;
+            white-space: normal;
+            word-wrap: break-word;
+            text-align: left;
+            padding-left: 10px;
+        }
+
+        .profit-table th:nth-child(n+2):nth-child(-n+13),
+        .profit-table td:nth-child(n+2):nth-child(-n+13) {
+            width: 60px;
+        }
+
+        .profit-table th:nth-child(n+14),
+        .profit-table td:nth-child(n+14) {
+            width: 80px;
+        }
+
+        .profit-table th {
+            background: linear-gradient(135deg, #52c41a, #73d13d);
+            color: white;
+            font-weight: 600;
+            font-size: 0.65rem;
+        }
+
+        .profit-table .profit-name {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
         .sales-row td { background: #f6ffed; }
         .cogs-row td { background: #fff7e6; }
         .gross-profit-row td { background: #e6f7ff; }
+        .personnel-row td { background: #fff3cd; font-weight: bold; color: #e65100; }
+        .personnel-row td:first-child { background: #ffc107; color: #212529; }
         .total-expenses-row td { background: #fff0f6; }
         .operating-profit-row td { background: #f9f0ff; }
 
-        .profit-amount {
-            color: #2c3e50;
-            font-weight: 600;
-        }
-
-        .annual-amount {
-            color: #1890ff;
-            font-weight: 700;
-            font-size: 0.9em;
-        }
-
-        /* 修正5: SR事業部統一販管費セクション */
-        .expense-details-section {
+        /* 販管費セクション */
+        .expense-section {
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 10px;
-            padding: 20px;
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
             margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border-left: 5px solid #e74c3c;
+            border-left: 5px solid #34495e;
         }
 
-        .expense-title {
-            color: #2c3e50;
-            font-size: 1.3em;
+        .expense-header {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            color: white;
+            padding: 12px 20px;
             font-weight: 700;
-            margin-bottom: 15px;
+            font-size: 1rem;
         }
 
-        .expense-id {
-            background: #f8f9fa;
-            font-weight: 600;
-            color: #e74c3c;
-        }
-
-        .expense-name {
-            background: #f8f9fa;
-            font-weight: 600;
-            color: #2c3e50;
-            text-align: left;
-            padding-left: 12px;
-        }
-
-        .expense-amount {
-            color: #2c3e50;
-            font-weight: 500;
+        .expense-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.7rem;
             background: white;
+            table-layout: fixed;
         }
 
-        /* 修正6: 販管費合計行の色分け修正 */
-        .expense-total-row td {
-            background: #fff0f6;
-            border-top: 2px solid #e74c3c;
-            font-weight: 700;
+        .expense-table th,
+        .expense-table td {
+            border: 1px solid #e2e8f0;
+            padding: 6px 4px;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
-        .expense-total-id {
-            background: #e74c3c;
-            color: white;
-            font-weight: 700;
+        .expense-table th:first-child,
+        .expense-table td:first-child {
+            width: 40px;
         }
 
-        .expense-total-name {
-            background: #e74c3c;
-            color: white;
-            font-weight: 700;
+        .expense-table th:nth-child(2),
+        .expense-table td:nth-child(2) {
+            width: 120px;
+            white-space: normal;
+            word-wrap: break-word;
             text-align: left;
-            padding-left: 12px;
+            padding-left: 10px;
         }
 
-        .expense-total-amount {
-            color: #e74c3c;
+        .expense-table th:nth-child(n+3):nth-child(-n+14),
+        .expense-table td:nth-child(n+3):nth-child(-n+14) {
+            width: 60px;
+        }
+
+        .expense-table th:nth-child(n+15),
+        .expense-table td:nth-child(n+15) {
+            width: 80px;
+        }
+
+        .expense-table th {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            color: white;
+            font-weight: 600;
+            font-size: 0.65rem;
+        }
+
+        .expense-table .expense-name {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .expense-table tfoot tr {
+            background: #34495e;
+            color: white;
             font-weight: 700;
-            font-size: 0.85em;
         }
 
-        /* 修正7: レスポンシブ対応強化 */
-        @media (max-width: 1200px) {
-            .input-header-row1 { 
-                flex-direction: column; 
-                gap: 20px; 
-                align-items: flex-start;
-            }
-            .settings-inline { 
-                flex-direction: column; 
-                gap: 15px; 
-                width: 100%;
-            }
-            .settings-inline {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 15px;
-            }
-            .setting-item-inline {
-                min-width: auto;
-            }
+        .expense-table tfoot td {
+            background: #34495e;
         }
 
+        /* レスポンシブ対応 */
         @media (max-width: 768px) {
-            .container { padding: 5px; }
-            .nav-buttons { flex-direction: column; }
-            .btn { min-width: auto; max-width: none; }
-            .workflow-compact { 
-                flex-direction: column; 
-                gap: 8px; 
-                text-align: center;
-            }
-            .action-buttons-compact { 
-                flex-direction: column; 
-                gap: 5px; 
-            }
-            .kpi-summary { 
-                flex-direction: column; 
-                gap: 10px; 
-                align-items: center;
-            }
-            .settings-inline { 
-                grid-template-columns: 1fr; 
-            }
-            .preset-buttons {
-                flex-direction: column;
-                width: 100%;
-            }
-            .preset-btn {
-                width: 100%;
-            }
-            
-            /* テーブルのモバイル対応 */
-            .input-table, .profit-table, .expense-table {
-                font-size: 0.65em;
-            }
-            
-            .input-table th:not(:first-child):not(:nth-child(2)),
-            .profit-table th:not(:first-child):not(:last-child),
-            .expense-table th:not(:first-child):not(:nth-child(2)) {
-                width: 45px;
-            }
+            .container { padding: 10px; }
+            .nav-buttons { gap: 6px; }
+            .btn-nav { padding: 6px 10px; font-size: 0.7rem; }
+            .input-controls { flex-direction: column; align-items: stretch; }
+            .preset-buttons { justify-content: center; }
+            .settings-inline { justify-content: center; }
+            .kpi-display { flex-direction: column; gap: 15px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- SR事業部統一ヘッダー -->
-        <header class="header">
-            <div class="header-row1">
-                <h1 class="main-title">SR事業部PLシミュレーター Phase 4完成版</h1>
-            </div>
-
-            <div class="header-row2">
+        <!-- ヘッダーセクション -->
+        <div class="header-section">
+            <div class="nav-section">
                 <div class="nav-buttons">
-                    <a href="../index.html" class="btn btn-active-dashboard">ダッシュボード</a>
-                    <a href="#" class="btn btn-active-sr">SR事業部PL</a>
-                    <a href="w-pl.html" class="btn btn-active-w">W事業部PL</a>
-                    <a href="rc-pl.html" class="btn btn-active-rc">RC事業部PL</a>
-                    <a href="rcd-pl.html" class="btn btn-active-rcd">RCD事業部PL</a>
-                    <a href="../combined-dashboard/index.html" class="btn btn-active-analysis">全体PL分析</a>
+                    <a href="../index.html" class="btn-nav">ダッシュボード</a>
+                    <a href="#" class="btn-nav btn-sr">SR事業部</a>
+                    <a href="w-pl.html" class="btn-nav">W事業部</a>
+                    <a href="rc-pl.html" class="btn-nav">RC支店</a>
+                    <a href="rcd-pl.html" class="btn-nav">RCD社</a>
+                    <a href="../combined-dashboard/index.html" class="btn-nav">全体PL</a>
                 </div>
             </div>
 
-            <div class="header-row3">
-                <div class="workflow-action-bar">
-                    <div class="workflow-compact">
-                        <div class="workflow-title">Step 1/4 統合PLシステム ワークフロー</div>
-                        <div class="workflow-steps">
-                            <div class="workflow-step active">SR◎進行中</div>
-                            <div class="workflow-arrow">→</div>
-                            <div class="workflow-step pending">W待機</div>
-                            <div class="workflow-arrow">→</div>
-                            <div class="workflow-step pending">RC待機</div>
-                            <div class="workflow-arrow">→</div>
-                            <div class="workflow-step pending">RCD待機</div>
-                        </div>
-                    </div>
-                    <div class="action-buttons-compact">
-                        <button class="action-btn-compact btn-send-next-compact" onclick="sendDataAndNavigateToNext()">
-                            SRデータ送信して次へ
-                        </button>
-                        <button class="action-btn-compact btn-csv-compact" onclick="exportSRCSV()">
-                            CSV出力
-                        </button>
-                        <button class="action-btn-compact btn-back-compact" onclick="goToInputSystem()">
-                            入力システムに戻る
-                        </button>
-                        <button class="action-btn-compact btn-skip-compact" onclick="skipToFinalPL()">
-                            統合PLに直接移動
-                        </button>
-                    </div>
+            <div class="workflow-section">
+                <div class="workflow-title">統合PLシステム ワークフロー - Step 1/4 進行中</div>
+                <div class="workflow-info">
+                    <span style="color: #C477CC; font-weight: 700;">● SR事業部設定中</span>
+                    <span style="margin: 0 10px; color: #bdc3c7;">|</span>
+                    <span style="color: #95a5a6;">W事業部待機</span>
+                    <span style="margin: 0 10px; color: #bdc3c7;">|</span>
+                    <span style="color: #95a5a6;">RC事業部待機</span>
+                    <span style="margin: 0 10px; color: #bdc3c7;">|</span>
+                    <span style="color: #95a5a6;">RCD事業部待機</span>
+                    <span style="margin: 0 10px; color: #bdc3c7;">→</span>
+                    <span style="color: #f39c12; font-weight: 600;">合計PL統合</span>
+                </div>
+                <div class="workflow-actions">
+                    <button class="action-btn btn-primary" onclick="sendDataAndNavigateToNext()">
+                        SRデータ送信 → 次のステップ (W事業部)
+                    </button>
+                    <button class="action-btn btn-csv" onclick="exportSRCSV()">
+                        CSV出力
+                    </button>
                 </div>
             </div>
+        </div>
 
-            <div class="header-row4">
-                <div class="status-info">
-                    <div class="connection-status">
-                        <div class="status-indicator"></div>
-                        <span>統合PLシステム連携: 準備完了</span>
-                    </div>
-                    <div class="department-info">
-                        SR事業部 - 売上レンジ別人件費係数 + 営業コミッション・賞与システム   
-                    </div>
+        <!-- チャート・KPIセクション -->
+        <div class="chart-section">
+            <div class="chart-header">
+                前年対比グラフ + KPI統合表示
+            </div>
+            
+            <div class="kpi-display">
+                <div class="kpi-item">
+                    <div class="kpi-label">年間売上</div>
+                    <div class="kpi-value" id="annual-total">31,365万円</div>
+                </div>
+                <div class="kpi-item">
+                    <div class="kpi-label">営業利益</div>
+                    <div class="kpi-value" id="annual-profit">5,903万円</div>
+                </div>
+                <div class="kpi-item">
+                    <div class="kpi-label">前年増減</div>
+                    <div class="kpi-value" id="annual-diff">+1万円</div>
                 </div>
             </div>
-        </header>
-
-        <!-- SR事業部統一プレビューセクション -->
-        <div class="results-preview-section">
-            <div class="preview-header">
-                <div class="preview-title">前年対比グラフ + KPI統合表示</div>
-                <div class="kpi-summary">
-                    <div class="kpi-item">
-                        <div class="kpi-label">年間売上</div>
-                        <div class="kpi-value kpi-sales" id="annual-total">---万円</div>
-                    </div>
-                    <div class="kpi-item">
-                        <div class="kpi-label">営業利益</div>
-                        <div class="kpi-value kpi-profit" id="annual-profit">---万円</div>
-                    </div>
-                    <div class="kpi-item">
-                        <div class="kpi-label">前年増減</div>
-                        <div class="kpi-value" id="annual-diff">---万円</div>
-                    </div>
-                </div>
-            </div>
-
+            
             <div class="chart-container">
                 <div class="chart-legend">
                     <div class="legend-item">
@@ -834,98 +657,85 @@
             </div>
         </div>
 
-        <!-- 省スペース化入力セクション -->
+        <!-- 入力セクション -->
         <div class="input-section">
-            <!-- 1行目: タイトル + 設定項目 -->
-            <div class="input-header-row1">
-                <div class="input-title">6店舗別売上入力（万円）</div>
-                <div class="settings-inline">
-                    <div class="setting-item-inline">
-                        <label class="setting-label-inline">営業手当</label>
-                        <input type="number" class="setting-input-inline" id="commission" value="100">
-                    </div>
-                    <div class="setting-item-inline">
-                        <label class="setting-label-inline">6月賞与</label>
-                        <input type="number" class="setting-input-inline" id="bonus6" value="100">
-                    </div>
-                    <div class="setting-item-inline">
-                        <label class="setting-label-inline">12月賞与</label>
-                        <input type="number" class="setting-input-inline" id="bonus12" value="0">
-                    </div>
-                    <div class="setting-item-inline">
-                        <label class="setting-label-inline">広告宣伝費</label>
-                        <input type="number" class="setting-input-inline" id="advertising" value="30">
-                    </div>
-                </div>
+            <div class="input-header">
+                6店舗別売上入力（万円）
             </div>
             
-            <!-- 2行目: プリセットボタン -->
-            <div class="input-header-row2">
+            <div class="input-controls">
                 <div class="preset-buttons">
-                    <button class="preset-btn actual" onclick="applySRPreset('actual')">実績パターン</button>
-                    <button class="preset-btn growth" onclick="applySRPreset('50p')">標準設定</button>
-                    <button class="preset-btn moderate" onclick="applySRPreset('100p')">成長モデル</button>
-                    <button class="preset-btn aggressive" onclick="applySRPreset('150p')">各店150万増</button>
+                    <button class="preset-btn green" onclick="applySRPreset('actual')">実績パターン</button>
+                    <button class="preset-btn blue" onclick="applySRPreset('50p')">+50万</button>
+                    <button class="preset-btn orange" onclick="applySRPreset('100p')">+100万</button>
+                    <button class="preset-btn red" onclick="applySRPreset('150p')">+150万</button>
+                </div>
+
+                <div class="settings-inline">
+                    <label class="setting-label">営業手当</label>
+                    <input type="number" class="setting-input" id="commission" value="100" onchange="updateSRSales()">
+                    <label class="setting-label">6月賞与</label>
+                    <input type="number" class="setting-input" id="bonus6" value="100" onchange="updateSRSales()">
+                    <label class="setting-label">12月賞与</label>
+                    <input type="number" class="setting-input" id="bonus12" value="0" onchange="updateSRSales()">
+                    <label class="setting-label">広告宣伝費</label>
+                    <input type="number" class="setting-input" id="advertising" value="30" onchange="updateSRSales()">
                 </div>
             </div>
-            
-            <div class="sales-input-table">
-                <table class="input-table">
-                    <thead>
-                        <tr>
-                            <th>店舗名</th>
-                            <th>項目</th>
-                            <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
-                            <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
-                        </tr>
-                    </thead>
-                    <tbody id="sr-input-table-body">
-                        <!-- JavaScript動的生成 -->
-                    </tbody>
-                </table>
-            </div>
+
+            <table class="input-table">
+                <thead>
+                    <tr>
+                        <th>店舗名</th>
+                        <th>項目</th>
+                        <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
+                        <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
+                    </tr>
+                </thead>
+                <tbody id="sr-input-table-body">
+                    <!-- JavaScript動的生成 -->
+                </tbody>
+            </table>
         </div>
 
-        <!-- SR事業部統一利益セクション -->
+        <!-- 利益セクション -->
         <div class="profit-section">
-            <div class="profit-title">売上総利益・営業利益月額表</div>
-            
-            <div class="profit-table-container">
-                <table class="profit-table">
-                    <thead>
-                        <tr>
-                            <th>項目</th>
-                            <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
-                            <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
-                            <th>年間合計</th>
-                        </tr>
-                    </thead>
-                    <tbody id="profit-table-body">
-                        <!-- JavaScript動的生成 -->
-                    </tbody>
-                </table>
+            <div class="profit-header">
+                売上総利益・営業利益月額表
             </div>
+            <table class="profit-table">
+                <thead>
+                    <tr>
+                        <th>項目</th>
+                        <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
+                        <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
+                        <th>年間合計</th>
+                    </tr>
+                </thead>
+                <tbody id="profit-table-body">
+                    <!-- JavaScript動的生成 -->
+                </tbody>
+            </table>
         </div>
 
-        <!-- SR事業部統一販管費セクション -->
-        <div class="expense-details-section">
-            <div class="expense-title">販管費19項目詳細表示（統一構造 Version 3.0）</div>
-            
-            <div class="expense-table-container">
-                <table class="expense-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>費目名</th>
-                            <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
-                            <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
-                        </tr>
-                    </thead>
-                    <tbody id="expense-table-body">
-                        <!-- JavaScript動的生成 -->
-                    </tbody>
-                </table>
+        <!-- 販管費セクション -->
+        <div class="expense-section">
+            <div class="expense-header">
+                販管費19項目詳細表示（統一構造 Version 3.0）
             </div>
+            <table class="expense-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>費目名</th>
+                        <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
+                        <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
+                    </tr>
+                </thead>
+                <tbody id="expense-table-body">
+                    <!-- JavaScript動的生成 -->
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -949,6 +759,7 @@
         };
 
         const referenceData = [2236, 2916, 2927, 2810, 2544, 2663, 3008, 2324, 2403, 2602, 2228, 2721];
+        const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
         let monthlyChart = null;
 
         // 販管費19項目定義
@@ -974,7 +785,49 @@
             19: { name: "減価償却費", type: "fixed", annual: 230 }
         };
 
-        // テーブル生成
+        // 修正版人件費計算（売上レンジ別率システム）
+        function getPersonnelRate(salesAmount) {
+            if (salesAmount >= 2100 && salesAmount <= 2399) return 33.8;
+            if (salesAmount >= 2400 && salesAmount <= 2699) return 29.8;
+            if (salesAmount >= 2700 && salesAmount <= 2999) return 29.8;
+            if (salesAmount >= 3000 && salesAmount <= 3299) return 24.5;
+            if (salesAmount < 2100) return 33.8;
+            if (salesAmount > 3299) return 24.5;
+            return 30.4;
+        }
+
+        // 変動係数取得
+        function getVariableCoeff(type, monthIndex) {
+            const coeffs = {
+                fees: [0.71, 1.45, 0.92, 0.90, 1.51, 0.90, 1.20, 0.79, 0.70, 1.12, 0.80, 1.00],
+                freight: [1.76, 0.13, 1.82, 0.93, 0.08, 0.96, 1.78, 0.93, 0.97, 0.92, 0.07, 1.65],
+                utilities: [0.84, 0.97, 1.41, 1.13, 0.86, 0.84, 0.90, 1.17, 1.17, 1.07, 0.82, 0.82]
+            };
+            return coeffs[type][monthIndex];
+        }
+
+        // 販管費項目計算
+        function calculateExpenseItem(id, monthResult, monthIndex) {
+            const item = expenseItems[id];
+            
+            switch (item.type) {
+                case 'variable':
+                    return id === 1 ? monthResult.personnel : 0;
+                case 'calculated':
+                    return id === 2 ? monthResult.welfare : 0;
+                case 'fixed':
+                    return Math.round(item.annual / 12);
+                case 'variable_coeff':
+                    const coeffType = id === 7 ? 'freight' : (id === 14 ? 'utilities' : 'fees');
+                    return Math.round(item.annual / 12 * getVariableCoeff(coeffType, monthIndex));
+                case 'setting':
+                    return id === 8 ? srData.settings.advertising : 0;
+                default:
+                    return 0;
+            }
+        }
+
+        // 入力テーブル生成（キャプチャー準拠）
         function generateSRInputTable() {
             const tbody = document.getElementById('sr-input-table-body');
             if (!tbody) return;
@@ -991,7 +844,7 @@
                 totals.push(monthTotal);
             }
 
-            // 合計行 - 修正版
+            // 合計行（3行構成：売上・増減・参考）
             html += `
                 <tr class="total-row">
                     <td rowspan="3" class="total-header">合計</td>
@@ -1012,7 +865,7 @@
                 </tr>
             `;
 
-            // 各店舗行
+            // 各店舗行（2行構成：売上・参考、店舗ボタン付き）
             Object.entries(srData.stores).forEach(([storeName, values]) => {
                 html += `
                     <tr>
@@ -1036,7 +889,7 @@
                             </td>
                         `).join('')}
                     </tr>
-                    <tr style="background: white;">
+                    <tr>
                         <td class="reference-cell">参考</td>
                         ${values.map(val => `<td class="reference-cell">${formatNumber(val)}</td>`).join('')}
                     </tr>
@@ -1046,60 +899,224 @@
             tbody.innerHTML = html;
         }
 
-        // 売上総利益・営業利益月額表生成 - 修正版
+        // 利益テーブル更新
         function updateProfitTable(results) {
             const tbody = document.getElementById('profit-table-body');
             if (!tbody || !results) return;
 
             const { monthlyResults } = results;
             
-            // 年間合計計算
             const annualSales = monthlyResults.reduce((sum, m) => sum + m.sales, 0);
             const annualCogs = monthlyResults.reduce((sum, m) => sum + m.cogs, 0);
             const annualGrossProfit = monthlyResults.reduce((sum, m) => sum + m.grossProfit, 0);
+            const annualPersonnel = monthlyResults.reduce((sum, m) => sum + m.personnel, 0);
+            const annualWelfare = monthlyResults.reduce((sum, m) => sum + m.welfare, 0);
+            const annualAdvertising = monthlyResults.reduce((sum, m) => sum + m.advertising, 0);
             const annualTotalExpenses = monthlyResults.reduce((sum, m) => sum + m.totalExpenses, 0);
             const annualOperatingProfit = monthlyResults.reduce((sum, m) => sum + m.operatingProfit, 0);
 
             let html = `
                 <tr class="sales-row">
-                    <td class="profit-amount">売上高</td>
-                    ${monthlyResults.map(m => `<td class="profit-amount">${formatNumber(m.sales)}</td>`).join('')}
-                    <td class="annual-amount">${formatNumber(annualSales)}</td>
+                    <td class="profit-name">売上高</td>
+                    ${monthlyResults.map(m => `<td>${formatNumber(m.sales)}</td>`).join('')}
+                    <td style="font-weight: 700; background: #f8f9fa;">${formatNumber(annualSales)}</td>
                 </tr>
                 <tr class="cogs-row">
-                    <td class="profit-amount">仕入原価</td>
-                    ${monthlyResults.map(m => `<td class="profit-amount">${formatNumber(m.cogs)}</td>`).join('')}
-                    <td class="annual-amount">${formatNumber(annualCogs)}</td>
+                    <td class="profit-name">仕入原価</td>
+                    ${monthlyResults.map(m => `<td>${formatNumber(m.cogs)}</td>`).join('')}
+                    <td style="font-weight: 700; background: #f8f9fa;">${formatNumber(annualCogs)}</td>
                 </tr>
                 <tr class="gross-profit-row">
-                    <td class="profit-amount">売上総利益</td>
-                    ${monthlyResults.map(m => `<td class="profit-amount">${formatNumber(m.grossProfit)}</td>`).join('')}
-                    <td class="annual-amount">${formatNumber(annualGrossProfit)}</td>
+                    <td class="profit-name">売上総利益</td>
+                    ${monthlyResults.map(m => `<td>${formatNumber(m.grossProfit)}</td>`).join('')}
+                    <td style="font-weight: 700; background: #f8f9fa;">${formatNumber(annualGrossProfit)}</td>
+                </tr>
+                <tr class="personnel-row">
+                    <td class="profit-name">人件費統合</td>
+                    ${monthlyResults.map(m => `<td>${formatNumber(m.personnel)}</td>`).join('')}
+                    <td style="font-weight: 700; background: #ffc107; color: #212529;">${formatNumber(annualPersonnel)}</td>
+                </tr>
+                <tr>
+                    <td class="profit-name">法定福利費</td>
+                    ${monthlyResults.map(m => `<td>${formatNumber(m.welfare)}</td>`).join('')}
+                    <td style="font-weight: 700; background: #f8f9fa;">${formatNumber(annualWelfare)}</td>
+                </tr>
+                <tr>
+                    <td class="profit-name">広告宣伝費</td>
+                    ${monthlyResults.map(m => `<td>${formatNumber(m.advertising)}</td>`).join('')}
+                    <td style="font-weight: 700; background: #f8f9fa;">${formatNumber(annualAdvertising)}</td>
                 </tr>
                 <tr class="total-expenses-row">
-                    <td class="profit-amount">販管費合計</td>
-                    ${monthlyResults.map(m => `<td class="profit-amount">${formatNumber(m.totalExpenses)}</td>`).join('')}
-                    <td class="annual-amount">${formatNumber(annualTotalExpenses)}</td>
+                    <td class="profit-name">販管費合計</td>
+                    ${monthlyResults.map(m => `<td>${formatNumber(m.totalExpenses)}</td>`).join('')}
+                    <td style="font-weight: 700; background: #f8f9fa;">${formatNumber(annualTotalExpenses)}</td>
                 </tr>
                 <tr class="operating-profit-row">
-                    <td class="profit-amount">営業利益</td>
-                    ${monthlyResults.map(m => `<td class="profit-amount">${formatNumber(m.operatingProfit)}</td>`).join('')}
-                    <td class="annual-amount">${formatNumber(annualOperatingProfit)}</td>
+                    <td class="profit-name">営業利益</td>
+                    ${monthlyResults.map(m => `<td>${formatNumber(m.operatingProfit)}</td>`).join('')}
+                    <td style="font-weight: 700; background: #f8f9fa;">${formatNumber(annualOperatingProfit)}</td>
                 </tr>
             `;
 
             tbody.innerHTML = html;
         }
 
+        // 販管費テーブル更新
+        function updateExpenseTable(expenseDetails) {
+            const tbody = document.getElementById('expense-table-body');
+            if (!tbody) return;
+
+            let html = '';
+
+            for (let id = 1; id <= 19; id++) {
+                const expenseData = expenseDetails[id];
+                const expenseName = expenseItems[id].name;
+                const annual = expenseData.reduce((sum, val) => sum + val, 0);
+
+                if (annual > 0) {
+                    html += `
+                        <tr>
+                            <td style="font-weight: 600; background: #f8f9fa; text-align: center;">${id}</td>
+                            <td class="expense-name">${expenseName}</td>
+                            ${expenseData.map(val => `<td>${formatNumber(val)}</td>`).join('')}
+                        </tr>
+                    `;
+                }
+            }
+
+            tbody.innerHTML = html;
+        }
+
+        // SR計算メイン関数
+        function calculateSR() {
+            const monthlySales = [];
+            for (let month = 0; month < 12; month++) {
+                let monthTotal = 0;
+                Object.values(srData.stores).forEach(storeData => {
+                    monthTotal += storeData[month];
+                });
+                monthlySales.push(monthTotal);
+            }
+
+            const monthlyResults = monthlySales.map((sales, i) => {
+                const cogs = Math.round(sales * 0.272);
+                const grossProfit = sales - cogs;
+                
+                // 修正版人件費計算
+                const personnelRate = getPersonnelRate(sales);
+                let personnel = Math.round(sales * (personnelRate / 100));
+                
+                // 特殊手当追加
+                if (i === 11 || i === 3 || i === 7) personnel += srData.settings.commission;
+                if (i === 11) personnel += srData.settings.bonus6;
+                if (i === 5) personnel += srData.settings.bonus12;
+                
+                const welfare = Math.round(personnel * 0.1284);
+                const advertising = srData.settings.advertising;
+                const otherExpenses = 479; // 固定費統合
+                
+                const totalExpenses = personnel + welfare + advertising + otherExpenses;
+                const operatingProfit = grossProfit - totalExpenses;
+                
+                return {
+                    sales, cogs, grossProfit, personnel, welfare, advertising,
+                    otherExpenses, totalExpenses, operatingProfit
+                };
+            });
+
+            // 販管費19項目計算
+            const expenseDetails = {};
+            for (let id = 1; id <= 19; id++) {
+                expenseDetails[id] = monthlyResults.map((result, monthIndex) => {
+                    return calculateExpenseItem(id, result, monthIndex);
+                });
+            }
+
+            const annual = {
+                sales: monthlyResults.reduce((sum, m) => sum + m.sales, 0),
+                operatingProfit: monthlyResults.reduce((sum, m) => sum + m.operatingProfit, 0)
+            };
+
+            updateKPIDisplay(annual);
+            updateProfitTable({ monthlyResults });
+            updateExpenseTable(expenseDetails);
+            updateChart(monthlySales);
+            
+            window.srResults = { monthlyResults, annual, monthlySales, expenseDetails };
+            return { monthlyResults, annual };
+        }
+
+        // KPI表示更新
+        function updateKPIDisplay(annual) {
+            const refTotal = referenceData.reduce((sum, val) => sum + val, 0);
+            const diff = annual.sales - refTotal;
+
+            document.getElementById('annual-total').textContent = formatNumber(annual.sales) + '万円';
+            document.getElementById('annual-profit').textContent = formatNumber(annual.operatingProfit) + '万円';
+            
+            const diffElement = document.getElementById('annual-diff');
+            diffElement.textContent = (diff >= 0 ? '+' : '') + formatNumber(diff) + '万円';
+            diffElement.style.color = diff >= 0 ? '#28a745' : '#dc3545';
+        }
+
+        // チャート更新
+        function updateChart(monthlySales) {
+            const ctx = document.getElementById('monthlyChart');
+            if (!ctx) return;
+
+            if (monthlyChart) monthlyChart.destroy();
+
+            monthlyChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: '前年実績',
+                            data: referenceData,
+                            backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            borderWidth: 2
+                        },
+                        {
+                            label: '予算設定',
+                            data: monthlySales,
+                            backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                            borderColor: 'rgba(34, 197, 94, 1)',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { font: { size: 10 } } },
+                        x: { ticks: { font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        // 入力関数群
         function updateStoreData(input) {
             const store = input.dataset.store;
             const month = parseInt(input.dataset.month);
             const value = parseInt(input.value) || 0;
             
             srData.stores[store][month] = value;
+            updateSRSales();
+        }
+
+        function updateSRSales() {
+            srData.settings.commission = parseInt(document.getElementById('commission').value) || 100;
+            srData.settings.bonus6 = parseInt(document.getElementById('bonus6').value) || 100;
+            srData.settings.bonus12 = parseInt(document.getElementById('bonus12').value) || 0;
+            srData.settings.advertising = parseInt(document.getElementById('advertising').value) || 30;
+            
             calculateSR();
             generateSRInputTable();
-            updateChart();
         }
 
         function incrementStore(storeName, amount) {
@@ -1109,9 +1126,7 @@
                 srData.stores[storeName][month] += amount;
             }
             
-            calculateSR();
-            generateSRInputTable();
-            updateChart();
+            updateSRSales();
         }
 
         function resetStoreToActual(storeName) {
@@ -1126,11 +1141,8 @@
             
             if (actualData[storeName]) {
                 srData.stores[storeName] = [...actualData[storeName]];
+                updateSRSales();
             }
-            
-            calculateSR();
-            generateSRInputTable();
-            updateChart();
         }
 
         function applySRPreset(presetType) {
@@ -1143,15 +1155,12 @@
                 '広島店': [490, 493, 427, 542, 558, 416, 622, 641, 496, 385, 253, 620]
             };
             
-            // 実績値をベースに設定
             srData.stores = JSON.parse(JSON.stringify(actualData));
             
             const storeNames = Object.keys(srData.stores);
             
             switch(presetType) {
-                case 'actual':
-                    // 実績値のまま
-                    break;
+                case 'actual': break;
                 case '50p':
                     storeNames.forEach(storeName => {
                         for (let i = 0; i < 12; i++) {
@@ -1175,219 +1184,10 @@
                     break;
             }
             
-            calculateSR();
-            generateSRInputTable();
-            updateChart();
+            updateSRSales();
         }
 
-        function collectInputData() {
-            srData.settings.commission = parseInt(document.getElementById('commission').value) || 100;
-            srData.settings.bonus6 = parseInt(document.getElementById('bonus6').value) || 100;
-            srData.settings.bonus12 = parseInt(document.getElementById('bonus12').value) || 0;
-            srData.settings.advertising = parseInt(document.getElementById('advertising').value) || 30;
-            return srData;
-        }
-
-        function calculateSR() {
-            collectInputData();
-            
-            const monthlySales = [];
-            for (let month = 0; month < 12; month++) {
-                let monthTotal = 0;
-                Object.values(srData.stores).forEach(storeData => {
-                    monthTotal += storeData[month];
-                });
-                monthlySales.push(monthTotal);
-            }
-
-            const monthlyResults = monthlySales.map((sales, i) => {
-                const cogs = Math.round(sales * 0.272);
-                const grossProfit = sales - cogs;
-                
-                const basePersonnel = sales * 0.10;
-                const coefficient = getPersonnelCoefficient(sales);
-                let personnel = Math.round(basePersonnel * coefficient);
-                
-                if (i === 11 || i === 3 || i === 7) personnel += srData.settings.commission;
-                if (i === 11) personnel += srData.settings.bonus6;
-                if (i === 5) personnel += srData.settings.bonus12;
-                
-                const welfare = Math.round(personnel * 0.1284);
-                const advertising = srData.settings.advertising;
-                
-                const otherExpenses = 
-                    Math.round(166/12) + Math.round(2500/12) + Math.round(2574/12) + 
-                    Math.round(1470/12) + Math.round(851/12 * getVariableCoeff('freight', i)) + 
-                    Math.round(374/12) + Math.round(227/12) + Math.round(468/12) + 
-                    Math.round(43/12) + Math.round(127/12) + 
-                    Math.round(579/12 * getVariableCoeff('utilities', i)) + 
-                    Math.round(1057/12 * getVariableCoeff('fees', i)) + 
-                    Math.round(14/12) + Math.round(67/12) + Math.round(408/12) + Math.round(230/12);
-                
-                const totalExpenses = personnel + welfare + advertising + otherExpenses;
-                const operatingProfit = grossProfit - totalExpenses;
-                
-                return {
-                    sales, cogs, grossProfit, personnel, welfare, advertising, 
-                    otherExpenses, totalExpenses, operatingProfit
-                };
-            });
-
-            const expenseDetails = {};
-            for (let id = 1; id <= 19; id++) {
-                expenseDetails[id] = monthlyResults.map((result, monthIndex) => {
-                    return calculateExpenseItem(id, result, monthIndex);
-                });
-            }
-
-            const annual = {
-                sales: monthlyResults.reduce((sum, m) => sum + m.sales, 0),
-                operatingProfit: monthlyResults.reduce((sum, m) => sum + m.operatingProfit, 0)
-            };
-
-            updateResultsDisplay(annual);
-            updateProfitTable({ monthlyResults });
-            updateExpenseTable(expenseDetails);
-            
-            window.srResults = { monthlyResults, annual, monthlySales, expenseDetails };
-            return { monthlyResults, annual };
-        }
-
-        function calculateExpenseItem(id, monthResult, monthIndex) {
-            const item = expenseItems[id];
-            
-            switch (item.type) {
-                case 'variable':
-                    return id === 1 ? monthResult.personnel : 0;
-                case 'calculated':
-                    return id === 2 ? monthResult.welfare : 0;
-                case 'fixed':
-                    return Math.round(item.annual / 12);
-                case 'variable_coeff':
-                    const coeffType = id === 7 ? 'freight' : (id === 14 ? 'utilities' : 'fees');
-                    return Math.round(item.annual / 12 * getVariableCoeff(coeffType, monthIndex));
-                case 'setting':
-                    return id === 8 ? srData.settings.advertising : 0;
-                default:
-                    return 0;
-            }
-        }
-
-        // 販管費テーブル更新 - 修正版
-        function updateExpenseTable(expenseDetails) {
-            const tbody = document.getElementById('expense-table-body');
-            if (!tbody) return;
-
-            let html = '';
-            
-            for (let id = 1; id <= 19; id++) {
-                const annualTotal = expenseDetails[id].reduce((sum, val) => sum + val, 0);
-                
-                if (annualTotal > 0) {
-                    html += `
-                        <tr>
-                            <td class="expense-id">${id}</td>
-                            <td class="expense-name">${expenseItems[id].name}</td>
-                            ${expenseDetails[id].map(amount => 
-                                `<td class="expense-amount">${formatNumber(amount)}</td>`
-                            ).join('')}
-                        </tr>
-                    `;
-                }
-            }
-
-            const monthlyTotals = [];
-            for (let month = 0; month < 12; month++) {
-                let monthTotal = 0;
-                for (let id = 1; id <= 19; id++) {
-                    monthTotal += expenseDetails[id][month];
-                }
-                monthlyTotals.push(monthTotal);
-            }
-
-            html += `
-                <tr class="expense-total-row">
-                    <td class="expense-total-id">合計</td>
-                    <td class="expense-total-name">販管費合計</td>
-                    ${monthlyTotals.map(total => 
-                        `<td class="expense-total-amount">${formatNumber(total)}</td>`
-                    ).join('')}
-                </tr>
-            `;
-
-            tbody.innerHTML = html;
-        }
-
-        // KPI表示更新 - 修正版
-        function updateResultsDisplay(annual) {
-            const totalElement = document.getElementById('annual-total');
-            const profitElement = document.getElementById('annual-profit');
-            const diffElement = document.getElementById('annual-diff');
-            
-            if (totalElement) totalElement.textContent = formatNumber(annual.sales) + '万円';
-            if (profitElement) profitElement.textContent = formatNumber(annual.operatingProfit) + '万円';
-            
-            if (diffElement) {
-                const refTotal = referenceData.reduce((sum, val) => sum + val, 0);
-                const diff = annual.sales - refTotal;
-                diffElement.textContent = (diff >= 0 ? '+' : '') + formatNumber(diff) + '万円';
-                diffElement.className = 'kpi-value ' + (diff >= 0 ? 'kpi-diff-positive' : 'kpi-diff-negative');
-            }
-        }
-
-        function updateChart() {
-            const ctx = document.getElementById('monthlyChart');
-            if (!ctx) return;
-            
-            if (monthlyChart) {
-                monthlyChart.destroy();
-            }
-            
-            const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
-            
-            const currentData = [];
-            for (let month = 0; month < 12; month++) {
-                let monthTotal = 0;
-                Object.values(srData.stores).forEach(storeData => {
-                    monthTotal += storeData[month];
-                });
-                currentData.push(monthTotal);
-            }
-            
-            monthlyChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: months,
-                    datasets: [
-                        {
-                            label: '前年実績',
-                            data: referenceData,
-                            backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                            borderColor: 'rgba(59, 130, 246, 1)',
-                            borderWidth: 2
-                        },
-                        {
-                            label: '予算設定',
-                            data: currentData,
-                            backgroundColor: 'rgba(34, 197, 94, 0.8)',
-                            borderColor: 'rgba(34, 197, 94, 1)',
-                            borderWidth: 2
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: true, ticks: { font: { size: 10 } } },
-                        x: { ticks: { font: { size: 10 } } }
-                    }
-                }
-            });
-        }
-
-        // CSV出力機能（SR事業部版）
+        // CSV出力
         function exportSRCSV() {
             try {
                 if (!window.srResults) {
@@ -1395,54 +1195,18 @@
                     return;
                 }
 
-                const { monthlyResults, annual, monthlySales, expenseDetails } = window.srResults;
-
-                // CSV出力データ生成（37項目統一仕様）
+                const { monthlyResults, annual, monthlySales } = window.srResults;
                 const csvData = [];
-                const months = ['項目名', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月', '年間合計'];
-                csvData.push(months);
-
-                // 基本PL項目（3項目）
+                
+                csvData.push(['項目名', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月', '年間合計']);
                 csvData.push(['売上高', ...monthlySales, annual.sales]);
                 csvData.push(['売上原価', ...monthlyResults.map(m => m.cogs), monthlyResults.reduce((sum, m) => sum + m.cogs, 0)]);
-                
-                const grossProfitData = monthlyResults.map(m => m.grossProfit);
-                csvData.push(['売上総利益', ...grossProfitData, grossProfitData.reduce((sum, val) => sum + val, 0)]);
+                csvData.push(['売上総利益', ...monthlyResults.map(m => m.grossProfit), monthlyResults.reduce((sum, m) => sum + m.grossProfit, 0)]);
+                csvData.push(['人件費統合', ...monthlyResults.map(m => m.personnel), monthlyResults.reduce((sum, m) => sum + m.personnel, 0)]);
+                csvData.push(['販管費合計', ...monthlyResults.map(m => m.totalExpenses), monthlyResults.reduce((sum, m) => sum + m.totalExpenses, 0)]);
+                csvData.push(['営業利益', ...monthlyResults.map(m => m.operatingProfit), annual.operatingProfit]);
 
-                // 販管費19項目（SR事業部保有データ）
-                for (let i = 1; i <= 19; i++) {
-                    const expenseData = expenseDetails[i];
-                    const expenseName = expenseItems[i].name;
-                    const annual = expenseData.reduce((sum, val) => sum + val, 0);
-                    csvData.push([expenseName, ...expenseData, annual]);
-                }
-
-                // 統合PL専用項目（SR事業部では0円出力）
-                const zeroData = Array(12).fill(0);
-                csvData.push(['役員報酬', ...zeroData, 0]);
-                csvData.push(['役員法定福利費', ...zeroData, 0]);
-                csvData.push(['管理諸費', ...zeroData, 0]);
-                csvData.push(['修繕費', ...zeroData, 0]);
-                csvData.push(['車両費', ...zeroData, 0]);
-                csvData.push(['租税公課', ...zeroData, 0]);
-                csvData.push(['交際費', ...zeroData, 0]);
-                csvData.push(['諸会費', ...zeroData, 0]);
-                csvData.push(['会議費', ...zeroData, 0]);
-                csvData.push(['福利厚生費', ...zeroData, 0]);
-                csvData.push(['研修費', ...zeroData, 0]);
-                csvData.push(['雑費', ...zeroData, 0]);
-                csvData.push(['寄付金', ...zeroData, 0]);
-
-                // 計算項目
-                const totalExpensesData = monthlyResults.map(m => m.totalExpenses);
-                const operatingProfitData = monthlyResults.map(m => m.operatingProfit);
-                csvData.push(['販管費合計', ...totalExpensesData, totalExpensesData.reduce((sum, val) => sum + val, 0)]);
-                csvData.push(['営業利益', ...operatingProfitData, annual.operatingProfit]);
-
-                // CSV文字列生成
                 const csvString = '\uFEFF' + csvData.map(row => row.join(',')).join('\n');
-                
-                // ダウンロード実行
                 const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
@@ -1450,13 +1214,12 @@
                 link.click();
                 
                 alert('SR事業部PLデータのCSV出力が完了しました。');
-
             } catch (error) {
                 alert('CSV出力でエラーが発生しました: ' + error.message);
-                console.error('CSV出力エラー:', error);
             }
         }
 
+        // データ送信
         function sendDataAndNavigateToNext() {
             if (!window.srResults) {
                 alert('先に計算を実行してください。');
@@ -1469,79 +1232,44 @@
                 const unifiedData = {
                     metadata: {
                         department: 'SR',
+                        version: '4.0_corrected',
                         lastUpdate: new Date().toISOString(),
-                        version: '3.0',
-                        unifiedStructure: true,
-                        commission: srData.settings.commission,
-                        bonus6: srData.settings.bonus6,
-                        bonus12: srData.settings.bonus12,
-                        advertising: srData.settings.advertising
+                        personnelCalculationMethod: 'sales_range_based_rate_system'
                     },
                     sales: monthlySales,
                     cogs: monthlyResults.map(m => m.cogs),
-                    expenses: expenseDetails
+                    personnel: monthlyResults.map(m => m.personnel),
+                    totalExpenses: monthlyResults.map(m => m.totalExpenses),
+                    operatingProfit: monthlyResults.map(m => m.operatingProfit),
+                    expenses: expenseDetails,
+                    annual: annual
                 };
 
-                localStorage.setItem('pl_system_sr_data', JSON.stringify(unifiedData));
+                localStorage.setItem('pl_system_sr_corrected_data', JSON.stringify(unifiedData));
                 
-                alert('SR事業部データを統合PLシステムに送信しました！\n\n' +
-                      `年間売上: ${formatNumber(annual.sales)}万円\n` +
-                      `年間営業利益: ${formatNumber(annual.operatingProfit)}万円\n` +
-                      `販管費19項目: 完全復旧済み\n\n` +
-                      '次はW事業部の設定を行います。');
-                
-                window.location.href = 'w-pl.html';
-                
+                alert(`SR事業部データを統合PLシステムに送信しました!\n\n年間売上: ${formatNumber(annual.sales)}万円\n年間営業利益: ${formatNumber(annual.operatingProfit)}万円\n\n人件費計算ロジックが修正されました。`);
+
+                setTimeout(() => {
+                    window.location.href = 'w-pl.html';
+                }, 2000);
+
             } catch (error) {
                 alert('データ送信に失敗しました: ' + error.message);
-                console.error('SR送信エラー:', error);
             }
-        }
-
-        function goToInputSystem() {
-            alert('入力システムは廃止されました。');
-        }
-
-        function skipToFinalPL() {
-            if (confirm('統合PLに直接移動しますか？\n現在のSR事業部データは送信されません。')) {
-                window.location.href = '../combined-dashboard/index.html';
-            }
-        }
-
-        function getPersonnelCoefficient(salesAmount) {
-            const ranges = [
-                { min: 0, max: 500, coeff: 1.0 },
-                { min: 501, max: 800, coeff: 1.1 },
-                { min: 801, max: 1200, coeff: 1.2 },
-                { min: 1201, max: 1500, coeff: 1.3 },
-                { min: 1501, max: 9999, coeff: 1.4 }
-            ];
-            
-            for (const range of ranges) {
-                if (salesAmount >= range.min && salesAmount <= range.max) {
-                    return range.coeff;
-                }
-            }
-            return 1.4;
-        }
-
-        function getVariableCoeff(type, monthIndex) {
-            const coeffs = {
-                fees: [0.71, 1.45, 0.92, 0.90, 1.51, 0.90, 1.20, 0.79, 0.70, 1.12, 0.80, 1.00],
-                freight: [1.76, 0.13, 1.82, 0.93, 0.08, 0.96, 1.78, 0.93, 0.97, 0.92, 0.07, 1.65],
-                utilities: [0.84, 0.97, 1.41, 1.13, 0.86, 0.84, 0.90, 1.17, 1.17, 1.07, 0.82, 0.82]
-            };
-            return coeffs[type][monthIndex];
         }
 
         function formatNumber(num) {
             return Math.round(num).toLocaleString();
         }
 
-        function setupAutoCalculation() {
-            const settings = document.querySelectorAll('.setting-input-inline');
-            settings.forEach(input => {
-                input.addEventListener('input', debounce(calculateSR, 300));
+        // 初期化
+        function initialize() {
+            generateSRInputTable();
+            calculateSR();
+            
+            const inputs = document.querySelectorAll('.setting-input');
+            inputs.forEach(input => {
+                input.addEventListener('input', debounce(updateSRSales, 300));
             });
         }
 
@@ -1555,13 +1283,6 @@
                 clearTimeout(timeout);
                 timeout = setTimeout(later, wait);
             };
-        }
-
-        function initialize() {
-            generateSRInputTable();
-            calculateSR();
-            updateChart();
-            setupAutoCalculation();
         }
 
         window.addEventListener('load', initialize);
