@@ -3,1436 +3,990 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4事業部統合PLシステム Phase 3修正版（一括送信対応強化）</title>
+    <title>Phase 4完成版 統合PLシステム - 販管費19項目完全対応</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.4;
+            color: #333;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            color: #333;
-            padding: 10px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.2em;
+            margin-bottom: 8px;
+        }
+
+        .version-badge {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 5px;
+            font-size: 0.9em;
         }
 
         .container {
-            max-width: 1600px;
-            margin: 0 auto;
+            max-width: 1400px;
+            margin: 15px auto;
+            padding: 0 15px;
         }
 
-        /* ヘッダー */
-        .header {
+        /* ナビゲーションボタン */
+        .nav-section {
             background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-            overflow: hidden;
-        }
-
-        .header-row1 {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-            color: white;
             padding: 20px;
-            text-align: center;
-        }
-
-        .main-title {
-            font-size: 2.2em;
-            font-weight: 800;
-            margin: 0;
-            letter-spacing: 1px;
-        }
-
-        .subtitle {
-            font-size: 1.1em;
-            margin-top: 8px;
-            opacity: 0.9;
-        }
-
-        .header-row2 {
-            background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
-            padding: 12px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
         .nav-buttons {
             display: flex;
             justify-content: center;
-            align-items: center;
-            gap: 12px;
             flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            text-decoration: none;
-            border-radius: 25px;
-            font-weight: 600;
-            font-size: 0.9em;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            min-width: 140px;
-            text-align: center;
-            cursor: pointer;
-        }
-
-        .btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-        }
-
-        /* Phase 3追加: 一括送信検出表示 */
-        .batch-detection {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
-            color: white;
-            padding: 12px 20px;
-            text-align: center;
-            font-weight: 600;
-            display: none;
-        }
-
-        .batch-detection.active {
-            display: block;
-            animation: slideDown 0.5s ease;
-        }
-
-        @keyframes slideDown {
-            from {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        /* KPIセクション */
-        .header-row3 {
-            background: #f8f9fa;
-            padding: 20px;
-        }
-
-        .kpi-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
-            max-width: 1200px;
-            margin: 0 auto;
         }
 
-        .kpi-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border: 3px solid #e74c3c;
-            border-radius: 12px;
-            padding: 18px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .kpi-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-        }
-
-        .kpi-card.positive {
-            border-color: #27ae60;
-            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
-        }
-
-        .kpi-card.negative {
-            border-color: #e74c3c;
-            background: linear-gradient(135deg, #fdf2f2 0%, #fef5f5 100%);
-        }
-
-        .kpi-label {
-            font-size: 0.85em;
-            color: #7f8c8d;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .kpi-value {
-            font-size: 1.6em;
-            font-weight: 800;
-            color: #2c3e50;
-            margin-bottom: 5px;
-        }
-
-        .kpi-value.positive { color: #27ae60; }
-        .kpi-value.negative { color: #e74c3c; }
-
-        .kpi-detail {
-            font-size: 0.75em;
-            color: #95a5a6;
-        }
-
-        /* ステータス表示 */
-        .header-row4 {
-            background: #ecf0f1;
-            padding: 15px 20px;
-        }
-
-        .status-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .dept-status {
-            padding: 8px 12px;
-            border-radius: 20px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 0.8em;
-        }
-
-        .status-success {
-            background: #d4edda;
-            color: #155724;
-            border: 2px solid #c3e6cb;
-        }
-
-        .status-warning {
-            background: #fff3cd;
-            color: #856404;
-            border: 2px solid #ffeaa7;
-        }
-
-        .status-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 2px solid #f5c6cb;
-        }
-
-        /* 連携ステータス */
-        .header-row5 {
-            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-            padding: 12px 20px;
+        .nav-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
             color: white;
-            text-align: center;
-        }
-
-        .dashboard-linkage-status {
-            font-size: 0.9em;
-            font-weight: 600;
-        }
-
-        .linkage-indicator {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
             display: inline-block;
-            padding: 4px 12px;
-            border-radius: 15px;
-            background: rgba(255, 255, 255, 0.2);
-            margin-left: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
 
-        .linkage-indicator.active {
-            background: rgba(255, 255, 255, 0.3);
-            animation: pulse 2s infinite;
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
 
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
-
-        /* メインコンテンツ */
-        .main-content {
+        /* データ受信状況テーブル */
+        .status-section {
             background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             border-radius: 15px;
-            padding: 25px;
+            padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
-        .section-title {
-            color: #2c3e50;
-            font-size: 1.6em;
-            font-weight: 800;
-            margin-bottom: 20px;
-            border-bottom: 4px solid #e74c3c;
-            padding-bottom: 10px;
-        }
-
-        /* チャート */
-        .chart-container {
-            position: relative;
-            height: 250px;
-            margin: 25px 0;
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 15px;
-        }
-
-        /* テーブル共通スタイル */
-        .table-container {
-            overflow-x: auto;
-            margin-top: 25px;
-        }
-
-        .data-table {
+        .status-table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 1400px;
-            font-size: 0.85em;
-            background: white;
+            font-size: 0.9em;
         }
 
-        .data-table th, 
-        .data-table td {
-            padding: 10px 8px;
+        .status-table th,
+        .status-table td {
+            padding: 10px 15px;
             text-align: center;
             border: 1px solid #ddd;
         }
 
-        .data-table th {
-            background: #34495e;
+        .status-table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            font-weight: 700;
+            font-weight: bold;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-completed { background-color: #27ae60; }
+        .status-pending { background-color: #f39c12; }
+        .status-error { background-color: #e74c3c; }
+
+        /* チャート表示 */
+        .chart-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            height: 450px;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+
+        /* 統一テーブルスタイル（情報密度最大化） */
+        .pl-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .unified-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8em;
+            margin-bottom: 15px;
+        }
+
+        .unified-table th,
+        .unified-table td {
+            padding: 4px;
+            text-align: right;
+            border-bottom: 1px solid #eee;
+            border-right: 1px solid #f0f0f0;
+        }
+
+        /* ID列：極小幅 */
+        .unified-table .id-column {
+            width: 25px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.9em;
+            padding: 4px 2px;
+        }
+
+        /* 項目名列：左寄せ、最大文字数+1スペース */
+        .unified-table th:nth-child(2),
+        .unified-table td:nth-child(2) {
+            text-align: left;
+            font-weight: bold;
+            width: 120px;
+            padding: 4px 8px;
+        }
+
+        /* 月別データ列：均等幅拡張 */
+        .unified-table th:nth-child(n+3):nth-child(-n+14),
+        .unified-table td:nth-child(n+3):nth-child(-n+14) {
+            width: calc((100% - 25px - 120px - 80px) / 12);
+            min-width: 50px;
+            padding: 4px 6px;
+        }
+
+        /* 年間合計列 */
+        .unified-table th:last-child,
+        .unified-table td:last-child {
+            width: 80px;
+            font-weight: bold;
+            background-color: #e8f4f8;
+            padding: 4px 6px;
+        }
+
+        .unified-table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-weight: bold;
             position: sticky;
             top: 0;
             z-index: 10;
-        }
-
-        .category-header {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-            color: white;
-            font-weight: bold;
-            font-size: 0.9em;
-        }
-
-        .item-name {
-            text-align: left !important;
-            font-weight: 600;
-            background: #ecf0f1;
-            padding-left: 15px !important;
-            min-width: 200px;
-        }
-
-        .data-row:hover {
-            background: rgba(52, 152, 219, 0.1);
-        }
-
-        .annual-total {
-            font-weight: bold;
-            background: #f8f9fa;
+            padding: 6px 4px;
         }
 
         .total-row {
-            background: rgba(231, 76, 60, 0.15);
-            font-weight: 800;
-        }
-
-        .grand-total {
+            background-color: #e8f4f8;
             font-weight: bold;
-            color: #e74c3c;
-            background: #fff3cd;
+            border-top: 2px solid #667eea;
         }
 
-        /* 売上・仕入・粗利テーブル専用 */
-        .sales-header {
-            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        .profit-row {
+            background-color: #d4edda;
+            font-weight: bold;
+            color: #155724;
         }
 
-        .cogs-header {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        .admin-expense-row:nth-child(even) {
+            background-color: #f8f9fa;
         }
 
-        .profit-header {
-            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        .admin-expense-row:hover {
+            background-color: #e3f2fd;
         }
 
-        /* アクションボタン */
-        .action-section {
-            display: flex;
-            gap: 15px;
-            margin: 25px 0;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .action-btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 1em;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-primary { background: #e74c3c; color: white; }
-        .btn-success { background: #27ae60; color: white; }
-        .btn-info { background: #3498db; color: white; }
-        .btn-warning { background: #f39c12; color: white; }
-
-        .action-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        /* 同期インジケータ */
-        .sync-indicator {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #2ecc71;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 30px;
-            font-weight: 600;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            display: none;
-        }
-
-        .sync-indicator.active {
-            display: block;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        /* データ初期化メッセージ */
-        .init-message {
-            background: #fff3cd;
-            border: 2px solid #ffeaa7;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-            text-align: center;
-            color: #856404;
-            font-weight: 600;
-        }
-
-        /* Phase 3追加: 一括送信成功メッセージ */
-        .batch-success-message {
-            background: linear-gradient(135deg, #d4edda, #c3e6cb);
-            border: 2px solid #27ae60;
-            border-radius: 10px;
+        .executive-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
             padding: 20px;
             margin-bottom: 20px;
-            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .executive-section .section-title {
+            border-bottom-color: #27ae60;
+        }
+
+        .executive-section .unified-table th {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+
+        .executive-row {
+            background-color: #e8f5e8;
+        }
+
+        .common-expense-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .common-expense-section .section-title {
+            border-bottom-color: #f39c12;
+        }
+
+        .common-expense-section .unified-table th {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .summary-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 3px solid #e74c3c;
+        }
+
+        .summary-section .section-title {
+            border-bottom-color: #e74c3c;
+        }
+
+        .summary-section .unified-table th {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .final-profit-positive {
+            background-color: #d4edda;
             color: #155724;
-            font-weight: 600;
-            display: none;
+            font-weight: bold;
         }
 
-        .batch-success-message.active {
-            display: block;
-            animation: fadeInScale 0.5s ease;
+        .final-profit-negative {
+            background-color: #f8d7da;
+            color: #721c24;
+            font-weight: bold;
         }
 
-        @keyframes fadeInScale {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+        .data-source {
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 10px;
+            text-align: center;
         }
 
-        /* レスポンシブ */
+        /* レスポンシブ対応 */
         @media (max-width: 768px) {
-            .main-title { font-size: 1.8em; }
-            .nav-buttons { flex-direction: column; }
-            .kpi-section { grid-template-columns: 1fr; }
-            .status-grid { grid-template-columns: 1fr; }
-            .action-section { flex-direction: column; }
+            .container {
+                padding: 0 10px;
+            }
+            
+            .nav-buttons {
+                justify-content: center;
+            }
+            
+            .nav-btn {
+                padding: 10px 18px;
+                font-size: 0.9em;
+            }
+            
+            .unified-table {
+                font-size: 0.7em;
+            }
+            
+            .unified-table th,
+            .unified-table td {
+                padding: 3px 2px;
+            }
+        }
+
+        /* スクロール用コンテナ */
+        .table-scroll {
+            overflow-x: auto;
+            margin: -5px;
+            padding: 5px;
         }
     </style>
 </head>
 <body>
+    <div class="header">
+        <h1>Phase 4完成版 統合PLシステム</h1>
+        <div class="version-badge">統一構造Version 3.0 + 19項目販管費 + 7月開始年度対応</div>
+        <div id="lastUpdate" class="data-source">最終更新: 自動取得中...</div>
+    </div>
+
     <div class="container">
-        <!-- ヘッダー -->
-        <header class="header">
-            <!-- 1行目: タイトル -->
-            <div class="header-row1">
-                <h1 class="main-title">4事業部統合PLシステム Phase 3修正版</h1>
-                <p class="subtitle">一括送信対応強化・リアルタイムデータ連携対応</p>
+        <!-- ナビゲーションボタン -->
+        <div class="nav-section">
+            <div class="nav-buttons">
+                <a href="dashboard.html" class="nav-btn">📊 メインダッシュボード</a>
+                <a href="sr-pl.html" class="nav-btn">🏢 SR事業部PL</a>
+                <a href="w-pl.html" class="nav-btn">🏪 W事業部PL</a>
+                <a href="rc-pl.html" class="nav-btn">🏬 RC事業部PL</a>
+                <a href="rcd-pl.html" class="nav-btn">🏭 RCD事業部PL</a>
+                <a href="budget-input.html" class="nav-btn">⚙️ 予算入力システム</a>
             </div>
-
-            <!-- Phase 3追加: 一括送信検出表示 -->
-            <div class="batch-detection" id="batch-detection">
-                🎯 一括送信データを検出しました！自動的にデータを読み込み中...
-            </div>
-
-            <!-- 2行目: ナビゲーション -->
-            <div class="header-row2">
-                <div class="nav-buttons">
-                    <a href="../index.html" class="btn">ダッシュボード</a>
-                    <a href="../budget-input.html" class="btn">予算入力</a>
-                    <a href="../department-pl/sr-pl.html" class="btn">SR事業部</a>
-                    <a href="../department-pl/w-pl.html" class="btn">W事業部</a>
-                    <a href="../department-pl/rc-pl.html" class="btn">RC支店事業部</a>
-                    <a href="../department-pl/rcd-pl.html" class="btn">RCD社事業部</a>
-                </div>
-            </div>
-
-            <!-- 3行目: KPI表示 -->
-            <div class="header-row3">
-                <div class="kpi-section">
-                    <div class="kpi-card" id="total-sales-card">
-                        <div class="kpi-label">統合年間売上</div>
-                        <div class="kpi-value" id="total-sales">---万円</div>
-                        <div class="kpi-detail">4事業部合計</div>
-                    </div>
-                    <div class="kpi-card" id="total-profit-card">
-                        <div class="kpi-label">統合営業利益</div>
-                        <div class="kpi-value" id="total-profit">---万円</div>
-                        <div class="kpi-detail">販管費19項目控除後</div>
-                    </div>
-                    <div class="kpi-card" id="profit-rate-card">
-                        <div class="kpi-label">統合利益率</div>
-                        <div class="kpi-value" id="profit-rate">---%</div>
-                        <div class="kpi-detail">対売上高比率</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-label">データ統合状況</div>
-                        <div class="kpi-value" id="integration-count">-/4</div>
-                        <div class="kpi-detail">事業部連携完了</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-label">販管費項目数</div>
-                        <div class="kpi-value" id="expense-items">19/19</div>
-                        <div class="kpi-detail">統一構造対応</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 4行目: 各事業部ステータス -->
-            <div class="header-row4">
-                <div class="status-grid">
-                    <div id="sr-status" class="dept-status status-warning">SR事業部: 待機中</div>
-                    <div id="w-status" class="dept-status status-warning">W事業部: 待機中</div>
-                    <div id="rc-status" class="dept-status status-warning">RC支店: 待機中</div>
-                    <div id="rcd-status" class="dept-status status-warning">RCD社: 待機中</div>
-                </div>
-            </div>
-
-            <!-- 5行目: ダッシュボード連携ステータス -->
-            <div class="header-row5">
-                <div class="dashboard-linkage-status">
-                    <span>📊 自動同期システム:</span>
-                    <span class="linkage-indicator" id="sync-status">停止中</span>
-                    <span id="last-sync">最終同期: --:--</span>
-                </div>
-            </div>
-        </header>
-
-        <!-- Phase 3追加: 一括送信成功メッセージ -->
-        <div class="batch-success-message" id="batch-success-message">
-            <h3>🎉 一括送信データ受信成功！</h3>
-            <p>予算入力システムからの4事業部データを正常に受信・統合しました。</p>
-            <p><strong>受信時刻:</strong> <span id="batch-received-time">--:--</span> | <strong>総売上:</strong> <span id="batch-total-sales">---万円</span></p>
         </div>
 
-        <!-- データ初期化メッセージ -->
-        <div class="init-message" id="init-message">
-            ⚠ データが存在しません。「テストデータ生成」ボタンをクリックしてください。
-        </div>
-
-        <!-- メインコンテンツ -->
-        <main class="main-content">
-            <!-- アクションボタン -->
-            <div class="action-section">
-                <button class="action-btn btn-success" onclick="generateTestData()">テストデータ生成</button>
-                <button class="action-btn btn-primary" onclick="startAutoSync()">自動同期開始</button>
-                <button class="action-btn btn-warning" onclick="stopAutoSync()">自動同期停止</button>
-                <button class="action-btn btn-info" onclick="manualRefresh()">手動更新</button>
-                <button class="action-btn btn-info" onclick="exportToCSV()">CSV出力</button>
-            </div>
-
-            <!-- チャート表示 -->
-            <div class="chart-container">
-                <canvas id="expenseChart"></canvas>
-            </div>
-
-            <!-- 売上・仕入・粗利テーブル -->
-            <h2 class="section-title">売上・仕入・粗利推移</h2>
-            <div class="table-container" id="sales-table-container">
-                <!-- JavaScriptで動的生成 -->
-            </div>
-
-            <!-- 販管費19項目テーブル -->
-            <h2 class="section-title" style="margin-top: 40px;">販管費19項目 詳細表示（統一構造対応）</h2>
-            <div class="table-container" id="expense-table-container">
-                <!-- JavaScriptで動的生成 -->
-            </div>
-        </main>
-    </div>
-
-    <!-- 同期インジケータ -->
-    <div class="sync-indicator" id="sync-indicator">
-        📊 データ同期中...
-    </div>
-
-    <script>
-        // ===== Phase 3修正版: データストレージ管理（一括送信対応強化） =====
-        const DataStorage = {
-            keys: {
-                sr: 'pl_system_sr_data',      // 統一キー
-                w: 'pl_system_w_data',
-                rc: 'pl_system_rc_data',
-                rcd: 'pl_system_rcd_data',
-                dashboard: 'dashboard_data',
-                executive: 'executive_compensation_data',
-                batch_flag: 'all_data_sync_flag'  // Phase 3追加
-            },
-            
-            get: function(key) {
-                try {
-                    // LocalStorageとsessionStorageの両方をチェック
-                    let data = localStorage.getItem(this.keys[key]);
-                    if (!data) {
-                        data = sessionStorage.getItem(this.keys[key]);
-                    }
-                    return data ? JSON.parse(data) : null;
-                } catch (error) {
-                    console.error(`データ取得エラー(${key}):`, error);
-                    return null;
-                }
-            },
-            
-            set: function(key, data) {
-                try {
-                    localStorage.setItem(this.keys[key], JSON.stringify(data));
-                    return true;
-                } catch (error) {
-                    console.error(`データ保存エラー(${key}):`, error);
-                    return false;
-                }
-            },
-            
-            hasData: function() {
-                return ['sr', 'w', 'rc', 'rcd'].some(key => this.get(key) !== null);
-            },
-
-            // Phase 3追加: 一括送信フラグチェック
-            checkBatchFlag: function() {
-                const flag = this.get('batch_flag');
-                if (flag && flag.status === 'completed' && flag.version === 'phase3') {
-                    return flag;
-                }
-                return null;
-            },
-
-            // Phase 3追加: 一括送信フラグクリア
-            clearBatchFlag: function() {
-                localStorage.removeItem(this.keys.batch_flag);
-                sessionStorage.removeItem(this.keys.batch_flag);
-            }
-        };
-
-        // ===== 統一構造19項目定義（修正版） =====
-        const UNIFIED_EXPENSE_ITEMS = {
-            // 統一構造 Version 3.0に基づく19項目
-            1: { id: 1, name: '人件費統合', category: 'personnel' },
-            2: { id: 2, name: '法定福利費', category: 'personnel' },
-            3: { id: 3, name: '衛生費', category: 'personnel' },
-            4: { id: 4, name: '物流管理費', category: 'facility' },
-            5: { id: 5, name: '地代家賃', category: 'facility' },
-            6: { id: 6, name: '外注費', category: 'facility' },
-            7: { id: 7, name: '貨物運賃', category: 'facility' },
-            8: { id: 8, name: '広告宣伝費', category: 'marketing' },
-            9: { id: 9, name: '旅費交通費', category: 'marketing' },
-            10: { id: 10, name: '通信費', category: 'marketing' },
-            11: { id: 11, name: '販売促進費', category: 'marketing' },
-            12: { id: 12, name: '消耗品費', category: 'operation' },
-            13: { id: 13, name: '事務用品費', category: 'operation' },
-            14: { id: 14, name: '水道光熱費', category: 'operation' },
-            15: { id: 15, name: '支払手数料', category: 'operation' },
-            16: { id: 16, name: 'リース料', category: 'equipment' },
-            17: { id: 17, name: '保険料', category: 'equipment' },
-            18: { id: 18, name: '支払報酬料', category: 'equipment' },
-            19: { id: 19, name: '減価償却費', category: 'equipment' }
-        };
-
-        // ===== Phase 3追加: 一括送信検出・処理機能 =====
-        function checkAndProcessBatchData() {
-            const batchFlag = DataStorage.checkBatchFlag();
-            
-            if (batchFlag) {
-                console.log('Phase 3一括送信データ検出:', batchFlag);
-                
-                // 一括送信検出表示
-                const batchDetection = document.getElementById('batch-detection');
-                batchDetection.className = 'batch-detection active';
-                
-                // 成功メッセージ表示
-                setTimeout(() => {
-                    showBatchSuccessMessage(batchFlag);
-                    batchDetection.className = 'batch-detection';
-                    
-                    // データ読み込み実行
-                    generateSalesTable();
-                    generateExpenseTable();
-                    
-                    // フラグクリア
-                    DataStorage.clearBatchFlag();
-                }, 1000);
-                
-                return true;
-            }
-            
-            return false;
-        }
-
-        function showBatchSuccessMessage(batchFlag) {
-            const successMessage = document.getElementById('batch-success-message');
-            const receivedTimeElem = document.getElementById('batch-received-time');
-            const totalSalesElem = document.getElementById('batch-total-sales');
-            
-            if (batchFlag.timestamp) {
-                const time = new Date(batchFlag.timestamp);
-                receivedTimeElem.textContent = time.toLocaleTimeString();
-            }
-            
-            if (batchFlag.totals && batchFlag.totals.grand) {
-                totalSalesElem.textContent = formatNumber(batchFlag.totals.grand) + '万円';
-            }
-            
-            successMessage.className = 'batch-success-message active';
-            
-            // 5秒後に非表示
-            setTimeout(() => {
-                successMessage.className = 'batch-success-message';
-            }, 5000);
-        }
-
-        // ===== テストデータ生成（統一構造対応版） =====
-        function generateTestData() {
-            // SR事業部の統一構造データ（実際の統合システム出力形式）
-            const srUnifiedData = {
-                metadata: {
-                    department: 'SR',
-                    lastUpdate: new Date().toISOString(),
-                    version: '3.0',
-                    unifiedStructure: true
-                },
-                sales: [3405, 3333, 3333, 3333, 3333, 3333, 3333, 3333, 3333, 3333, 3333, 3333],
-                cogs: [1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861, 1861],
-                expenses: {
-                    1: [280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280, 280],   // 人件費統合
-                    2: [140, 140, 140, 127, 127, 127, 127, 127, 127, 127, 127, 127],   // 法定福利費
-                    3: [14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14],               // 衛生費
-                    4: [208, 208, 208, 208, 208, 208, 208, 208, 208, 208, 208, 208],   // 物流管理費
-                    5: [214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214, 214],   // 地代家賃
-                    6: [122, 122, 122, 122, 122, 122, 122, 122, 122, 122, 122, 122],   // 外注費
-                    7: [71, 9, 130, 66, 6, 69, 127, 66, 69, 66, 5, 117],               // 貨物運賃（変動）
-                    8: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],               // 広告宣伝費
-                    9: [31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31],               // 旅費交通費
-                    10: [19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19],              // 通信費
-                    11: [39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39, 39],              // 販売促進費
-                    12: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],                         // 消耗品費
-                    13: [11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11],              // 事務用品費
-                    14: [40, 47, 68, 55, 42, 40, 43, 56, 56, 52, 40, 40],              // 水道光熱費（変動）
-                    15: [62, 127, 81, 79, 133, 79, 105, 69, 61, 98, 70, 88],           // 支払手数料（変動）
-                    16: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],                         // リース料
-                    17: [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6],                         // 保険料
-                    18: [34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34, 34],              // 支払報酬料
-                    19: [19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19]               // 減価償却費
-                }
-            };
-
-            // 他事業部の簡易テストデータ（統一構造変換前）
-            const testData = {
-                w: {
-                    metadata: {
-                        department: 'W',
-                        lastUpdate: new Date().toISOString(),
-                        version: '3.0'
-                    },
-                    sales: [1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674, 1674],
-                    cogs: [880, 880, 880, 880, 880, 880, 880, 880, 880, 880, 880, 880],
-                    expenses: {
-                        1: [117, 117, 117, 117, 117, 117, 117, 117, 117, 117, 117, 117],   // 人件費統合
-                        2: [55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55, 55],               // 法定福利費
-                        5: [60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60],               // 地代家賃
-                        8: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],               // 広告宣伝費
-                        9: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10],               // 旅費交通費
-                        10: [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],                         // 通信費
-                        15: [11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11]               // 支払手数料
-                    }
-                },
-                rc: {
-                    metadata: {
-                        department: 'RC',
-                        lastUpdate: new Date().toISOString(),
-                        version: '3.0'
-                    },
-                    sales: [1244, 1244, 1244, 1244, 1244, 1244, 1244, 1244, 1244, 1244, 1244, 1244],
-                    cogs: [932, 932, 932, 932, 932, 932, 932, 932, 932, 932, 932, 932],
-                    expenses: {
-                        1: [61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61],               // 人件費統合
-                        2: [6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6],                           // 法定福利費
-                        4: [67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67, 67],               // 物流管理費
-                        8: [40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40],               // 広告宣伝費
-                        9: [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],               // 旅費交通費
-                        10: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],                         // 通信費
-                        11: [10, 10, 10, 10, 10, 90, 10, 10, 10, 10, 10, 90],             // 販売促進費（5月・12月展示会）
-                        15: [70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70]               // 支払手数料
-                    }
-                },
-                rcd: {
-                    metadata: {
-                        department: 'RCD',
-                        lastUpdate: new Date().toISOString(),
-                        version: '3.0'
-                    },
-                    sales: [532, 532, 532, 532, 532, 532, 532, 532, 532, 532, 532, 532],
-                    cogs: [372, 372, 372, 372, 372, 372, 372, 372, 372, 372, 372, 372],
-                    expenses: {
-                        1: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],                           // 人件費統合（外部委託）
-                        2: [13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13],               // 法定福利費
-                        15: [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]                           // 支払手数料
-                    }
-                }
-            };
-
-            // データ保存
-            DataStorage.set('sr', srUnifiedData);  // SR事業部は統一構造   
-            DataStorage.set('w', testData.w);
-            DataStorage.set('rc', testData.rc);
-            DataStorage.set('rcd', testData.rcd);
-
-            // 初期化メッセージを非表示
-            document.getElementById('init-message').style.display = 'none';
-            
-            // データ更新
-            generateSalesTable();
-            generateExpenseTable();
-            
-            alert('テストデータを生成しました！（SR事業部は統一構造対応）。');
-        }
-
-        // ===== Phase 3修正版: データ収集・統合処理（簡略化済み）=====
-        function collectDepartmentData() {
-            const integratedExpenses = {};
-            
-            // 19項目を初期化
-            for (let i = 1; i <= 19; i++) {
-                integratedExpenses[i] = new Array(12).fill(0);
-            }
-            
-            let activeCount = 0;
-            
-            // SR事業部の統一構造データ（修正版）
-            const srData = DataStorage.get('sr');
-            if (srData && srData.metadata && srData.metadata.unifiedStructure) {
-                activeCount++;
-                updateDeptStatus('sr', 'success', '統一構造データ取得済み');
-                
-                // 統一構造のexpensesオブジェクトから直接データを取得
-                if (srData.expenses) {
-                    Object.keys(srData.expenses).forEach(expenseId => {
-                        const id = parseInt(expenseId);
-                        if (id >= 1 && id <= 19 && Array.isArray(srData.expenses[expenseId])) {
-                            srData.expenses[expenseId].forEach((val, monthIndex) => {
-                                integratedExpenses[id][monthIndex] += (val || 0);
-                            });
-                        }
-                    });
-                }
-            } else {
-                updateDeptStatus('sr', 'warning', 'データなし');
-            }
-            
-            // W事業部データ（統一構造対応）
-            const wData = DataStorage.get('w');
-            if (wData && wData.metadata && wData.metadata.version === '3.0') {
-                activeCount++;
-                updateDeptStatus('w', 'success', 'データ取得済み');
-                
-                // Phase 2修正: 統一構造データから直接取得
-                if (wData.expenses) {
-                    Object.keys(wData.expenses).forEach(expenseId => {
-                        const id = parseInt(expenseId);
-                        if (id >= 1 && id <= 19 && Array.isArray(wData.expenses[expenseId])) {
-                            wData.expenses[expenseId].forEach((val, monthIndex) => {
-                                integratedExpenses[id][monthIndex] += (val || 0);
-                            });
-                        }
-                    });
-                }
-            } else {
-                updateDeptStatus('w', 'warning', 'データなし');
-            }
-            
-            // RC卸店事業部データ（統一構造対応）
-            const rcData = DataStorage.get('rc');
-            if (rcData && rcData.metadata && rcData.metadata.version === '3.0') {
-                activeCount++;
-                updateDeptStatus('rc', 'success', 'データ取得済み');
-                
-                // Phase 2修正: 統一構造データから直接取得
-                if (rcData.expenses) {
-                    Object.keys(rcData.expenses).forEach(expenseId => {
-                        const id = parseInt(expenseId);
-                        if (id >= 1 && id <= 19 && Array.isArray(rcData.expenses[expenseId])) {
-                            rcData.expenses[expenseId].forEach((val, monthIndex) => {
-                                integratedExpenses[id][monthIndex] += (val || 0);
-                            });
-                        }
-                    });
-                }
-            } else {
-                updateDeptStatus('rc', 'warning', 'データなし');
-            }
-            
-            // RCD社事業部データ（統一構造対応）
-            const rcdData = DataStorage.get('rcd');
-            if (rcdData && rcdData.metadata && rcdData.metadata.version === '3.0') {
-                activeCount++;
-                updateDeptStatus('rcd', 'success', 'データ取得済み');
-                
-                // Phase 2修正: 統一構造データから直接取得
-                if (rcdData.expenses) {
-                    Object.keys(rcdData.expenses).forEach(expenseId => {
-                        const id = parseInt(expenseId);
-                        if (id >= 1 && id <= 19 && Array.isArray(rcdData.expenses[expenseId])) {
-                            rcdData.expenses[expenseId].forEach((val, monthIndex) => {
-                                integratedExpenses[id][monthIndex] += (val || 0);
-                            });
-                        }
-                    });
-                }
-            } else {
-                updateDeptStatus('rcd', 'warning', 'データなし');
-            }
-            
-            // 統合状況更新
-            document.getElementById('integration-count').textContent = `${activeCount}/4`;
-            
-            return integratedExpenses;
-        }
-
-        // ===== Phase 2修正版: 売上テーブル生成（簡略化） =====
-        function generateSalesTable() {
-            if (!DataStorage.hasData()) {
-                document.getElementById('sales-table-container').innerHTML = 
-                    '<p style="text-align: center; color: #856404;">データがありません。</p>';
-                return;
-            }
-
-            const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
-            let totalSales = new Array(12).fill(0);
-            let totalCOGS = new Array(12).fill(0);
-            let totalGrossProfit = new Array(12).fill(0);
-
-            // 各事業部のデータを収集（統一構造）
-            const departments = ['sr', 'w', 'rc', 'rcd'];
-            const deptNames = {
-                sr: 'SR事業部',
-                w: 'W事業部',
-                rc: 'RC支店事業部',
-                rcd: 'RCD社事業部'
-            };
-
-            let html = `
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 200px;">項目</th>
-                            ${months.map(m => `<th>${m}</th>`).join('')}
-                            <th style="width: 100px;">年間計</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-
-            // 売上高セクション
-            html += `<tr class="category-header sales-header"><td colspan="14">売上高</td></tr>`;
-            
-            departments.forEach(dept => {
-                const data = DataStorage.get(dept);
-                if (data && data.sales) {
-                    const annual = data.sales.reduce((sum, val) => sum + val, 0);
-                    html += `
-                        <tr class="data-row">
-                            <td class="item-name">${deptNames[dept]}</td>
-                            ${data.sales.map(val => `<td>${formatNumber(val)}</td>`).join('')}
-                            <td class="annual-total">${formatNumber(annual)}</td>
-                        </tr>
-                    `;
-                    data.sales.forEach((val, i) => totalSales[i] += val);
-                }
-            });
-
-            const annualTotalSales = totalSales.reduce((sum, val) => sum + val, 0);
-            html += `
-                <tr class="total-row">
-                    <td class="item-name">売上高合計</td>
-                    ${totalSales.map(val => `<td>${formatNumber(val)}</td>`).join('')}
-                    <td class="grand-total">${formatNumber(annualTotalSales)}</td>
-                </tr>
-            `;
-
-            // 売上原価セクション
-            html += `<tr class="category-header cogs-header"><td colspan="14">売上原価</td></tr>`;
-            
-            departments.forEach(dept => {
-                const data = DataStorage.get(dept);
-                if (data && data.cogs) {
-                    const annual = data.cogs.reduce((sum, val) => sum + val, 0);
-                    html += `
-                        <tr class="data-row">
-                            <td class="item-name">${deptNames[dept]}</td>
-                            ${data.cogs.map(val => `<td>${formatNumber(val)}</td>`).join('')}
-                            <td class="annual-total">${formatNumber(annual)}</td>
-                        </tr>
-                    `;
-                    data.cogs.forEach((val, i) => totalCOGS[i] += val);
-                }
-            });
-
-            const annualTotalCOGS = totalCOGS.reduce((sum, val) => sum + val, 0);
-            html += `
-                <tr class="total-row">
-                    <td class="item-name">売上原価合計</td>
-                    ${totalCOGS.map(val => `<td>${formatNumber(val)}</td>`).join('')}
-                    <td class="grand-total">${formatNumber(annualTotalCOGS)}</td>
-                </tr>
-            `;
-
-            // 粗利益セクション
-            html += `<tr class="category-header profit-header"><td colspan="14">粗利益</td></tr>`;
-            
-            departments.forEach(dept => {
-                const data = DataStorage.get(dept);
-                if (data && data.sales && data.cogs) {
-                    const grossProfitData = data.sales.map((sales, i) => sales - data.cogs[i]);
-                    const annual = grossProfitData.reduce((sum, val) => sum + val, 0);
-                    html += `
-                        <tr class="data-row">
-                            <td class="item-name">${deptNames[dept]}</td>
-                            ${grossProfitData.map(val => `<td>${formatNumber(val)}</td>`).join('')}
-                            <td class="annual-total">${formatNumber(annual)}</td>
-                        </tr>
-                    `;
-                    grossProfitData.forEach((val, i) => totalGrossProfit[i] += val);
-                }
-            });
-
-            const annualTotalGrossProfit = totalGrossProfit.reduce((sum, val) => sum + val, 0);
-            html += `
-                <tr class="total-row">
-                    <td class="item-name">粗利益合計</td>
-                    ${totalGrossProfit.map(val => `<td>${formatNumber(val)}</td>`).join('')}
-                    <td class="grand-total">${formatNumber(annualTotalGrossProfit)}</td>
-                </tr>
-            `;
-
-            html += `</tbody></table>`;
-            document.getElementById('sales-table-container').innerHTML = html;
-        }
-
-        // ===== 販管費テーブル生成（統一構造19項目版） =====
-        function generateExpenseTable() {
-            if (!DataStorage.hasData()) {
-                document.getElementById('expense-table-container').innerHTML = 
-                    '<p style="text-align: center; color: #856404;">データがありません。「テストデータ生成」ボタンをクリックしてください。</p>';
-                return;
-            }
-            
-            const expenses = collectDepartmentData();
-            const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
-            
-            let html = `
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 50px;">ID</th>
-                            <th style="width: 200px;">販管費項目</th>
-                            ${months.map(m => `<th>${m}</th>`).join('')}
-                            <th style="width: 100px;">年間計</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-            
-            const categories = {
-                personnel: '人件費関連',
-                facility: '物流・施設費',
-                marketing: '営業・マーケティング費',
-                operation: '運営費',
-                equipment: '設備・保険'
-            };
-            
-            let grandTotal = 0;
-            const monthlyTotals = new Array(12).fill(0);
-            
-            Object.entries(categories).forEach(([catKey, catName]) => {
-                // カテゴリヘッダー
-                html += `
-                    <tr class="category-header">
-                        <td colspan="15">${catName}</td>
+        <!-- 事業部データ受信状況（1行テーブル） -->
+        <div class="status-section">
+            <h2 class="section-title">🔄 事業部別データ受信状況</h2>
+            <table class="status-table">
+                <thead>
+                    <tr>
+                        <th>SR事業部</th>
+                        <th>W事業部</th>
+                        <th>RC事業部</th>
+                        <th>RCD事業部</th>
+                        <th>全体進捗</th>
                     </tr>
-                `;
-                
-                // 項目表示
-                Object.entries(UNIFIED_EXPENSE_ITEMS)
-                    .filter(([_, item]) => item.category === catKey)
-                    .sort((a, b) => a[1].id - b[1].id)
-                    .forEach(([_, item]) => {
-                        const monthlyData = expenses[item.id] || new Array(12).fill(0);
-                        const annual = monthlyData.reduce((sum, val) => sum + val, 0);
-                        grandTotal += annual;
-                        
-                        monthlyData.forEach((val, i) => {
-                            monthlyTotals[i] += val;
-                        });
-                        
-                        html += `
-                            <tr class="data-row">
-                                <td>${item.id}</td>
-                                <td class="item-name">${item.name}</td>
-                                ${monthlyData.map(val => `<td>${formatNumber(val)}</td>`).join('')}
-                                <td class="annual-total">${formatNumber(annual)}</td>
-                            </tr>
-                        `;
-                    });
-            });
-            
-            // 合計行
-            html += `
-                    <tr class="total-row">
-                        <td>-</td>
-                        <td class="item-name">販管費合計</td>
-                        ${monthlyTotals.map(val => `<td>${formatNumber(val)}</td>`).join('')}
-                        <td class="grand-total">${formatNumber(grandTotal)}</td>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <span class="status-indicator" id="srStatus"></span>
+                            <div id="srLastUpdate">未受信</div>
+                        </td>
+                        <td>
+                            <span class="status-indicator" id="wStatus"></span>
+                            <div id="wLastUpdate">未受信</div>
+                        </td>
+                        <td>
+                            <span class="status-indicator" id="rcStatus"></span>
+                            <div id="rcLastUpdate">未受信</div>
+                        </td>
+                        <td>
+                            <span class="status-indicator" id="rcdStatus"></span>
+                            <div id="rcdLastUpdate">未受信</div>
+                        </td>
+                        <td>
+                            <strong id="overallProgress">0/4完了</strong>
+                            <br>
+                            <span id="progressPercentage">0%</span>
+                        </td>
                     </tr>
                 </tbody>
             </table>
-            `;
-            
-            document.getElementById('expense-table-container').innerHTML = html;
-            
-            // KPI更新
-            updateKPIs(grandTotal);
-            
-            // チャート更新
-            updateExpenseChart(monthlyTotals);
-        }
+        </div>
 
-        // ===== KPI更新 =====
-        function updateKPIs(totalExpenses) {
-            // 売上データ収集
-            let totalSales = 0;
-            let totalCOGS = 0;
-            
-            ['sr', 'w', 'rc', 'rcd'].forEach(dept => {
-                const data = DataStorage.get(dept);
-                if (data) {
-                    if (data.sales && Array.isArray(data.sales)) {
-                        totalSales += data.sales.reduce((sum, val) => sum + val, 0);
+        <!-- 月次推移グラフ（2軸：売上・販管費棒グラフ + 営業利益累計折れ線） -->
+        <div class="chart-container">
+            <h2 class="section-title">📊 月次推移グラフ（売上・販管費・営業利益累計）</h2>
+            <canvas id="salesChart"></canvas>
+        </div>
+
+        <!-- 統合損益計算書・販管費19項目詳細（1ブロック統合版・レイアウト最適化） -->
+        <div class="pl-section">
+            <h2 class="section-title">📈 統合損益計算書・販管費19項目詳細（7月開始年度）</h2>
+            <div class="table-scroll">
+                <table class="unified-table" id="combinedPLTable">
+                    <thead>
+                        <tr>
+                            <th class="id-column">ID</th>
+                            <th>項目名</th>
+                            <th>7月</th>
+                            <th>8月</th>
+                            <th>9月</th>
+                            <th>10月</th>
+                            <th>11月</th>
+                            <th>12月</th>
+                            <th>1月</th>
+                            <th>2月</th>
+                            <th>3月</th>
+                            <th>4月</th>
+                            <th>5月</th>
+                            <th>6月</th>
+                            <th>年間合計</th>
+                        </tr>
+                    </thead>
+                    <tbody id="combinedPLBody">
+                        <!-- 動的に生成される統合PLデータ -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 役員報酬（ダッシュボード連携・統一レイアウト） -->
+        <div class="executive-section">
+            <h2 class="section-title">👔 役員報酬（ダッシュボード連携）</h2>
+            <div class="table-scroll">
+                <table class="unified-table" id="executiveTable">
+                    <thead>
+                        <tr>
+                            <th class="id-column"></th>
+                            <th>項目名</th>
+                            <th>7月</th>
+                            <th>8月</th>
+                            <th>9月</th>
+                            <th>10月</th>
+                            <th>11月</th>
+                            <th>12月</th>
+                            <th>1月</th>
+                            <th>2月</th>
+                            <th>3月</th>
+                            <th>4月</th>
+                            <th>5月</th>
+                            <th>6月</th>
+                            <th>年間合計</th>
+                        </tr>
+                    </thead>
+                    <tbody id="executiveBody">
+                        <!-- 動的に生成される役員報酬データ -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 全社共通費販管費（万円単位CSVデータ・統一レイアウト） -->
+        <div class="common-expense-section">
+            <h2 class="section-title">🏢 全社共通費販管費（万円単位）</h2>
+            <div class="table-scroll">
+                <table class="unified-table" id="commonExpenseTable">
+                    <thead>
+                        <tr>
+                            <th class="id-column">ID</th>
+                            <th>項目名</th>
+                            <th>7月</th>
+                            <th>8月</th>
+                            <th>9月</th>
+                            <th>10月</th>
+                            <th>11月</th>
+                            <th>12月</th>
+                            <th>1月</th>
+                            <th>2月</th>
+                            <th>3月</th>
+                            <th>4月</th>
+                            <th>5月</th>
+                            <th>6月</th>
+                            <th>年間合計</th>
+                        </tr>
+                    </thead>
+                    <tbody id="commonExpenseBody">
+                        <!-- 動的に生成される全社共通費データ -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- RC全体集計（統一レイアウト） -->
+        <div class="summary-section">
+            <h2 class="section-title">🎯 RC全体集計</h2>
+            <div class="table-scroll">
+                <table class="unified-table" id="summaryTable">
+                    <thead>
+                        <tr>
+                            <th class="id-column"></th>
+                            <th>項目名</th>
+                            <th>7月</th>
+                            <th>8月</th>
+                            <th>9月</th>
+                            <th>10月</th>
+                            <th>11月</th>
+                            <th>12月</th>
+                            <th>1月</th>
+                            <th>2月</th>
+                            <th>3月</th>
+                            <th>4月</th>
+                            <th>5月</th>
+                            <th>6月</th>
+                            <th>年間合計</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summaryBody">
+                        <!-- 動的に生成される集計データ -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 統一構造Version 3.0 対応データ管理システム（7月開始年度対応・レイアウト最適化版）
+        class Phase4DataManager {
+            constructor() {
+                this.STORAGE_KEYS = {
+                    sr: 'pl_system_sr_data',
+                    w: 'pl_system_w_data',
+                    rc: 'pl_system_rc_data',
+                    rcd: 'pl_system_rcd_data',
+                    dashboard: 'dashboard_integration_data'
+                };
+
+                // 販管費19項目統一構造マッピング（Version 3.0）
+                this.EXPENSE_ITEMS = {
+                    1: '人件費統合',
+                    2: '法定福利費',
+                    3: '衛生費',
+                    4: '物流管理費',
+                    5: '地代家賃',
+                    6: '外注費',
+                    7: '貨物運賃',
+                    8: '広告宣伝費',
+                    9: '旅費交通費',
+                    10: '通信費',
+                    11: '販売促進費',
+                    12: '消耗品費',
+                    13: '事務用品費',
+                    14: '水道光熱費',
+                    15: '支払手数料',
+                    16: 'リース料',
+                    17: '保険料',
+                    18: '支払報酬料',
+                    19: '減価償却費'
+                };
+
+                // 全社共通費データ（万円単位・CSVから更新）
+                this.commonExpenseData = {
+                    '管理諸費': [34, 37, 41, 34, 37, 44, 36, 39, 44, 36, 39, 44],
+                    '修繕費': [22, 0, 1, 0, 0, 12, 13, 0, 7, 0, 3, 0],
+                    '車両費': [2, 2, 1, 2, 3, 2, 2, 0, 19, 2, 4, 1],
+                    '租税公課': [3, 3, 2, 1, 1, 1, 7, 2, 1, 12, 2, 5],
+                    '交際費': [0, 1, 0, 2, 1, 0, 2, 4, 14, 1, 1, 9],
+                    '諸会費': [1, 1, 1, 1, 1, 1, 0, 1, 18, 5, 2, 1],
+                    '会議費': [0, 2, 2, 0, 2, 3, 1, 3, 1, 2, 1, 3],
+                    '福利厚生費': [1, 1, 1, 1, 1, 2, 1, 1, 1, 2, 2, 2],
+                    '研修費': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0],
+                    '雑費': [1, 1, 1, 0, 0, 0, 0, 0, 0, 5, 0, 0],
+                    '寄付金': [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
+                };
+
+                this.initializeSystem();
+            }
+
+            initializeSystem() {
+                this.loadAllDepartmentData();
+                this.calculateUnifiedPL();
+                this.updateDisplay();
+                this.startAutoRefresh();
+            }
+
+            loadAllDepartmentData() {
+                this.departmentData = {};
+                
+                Object.keys(this.STORAGE_KEYS).forEach(dept => {
+                    if (dept === 'dashboard') return;
+                    const data = localStorage.getItem(this.STORAGE_KEYS[dept]);
+                    if (data) {
+                        try {
+                            this.departmentData[dept] = JSON.parse(data);
+                        } catch (e) {
+                            console.error(`Error parsing ${dept} data:`, e);
+                            this.departmentData[dept] = null;
+                        }
+                    } else {
+                        this.departmentData[dept] = null;
                     }
-                    if (data.cogs && Array.isArray(data.cogs)) {
-                        totalCOGS += data.cogs.reduce((sum, val) => sum + val, 0);
+                });
+
+                // ダッシュボードから役員報酬データを取得
+                this.loadExecutiveDataFromDashboard();
+            }
+
+            loadExecutiveDataFromDashboard() {
+                try {
+                    const dashboardData = localStorage.getItem('dashboard_integration_data');
+                    if (dashboardData) {
+                        const data = JSON.parse(dashboardData);
+                        if (data.executiveData) {
+                            // ダッシュボードから送られる完全な役員報酬データ（賞与・法定福利費含む）
+                            this.executiveData = data.executiveData;
+                        } else {
+                            // デフォルトデータ（ダッシュボード未連携時）
+                            this.executiveData = {
+                                compensation: [826, 826, 826, 676, 676, 676, 676, 676, 676, 676, 676, 676],
+                                welfare: [107, 107, 107, 88, 88, 88, 88, 88, 88, 88, 88, 88]
+                            };
+                        }
                     }
+                } catch (error) {
+                    console.error('役員報酬データ取得エラー:', error);
+                    // エラー時デフォルトデータ
+                    this.executiveData = {
+                        compensation: [826, 826, 826, 676, 676, 676, 676, 676, 676, 676, 676, 676],
+                        welfare: [107, 107, 107, 88, 88, 88, 88, 88, 88, 88, 88, 88]
+                    };
                 }
-            });
-            
-            const grossProfit = totalSales - totalCOGS;
-            const operatingProfit = grossProfit - totalExpenses;
-            const profitRate = totalSales > 0 ? (operatingProfit / totalSales * 100).toFixed(1) : '0.0';
-            
-            // KPI表示更新
-            document.getElementById('total-sales').textContent = formatNumber(totalSales) + '万円';
-            document.getElementById('total-profit').textContent = formatNumber(operatingProfit) + '万円';
-            document.getElementById('profit-rate').textContent = profitRate + '%';
-            
-            // 色分け
-            const profitCard = document.getElementById('total-profit-card');
-            const rateCard = document.getElementById('profit-rate-card');
-            
-            if (operatingProfit >= 0) {
-                profitCard.className = 'kpi-card positive';
-                rateCard.className = 'kpi-card positive';
-                document.getElementById('total-profit').className = 'kpi-value positive';
-                document.getElementById('profit-rate').className = 'kpi-value positive';
-            } else {
-                profitCard.className = 'kpi-card negative';
-                rateCard.className = 'kpi-card negative';
-                document.getElementById('total-profit').className = 'kpi-value negative';
-                document.getElementById('profit-rate').className = 'kpi-value negative';
             }
-        }
 
-        // ===== チャート更新 =====
-        let expenseChart = null;
-        
-        function updateExpenseChart(monthlyTotals) {
-            const ctx = document.getElementById('expenseChart');
-            if (!ctx) return;
-            
-            if (expenseChart) {
-                expenseChart.destroy();
-            }
-            
-            const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
-            
-            expenseChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: months,
-                    datasets: [{
-                        label: '販管費合計',
-                        data: monthlyTotals,
-                        backgroundColor: 'rgba(231, 76, 60, 0.7)',
-                        borderColor: '#e74c3c',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return '販管費: ' + formatNumber(context.parsed.y) + '万円';
+            calculateUnifiedPL() {
+                // 統合データの初期化（7月開始の12ヶ月）
+                this.unifiedData = {
+                    sales: Array(12).fill(0),
+                    cogs: Array(12).fill(0),
+                    expenses: {}
+                };
+
+                // 販管費19項目の初期化
+                for (let i = 1; i <= 19; i++) {
+                    this.unifiedData.expenses[i] = Array(12).fill(0);
+                }
+
+                // 各事業部データの統合
+                Object.keys(this.departmentData).forEach(dept => {
+                    const data = this.departmentData[dept];
+                    if (data && data.metadata && data.metadata.version === '3.0') {
+                        // 売上・原価の統合
+                        for (let month = 0; month < 12; month++) {
+                            this.unifiedData.sales[month] += data.sales[month] || 0;
+                            this.unifiedData.cogs[month] += data.cogs[month] || 0;
+                        }
+
+                        // 販管費19項目の統合
+                        for (let expenseId = 1; expenseId <= 19; expenseId++) {
+                            if (data.expenses && data.expenses[expenseId]) {
+                                for (let month = 0; month < 12; month++) {
+                                    this.unifiedData.expenses[expenseId][month] += 
+                                        data.expenses[expenseId][month] || 0;
                                 }
                             }
                         }
+                    }
+                });
+
+                // 営業利益と累計営業利益の計算（役員報酬・共通費含む）
+                this.calculateFinalProfit();
+            }
+
+            calculateFinalProfit() {
+                // 各月の営業利益計算（全社共通費含む）
+                this.monthlyOperatingProfit = Array(12).fill(0);
+                this.cumulativeOperatingProfit = Array(12).fill(0);
+                this.monthlyTotalExpenses = Array(12).fill(0);
+                
+                let cumulativeSum = 0;
+                for (let month = 0; month < 12; month++) {
+                    // 月次販管費合計（事業部分）
+                    let monthlyDeptExpenses = 0;
+                    for (let expenseId = 1; expenseId <= 19; expenseId++) {
+                        monthlyDeptExpenses += this.unifiedData.expenses[expenseId][month];
+                    }
+
+                    // 役員報酬追加（ダッシュボードから受信・万円単位で加算）
+                    const executiveTotal = ((this.executiveData.compensation[month] || 0) + 
+                                          (this.executiveData.welfare[month] || 0)) * 10000;
+                    
+                    // 全社共通費追加（万円単位で加算）
+                    let commonExpenseTotal = 0;
+                    Object.values(this.commonExpenseData).forEach(monthlyData => {
+                        commonExpenseTotal += monthlyData[month] * 10000;
+                    });
+
+                    // 月次全体販管費
+                    this.monthlyTotalExpenses[month] = monthlyDeptExpenses + executiveTotal + commonExpenseTotal;
+
+                    // 月次営業利益
+                    const monthlySales = this.unifiedData.sales[month];
+                    const monthlyCogs = this.unifiedData.cogs[month];
+                    const monthlyGrossProfit = monthlySales - monthlyCogs;
+                    this.monthlyOperatingProfit[month] = monthlyGrossProfit - this.monthlyTotalExpenses[month];
+                    
+                    // 累計営業利益
+                    cumulativeSum += this.monthlyOperatingProfit[month];
+                    this.cumulativeOperatingProfit[month] = cumulativeSum;
+                }
+            }
+
+            updateDisplay() {
+                this.updateCombinedPLTable();
+                this.updateExecutiveTable();
+                this.updateCommonExpenseTable();
+                this.updateSummaryTable();
+                this.updateDepartmentStatus();
+                this.updateChart();
+                this.updateLastUpdate();
+            }
+
+            updateCombinedPLTable() {
+                const tbody = document.getElementById('combinedPLBody');
+                tbody.innerHTML = '';
+
+                // 売上行
+                const salesRow = this.createUnifiedRow('', '売上高', this.unifiedData.sales, 'total-row');
+                tbody.appendChild(salesRow);
+
+                // 売上原価行
+                const cogsRow = this.createUnifiedRow('', '売上原価', this.unifiedData.cogs, '');
+                tbody.appendChild(cogsRow);
+
+                // 売上総利益行
+                const grossProfitData = this.unifiedData.sales.map((sales, i) => sales - this.unifiedData.cogs[i]);
+                const grossProfitRow = this.createUnifiedRow('', '売上総利益', grossProfitData, 'profit-row');
+                tbody.appendChild(grossProfitRow);
+
+                // 販管費19項目詳細
+                for (let expenseId = 1; expenseId <= 19; expenseId++) {
+                    const expenseData = this.unifiedData.expenses[expenseId];
+                    const expenseName = this.EXPENSE_ITEMS[expenseId];
+                    
+                    const row = this.createUnifiedRow(expenseId, expenseName, expenseData, 'admin-expense-row');
+                    tbody.appendChild(row);
+                }
+
+                // 販管費合計行（事業部分のみ）
+                const deptExpensesData = Array(12).fill(0);
+                for (let month = 0; month < 12; month++) {
+                    for (let expenseId = 1; expenseId <= 19; expenseId++) {
+                        deptExpensesData[month] += this.unifiedData.expenses[expenseId][month];
+                    }
+                }
+                const deptExpensesRow = this.createUnifiedRow('', '事業部販管費計', deptExpensesData, 'total-row');
+                tbody.appendChild(deptExpensesRow);
+            }
+
+            updateExecutiveTable() {
+                const tbody = document.getElementById('executiveBody');
+                tbody.innerHTML = '';
+
+                // 役員報酬行（ダッシュボードから受信・賞与含む）
+                const compensationRow = this.createUnifiedRow('', '役員報酬', this.executiveData.compensation || [], 'executive-row');
+                tbody.appendChild(compensationRow);
+
+                // 法定福利費行（ダッシュボードから受信）
+                const welfareRow = this.createUnifiedRow('', '法定福利費', this.executiveData.welfare || [], '');
+                tbody.appendChild(welfareRow);
+            }
+
+            updateCommonExpenseTable() {
+                const tbody = document.getElementById('commonExpenseBody');
+                tbody.innerHTML = '';
+
+                let idCounter = 24; // CSVのID開始番号
+                Object.entries(this.commonExpenseData).forEach(([itemName, monthlyData]) => {
+                    const row = this.createUnifiedRow(idCounter, itemName, monthlyData, '');
+                    tbody.appendChild(row);
+                    idCounter++;
+                });
+            }
+
+            updateSummaryTable() {
+                const tbody = document.getElementById('summaryBody');
+                tbody.innerHTML = '';
+
+                // RC全体販管費
+                const totalExpensesRow = this.createUnifiedRow('', 'RC全体販管費', 
+                    this.monthlyTotalExpenses.map(val => Math.round(val / 10000)), 'total-row');
+                tbody.appendChild(totalExpensesRow);
+
+                // 全体営業利益
+                const operatingProfitClass = this.monthlyOperatingProfit.some(val => val < 0) ? 'final-profit-negative' : 'final-profit-positive';
+                const operatingProfitRow = this.createUnifiedRow('', '全体営業利益', 
+                    this.monthlyOperatingProfit.map(val => Math.round(val / 10000)), operatingProfitClass);
+                tbody.appendChild(operatingProfitRow);
+            }
+
+            createUnifiedRow(id, label, data, className) {
+                const row = document.createElement('tr');
+                if (className) row.className = className;
+
+                // ID列（統一レイアウト）
+                const idCell = document.createElement('td');
+                idCell.textContent = id;
+                idCell.className = 'id-column';
+                row.appendChild(idCell);
+
+                // 項目名列（統一レイアウト）
+                const labelCell = document.createElement('td');
+                labelCell.textContent = label;
+                row.appendChild(labelCell);
+
+                // 月別データ列（12ヶ月・統一レイアウト）
+                let yearTotal = 0;
+                for (let month = 0; month < 12; month++) {
+                    const cell = document.createElement('td');
+                    const value = data[month] || 0;
+                    yearTotal += value;
+                    // 万円単位での表示判定
+                    const displayValue = (typeof value === 'number' && Math.abs(value) >= 10000) 
+                        ? Math.round(value / 10000) 
+                        : Math.round(value);
+                    cell.textContent = displayValue.toLocaleString();
+                    row.appendChild(cell);
+                }
+
+                // 年間合計列（統一レイアウト）
+                const totalCell = document.createElement('td');
+                const totalDisplayValue = (typeof yearTotal === 'number' && Math.abs(yearTotal) >= 10000) 
+                    ? Math.round(yearTotal / 10000) 
+                    : Math.round(yearTotal);
+                totalCell.textContent = totalDisplayValue.toLocaleString();
+                row.appendChild(totalCell);
+
+                return row;
+            }
+
+            updateDepartmentStatus() {
+                const departments = ['sr', 'w', 'rc', 'rcd'];
+                let completedCount = 0;
+                
+                departments.forEach(dept => {
+                    const statusElement = document.getElementById(`${dept}Status`);
+                    const updateElement = document.getElementById(`${dept}LastUpdate`);
+                    
+                    const data = this.departmentData[dept];
+                    
+                    if (data && data.metadata) {
+                        statusElement.className = 'status-indicator status-completed';
+                        updateElement.textContent = new Date(data.metadata.lastUpdate).toLocaleString();
+                        completedCount++;
+                    } else {
+                        statusElement.className = 'status-indicator status-pending';
+                        updateElement.textContent = '未受信';
+                    }
+                });
+
+                // 全体進捗の更新
+                document.getElementById('overallProgress').textContent = `${completedCount}/4完了`;
+                document.getElementById('progressPercentage').textContent = `${Math.round((completedCount / 4) * 100)}%`;
+            }
+
+            updateChart() {
+                const ctx = document.getElementById('salesChart').getContext('2d');
+                
+                if (this.chart) {
+                    this.chart.destroy();
+                }
+
+                const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
+                
+                this.chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: months,
+                        datasets: [
+                            {
+                                type: 'bar',
+                                label: '月次売上高（万円）',
+                                data: this.unifiedData.sales.map(val => Math.round(val / 10000)),
+                                backgroundColor: 'rgba(102, 126, 234, 0.7)',
+                                borderColor: '#667eea',
+                                borderWidth: 1,
+                                yAxisID: 'y'
+                            },
+                            {
+                                type: 'bar',
+                                label: 'RC全体販管費（万円）',
+                                data: this.monthlyTotalExpenses.map(val => Math.round(val / 10000)),
+                                backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                                borderColor: '#ff6384',
+                                borderWidth: 1,
+                                yAxisID: 'y'
+                            },
+                            {
+                                type: 'line',
+                                label: '全体営業利益累計（万円）',
+                                data: this.cumulativeOperatingProfit.map(val => Math.round(val / 10000)),
+                                borderColor: '#e74c3c',
+                                backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                                borderWidth: 4,
+                                fill: false,
+                                tension: 0.4,
+                                yAxisID: 'y1'
+                            }
+                        ]
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
                             title: {
                                 display: true,
-                                text: '金額（万円）'
+                                text: '月次推移（売上・RC全体販管費・全体営業利益累計）',
+                                font: {
+                                    size: 16,
+                                    weight: 'bold'
+                                }
+                            },
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '売上高・販管費（万円）'
+                                },
+                                grid: {
+                                    drawOnChartArea: false,
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: '営業利益累計（万円）'
+                                },
+                                grid: {
+                                    drawOnChartArea: true,
+                                }
                             }
                         }
                     }
-                }
-            });
-        }
-
-        // ===== 自動同期システム =====
-        const AUTO_SYNC = {
-            timer: null,
-            interval: 5000,
-            isActive: false,
-            
-            start: function() {
-                if (this.isActive) return;
-                
-                this.isActive = true;
-                this.timer = setInterval(() => {
-                    this.sync();
-                }, this.interval);
-                
-                document.getElementById('sync-status').textContent = '稼働中';
-                document.getElementById('sync-status').className = 'linkage-indicator active';
-                
-                this.sync(); // 即座に実行
-            },
-            
-            stop: function() {
-                if (!this.isActive) return;
-                
-                this.isActive = false;
-                if (this.timer) {
-                    clearInterval(this.timer);
-                    this.timer = null;
-                }
-                
-                document.getElementById('sync-status').textContent = '停止中';
-                document.getElementById('sync-status').className = 'linkage-indicator';
-            },
-            
-            sync: function() {
-                const indicator = document.getElementById('sync-indicator');
-                indicator.className = 'sync-indicator active';
-                
-                // データ更新
-                generateSalesTable();
-                generateExpenseTable();
-                
-                // 最終同期時刻更新
-                const now = new Date();
-                document.getElementById('last-sync').textContent = 
-                    `最終同期: ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-                
-                setTimeout(() => {
-                    indicator.className = 'sync-indicator';
-                }, 1000);
-            }
-        };
-
-        // ===== ユーティリティ関数 =====
-        function formatNumber(num) {
-            if (isNaN(num) || num === null || num === undefined) return '0';
-            return Math.round(num).toLocaleString();
-        }
-
-        function updateDeptStatus(dept, status, message) {
-            const statusElement = document.getElementById(`${dept}-status`);
-            if (statusElement) {
-                statusElement.className = `dept-status status-${status}`;
-                const deptNames = {
-                    sr: 'SR事業部',
-                    w: 'W事業部',
-                    rc: 'RC支店',
-                    rcd: 'RCD社'
-                };
-                statusElement.textContent = `${deptNames[dept]}: ${message}`;
-            }
-        }
-
-        // ===== グローバル関数 =====
-        function startAutoSync() {
-            if (!DataStorage.hasData()) {
-                alert('先にテストデータを生成してください。');
-                return;
-            }
-            AUTO_SYNC.start();
-            alert('自動同期を開始しました（5秒間隔）');
-        }
-
-        function stopAutoSync() {
-            AUTO_SYNC.stop();
-            alert('自動同期を停止しました');
-        }
-
-        function manualRefresh() {
-            if (!DataStorage.hasData()) {
-                alert('先にテストデータを生成してください。');
-                return;
-            }
-            generateSalesTable();
-            generateExpenseTable();
-            alert('データを手動更新しました');
-        }
-
-        function exportToCSV() {
-            if (!DataStorage.hasData()) {
-                alert('データがありません。先にテストデータを生成してください。');
-                return;
-            }
-            
-            const expenses = collectDepartmentData();
-            const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
-            
-            // 統一構造19項目対応のCSV作成
-            let csv = '\uFEFF統合PLデータ（統一構造19項目対応版）\n\n';
-            
-            // 売上データセクション
-            csv += '【売上高】\n';
-            csv += '事業部,7月,8月,9月,10月,11月,12月,1月,2月,3月,4月,5月,6月,年間計\n';
-            
-            const departments = ['sr', 'w', 'rc', 'rcd'];
-            const deptNames = {
-                sr: 'SR事業部',
-                w: 'W事業部', 
-                rc: 'RC支店事業部',
-                rcd: 'RCD社事業部'
-            };
-            
-            let totalSalesRow = new Array(12).fill(0);
-            departments.forEach(dept => {
-                const data = DataStorage.get(dept);
-                if (data && data.sales) {
-                    csv += `${deptNames[dept]},`;
-                    csv += data.sales.join(',') + ',';
-                    csv += data.sales.reduce((sum, val) => sum + val, 0) + '\n';
-                    data.sales.forEach((val, i) => totalSalesRow[i] += val);
-                }
-            });
-            csv += '売上高合計,';
-            csv += totalSalesRow.join(',') + ',';
-            csv += totalSalesRow.reduce((sum, val) => sum + val, 0) + '\n\n';
-            
-            // 販管費データセクション
-            csv += '【販管費19項目詳細】\n';
-            csv += 'ID,項目名,';
-            csv += months.join(',') + ',年間計\n';
-            
-            Object.entries(UNIFIED_EXPENSE_ITEMS)
-                .sort((a, b) => a[1].id - b[1].id)
-                .forEach(([_, item]) => {
-                    const monthlyData = expenses[item.id] || new Array(12).fill(0);
-                    const annual = monthlyData.reduce((sum, val) => sum + val, 0);
-                    csv += `${item.id},"${item.name}",`;
-                    csv += monthlyData.join(',') + ',' + annual + '\n';
                 });
-            
-            // 販管費合計行
-            const monthlyTotals = new Array(12).fill(0);
-            for (let i = 1; i <= 19; i++) {
-                if (expenses[i]) {
-                    expenses[i].forEach((val, monthIdx) => {
-                        monthlyTotals[monthIdx] += val;
-                    });
-                }
             }
-            csv += '-,販管費合計,';
-            csv += monthlyTotals.join(',') + ',';
-            csv += monthlyTotals.reduce((sum, val) => sum + val, 0) + '\n';
-            
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `統合PLデータ_統一構造19項目_Phase3_${new Date().toISOString().slice(0, 10)}.csv`;
-            link.click();
+
+            updateLastUpdate() {
+                document.getElementById('lastUpdate').textContent = 
+                    `最終更新: ${new Date().toLocaleString()}`;
+            }
+
+            startAutoRefresh() {
+                // 5秒間隔でデータを自動更新
+                setInterval(() => {
+                    this.loadAllDepartmentData();
+                    this.calculateUnifiedPL();
+                    this.updateDisplay();
+                }, 5000);
+            }
         }
 
-        // ===== Phase 3修正版: 初期化処理（一括送信検出対応） =====
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('統合PLシステム Phase 3修正版 起動');
-            
-            // Phase 3: 一括送信データ検出・処理
-            const batchDetected = checkAndProcessBatchData();
-            
-            if (!batchDetected) {
-                // データ有無チェック
-                if (!DataStorage.hasData()) {
-                    document.getElementById('init-message').style.display = 'block';
-                } else {
-                    document.getElementById('init-message').style.display = 'none';
-                    // 初回データ読み込み
-                    generateSalesTable();
-                    generateExpenseTable();
-                }
-            }
-            
-            // Phase 3修正: 自動更新機能追加（1秒ごとにチェック）
-            setInterval(() => {
-                // 一括送信フラグチェック
-                if (DataStorage.checkBatchFlag()) {
-                    checkAndProcessBatchData();
-                } else if (DataStorage.hasData()) {
-                    generateSalesTable();
-                    generateExpenseTable();
-                }
-            }, 1000);
+        // システム初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            window.phase4Manager = new Phase4DataManager();
         });
     </script>
 </body>
