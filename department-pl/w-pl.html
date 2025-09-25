@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>W事業部PLシミュレーター Phase 4完成版</title>
+    <title>W事業部PLシミュレーター Phase 4完成版（修正版）</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -94,6 +94,16 @@
             flex-wrap: wrap;
             gap: 5px;
             margin-bottom: 15px;
+        }
+
+        .correction-notice {
+            background: #e8f5e8;
+            color: #2d5016;
+            padding: 10px 15px;
+            border-left: 4px solid #27ae60;
+            font-size: 0.85em;
+            margin-bottom: 15px;
+            border-radius: 4px;
         }
 
         .workflow-actions {
@@ -471,6 +481,17 @@
             font-weight: 600;
         }
 
+        .personnel-row td {
+            background: #fff3cd;
+            font-weight: bold;
+            color: #e65100;
+        }
+
+        .personnel-row td:first-child {
+            background: #ffc107;
+            color: #212529;
+        }
+
         @media (max-width: 768px) {
             .container { padding: 10px; }
             .nav-buttons { gap: 6px; }
@@ -498,6 +519,7 @@
 
             <div class="workflow-section">
                 <div class="workflow-title">統合PLシステム ワークフロー - Step 2/4 進行中</div>
+
                 <div class="workflow-info">
                     <span style="color: #27ae60; font-weight: 600;">✓ SR事業部完了</span>
                     <span style="margin: 0 10px; color: #bdc3c7;">|</span>
@@ -531,15 +553,15 @@
             <div class="kpi-display">
                 <div class="kpi-item">
                     <div class="kpi-label">年間売上合計</div>
-                    <div class="kpi-value" id="annual-sales">11,285万円</div>
+                    <div class="kpi-value" id="annual-sales">11,521万円</div>
                 </div>
                 <div class="kpi-item">
                     <div class="kpi-label">前年対比増減</div>
-                    <div class="kpi-value" id="sales-diff">+464万円</div>
+                    <div class="kpi-value" id="sales-diff">+0万円</div>
                 </div>
                 <div class="kpi-item">
                     <div class="kpi-label">営業利益率</div>
-                    <div class="kpi-value" id="profit-rate">12.5%</div>
+                    <div class="kpi-value" id="profit-rate">11.4%</div>
                 </div>
             </div>
             
@@ -638,7 +660,7 @@
 
         <div class="profit-section">
             <div class="profit-header">
-                売上総利益・営業利益月額表（統一構造 Version 3.0）
+                売上総利益・営業利益月額表（修正版人件費計算）
             </div>
             <table class="profit-table">
                 <thead>
@@ -689,12 +711,20 @@
 
         let wChart = null;
 
+        // 修正版：シミュレータ準拠の12段階人件費システム
         function getWPersonnelAmount(salesAmount) {
-            if (salesAmount <= 500) return 180;
-            if (salesAmount <= 800) return 220;
-            if (salesAmount <= 1200) return 280;
-            if (salesAmount <= 1500) return 320;
-            return 380;
+            if (salesAmount <= 599) return 201;
+            if (salesAmount <= 699) return 208.5;
+            if (salesAmount <= 799) return 214;
+            if (salesAmount <= 999) return 221;
+            if (salesAmount <= 1199) return 237;
+            if (salesAmount <= 1399) return 256;
+            if (salesAmount <= 1599) return 275;
+            if (salesAmount <= 1799) return 294;
+            if (salesAmount <= 1999) return 324;
+            if (salesAmount <= 2199) return 354;
+            if (salesAmount <= 2399) return 384;
+            return 424; // 2400万円以上
         }
 
         function calculateW() {
@@ -707,7 +737,7 @@
             results.monthlyResults = wData.sales.map((sales, i) => {
                 const cogs = Math.round(sales * 0.2996);
                 const grossProfit = sales - cogs;
-                const personnel = getWPersonnelAmount(sales);
+                const personnel = getWPersonnelAmount(sales); // 修正版関数使用
                 const welfare = Math.round(personnel * 0.1284);
                 const paymentFees = sales > 1000 ? Math.round(sales * 0.08) : Math.round(sales * 0.06);
 
@@ -856,6 +886,22 @@
                     style: 'background: #e6f7ff; font-weight: 600; color: #1890ff;'
                 },
                 {
+                    name: '人件費統合（修正版）',
+                    values: results.monthlyResults.map(m => m.personnel),
+                    style: 'background: #fff3cd; font-weight: bold; color: #e65100;',
+                    isPersonnel: true
+                },
+                {
+                    name: '法定福利費',
+                    values: results.monthlyResults.map(m => m.welfare),
+                    style: 'background: #f0f9ff; font-weight: 600; color: #0369a1;'
+                },
+                {
+                    name: '支払手数料',
+                    values: results.monthlyResults.map(m => m.paymentFees),
+                    style: 'background: #fef3c7; font-weight: 600; color: #d97706;'
+                },
+                {
                     name: '販管費合計',
                     values: monthlySGAExpenses,
                     style: 'background: #fff0f6; font-weight: 600; color: #c41d7f;'
@@ -872,6 +918,9 @@
                 const average = Math.round(annual / 12);
 
                 const tr = document.createElement('tr');
+                if (row.isPersonnel) {
+                    tr.className = 'personnel-row';
+                }
                 tr.innerHTML = `
                     <td class="profit-name">${row.name}</td>
                     ${row.values.map(val => `<td style="${row.style}">${formatNumber(Math.round(val))}</td>`).join('')}
@@ -973,17 +1022,16 @@
             try {
                 const results = calculateW();
 
-                // CSV出力データ生成（37項目統一仕様）
                 const csvData = [];
                 const months = ['項目名', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月', '年間合計'];
                 csvData.push(months);
 
-                // 基本PL項目（3項目）
+                // 基本PL項目
                 csvData.push(['売上高', ...wData.sales, results.annual.sales]);
                 csvData.push(['売上原価', ...results.monthlyResults.map(m => m.cogs), results.annual.cogs]);
                 csvData.push(['売上総利益', ...results.monthlyResults.map(m => m.grossProfit), results.annual.grossProfit]);
 
-                // 販管費19項目（W事業部保有データ）
+                // 販管費19項目
                 const expenseNames = [
                     '人件費統合', '法定福利費', '衛生費', '物流管理費', '地代家賃',
                     '外注費', '貨物運賃', '広告宣伝費', '旅費交通費', '通信費',
@@ -1026,17 +1074,14 @@
                 csvData.push(['販管費合計', ...totalExpensesData, results.annual.totalExpenses]);
                 csvData.push(['営業利益', ...operatingProfitData, results.annual.operatingProfit]);
 
-                // CSV文字列生成
                 const csvString = '\uFEFF' + csvData.map(row => row.join(',')).join('\n');
-                
-                // ダウンロード実行
                 const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = `W事業部_PL_${new Date().toISOString().split('T')[0]}.csv`;
+                link.download = `W事業部_修正版PL_${new Date().toISOString().split('T')[0]}.csv`;
                 link.click();
                 
-                alert('W事業部PLデータのCSV出力が完了しました。');
+                alert('修正版W事業部PLデータのCSV出力が完了しました。');
 
             } catch (error) {
                 alert('CSV出力でエラーが発生しました: ' + error.message);
@@ -1052,17 +1097,32 @@
                     metadata: {
                         department: 'W',
                         lastUpdate: new Date().toISOString(),
-                        version: '3.0',
+                        version: '3.0_corrected',
                         unifiedStructure: true,
                         workflowStep: 2,
-                        workflowStatus: 'completed'
+                        workflowStatus: 'completed',
+                        personnelCalculationMethod: '12_stage_fixed_amount_system',
+                        personnelRanges: {
+                            '0-599': '201万円',
+                            '600-699': '208.5万円',
+                            '700-799': '214万円',
+                            '800-999': '221万円',
+                            '1000-1199': '237万円',
+                            '1200-1399': '256万円',
+                            '1400-1599': '275万円',
+                            '1600-1799': '294万円',
+                            '1800-1999': '324万円',
+                            '2000-2199': '354万円',
+                            '2200-2399': '384万円',
+                            '2400+': '424万円'
+                        }
                     },
                     sales: wData.sales,
                     cogs: results.monthlyResults.map(m => m.cogs),
                     expenses: results.expenses
                 };
 
-                localStorage.setItem('pl_system_w_data', JSON.stringify(unifiedData));
+                localStorage.setItem('pl_system_w_corrected_data', JSON.stringify(unifiedData));
                 
                 const workflowProgress = {
                     step1_SR: 'completed',
@@ -1074,7 +1134,7 @@
                 };
                 localStorage.setItem('workflow_progress', JSON.stringify(workflowProgress));
                 
-                alert(`W事業部データ送信完了！\n\n年間売上: ${formatNumber(results.annual.sales)}万円\n年間営業利益: ${formatNumber(results.annual.operatingProfit)}万円\n\n次はStep 3: RC事業部の設定を行います。\n3秒後に自動移動します...`);
+                alert(`修正版W事業部データ送信完了！\n\n年間売上: ${formatNumber(results.annual.sales)}万円\n年間営業利益: ${formatNumber(results.annual.operatingProfit)}万円\n人件費計算方式: 12段階固定金額システム\n\n次はStep 3: RC事業部の設定を行います。\n人件費計算ロジックが修正されました。`);
                 
                 setTimeout(() => {
                     window.location.href = 'rc-pl.html';
@@ -1084,7 +1144,7 @@
 
             } catch (error) {
                 alert('データ送信に失敗しました: ' + error.message);
-                console.error('W送信エラー:', error);
+                console.error('W修正版送信エラー:', error);
                 return 0;
             }
         }
