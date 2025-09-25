@@ -25,7 +25,7 @@
             margin: 0 auto;
         }
 
-        /* W事業部統一ナビゲーション */
+        /* SR事業部統一ナビゲーション */
         .header {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 10px;
@@ -187,6 +187,7 @@
         .btn-send-next-compact { background: #27ae60; color: white; }
         .btn-back-compact { background: #95a5a6; color: white; }
         .btn-skip-compact { background: #e74c3c; color: white; }
+        .btn-csv-compact { background: #f39c12; color: white; }
 
         .action-btn-compact:hover {
             transform: translateY(-1px);
@@ -225,7 +226,7 @@
             font-weight: 600;
         }
 
-        /* W事業部統一プレビューセクション */
+        /* SR事業部統一プレビューセクション */
         .results-preview-section {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 10px;
@@ -317,7 +318,7 @@
         .legend-blue { background: rgba(59, 130, 246, 0.8); }
         .legend-green { background: rgba(34, 197, 94, 0.8); }
 
-        /* W事業部統一入力セクション */
+        /* SR事業部統一入力セクション */
         .input-section {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 10px;
@@ -418,7 +419,7 @@
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
         }
 
-        /* W事業部統一テーブルシステム - 修正版 */
+        /* SR事業部統一テーブルシステム - 修正版 */
         .sales-input-table, .profit-table-container, .expense-table-container {
             background: white;
             border: 2px solid #e9ecef;
@@ -572,7 +573,7 @@
             box-shadow: 0 0 0 2px rgba(196, 119, 204, 0.2);
         }
 
-        /* 修正3: W事業部統一利益セクション - 色分けシステム修正 */
+        /* 修正3: SR事業部統一利益セクション - 色分けシステム修正 */
         .profit-section {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 10px;
@@ -607,7 +608,7 @@
             font-size: 0.9em;
         }
 
-        /* 修正5: W事業部統一販管費セクション */
+        /* 修正5: SR事業部統一販管費セクション */
         .expense-details-section {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 10px;
@@ -737,7 +738,7 @@
 </head>
 <body>
     <div class="container">
-        <!-- W事業部統一ヘッダー -->
+        <!-- SR事業部統一ヘッダー -->
         <header class="header">
             <div class="header-row1">
                 <h1 class="main-title">SR事業部PLシミュレーター Phase 4完成版</h1>
@@ -759,7 +760,7 @@
                     <div class="workflow-compact">
                         <div class="workflow-title">Step 1/4 統合PLシステム ワークフロー</div>
                         <div class="workflow-steps">
-                            <div class="workflow-step active">SR●進行中</div>
+                            <div class="workflow-step active">SR◎進行中</div>
                             <div class="workflow-arrow">→</div>
                             <div class="workflow-step pending">W待機</div>
                             <div class="workflow-arrow">→</div>
@@ -771,6 +772,9 @@
                     <div class="action-buttons-compact">
                         <button class="action-btn-compact btn-send-next-compact" onclick="sendDataAndNavigateToNext()">
                             SRデータ送信して次へ
+                        </button>
+                        <button class="action-btn-compact btn-csv-compact" onclick="exportSRCSV()">
+                            CSV出力
                         </button>
                         <button class="action-btn-compact btn-back-compact" onclick="goToInputSystem()">
                             入力システムに戻る
@@ -789,13 +793,13 @@
                         <span>統合PLシステム連携: 準備完了</span>
                     </div>
                     <div class="department-info">
-                        SR事業部 - 売上レンジ別人件費係数 + 営業コミッション・賞与システム  
+                        SR事業部 - 売上レンジ別人件費係数 + 営業コミッション・賞与システム   
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- W事業部統一プレビューセクション -->
+        <!-- SR事業部統一プレビューセクション -->
         <div class="results-preview-section">
             <div class="preview-header">
                 <div class="preview-title">前年対比グラフ + KPI統合表示</div>
@@ -882,7 +886,7 @@
             </div>
         </div>
 
-        <!-- W事業部統一利益セクション -->
+        <!-- SR事業部統一利益セクション -->
         <div class="profit-section">
             <div class="profit-title">売上総利益・営業利益月額表</div>
             
@@ -903,9 +907,9 @@
             </div>
         </div>
 
-        <!-- W事業部統一販管費セクション -->
+        <!-- SR事業部統一販管費セクション -->
         <div class="expense-details-section">
-            <div class="expense-title">販管費19項目詳細表示（統一構造Version 3.0）</div>
+            <div class="expense-title">販管費19項目詳細表示（統一構造 Version 3.0）</div>
             
             <div class="expense-table-container">
                 <table class="expense-table">
@@ -1383,6 +1387,76 @@
             });
         }
 
+        // CSV出力機能（SR事業部版）
+        function exportSRCSV() {
+            try {
+                if (!window.srResults) {
+                    alert('計算データがありません。先に計算を実行してください。');
+                    return;
+                }
+
+                const { monthlyResults, annual, monthlySales, expenseDetails } = window.srResults;
+
+                // CSV出力データ生成（37項目統一仕様）
+                const csvData = [];
+                const months = ['項目名', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月', '年間合計'];
+                csvData.push(months);
+
+                // 基本PL項目（3項目）
+                csvData.push(['売上高', ...monthlySales, annual.sales]);
+                csvData.push(['売上原価', ...monthlyResults.map(m => m.cogs), monthlyResults.reduce((sum, m) => sum + m.cogs, 0)]);
+                
+                const grossProfitData = monthlyResults.map(m => m.grossProfit);
+                csvData.push(['売上総利益', ...grossProfitData, grossProfitData.reduce((sum, val) => sum + val, 0)]);
+
+                // 販管費19項目（SR事業部保有データ）
+                for (let i = 1; i <= 19; i++) {
+                    const expenseData = expenseDetails[i];
+                    const expenseName = expenseItems[i].name;
+                    const annual = expenseData.reduce((sum, val) => sum + val, 0);
+                    csvData.push([expenseName, ...expenseData, annual]);
+                }
+
+                // 統合PL専用項目（SR事業部では0円出力）
+                const zeroData = Array(12).fill(0);
+                csvData.push(['役員報酬', ...zeroData, 0]);
+                csvData.push(['役員法定福利費', ...zeroData, 0]);
+                csvData.push(['管理諸費', ...zeroData, 0]);
+                csvData.push(['修繕費', ...zeroData, 0]);
+                csvData.push(['車両費', ...zeroData, 0]);
+                csvData.push(['租税公課', ...zeroData, 0]);
+                csvData.push(['交際費', ...zeroData, 0]);
+                csvData.push(['諸会費', ...zeroData, 0]);
+                csvData.push(['会議費', ...zeroData, 0]);
+                csvData.push(['福利厚生費', ...zeroData, 0]);
+                csvData.push(['研修費', ...zeroData, 0]);
+                csvData.push(['雑費', ...zeroData, 0]);
+                csvData.push(['寄付金', ...zeroData, 0]);
+
+                // 計算項目
+                const totalExpensesData = monthlyResults.map(m => m.totalExpenses);
+                const operatingProfitData = monthlyResults.map(m => m.operatingProfit);
+                csvData.push(['販管費合計', ...totalExpensesData, totalExpensesData.reduce((sum, val) => sum + val, 0)]);
+                csvData.push(['営業利益', ...operatingProfitData, annual.operatingProfit]);
+
+                // CSV文字列生成
+                const csvString = '\uFEFF' + csvData.map(row => row.join(',')).join('\n');
+                
+                // ダウンロード実行
+                const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `SR事業部_PL_${new Date().toISOString().split('T')[0]}.csv`;
+                link.click();
+                
+                alert('SR事業部PLデータのCSV出力が完了しました。');
+
+            } catch (error) {
+                alert('CSV出力でエラーが発生しました: ' + error.message);
+                console.error('CSV出力エラー:', error);
+            }
+        }
+
         function sendDataAndNavigateToNext() {
             if (!window.srResults) {
                 alert('先に計算を実行してください。');
@@ -1425,12 +1499,12 @@
         }
 
         function goToInputSystem() {
-    alert('入力システムは廃止されました。');
-}
+            alert('入力システムは廃止されました。');
+        }
 
         function skipToFinalPL() {
             if (confirm('統合PLに直接移動しますか？\n現在のSR事業部データは送信されません。')) {
-                window.location.href = 'combined-dashboard/index.html';
+                window.location.href = '../combined-dashboard/index.html';
             }
         }
 
