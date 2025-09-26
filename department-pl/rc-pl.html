@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RC事業部PLシミュレーター BWJ費用可変対応版 v4.0</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -139,6 +138,7 @@
             font-size: 0.75rem;
             transition: all 0.3s ease;
             white-space: nowrap;
+            cursor: pointer;
         }
 
         .btn-nav:hover {
@@ -284,7 +284,7 @@
         }
 
         .chart-container {
-            height: 250px;
+            height: 300px;
             padding: 20px;
             background: white;
             position: relative;
@@ -452,17 +452,31 @@
             outline: none;
         }
 
-        .diff-positive { color: #27ae60; font-weight: 700; }
-        .diff-negative { color: #e74c3c; font-weight: 700; }
+        .calculated-value {
+            background: #f0f8f0;
+            font-weight: 700;
+            color: #2d5016;
+        }
+
+        .diff-value {
+            font-weight: 700;
+        }
+
+        .diff-positive { color: #27ae60; }
+        .diff-negative { color: #e74c3c; }
         .reference-value { color: #7f8c8d; font-size: 0.65rem; }
 
-        .profit-section {
+        .profit-section, .expense-section {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 12px;
             margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             border-left: 5px solid #52c41a;
+        }
+
+        .expense-section {
+            border-left-color: #34495e;
         }
 
         .profit-header {
@@ -473,15 +487,6 @@
             font-size: 1rem;
         }
 
-        .expense-section {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border-left: 5px solid #34495e;
-        }
-
         .expense-header {
             background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
             color: white;
@@ -490,62 +495,25 @@
             font-size: 1rem;
         }
 
-        .profit-table,
-        .expense-table {
+        .profit-table, .expense-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.7rem;
             background: white;
-            table-layout: fixed;
         }
 
-        .profit-table th,
-        .profit-table td,
-        .expense-table th,
-        .expense-table td {
+        .profit-table th, .profit-table td,
+        .expense-table th, .expense-table td {
             border: 1px solid #e2e8f0;
             padding: 6px 4px;
             text-align: center;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
 
-        .profit-table th:first-child,
-        .profit-table td:first-child {
-            width: 120px;
-            white-space: normal;
-            word-wrap: break-word;
+        .profit-table th:first-child, .profit-table td:first-child,
+        .expense-table th:nth-child(2), .expense-table td:nth-child(2) {
             text-align: left;
             padding-left: 10px;
-        }
-
-        .expense-table th:first-child,
-        .expense-table td:first-child {
-            width: 40px;
-        }
-
-        .expense-table th:nth-child(2),
-        .expense-table td:nth-child(2) {
-            width: 120px;
-            white-space: normal;
-            word-wrap: break-word;
-            text-align: left;
-            padding-left: 10px;
-        }
-
-        .profit-table th:nth-child(n+2):nth-child(-n+13),
-        .profit-table td:nth-child(n+2):nth-child(-n+13),
-        .expense-table th:nth-child(n+3):nth-child(-n+14),
-        .expense-table td:nth-child(n+3):nth-child(-n+14) {
-            width: 60px;
-        }
-
-        .profit-table th:nth-child(n+14),
-        .profit-table td:nth-child(n+14),
-        .expense-table th:nth-child(n+15),
-        .expense-table td:nth-child(n+15) {
-            width: 80px;
+            min-width: 120px;
         }
 
         .profit-table th {
@@ -562,12 +530,7 @@
             font-size: 0.65rem;
         }
 
-        .profit-table .profit-name {
-            background: #f8f9fa;
-            font-weight: 600;
-        }
-
-        .expense-table .expense-name {
+        .profit-name, .expense-name {
             background: #f8f9fa;
             font-weight: 600;
         }
@@ -604,12 +567,12 @@
         <div class="header-section">
             <div class="nav-section">
                 <div class="nav-buttons">
-                    <a href="../index.html" class="btn-nav">ダッシュボード</a>
-                    <a href="sr-pl.html" class="btn-nav btn-sr">SR事業部</a>
-                    <a href="w-pl.html" class="btn-nav btn-w">W事業部</a>
-                    <a href="rc-pl.html" class="btn-nav btn-rc">RC事業部</a>
-                    <a href="rcd-pl.html" class="btn-nav btn-rcd">RCD社</a>
-                    <a href="../combined-dashboard/index.html" class="btn-nav">全体PL</a>
+                    <div class="btn-nav">ダッシュボード</div>
+                    <div class="btn-nav btn-sr">SR事業部</div>
+                    <div class="btn-nav btn-w">W事業部</div>
+                    <div class="btn-nav btn-rc">RC事業部</div>
+                    <div class="btn-nav btn-rcd">RCD社</div>
+                    <div class="btn-nav">全体PL</div>
                 </div>
             </div>
 
@@ -633,7 +596,7 @@
                     <button class="action-btn btn-csv" onclick="exportCSV()">
                         CSV出力
                     </button>
-                    <button class="action-btn btn-secondary" onclick="location.href='../combined-dashboard/index.html'">
+                    <button class="action-btn btn-secondary" onclick="alert('全体PL分析に移動')">
                         全体PL分析へ
                     </button>
                 </div>
@@ -656,7 +619,7 @@
                 </div>
                 <div class="kpi-item">
                     <div class="kpi-label">営業利益率</div>
-                    <div class="kpi-value" id="profit-rate">49.3%</div>
+                    <div class="kpi-value" id="profit-rate">39.8%</div>
                 </div>
             </div>
             
@@ -690,19 +653,19 @@
 
                 <div class="settings-inline">
                     <label class="setting-label">広告宣伝費</label>
-                    <input type="number" class="setting-input" id="advertising" value="40">
+                    <input type="number" class="setting-input" id="advertising" value="40" onchange="updateDisplay()">
                     <span class="setting-label">万円/月</span>
                     
                     <div style="border-left: 2px solid #ff9800; height: 25px; margin: 0 8px;"></div>
                     
                     <label class="setting-label">BWJ施工費</label>
-                    <input type="number" class="setting-input" id="bwj-construction" value="90">
+                    <input type="number" class="setting-input" id="bwj-construction" value="90" onchange="updateDisplay()">
                     <span class="setting-label">万円</span>
                     
                     <div style="border-left: 2px solid #ff9800; height: 25px; margin: 0 8px;"></div>
                     
                     <label class="setting-label">BWJ東京ブース費</label>
-                    <input type="number" class="setting-input" id="bwj-tokyo" value="90">
+                    <input type="number" class="setting-input" id="bwj-tokyo" value="90" onchange="updateDisplay()">
                     <span class="setting-label">万円</span>
                 </div>
             </div>
@@ -718,33 +681,33 @@
                 <tbody>
                     <tr>
                         <td class="row-header">増減額</td>
-                        <td><input type="number" data-month="0" value="0" /></td>
-                        <td><input type="number" data-month="1" value="0" /></td>
-                        <td><input type="number" data-month="2" value="0" /></td>
-                        <td><input type="number" data-month="3" value="0" /></td>
-                        <td><input type="number" data-month="4" value="0" /></td>
-                        <td><input type="number" data-month="5" value="0" /></td>
-                        <td><input type="number" data-month="6" value="0" /></td>
-                        <td><input type="number" data-month="7" value="0" /></td>
-                        <td><input type="number" data-month="8" value="0" /></td>
-                        <td><input type="number" data-month="9" value="0" /></td>
-                        <td><input type="number" data-month="10" value="0" /></td>
-                        <td><input type="number" data-month="11" value="0" /></td>
+                        <td><input type="number" data-month="0" value="0" onchange="updateDisplay()" /></td>
+                        <td><input type="number" data-month="1" value="0" onchange="updateDisplay()" /></td>
+                        <td><input type="number" data-month="2" value="0" onchange="updateDisplay()" /></td>
+                        <td><input type="number" data-month="3" value="0" onchange="updateDisplay()" /></td>
+                        <td><input type="number" data-month="4" value="0" onchange="updateDisplay()" /></td>
+                        <td><input type="number" data-month="5" value="0" onchange="updateDisplay()" /></td>
+                        <td><input type="number" data-month="6" value="0" onchange="updateDisplay()" /></td>
+                        <td><input type="number" data-month="7" value="0" onchange="updateDisplay()" /></td>
+                        <td><input type="number" data-month="8" value="0" onchange="updateDisplay()" /></td>
+                        <td><input type="number" data-month="9" value="0" onchange="updateDisplay()" /></td>
+                        <td><input type="number" data-month="10" value="0" onchange="updateDisplay()" /></td>
+                        <td><input type="number" data-month="11" value="0" onchange="updateDisplay()" /></td>
                     </tr>
                     <tr>
                         <td class="row-header">売上</td>
-                        <td class="calculated-value" id="sales-0">1550</td>
-                        <td class="calculated-value" id="sales-1">1550</td>
-                        <td class="calculated-value" id="sales-2">1550</td>
-                        <td class="calculated-value" id="sales-3">1550</td>
-                        <td class="calculated-value" id="sales-4">1550</td>
-                        <td class="calculated-value" id="sales-5">1550</td>
-                        <td class="calculated-value" id="sales-6">1550</td>
-                        <td class="calculated-value" id="sales-7">1550</td>
-                        <td class="calculated-value" id="sales-8">1550</td>
-                        <td class="calculated-value" id="sales-9">1550</td>
-                        <td class="calculated-value" id="sales-10">1550</td>
-                        <td class="calculated-value" id="sales-11">1550</td>
+                        <td class="calculated-value" id="sales-0">1,550</td>
+                        <td class="calculated-value" id="sales-1">1,550</td>
+                        <td class="calculated-value" id="sales-2">1,550</td>
+                        <td class="calculated-value" id="sales-3">1,550</td>
+                        <td class="calculated-value" id="sales-4">1,550</td>
+                        <td class="calculated-value" id="sales-5">1,550</td>
+                        <td class="calculated-value" id="sales-6">1,550</td>
+                        <td class="calculated-value" id="sales-7">1,550</td>
+                        <td class="calculated-value" id="sales-8">1,550</td>
+                        <td class="calculated-value" id="sales-9">1,550</td>
+                        <td class="calculated-value" id="sales-10">1,550</td>
+                        <td class="calculated-value" id="sales-11">1,550</td>
                     </tr>
                     <tr>
                         <td class="row-header">増減</td>
@@ -795,6 +758,7 @@
                     </tr>
                 </thead>
                 <tbody id="profit-table-body">
+                    <!-- JavaScriptで動的生成 -->
                 </tbody>
             </table>
         </div>
@@ -815,13 +779,18 @@
                     </tr>
                 </thead>
                 <tbody id="expense-table-body">
+                    <!-- JavaScriptで動的生成 -->
                 </tbody>
                 <tfoot id="expense-table-footer">
+                    <!-- JavaScriptで動的生成 -->
                 </tfoot>
             </table>
         </div>
     </div>
 
+    <!-- Chart.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
     <script>
         // グローバル変数
         const referenceData = [1947, 1645, 1530, 1730, 1165, 1846, 1475, 1585, 1241, 1173, 1602, 1420];
@@ -839,16 +808,9 @@
 
         let chart = null;
         let isDataProtected = false;
-        let autoSaveInterval = null;
         let csvExported = false;
-        let backupCount = 0;
 
-        // LocalStorageキー（統一規則）
-        const STORAGE_KEY = 'pl_system_rc_corrected_data';
-        const BACKUP_KEY = 'rc_pl_backups';
-        const EMERGENCY_KEY = 'rc_pl_emergency_backup';
-
-        // 販管費19項目の設定
+        // 修正された販管費項目（外注費57、貨物運賃62、消耗品費36、リース料7）
         const expenseItems = [
             { name: '人件費', calculate: () => appData.fixedPersonnel },
             { name: '法定福利費', calculate: () => 7 },
@@ -862,8 +824,8 @@
             { name: '通信費', calculate: () => 1 },
             { name: '販売促進費', calculate: (month) => {
                 let base = 10;
-                if (month === 4) base += appData.bwjConstruction;
-                if (month === 11) base += appData.bwjTokyo;
+                if (month === 4) base += appData.bwjConstruction;  // 11月
+                if (month === 11) base += appData.bwjTokyo;        // 6月
                 return base;
             }},
             { name: '消耗品費', calculate: () => 36 },
@@ -876,7 +838,7 @@
             { name: '減価償却費', calculate: () => 7 }
         ];
 
-        // 通知システム 
+        // 通知システム
         function showNotification(message, type = 'info', duration = 4000) {
             const notification = document.getElementById('notification');
             notification.textContent = message;
@@ -894,10 +856,9 @@
             updateProtectionStatus();
             
             if (isDataProtected) {
-                saveToStorage(true);
-                showNotification('データ保護を有効にしました。タブ移動・ページ遷移時もデータが保持されます。', 'success');
+                showNotification('データ保護を有効にしました。', 'success');
             } else {
-                showNotification('データ保護を解除しました。編集可能状態に戻りました。', 'warning');
+                showNotification('データ保護を解除しました。', 'warning');
             }
         }
 
@@ -916,131 +877,22 @@
             }
         }
 
-        // 自動保存機能
-        function startAutoSave() {
-            if (autoSaveInterval) clearInterval(autoSaveInterval);
+        // 入力値収集
+        function collectInputs() {
+            const inputs = document.querySelectorAll('input[data-month]');
+            inputs.forEach(input => {
+                const month = parseInt(input.dataset.month);
+                const value = parseInt(input.value) || 0;
+                appData.variations[month] = value;
+            });
+
+            const adElement = document.getElementById('advertising');
+            const bwjCElement = document.getElementById('bwj-construction');
+            const bwjTElement = document.getElementById('bwj-tokyo');
             
-            autoSaveInterval = setInterval(() => {
-                if (!isDataProtected) {
-                    saveBackup();
-                }
-            }, 30000); // 30秒間隔
-        }
-
-        function saveBackup() {
-            try {
-                const backupData = {
-                    ...appData,
-                    timestamp: new Date().toISOString(),
-                    backupId: ++backupCount
-                };
-                
-                // 最新3件のバックアップを保持
-                let backups = JSON.parse(localStorage.getItem(BACKUP_KEY) || '[]');
-                backups.unshift(backupData);
-                backups = backups.slice(0, 3);
-                
-                localStorage.setItem(BACKUP_KEY, JSON.stringify(backups));
-                
-                const indicator = document.getElementById('auto-save-indicator');
-                indicator.style.color = '#27ae60';
-                indicator.textContent = `自動保存済 ${new Date().toLocaleTimeString()}`;
-                
-            } catch (error) {
-                console.error('自動保存エラー:', error);
-            }
-        }
-
-        function saveToStorage(isProtection = false) {
-            try {
-                const results = calculate();
-                
-                const unifiedData = {
-                    metadata: {
-                        department: 'RC',
-                        version: '4.0_unified_corrected',
-                        lastUpdate: new Date().toISOString(),
-                        dataProtectionEnabled: isDataProtected,
-                        personnelCalculationMethod: 'fixed_50',
-                        bwjVariableCostSupport: true
-                    },
-                    sales: results.monthlyResults.map(m => m.sales),
-                    cogs: results.monthlyResults.map(m => m.cogs),
-                    personnel: Array(12).fill(appData.fixedPersonnel),
-                    totalExpenses: new Array(12).fill(0).map((_, i) => {
-                        return Object.values(results.expenses).reduce((sum, expenseArray) => {
-                            return sum + (expenseArray[i] || 0);
-                        }, 0);
-                    }),
-                    operatingProfit: results.monthlyResults.map((m, i) => {
-                        const totalExpense = Object.values(results.expenses).reduce((sum, expenseArray) => {
-                            return sum + (expenseArray[i] || 0);
-                        }, 0);
-                        return m.grossProfit - totalExpense;
-                    }),
-                    expenses: {},
-                    annual: {
-                        sales: results.annual.sales,
-                        cogs: results.annual.cogs,
-                        grossProfit: results.annual.grossProfit,
-                        totalExpenses: results.annual.totalExpenses,
-                        operatingProfit: results.annual.operatingProfit
-                    },
-                    exportedAt: csvExported ? new Date().toISOString() : null
-                };
-
-                // 37項目統一フォーマット対応
-                expenseItems.forEach((item, index) => {
-                    unifiedData.expenses[index + 1] = results.expenses[index];
-                });
-
-                // 統合PL用のゼロ項目追加
-                [20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37].forEach(i => {
-                    unifiedData.expenses[i] = Array(12).fill(0);
-                });
-
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(unifiedData));
-                
-                if (isProtection) {
-                    showNotification('データが正常に保護されました。', 'success');
-                }
-                
-            } catch (error) {
-                console.error('保存エラー:', error);
-                showNotification('データ保存でエラーが発生しました。', 'error');
-            }
-        }
-
-        function loadFromStorage() {
-            try {
-                const savedData = localStorage.getItem(STORAGE_KEY);
-                if (savedData) {
-                    const data = JSON.parse(savedData);
-                    if (data.metadata && data.metadata.dataProtectionEnabled) {
-                        isDataProtected = data.metadata.dataProtectionEnabled;
-                        updateProtectionStatus();
-                    }
-                    showNotification('保存されたデータを読み込みました。', 'info');
-                    return true;
-                }
-            } catch (error) {
-                console.error('読み込みエラー:', error);
-            }
-            return false;
-        }
-
-        // 緊急保存（ページ離脱時）
-        function emergencySave() {
-            try {
-                const emergencyData = {
-                    ...appData,
-                    timestamp: new Date().toISOString(),
-                    reason: 'page_unload'
-                };
-                localStorage.setItem(EMERGENCY_KEY, JSON.stringify(emergencyData));
-            } catch (error) {
-                console.error('緊急保存エラー:', error);
-            }
+            if (adElement) appData.advertising = parseInt(adElement.value) || 40;
+            if (bwjCElement) appData.bwjConstruction = parseInt(bwjCElement.value) || 90;
+            if (bwjTElement) appData.bwjTokyo = parseInt(bwjTElement.value) || 90;
         }
 
         // メイン計算関数
@@ -1082,34 +934,9 @@
             return results;
         }
 
-        // 入力値収集
-        function collectInputs() {
-            const inputs = document.querySelectorAll('input[data-month]');
-            inputs.forEach(input => {
-                const month = parseInt(input.dataset.month);
-                const value = parseInt(input.value) || 0;
-                appData.variations[month] = value;
-            });
-
-            const adElement = document.getElementById('advertising');
-            const bwjCElement = document.getElementById('bwj-construction');
-            const bwjTElement = document.getElementById('bwj-tokyo');
-            
-            if (adElement) appData.advertising = parseInt(adElement.value) || 40;
-            if (bwjCElement) appData.bwjConstruction = parseInt(bwjCElement.value) || 90;
-            if (bwjTElement) appData.bwjTokyo = parseInt(bwjTElement.value) || 90;
-        }
-
-        // 画面更新
-        function updateDisplay() {
-            const results = calculate();
-            
-            updateSalesDisplay();
-            updateDifferenceDisplay();
-            updateKPIDisplay(results.annual);
-            updateChart();
-            updateProfitTable(results);
-            updateExpenseTable(results.expenses);
+        // 数値フォーマット
+        function formatNumber(num) {
+            return Math.round(num).toLocaleString();
         }
 
         // 売上表示更新
@@ -1148,7 +975,10 @@
             const rateElement = document.getElementById('profit-rate');
 
             if (salesElement) salesElement.textContent = formatNumber(annual.sales) + '万円';
-            if (diffElement) diffElement.textContent = (salesDiff >= 0 ? '+' : '') + formatNumber(salesDiff) + '万円';
+            if (diffElement) {
+                diffElement.textContent = (salesDiff >= 0 ? '+' : '') + formatNumber(salesDiff) + '万円';
+                diffElement.className = salesDiff >= 0 ? 'kpi-value' : 'kpi-value negative';
+            }
             if (rateElement) {
                 rateElement.textContent = profitRate + '%';
                 rateElement.className = annual.operatingProfit >= 0 ? 'kpi-value' : 'kpi-value negative';
@@ -1188,9 +1018,26 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + formatNumber(context.parsed.y) + '万円';
+                                }
+                            }
+                        }
+                    },
                     scales: {
-                        y: { beginAtZero: true, ticks: { font: { size: 10 } } },
+                        y: { 
+                            beginAtZero: true, 
+                            ticks: { 
+                                font: { size: 10 },
+                                callback: function(value) {
+                                    return formatNumber(value);
+                                }
+                            } 
+                        },
                         x: { ticks: { font: { size: 10 } } }
                     }
                 }
@@ -1271,8 +1118,6 @@
                 const monthlyExpenses = expenses[index];
                 const annual = monthlyExpenses.reduce((sum, val) => sum + val, 0);
 
-                if (annual === 0) return;
-
                 monthlyExpenses.forEach((val, monthIndex) => {
                     monthlyTotals[monthIndex] += val;
                 });
@@ -1302,6 +1147,18 @@
                 <td style="background: #2c3e50;">${formatNumber(Math.round(grandTotal / 12))}</td>
             `;
             tfoot.appendChild(totalRow);
+        }
+
+        // 画面全体の更新
+        function updateDisplay() {
+            const results = calculate();
+            
+            updateSalesDisplay();
+            updateDifferenceDisplay();
+            updateKPIDisplay(results.annual);
+            updateChart();
+            updateProfitTable(results);
+            updateExpenseTable(results.expenses);
         }
 
         // プリセット適用
@@ -1347,28 +1204,20 @@
             try {
                 const results = calculate();
                 const csvData = [];
+                
                 const headers = ['項目名', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月', '年間合計'];
                 csvData.push(headers);
 
-                // 基本PL項目（37項目統一フォーマット対応）
                 csvData.push(['売上高', ...results.monthlyResults.map(m => m.sales), results.annual.sales]);
                 csvData.push(['売上原価', ...results.monthlyResults.map(m => m.cogs), results.annual.cogs]);
                 csvData.push(['売上総利益', ...results.monthlyResults.map(m => m.grossProfit), results.annual.grossProfit]);
 
-                // 販管費項目
                 expenseItems.forEach((item, index) => {
                     const monthlyExpenses = results.expenses[index];
                     const annual = monthlyExpenses.reduce((sum, val) => sum + val, 0);
                     csvData.push([item.name, ...monthlyExpenses, annual]);
                 });
 
-                // 統合PL用ゼロ項目
-                const zeroData = Array(12).fill(0);
-                ['役員報酬', '役員法定福利費', '管理諸費', '修繕費', '車両費', '租税公課', '交際費', '諸会費', '会議費', '福利厚生費', '研修費', '雑費', '寄付金'].forEach(name => {
-                    csvData.push([name, ...zeroData, 0]);
-                });
-
-                // 計算項目
                 const totalExpensesData = new Array(12).fill(0);
                 Object.values(results.expenses).forEach(expenseArray => {
                     expenseArray.forEach((val, monthIndex) => {
@@ -1380,7 +1229,6 @@
                 csvData.push(['販管費合計', ...totalExpensesData, results.annual.totalExpenses]);
                 csvData.push(['営業利益', ...operatingProfitData, results.annual.operatingProfit]);
 
-                // CSV生成・ダウンロード
                 const csvString = '\uFEFF' + csvData.map(row => row.join(',')).join('\n');
                 const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a');
@@ -1391,41 +1239,25 @@
                 csvExported = true;
                 showNotification('CSV出力が完了しました。送信準備が整いました！', 'success');
                 
-                // 送信ボタンにパルス効果を追加
                 const sendBtn = document.getElementById('send-data-btn');
-                sendBtn.classList.add('btn-pulse');
+                if (sendBtn) sendBtn.classList.add('btn-pulse');
                 
             } catch (error) {
+                console.error('CSV出力エラー:', error);
                 showNotification('CSV出力でエラーが発生しました: ' + error.message, 'error');
             }
         }
 
         // データ送信・画面移動
         function sendDataAndNavigate() {
-            try {
-                if (!csvExported) {
-                    showNotification('先にCSV出力を実行してください。', 'warning');
-                    return;
-                }
+            if (!csvExported) {
+                showNotification('先にCSV出力を実行してください。', 'warning');
+                return;
+            }
 
-                const results = calculate();
-                
-                // データ保護を自動で有効化
-                isDataProtected = true;
-                updateProtectionStatus();
-                saveToStorage(false);
-                
-                const workflowProgress = {
-                    step1_SR: 'completed',
-                    step2_W: 'completed',
-                    step3_RC: 'completed',
-                    step4_RCD: 'waiting',
-                    currentStep: 4,
-                    lastUpdate: new Date().toISOString()
-                };
-                localStorage.setItem('workflow_progress', JSON.stringify(workflowProgress));
-                
-                showNotification(`RC事業部データ送信完了！
+            const results = calculate();
+            
+            showNotification(`RC事業部データ送信完了！
 
 年間売上: ${formatNumber(results.annual.sales)}万円
 年間営業利益: ${formatNumber(results.annual.operatingProfit)}万円
@@ -1433,87 +1265,28 @@
 
 次のステップに移動します...`, 'success', 6000);
                 
-                setTimeout(() => {
-                    window.location.href = 'rcd-pl.html';
-                }, 3000);
-
-            } catch (error) {
-                showNotification('データ送信に失敗しました: ' + error.message, 'error');
-            }
-        }
-
-        // ユーティリティ関数
-        function formatNumber(num) {
-            return Math.round(num).toLocaleString();
-        }
-
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
-
-        // イベントリスナー設定
-        function setupEventListeners() {
-            // 月別増減額入力
-            const monthInputs = document.querySelectorAll('input[data-month]');
-            monthInputs.forEach(input => {
-                input.addEventListener('input', debounce(() => {
-                    updateDisplay();
-                    if (!isDataProtected) saveBackup();
-                }, 300));
-            });
-
-            // 可変費用入力
-            const variableInputs = ['advertising', 'bwj-construction', 'bwj-tokyo'];
-            variableInputs.forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.addEventListener('input', debounce(() => {
-                        updateDisplay();
-                        if (!isDataProtected) saveBackup();
-                    }, 300));
-                }
-            });
-
-            // ページ離脱時の緊急保存
-            window.addEventListener('beforeunload', (e) => {
-                emergencySave();
-                if (!isDataProtected && csvExported) {
-                    e.preventDefault();
-                    e.returnValue = 'データが未保護です。離脱してもよろしいですか？';
-                }
-            });
-
-            // ページ非表示時の保存
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden && !isDataProtected) {
-                    emergencySave();
-                }
-            });
+            setTimeout(() => {
+                alert('RCD社PLシステムに移動します（実際のシステムでは画面遷移）');
+            }, 3000);
         }
 
         // 初期化
         function initialize() {
             try {
-                loadFromStorage();
                 updateDisplay();
-                setupEventListeners();
-                startAutoSave();
-                
-                showNotification('RC事業部PLシステム v4.0 が起動しました。', 'info');
-                
+                showNotification('RC事業部PLシステム v4.0 が起動しました。修正版の費用項目が適用されています。', 'info');
             } catch (error) {
                 console.error('初期化エラー:', error);
                 showNotification('システム初期化でエラーが発生しました。', 'error');
             }
         }
 
-        // ページ読み込み完了時に初期化
-        window.addEventListener('load', initialize);
+        // DOMContentLoaded または window.onload で初期化実行
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initialize);
+        } else {
+            initialize();
+        }
+    </script>
+</body>
+</html>
