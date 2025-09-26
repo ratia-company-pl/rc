@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phase 4完成版 統合PLシステム - 販管費19項目完全対応</title>
+    <title>Phase 4完成版 統合PLシステム - 販管費19項目完全対応・役員報酬連携強化</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -208,6 +208,23 @@
             font-weight: bold;
         }
 
+        /* 役員報酬連携ステータス */
+        .executive-sync-status {
+            background: rgba(39, 174, 96, 0.1);
+            border: 1px solid #27ae60;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.8em;
+            color: #155724;
+            font-weight: 600;
+        }
+
+        .executive-sync-warning {
+            background: rgba(243, 156, 18, 0.1);
+            border-color: #f39c12;
+            color: #856404;
+        }
+
         .container {
             max-width: 1400px;
             margin: 15px auto;
@@ -367,6 +384,7 @@
             background-color: #fcf3cf;
         }
 
+        /* 役員報酬セクション強化 */
         .executive-section {
             background: rgba(253, 242, 233, 0.95);
             backdrop-filter: blur(10px);
@@ -388,6 +406,41 @@
 
         .executive-row {
             background-color: #e8f5e8;
+        }
+
+        .executive-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .executive-btn {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 0.8em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .executive-btn:hover {
+            background: linear-gradient(135deg, #219a52, #27ae60);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(39, 174, 96, 0.3);
+        }
+
+        .executive-btn-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .executive-btn-warning:hover {
+            background: linear-gradient(135deg, #e67e22, #d35400);
         }
 
         .common-expense-section {
@@ -515,7 +568,7 @@
         <!-- 1行目: タイトル -->
         <div class="header-row1">
             <h1>全体PL分析</h1>
-            <div class="version-badge">統一構造 Version 3.0 + 19項目販管費 + 7月開始年度対応</div>
+            <div class="version-badge">統一構造 Version 3.0 + 19項目販管費 + 7月開始年度対応 + 役員報酬連携強化</div>
         </div>
 
         <!-- 2行目: グローバルナビゲーション - 修正版 -->
@@ -549,6 +602,10 @@
                     <div class="kpi-label">利益率</div>
                     <div class="kpi-value" id="profitMarginKPI">---%</div>
                 </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">役員報酬計</div>
+                    <div class="kpi-value" id="executiveCompKPI">---万円</div>
+                </div>
                 <!-- CSV出力カード -->
                 <div class="kpi-card csv-export-card">
                     <div class="kpi-label">データ出力</div>
@@ -561,6 +618,9 @@
         <div class="header-row4">
             <div class="status-info">
                 <div class="department-description">Phase 4統合PLシステム - 4事業部統合分析ダッシュボード</div>
+                <div id="executiveSyncStatus" class="executive-sync-status">
+                    役員報酬連携: 初期化中...
+                </div>
                 <div id="lastUpdate" class="data-source">最終更新: 自動取得中...</div>
             </div>
         </div>
@@ -645,9 +705,22 @@
             </div>
         </div>
 
-        <!-- 役員報酬（ダッシュボード連携・統一レイアウト） -->
+        <!-- 役員報酬（ダッシュボード連携・統一レイアウト・連携強化） -->
         <div class="executive-section">
-            <h2 class="section-title">役員報酬（ダッシュボード連携）</h2>
+            <h2 class="section-title">役員報酬（ダッシュボード連携強化版）</h2>
+            
+            <div class="executive-controls">
+                <button class="executive-btn" onclick="loadExecutiveFromDashboard()">
+                    ダッシュボードから読み込み
+                </button>
+                <button class="executive-btn executive-btn-warning" onclick="showExecutiveDebugInfo()">
+                    連携状況確認
+                </button>
+                <span id="executiveLastSync" style="font-size: 0.8em; color: #666;">
+                    最終同期: 未実行
+                </span>
+            </div>
+            
             <div class="table-scroll">
                 <table class="unified-table" id="executiveTable">
                     <thead>
@@ -740,15 +813,16 @@
     </div>
 
     <script>
-        // 統一構造 Version 3.0 対応データ管理システム（7月開始年度対応・レイアウト最適化版）
-        class Phase4DataManager {
+        // 統一構造 Version 3.0 対応データ管理システム（7月開始年度対応・レイアウト最適化版・役員報酬連携強化）
+        class Phase4DataManagerEnhanced {
             constructor() {
                 // 修正: LocalStorageキーを統一
                 this.STORAGE_KEYS = {
                     sr: 'pl_system_sr_corrected_data',  // 修正後のキー
                     w: 'pl_system_w_corrected_data',   // 修正後のキー
                     rc: 'pl_system_rc_data',
-                    rcd: 'pl_system_rcd_data'
+                    rcd: 'pl_system_rcd_data',
+                    executive: 'executive_compensation_csv_settings'  // 役員報酬専用キー
                 };
 
                 // 販管費19項目統一構造マッピング（Version 3.0）
@@ -794,9 +868,11 @@
 
             initializeSystem() {
                 this.loadAllDepartmentData();
+                this.loadExecutiveDataFromDashboard();  // 強化：役員報酬データを優先読み込み
                 this.calculateUnifiedPL();
                 this.updateDisplay();
                 this.startAutoRefresh();
+                this.updateExecutiveSyncStatus('初期化完了', 'success');
             }
 
             // データ受信キーの統一
@@ -804,6 +880,8 @@
                 this.departmentData = {};
                 
                 Object.keys(this.STORAGE_KEYS).forEach(dept => {
+                    if (dept === 'executive') return; // 役員報酬は別処理
+                    
                     const data = localStorage.getItem(this.STORAGE_KEYS[dept]);
                     if (data) {
                         try {
@@ -818,35 +896,60 @@
                         this.departmentData[dept] = null;
                     }
                 });
-
-                // ダッシュボードから役員報酬データを取得
-                this.loadExecutiveDataFromDashboard();
             }
 
+            // 【強化】ダッシュボードから役員報酬データを取得（連携強化版）
             loadExecutiveDataFromDashboard() {
                 try {
-                    // 修正: 直接ダッシュボードのLocalStorageから読み込み
-                    const executiveSettings = localStorage.getItem('executive_compensation_csv_settings');
+                    const executiveSettings = localStorage.getItem(this.STORAGE_KEYS.executive);
                     if (executiveSettings) {
                         const settings = JSON.parse(executiveSettings);
-                        this.executiveData = {
-                            compensation: settings.monthlyCompensation || [826, 826, 826, 676, 676, 676, 676, 676, 676, 676, 676, 676],
-                            welfare: settings.welfare || [107, 107, 107, 88, 88, 88, 88, 88, 88, 88, 88, 88]
-                        };
+                        
+                        // データ構造の検証
+                        if (settings.monthlyCompensation && settings.welfare) {
+                            this.executiveData = {
+                                compensation: [...settings.monthlyCompensation],
+                                welfare: [...settings.welfare],
+                                lastUpdate: settings.lastUpdate,
+                                metadata: settings.metadata
+                            };
+                            
+                            this.updateExecutiveSyncStatus(
+                                `ダッシュボード連携成功 (${new Date(settings.lastUpdate).toLocaleString()})`, 
+                                'success'
+                            );
+                            
+                            console.log('Executive data loaded from dashboard:', {
+                                totalCompensation: this.executiveData.compensation.reduce((sum, val) => sum + val, 0),
+                                totalWelfare: this.executiveData.welfare.reduce((sum, val) => sum + val, 0),
+                                version: settings.metadata?.version
+                            });
+                        } else {
+                            throw new Error('データ構造が無効です');
+                        }
                     } else {
                         // デフォルトデータ（ダッシュボード未連携時）
                         this.executiveData = {
                             compensation: [826, 826, 826, 676, 676, 676, 676, 676, 676, 676, 676, 676],
-                            welfare: [107, 107, 107, 88, 88, 88, 88, 88, 88, 88, 88, 88]
+                            welfare: [107, 107, 107, 88, 88, 88, 88, 88, 88, 88, 88, 88],
+                            lastUpdate: new Date().toISOString(),
+                            metadata: { version: 'default' }
                         };
+                        
+                        this.updateExecutiveSyncStatus('デフォルトデータ使用中', 'warning');
                     }
                 } catch (error) {
                     console.error('役員報酬データ取得エラー:', error);
+                    
                     // エラー時デフォルトデータ
                     this.executiveData = {
                         compensation: [826, 826, 826, 676, 676, 676, 676, 676, 676, 676, 676, 676],
-                        welfare: [107, 107, 107, 88, 88, 88, 88, 88, 88, 88, 88, 88]
+                        welfare: [107, 107, 107, 88, 88, 88, 88, 88, 88, 88, 88, 88],
+                        lastUpdate: new Date().toISOString(),
+                        metadata: { version: 'error_fallback' }
                     };
+                    
+                    this.updateExecutiveSyncStatus(`連携エラー: ${error.message}`, 'warning');
                 }
             }
 
@@ -949,11 +1052,16 @@
                 const totalExpenses = this.monthlyTotalExpenses.reduce((sum, val) => sum + val, 0);
                 const totalOperatingProfit = this.monthlyOperatingProfit.reduce((sum, val) => sum + val, 0);
                 const profitMargin = totalSales > 0 ? (totalOperatingProfit / totalSales * 100) : 0;
+                
+                // 役員報酬合計の追加表示
+                const totalExecutiveComp = this.executiveData.compensation.reduce((sum, val) => sum + val, 0) + 
+                                         this.executiveData.welfare.reduce((sum, val) => sum + val, 0);
 
                 document.getElementById('totalSalesKPI').textContent = `${Math.round(totalSales).toLocaleString()}万円`;
                 document.getElementById('totalExpensesKPI').textContent = `${Math.round(totalExpenses).toLocaleString()}万円`;
                 document.getElementById('operatingProfitKPI').textContent = `${Math.round(totalOperatingProfit).toLocaleString()}万円`;
                 document.getElementById('profitMarginKPI').textContent = `${profitMargin.toFixed(1)}%`;
+                document.getElementById('executiveCompKPI').textContent = `${Math.round(totalExecutiveComp).toLocaleString()}万円`;
             }
 
             updateCombinedPLTable() {
@@ -1004,6 +1112,12 @@
                 // 法定福利費行（ダッシュボードから受信）
                 const welfareRow = this.createUnifiedRow('', '法定福利費', this.executiveData.welfare || [], '');
                 tbody.appendChild(welfareRow);
+
+                // 最終同期時刻の更新
+                if (this.executiveData.lastUpdate) {
+                    document.getElementById('executiveLastSync').textContent = 
+                        `最終同期: ${new Date(this.executiveData.lastUpdate).toLocaleString()}`;
+                }
             }
 
             updateCommonExpenseTable() {
@@ -1196,14 +1310,92 @@
                     `最終更新: ${new Date().toLocaleString()}`;
             }
 
+            // 【新機能】役員報酬連携ステータス更新
+            updateExecutiveSyncStatus(message, type) {
+                const statusDiv = document.getElementById('executiveSyncStatus');
+                if (statusDiv) {
+                    statusDiv.textContent = `役員報酬連携: ${message}`;
+                    statusDiv.className = `executive-sync-status ${type === 'warning' ? 'executive-sync-warning' : ''}`;
+                }
+            }
+
             startAutoRefresh() {
                 // 5秒間隔でデータを自動更新
                 setInterval(() => {
                     console.log('自動更新実行中...');
                     this.loadAllDepartmentData();
+                    this.loadExecutiveDataFromDashboard();  // 役員報酬も自動更新
                     this.calculateUnifiedPL();
                     this.updateDisplay();
                 }, 5000);
+            }
+        }
+
+        // 【強化】役員報酬連携機能
+        function loadExecutiveFromDashboard() {
+            try {
+                const manager = window.phase4Manager;
+                if (manager) {
+                    manager.loadExecutiveDataFromDashboard();
+                    manager.calculateUnifiedPL();
+                    manager.updateDisplay();
+                    
+                    const total = manager.executiveData.compensation.reduce((sum, val) => sum + val, 0) +
+                                 manager.executiveData.welfare.reduce((sum, val) => sum + val, 0);
+                    
+                    alert(`ダッシュボードから役員報酬データを読み込みました。\n年間合計: ${total.toLocaleString()}万円`);
+                } else {
+                    alert('システムが初期化されていません。');
+                }
+            } catch (error) {
+                alert(`読み込みエラー: ${error.message}`);
+                console.error('Executive data loading error:', error);
+            }
+        }
+
+        function showExecutiveDebugInfo() {
+            try {
+                const stored = localStorage.getItem('executive_compensation_csv_settings');
+                let debugText = `=== 役員報酬連携デバッグ情報 ===\n\n`;
+                
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    debugText += `✅ データ存在: あり\n`;
+                    debugText += `📅 最終更新: ${data.lastUpdate}\n`;
+                    debugText += `🏢 役員報酬合計: ${data.monthlyCompensation.reduce((sum, val) => sum + val, 0).toLocaleString()}万円\n`;
+                    debugText += `💰 福利費合計: ${data.welfare.reduce((sum, val) => sum + val, 0).toLocaleString()}万円\n`;
+                    debugText += `📋 バージョン: ${data.metadata?.version || '不明'}\n\n`;
+                    
+                    debugText += `月別詳細 (役員報酬/福利費):\n`;
+                    const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
+                    months.forEach((month, i) => {
+                        debugText += `${month}: ${data.monthlyCompensation[i]}万円/${data.welfare[i]}万円\n`;
+                    });
+                    
+                    // 合計PL側の実際の値と比較
+                    const manager = window.phase4Manager;
+                    if (manager && manager.executiveData) {
+                        const managerTotal = manager.executiveData.compensation.reduce((sum, val) => sum + val, 0) +
+                                           manager.executiveData.welfare.reduce((sum, val) => sum + val, 0);
+                        const storedTotal = data.monthlyCompensation.reduce((sum, val) => sum + val, 0) +
+                                          data.welfare.reduce((sum, val) => sum + val, 0);
+                        
+                        debugText += `\n=== 同期状況 ===\n`;
+                        debugText += `LocalStorage合計: ${storedTotal.toLocaleString()}万円\n`;
+                        debugText += `システム内合計: ${managerTotal.toLocaleString()}万円\n`;
+                        debugText += `同期状況: ${storedTotal === managerTotal ? '✅ 一致' : '❌ 不一致'}\n`;
+                    }
+                } else {
+                    debugText += `❌ データ存在: なし\n`;
+                    debugText += `LocalStorageキー 'executive_compensation_csv_settings' が見つかりません。\n`;
+                    debugText += `ダッシュボード側で役員報酬を設定してください。`;
+                }
+                
+                alert(debugText);
+                console.log('Executive Debug Info:', debugText);
+                
+            } catch (error) {
+                alert(`デバッグ情報取得エラー: ${error.message}`);
             }
         }
 
@@ -1273,7 +1465,7 @@
         // システム初期化
         document.addEventListener('DOMContentLoaded', () => {
             console.log('統合PLシステム初期化開始');
-            window.phase4Manager = new Phase4DataManager();
+            window.phase4Manager = new Phase4DataManagerEnhanced();
         });
     </script>
 </body>
