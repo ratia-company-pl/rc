@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SR事業部PLシミュレーター Phase 4完成版</title>
+    <title>SR事業部PLシミュレーター 完全版</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -25,7 +25,7 @@
             padding: 15px;
         }
 
-        /* ヘッダーセクション（W事業部スタイル準拠） */
+        /* ヘッダーセクション */
         .header-section {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -413,14 +413,18 @@
             outline: none;
         }
 
-        /* 利益セクション */
-        .profit-section {
+        /* 利益・販管費セクション */
+        .profit-section, .expense-section {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 12px;
             margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             border-left: 5px solid #52c41a;
+        }
+
+        .expense-section {
+            border-left-color: #34495e;
         }
 
         .profit-header {
@@ -431,73 +435,6 @@
             font-size: 1rem;
         }
 
-        .profit-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.7rem;
-            background: white;
-            table-layout: fixed;
-        }
-
-        .profit-table th,
-        .profit-table td {
-            border: 1px solid #e2e8f0;
-            padding: 6px 4px;
-            text-align: center;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .profit-table th:first-child,
-        .profit-table td:first-child {
-            width: 120px;
-            white-space: normal;
-            word-wrap: break-word;
-            text-align: left;
-            padding-left: 10px;
-        }
-
-        .profit-table th:nth-child(n+2):nth-child(-n+13),
-        .profit-table td:nth-child(n+2):nth-child(-n+13) {
-            width: 60px;
-        }
-
-        .profit-table th:nth-child(n+14),
-        .profit-table td:nth-child(n+14) {
-            width: 80px;
-        }
-
-        .profit-table th {
-            background: linear-gradient(135deg, #52c41a, #73d13d);
-            color: white;
-            font-weight: 600;
-            font-size: 0.65rem;
-        }
-
-        .profit-table .profit-name {
-            background: #f8f9fa;
-            font-weight: 600;
-        }
-
-        .sales-row td { background: #f6ffed; }
-        .cogs-row td { background: #fff7e6; }
-        .gross-profit-row td { background: #e6f7ff; }
-        .personnel-row td { background: #fff3cd; font-weight: bold; color: #e65100; }
-        .personnel-row td:first-child { background: #ffc107; color: #212529; }
-        .total-expenses-row td { background: #fff0f6; }
-        .operating-profit-row td { background: #f9f0ff; }
-
-        /* 販管費セクション */
-        .expense-section {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border-left: 5px solid #34495e;
-        }
-
         .expense-header {
             background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
             color: white;
@@ -506,7 +443,7 @@
             font-size: 1rem;
         }
 
-        .expense-table {
+        .profit-table, .expense-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.7rem;
@@ -514,6 +451,8 @@
             table-layout: fixed;
         }
 
+        .profit-table th,
+        .profit-table td,
         .expense-table th,
         .expense-table td {
             border: 1px solid #e2e8f0;
@@ -524,11 +463,8 @@
             white-space: nowrap;
         }
 
-        .expense-table th:first-child,
-        .expense-table td:first-child {
-            width: 40px;
-        }
-
+        .profit-table th:first-child,
+        .profit-table td:first-child,
         .expense-table th:nth-child(2),
         .expense-table td:nth-child(2) {
             width: 120px;
@@ -538,36 +474,27 @@
             padding-left: 10px;
         }
 
-        .expense-table th:nth-child(n+3):nth-child(-n+14),
-        .expense-table td:nth-child(n+3):nth-child(-n+14) {
-            width: 60px;
+        .expense-table th:first-child,
+        .expense-table td:first-child {
+            width: 40px;
         }
 
-        .expense-table th:nth-child(n+15),
-        .expense-table td:nth-child(n+15) {
-            width: 80px;
-        }
-
+        .profit-table th,
         .expense-table th {
-            background: linear-gradient(135deg, #34495e, #2c3e50);
+            background: linear-gradient(135deg, #52c41a, #73d13d);
             color: white;
             font-weight: 600;
             font-size: 0.65rem;
         }
 
+        .expense-table th {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+        }
+
+        .profit-table .profit-name,
         .expense-table .expense-name {
             background: #f8f9fa;
             font-weight: 600;
-        }
-
-        .expense-table tfoot tr {
-            background: #34495e;
-            color: white;
-            font-weight: 700;
-        }
-
-        .expense-table tfoot td {
-            background: #34495e;
         }
 
         /* レスポンシブ対応 */
@@ -721,7 +648,7 @@
         <!-- 販管費セクション -->
         <div class="expense-section">
             <div class="expense-header">
-                販管費19項目詳細表示（統一構造 Version 3.0）
+                販管費37項目統一表示
             </div>
             <table class="expense-table">
                 <thead>
@@ -741,7 +668,7 @@
     </div>
 
     <script>
-        // データ管理
+        // SR事業部データ
         let srData = {
             stores: {
                 '清水店': [416, 397, 421, 502, 471, 544, 567, 476, 355, 408, 299, 346],
@@ -759,12 +686,49 @@
             }
         };
 
+        // 基本データ
         const referenceData = [2236, 2916, 2927, 2810, 2544, 2663, 3008, 2324, 2403, 2602, 2228, 2721];
         const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
         let monthlyChart = null;
 
-        // 販管費19項目定義
-        const expenseItems = {
+        // 37項目統一フォーマット定義
+        const unifiedExpenseItems = [
+            { id: 1, name: "人件費統合", srId: 1 },
+            { id: 2, name: "法定福利費", srId: 2 },
+            { id: 3, name: "衛生費", srId: 3 },
+            { id: 4, name: "物流管理費", srId: 4 },
+            { id: 5, name: "地代家賃", srId: 5 },
+            { id: 6, name: "外注費", srId: 6 },
+            { id: 7, name: "貨物運賃", srId: 7 },
+            { id: 8, name: "広告宣伝費", srId: 8 },
+            { id: 9, name: "旅費交通費", srId: 9 },
+            { id: 10, name: "通信費", srId: 10 },
+            { id: 11, name: "販売促進費", srId: 11 },
+            { id: 12, name: "消耗品費", srId: 12 },
+            { id: 13, name: "事務用品費", srId: 13 },
+            { id: 14, name: "水道光熱費", srId: 14 },
+            { id: 15, name: "支払手数料", srId: 15 },
+            { id: 16, name: "リース料", srId: 16 },
+            { id: 17, name: "保険料", srId: 17 },
+            { id: 18, name: "支払報酬料", srId: 18 },
+            { id: 19, name: "減価償却費", srId: 19 },
+            { id: 20, name: "役員報酬", srId: null },
+            { id: 21, name: "役員法定福利費", srId: null },
+            { id: 22, name: "管理諸費", srId: null },
+            { id: 23, name: "修繕費", srId: null },
+            { id: 24, name: "車両費", srId: null },
+            { id: 25, name: "租税公課", srId: null },
+            { id: 26, name: "交際費", srId: null },
+            { id: 27, name: "諸会費", srId: null },
+            { id: 28, name: "会議費", srId: null },
+            { id: 29, name: "福利厚生費", srId: null },
+            { id: 30, name: "研修費", srId: null },
+            { id: 31, name: "雑費", srId: null },
+            { id: 32, name: "寄付金", srId: null }
+        ];
+
+        // SR販管費19項目定義
+        const srExpenseItems = {
             1: { name: "人件費統合", type: "variable" },
             2: { name: "法定福利費", type: "calculated" },
             3: { name: "衛生費", type: "fixed", annual: 166 },
@@ -786,7 +750,7 @@
             19: { name: "減価償却費", type: "fixed", annual: 230 }
         };
 
-        // 修正版人件費計算（売上レンジ別率システム）
+        // 人件費計算（売上レンジ別率システム）
         function getPersonnelRate(salesAmount) {
             if (salesAmount >= 2100 && salesAmount <= 2399) return 33.8;
             if (salesAmount >= 2400 && salesAmount <= 2699) return 29.8;
@@ -809,7 +773,8 @@
 
         // 販管費項目計算
         function calculateExpenseItem(id, monthResult, monthIndex) {
-            const item = expenseItems[id];
+            const item = srExpenseItems[id];
+            if (!item) return 0;
             
             switch (item.type) {
                 case 'variable':
@@ -828,7 +793,7 @@
             }
         }
 
-        // 入力テーブル生成（キャプチャー準拠）
+        // 入力テーブル生成
         function generateSRInputTable() {
             const tbody = document.getElementById('sr-input-table-body');
             if (!tbody) return;
@@ -845,7 +810,7 @@
                 totals.push(monthTotal);
             }
 
-            // 合計行（3行構成：売上・増減・参考）
+            // 合計行
             html += `
                 <tr class="total-row">
                     <td rowspan="3" class="total-header">合計</td>
@@ -866,7 +831,7 @@
                 </tr>
             `;
 
-            // 各店舗行（2行構成：売上・参考、店舗ボタン付き）
+            // 各店舗行
             Object.entries(srData.stores).forEach(([storeName, values]) => {
                 html += `
                     <tr>
@@ -917,22 +882,22 @@
             const annualOperatingProfit = monthlyResults.reduce((sum, m) => sum + m.operatingProfit, 0);
 
             let html = `
-                <tr class="sales-row">
+                <tr>
                     <td class="profit-name">売上高</td>
                     ${monthlyResults.map(m => `<td>${formatNumber(m.sales)}</td>`).join('')}
                     <td style="font-weight: 700; background: #f8f9fa;">${formatNumber(annualSales)}</td>
                 </tr>
-                <tr class="cogs-row">
+                <tr>
                     <td class="profit-name">仕入原価</td>
                     ${monthlyResults.map(m => `<td>${formatNumber(m.cogs)}</td>`).join('')}
                     <td style="font-weight: 700; background: #f8f9fa;">${formatNumber(annualCogs)}</td>
                 </tr>
-                <tr class="gross-profit-row">
+                <tr>
                     <td class="profit-name">売上総利益</td>
                     ${monthlyResults.map(m => `<td>${formatNumber(m.grossProfit)}</td>`).join('')}
                     <td style="font-weight: 700; background: #f8f9fa;">${formatNumber(annualGrossProfit)}</td>
                 </tr>
-                <tr class="personnel-row">
+                <tr>
                     <td class="profit-name">人件費統合</td>
                     ${monthlyResults.map(m => `<td>${formatNumber(m.personnel)}</td>`).join('')}
                     <td style="font-weight: 700; background: #ffc107; color: #212529;">${formatNumber(annualPersonnel)}</td>
@@ -947,12 +912,12 @@
                     ${monthlyResults.map(m => `<td>${formatNumber(m.advertising)}</td>`).join('')}
                     <td style="font-weight: 700; background: #f8f9fa;">${formatNumber(annualAdvertising)}</td>
                 </tr>
-                <tr class="total-expenses-row">
+                <tr>
                     <td class="profit-name">販管費合計</td>
                     ${monthlyResults.map(m => `<td>${formatNumber(m.totalExpenses)}</td>`).join('')}
                     <td style="font-weight: 700; background: #f8f9fa;">${formatNumber(annualTotalExpenses)}</td>
                 </tr>
-                <tr class="operating-profit-row">
+                <tr>
                     <td class="profit-name">営業利益</td>
                     ${monthlyResults.map(m => `<td>${formatNumber(m.operatingProfit)}</td>`).join('')}
                     <td style="font-weight: 700; background: #f8f9fa;">${formatNumber(annualOperatingProfit)}</td>
@@ -962,29 +927,30 @@
             tbody.innerHTML = html;
         }
 
-        // 【修正版】販管費テーブル更新 - 全19項目を必ず表示
+        // 販管費テーブル更新（使用項目のみ表示、CSV用データは全項目保持）
         function updateExpenseTable(expenseDetails) {
             const tbody = document.getElementById('expense-table-body');
             if (!tbody) return;
 
             let html = '';
 
-            // 全19項目を順番に処理（値が0でも表示）
-            for (let id = 1; id <= 19; id++) {
-                const expenseData = expenseDetails[id];
-                const expenseName = expenseItems[id].name;
-                const annual = expenseData.reduce((sum, val) => sum + val, 0);
+            // SR事業部で使用する項目（ID 1-19）のみ表示
+            unifiedExpenseItems.forEach((item, index) => {
+                if (item.srId && expenseDetails[item.srId]) {
+                    // SR事業部で実際に使用している項目のみ表示
+                    const monthlyData = expenseDetails[item.srId];
+                    const annual = monthlyData.reduce((sum, val) => sum + val, 0);
 
-                // 全項目を表示（値が0でも表示する）
-                html += `
-                    <tr>
-                        <td style="font-weight: 600; background: #f8f9fa; text-align: center;">${id}</td>
-                        <td class="expense-name">${expenseName}</td>
-                        ${expenseData.map(val => `<td>${formatNumber(val)}</td>`).join('')}
-                        <td style="font-weight: 700; background: #e8f5e8;">${formatNumber(annual)}</td>
-                    </tr>
-                `;
-            }
+                    html += `
+                        <tr>
+                            <td style="font-weight: 600; background: #f8f9fa; text-align: center;">${item.id}</td>
+                            <td class="expense-name">${item.name}</td>
+                            ${monthlyData.map(val => `<td>${formatNumber(val)}</td>`).join('')}
+                            <td style="font-weight: 700; background: #e8f5e8;">${formatNumber(annual)}</td>
+                        </tr>
+                    `;
+                }
+            });
 
             tbody.innerHTML = html;
         }
@@ -1004,7 +970,7 @@
                 const cogs = Math.round(sales * 0.272);
                 const grossProfit = sales - cogs;
                 
-                // 修正版人件費計算
+                // 人件費計算
                 const personnelRate = getPersonnelRate(sales);
                 let personnel = Math.round(sales * (personnelRate / 100));
                 
@@ -1015,7 +981,7 @@
                 
                 const welfare = Math.round(personnel * 0.1284);
                 const advertising = srData.settings.advertising;
-                const otherExpenses = 479; // 固定費統合
+                const otherExpenses = 479;
                 
                 const totalExpenses = personnel + welfare + advertising + otherExpenses;
                 const operatingProfit = grossProfit - totalExpenses;
@@ -1101,7 +1067,99 @@
             });
         }
 
-        // 入力関数群
+        // 【完全修正版】CSV出力 - 37項目統一フォーマット
+        function exportSRCSV() {
+            try {
+                if (!window.srResults) {
+                    alert('計算データがありません。先に計算を実行してください。');
+                    return;
+                }
+
+                const { monthlyResults, annual, monthlySales, expenseDetails } = window.srResults;
+                const csvData = [];
+                
+                // ヘッダー行
+                csvData.push(['項目名', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月', '年間合計']);
+                
+                // 基本PL項目
+                csvData.push(['売上高', ...monthlySales, annual.sales]);
+                csvData.push(['売上原価', ...monthlyResults.map(m => m.cogs), monthlyResults.reduce((sum, m) => sum + m.cogs, 0)]);
+                csvData.push(['売上総利益', ...monthlyResults.map(m => m.grossProfit), monthlyResults.reduce((sum, m) => sum + m.grossProfit, 0)]);
+                
+                // 37項目統一フォーマット（販管費）
+                unifiedExpenseItems.forEach(item => {
+                    let monthlyData, annual_expense;
+                    
+                    if (item.srId && expenseDetails[item.srId]) {
+                        monthlyData = expenseDetails[item.srId];
+                        annual_expense = monthlyData.reduce((sum, val) => sum + val, 0);
+                    } else {
+                        monthlyData = Array(12).fill(0);
+                        annual_expense = 0;
+                    }
+                    
+                    csvData.push([item.name, ...monthlyData, annual_expense]);
+                });
+                
+                // 最終項目
+                csvData.push(['販管費合計', ...monthlyResults.map(m => m.totalExpenses), monthlyResults.reduce((sum, m) => sum + m.totalExpenses, 0)]);
+                csvData.push(['営業利益', ...monthlyResults.map(m => m.operatingProfit), annual.operatingProfit]);
+
+                const csvString = '\uFEFF' + csvData.map(row => row.join(',')).join('\n');
+                const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `SR事業部_統一PL_${new Date().toISOString().split('T')[0]}.csv`;
+                link.click();
+                
+                alert('SR事業部統一フォーマット（37項目）PLデータのCSV出力が完了しました。');
+            } catch (error) {
+                console.error('CSV出力エラー:', error);
+                alert('CSV出力でエラーが発生しました: ' + error.message);
+            }
+        }
+
+        // データ送信
+        function sendDataAndNavigateToNext() {
+            if (!window.srResults) {
+                alert('先に計算を実行してください。');
+                return;
+            }
+
+            try {
+                const { monthlyResults, annual, monthlySales, expenseDetails } = window.srResults;
+                
+                const unifiedData = {
+                    metadata: {
+                        department: 'SR',
+                        version: '4.0_unified',
+                        lastUpdate: new Date().toISOString(),
+                        personnelCalculationMethod: 'sales_range_based_rate_system'
+                    },
+                    sales: monthlySales,
+                    cogs: monthlyResults.map(m => m.cogs),
+                    personnel: monthlyResults.map(m => m.personnel),
+                    totalExpenses: monthlyResults.map(m => m.totalExpenses),
+                    operatingProfit: monthlyResults.map(m => m.operatingProfit),
+                    expenses: expenseDetails,
+                    annual: annual
+                };
+
+                localStorage.setItem('pl_system_sr_unified_data', JSON.stringify(unifiedData));
+                
+                alert(`SR事業部データを統合PLシステムに送信しました!\n\n年間売上: ${formatNumber(annual.sales)}万円\n年間営業利益: ${formatNumber(annual.operatingProfit)}万円`);
+
+                setTimeout(() => {
+                    window.location.href = 'w-pl.html';
+                }, 2000);
+
+            } catch (error) {
+                console.error('データ送信エラー:', error);
+                alert('データ送信に失敗しました: ' + error.message);
+            }
+        }
+
+        // 入力操作関数
         function updateStoreData(input) {
             const store = input.dataset.store;
             const month = parseInt(input.dataset.month);
@@ -1189,100 +1247,8 @@
             updateSRSales();
         }
 
-) => sum + val, 0);
-                    
-                    csvData.push([`${id}. ${expenseName}`, ...expenseData, annual_expense]);
-                }
-                
-                // 空行追加
-                csvData.push(['']);
-                csvData.push(['=== 販管費合計・営業利益 ===']);
-                csvData.push(['販管費合計', ...monthlyResults.map(m => m.totalExpenses), monthlyResults.reduce((sum, m) => sum + m.totalExpenses, 0)]);
-                csvData.push(['営業利益', ...monthlyResults.map(m => m.operatingProfit), annual.operatingProfit]);
-                
-                // 空行追加
-                csvData.push(['']);
-                csvData.push(['=== 店舗別売上詳細 ===']);
-                
-                // 店舗別売上データ
-                Object.entries(srData.stores).forEach(([storeName, values]) => {
-                    const storeTotal = values.reduce((sum, val) => sum + val, 0);
-                    csvData.push([storeName, ...values, storeTotal]);
-                });
-                
-                // 空行追加
-                csvData.push(['']);
-                csvData.push(['=== 設定パラメータ ===']);
-                csvData.push(['営業手当', srData.settings.commission]);
-                csvData.push(['6月賞与', srData.settings.bonus6]);
-                csvData.push(['12月賞与', srData.settings.bonus12]);
-                csvData.push(['広告宣伝費', srData.settings.advertising]);
-
-                const csvString = '\uFEFF' + csvData.map(row => row.join(',')).join('\n');
-                const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = `SR事業部_詳細PL_${new Date().toISOString().split('T')[0]}.csv`;
-                link.click();
-                
-                alert('SR事業部詳細PLデータ（販管費19項目含む）のCSV出力が完了しました。');
-            } catch (error) {
-                alert('CSV出力でエラーが発生しました: ' + error.message);
-            }
-        }
-
-        // データ送信
-        function sendDataAndNavigateToNext() {
-            if (!window.srResults) {
-                alert('先に計算を実行してください。');
-                return;
-            }
-
-            try {
-                const { monthlyResults, annual, monthlySales, expenseDetails } = window.srResults;
-                
-                const unifiedData = {
-                    metadata: {
-                        department: 'SR',
-                        version: '4.0_corrected',
-                        lastUpdate: new Date().toISOString(),
-                        personnelCalculationMethod: 'sales_range_based_rate_system'
-                    },
-                    sales: monthlySales,
-                    cogs: monthlyResults.map(m => m.cogs),
-                    personnel: monthlyResults.map(m => m.personnel),
-                    totalExpenses: monthlyResults.map(m => m.totalExpenses),
-                    operatingProfit: monthlyResults.map(m => m.operatingProfit),
-                    expenses: expenseDetails,
-                    annual: annual
-                };
-
-                localStorage.setItem('pl_system_sr_corrected_data', JSON.stringify(unifiedData));
-                
-                alert(`SR事業部データを統合PLシステムに送信しました!\n\n年間売上: ${formatNumber(annual.sales)}万円\n年間営業利益: ${formatNumber(annual.operatingProfit)}万円\n\n人件費計算ロジックが修正されました。`);
-
-                setTimeout(() => {
-                    window.location.href = 'w-pl.html';
-                }, 2000);
-
-            } catch (error) {
-                alert('データ送信に失敗しました: ' + error.message);
-            }
-        }
-
         function formatNumber(num) {
             return Math.round(num).toLocaleString();
-        }
-
-        // 初期化
-        function initialize() {
-            generateSRInputTable();
-            calculateSR();
-            
-            const inputs = document.querySelectorAll('.setting-input');
-            inputs.forEach(input => {
-                input.addEventListener('input', debounce(updateSRSales, 300));
-            });
         }
 
         function debounce(func, wait) {
@@ -1295,6 +1261,24 @@
                 clearTimeout(timeout);
                 timeout = setTimeout(later, wait);
             };
+        }
+
+        // 初期化
+        function initialize() {
+            try {
+                generateSRInputTable();
+                calculateSR();
+                
+                const inputs = document.querySelectorAll('.setting-input');
+                inputs.forEach(input => {
+                    input.addEventListener('input', debounce(updateSRSales, 300));
+                });
+                
+                console.log('SR事業部PLシミュレーター初期化完了');
+            } catch (error) {
+                console.error('初期化エラー:', error);
+                alert('システムの初期化でエラーが発生しました: ' + error.message);
+            }
         }
 
         window.addEventListener('load', initialize);
