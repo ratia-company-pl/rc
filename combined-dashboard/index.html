@@ -743,9 +743,10 @@
         // 統一構造 Version 3.0 対応データ管理システム（7月開始年度対応・レイアウト最適化版）
         class Phase4DataManager {
             constructor() {
+                // 修正: LocalStorageキーを統一
                 this.STORAGE_KEYS = {
-                    sr: 'pl_system_sr_data',
-                    w: 'pl_system_w_data',
+                    sr: 'pl_system_sr_corrected_data',  // 修正後のキー
+                    w: 'pl_system_w_corrected_data',   // 修正後のキー
                     rc: 'pl_system_rc_data',
                     rcd: 'pl_system_rcd_data'
                 };
@@ -798,7 +799,7 @@
                 this.startAutoRefresh();
             }
 
-            // 修正1: データ受信キーの統一
+            // データ受信キーの統一
             loadAllDepartmentData() {
                 this.departmentData = {};
                 
@@ -807,11 +808,13 @@
                     if (data) {
                         try {
                             this.departmentData[dept] = JSON.parse(data);
+                            console.log(`${dept} データ読み込み成功:`, this.departmentData[dept].metadata || 'メタデータなし');
                         } catch (e) {
                             console.error(`Error parsing ${dept} data:`, e);
                             this.departmentData[dept] = null;
                         }
                     } else {
+                        console.warn(`${dept} データが見つかりません (キー: ${this.STORAGE_KEYS[dept]})`);
                         this.departmentData[dept] = null;
                     }
                 });
@@ -863,7 +866,9 @@
                 // 各事業部データの統合
                 Object.keys(this.departmentData).forEach(dept => {
                     const data = this.departmentData[dept];
-                    if (data && data.metadata && data.metadata.version === '3.0') {
+                    if (data && data.metadata) {
+                        console.log(`${dept} データを統合中... バージョン:`, data.metadata.version);
+                        
                         // 売上・原価の統合
                         for (let month = 0; month < 12; month++) {
                             this.unifiedData.sales[month] += data.sales[month] || 0;
@@ -879,6 +884,8 @@
                                 }
                             }
                         }
+                    } else {
+                        console.warn(`${dept} データが無効または古い形式です`);
                     }
                 });
 
@@ -1027,7 +1034,7 @@
                 tbody.appendChild(operatingProfitRow);
             }
 
-            // 修正2: 桁数計算の修正
+            // 行数計算の修正
             createUnifiedRow(id, label, data, className) {
                 const row = document.createElement('tr');
                 if (className) row.className = className;
@@ -1049,7 +1056,7 @@
                     const cell = document.createElement('td');
                     const value = data[month] || 0;
                     yearTotal += value;
-                    // 修正: 万円単位として直接表示（除算不要）
+                    // 万円単位として直接表示（除算不要）
                     const displayValue = Math.round(value);
                     cell.textContent = displayValue.toLocaleString();
                     row.appendChild(cell);
@@ -1057,7 +1064,7 @@
 
                 // 年間合計カラム（統一レイアウト）
                 const totalCell = document.createElement('td');
-                // 修正: 万円単位として直接表示
+                // 万円単位として直接表示
                 totalCell.textContent = Math.round(yearTotal).toLocaleString();
                 row.appendChild(totalCell);
 
@@ -1192,6 +1199,7 @@
             startAutoRefresh() {
                 // 5秒間隔でデータを自動更新
                 setInterval(() => {
+                    console.log('自動更新実行中...');
                     this.loadAllDepartmentData();
                     this.calculateUnifiedPL();
                     this.updateDisplay();
@@ -1264,6 +1272,7 @@
 
         // システム初期化
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('統合PLシステム初期化開始');
             window.phase4Manager = new Phase4DataManager();
         });
     </script>
