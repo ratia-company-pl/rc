@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phase 4完成版 統合PLシステム - 販管費19項目完全対応・役員報酬連携強化</title>
+    <title>統合PL v4.0 - リアルタイム監視・整合性チェック対応版</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -27,7 +27,7 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        /* 1行目: タイトル - 省スペース横並びレイアウト */
+        /* 1行目: タイトル */
         .header-row1 {
             background: linear-gradient(135deg, #fdf2e9 0%, #fcf3cf 100%);
             color: #8b4513;
@@ -54,7 +54,7 @@
             border: 1px solid rgba(243, 156, 18, 0.3);
         }
 
-        /* 2行目: グローバルナビゲーション - 修正版 */
+        /* 2行目: グローバルナビゲーション */
         .header-row2 {
             background: linear-gradient(135deg, #fdf2e9 0%, #fcf3cf 100%);
             padding: 8px 15px;
@@ -92,34 +92,13 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
 
-        /* アクティブボタン（各事業部色） */
-        .btn-active-dashboard { 
-            background: #667eea !important; 
-            color: white !important;
-        }
-        .btn-active-sr { 
-            background: #C477CC !important; 
-            color: white !important;
-        }
-        .btn-active-w { 
-            background: #3498db !important; 
-            color: white !important;
-        }
-        .btn-active-rc { 
-            background: #27ae60 !important; 
-            color: white !important;
-        }
-        .btn-active-rcd { 
-            background: #9b59b6 !important; 
-            color: white !important;
-        }
         .btn-active-analysis { 
             background: #f39c12 !important; 
             color: white !important;
             box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
         }
 
-        /* 3行目: KPIカード + CSV出力 */
+        /* 3行目: KPIカード */
         .header-row3 {
             background: #fef9f3;
             padding: 12px 15px;
@@ -155,7 +134,7 @@
             color: #e67e22;
         }
 
-        /* CSV出力カード */
+        /* CSVエクスポートカード */
         .csv-export-card {
             background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
             border: 2px solid #27ae60 !important;
@@ -186,7 +165,7 @@
             box-shadow: 0 3px 10px rgba(39, 174, 96, 0.3);
         }
 
-        /* 4行目: 連携ステータス + 説明 */
+        /* 4行目: ステータス情報 */
         .header-row4 {
             background: #fdf2e9;
             padding: 10px 15px;
@@ -208,21 +187,41 @@
             font-weight: bold;
         }
 
-        /* 役員報酬連携ステータス */
-        .executive-sync-status {
-            background: rgba(39, 174, 96, 0.1);
-            border: 1px solid #27ae60;
+        /* 通知システム */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            max-width: 350px;
+            padding: 12px 16px;
             border-radius: 8px;
-            padding: 8px 12px;
-            font-size: 0.8em;
-            color: #155724;
-            font-weight: 600;
+            font-size: 0.85em;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
         }
 
-        .executive-sync-warning {
-            background: rgba(243, 156, 18, 0.1);
-            border-color: #f39c12;
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-left: 4px solid #27ae60;
+            color: #155724;
+        }
+
+        .notification-warning {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border-left: 4px solid #f39c12;
             color: #856404;
+        }
+
+        .notification-error {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            border-left: 4px solid #e74c3c;
+            color: #721c24;
         }
 
         .container {
@@ -293,7 +292,7 @@
             padding-bottom: 8px;
         }
 
-        /* 統一テーブルスタイル（情報密度最大化） */
+        /* 統一テーブルスタイル */
         .pl-section {
             background: rgba(253, 242, 233, 0.95);
             backdrop-filter: blur(10px);
@@ -319,7 +318,6 @@
             border-right: 1px solid #fdf2e9;
         }
 
-        /* IDカラム：極小幅 */
         .unified-table .id-column {
             width: 25px;
             text-align: center;
@@ -328,7 +326,6 @@
             padding: 4px 2px;
         }
 
-        /* 項目名カラム：左寄せ、最大文字数+1スペース */
         .unified-table th:nth-child(2),
         .unified-table td:nth-child(2) {
             text-align: left;
@@ -337,7 +334,6 @@
             padding: 4px 8px;
         }
 
-        /* 月別データカラム：均等幅拡張 */
         .unified-table th:nth-child(n+3):nth-child(-n+14),
         .unified-table td:nth-child(n+3):nth-child(-n+14) {
             width: calc((100% - 25px - 120px - 80px) / 12);
@@ -345,7 +341,6 @@
             padding: 4px 6px;
         }
 
-        /* 年間合計カラム */
         .unified-table th:last-child,
         .unified-table td:last-child {
             width: 80px;
@@ -408,60 +403,6 @@
             background-color: #e8f5e8;
         }
 
-        .executive-controls {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .executive-btn {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 8px 16px;
-            font-size: 0.8em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .executive-btn:hover {
-            background: linear-gradient(135deg, #219a52, #27ae60);
-            transform: translateY(-1px);
-            box-shadow: 0 3px 10px rgba(39, 174, 96, 0.3);
-        }
-
-        .executive-btn-warning {
-            background: linear-gradient(135deg, #f39c12, #e67e22);
-        }
-
-        .executive-btn-warning:hover {
-            background: linear-gradient(135deg, #e67e22, #d35400);
-        }
-
-        .common-expense-section {
-            background: rgba(253, 242, 233, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border: 2px solid rgba(243, 156, 18, 0.4);
-        }
-
-        .common-expense-section .section-title {
-            border-bottom-color: #f39c12;
-            color: #d35400;
-        }
-
-        .common-expense-section .unified-table th {
-            background: linear-gradient(135deg, #f39c12, #e67e22);
-        }
-
         .summary-section {
             background: rgba(253, 242, 233, 0.95);
             backdrop-filter: blur(10px);
@@ -493,6 +434,119 @@
             font-weight: bold;
         }
 
+        /* 監視パネル - フッター情報として統合 */
+        .monitoring-section {
+            background: rgba(253, 242, 233, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 2px solid rgba(52, 152, 219, 0.3);
+        }
+
+        .monitoring-section .section-title {
+            border-bottom-color: #3498db;
+            color: #3498db;
+        }
+
+        .monitoring-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-size: 0.85em;
+        }
+
+        .dept-status-grid {
+            display: flex;
+            gap: 12px;
+        }
+
+        .dept-status-item {
+            padding: 8px 12px;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+            min-width: 90px;
+        }
+
+        .dept-status-complete {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border: 1px solid #27ae60;
+            color: #155724;
+        }
+
+        .dept-status-waiting {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 1px solid #f39c12;
+            color: #856404;
+        }
+
+        .dept-status-error {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            border: 1px solid #e74c3c;
+            color: #721c24;
+        }
+
+        .dept-name {
+            font-weight: bold;
+            margin-bottom: 3px;
+            font-size: 0.9em;
+        }
+
+        .quality-score {
+            font-size: 0.8em;
+            opacity: 0.8;
+        }
+
+        .monitoring-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .monitor-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .monitor-btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .monitor-btn-primary:hover {
+            background: linear-gradient(135deg, #2980b9, #1f6391);
+            transform: translateY(-1px);
+        }
+
+        .monitor-btn-toggle {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+        }
+
+        .monitor-btn-toggle.disabled {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+        }
+
+        .monitor-btn-toggle:hover {
+            background: linear-gradient(135deg, #219a52, #27ae60);
+            transform: translateY(-1px);
+        }
+
+        .last-update-time {
+            font-size: 0.75em;
+            color: #666;
+            font-weight: 500;
+        }
+
         .data-source {
             font-size: 0.8em;
             color: #8b4513;
@@ -501,6 +555,17 @@
         }
 
         /* レスポンシブ対応 */
+        @media (max-width: 1024px) {
+            .monitoring-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .dept-status-grid {
+                justify-content: center;
+            }
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 0 10px;
@@ -516,21 +581,6 @@
                 font-size: 1.5em;
             }
             
-            .version-badge {
-                font-size: 0.7em;
-                align-self: flex-end;
-            }
-            
-            .nav-buttons {
-                justify-content: center;
-            }
-            
-            .btn {
-                padding: 10px 18px;
-                font-size: 0.9em;
-                min-width: 120px;
-            }
-            
             .unified-table {
                 font-size: 0.7em;
             }
@@ -543,15 +593,21 @@
             .kpi-cards {
                 gap: 10px;
             }
-
-            .status-info {
-                flex-direction: column;
-                gap: 10px;
+            
+            .dept-status-grid {
+                flex-wrap: wrap;
+                gap: 8px;
+                justify-content: center;
             }
-
-            .csv-btn {
-                font-size: 0.75em;
-                padding: 6px 12px;
+            
+            .dept-status-item {
+                min-width: 80px;
+                padding: 6px 10px;
+            }
+            
+            .monitoring-controls {
+                flex-direction: column;
+                gap: 8px;
             }
         }
 
@@ -567,23 +623,23 @@
     <div class="header">
         <!-- 1行目: タイトル -->
         <div class="header-row1">
-            <h1>全体PL分析</h1>
-            <div class="version-badge">統一構造 Version 3.0 + 19項目販管費 + 7月開始年度対応 + 役員報酬連携強化</div>
+            <h1>統合PLシステム v4.0</h1>
+            <div class="version-badge">リアルタイム監視・整合性チェック対応版</div>
         </div>
 
-        <!-- 2行目: グローバルナビゲーション - 修正版 -->
+        <!-- 2行目: グローバルナビゲーション -->
         <div class="header-row2">
             <div class="nav-buttons">
-                <a href="../index.html" class="btn btn-active-dashboard">ダッシュボード</a>
-                <a href="../department-pl/sr-pl.html" class="btn btn-active-sr">SR事業部PL</a>
-                <a href="../department-pl/w-pl.html" class="btn btn-active-w">W事業部PL</a>
-                <a href="../department-pl/rc-pl.html" class="btn btn-active-rc">RC事業部PL</a>
-                <a href="../department-pl/rcd-pl.html" class="btn btn-active-rcd">RCD事業部PL</a>
-                <a href="#" class="btn btn-active-analysis">全体PL分析</a>
+                <a href="../index.html" class="btn">ダッシュボード</a>
+                <a href="../department-pl/sr-pl.html" class="btn">SR事業部PL</a>
+                <a href="../department-pl/w-pl.html" class="btn">W事業部PL</a>
+                <a href="../department-pl/rc-pl.html" class="btn">RC事業部PL</a>
+                <a href="../department-pl/rcd-pl.html" class="btn">RCD事業部PL</a>
+                <a href="#" class="btn btn-active-analysis">統合PLシステム</a>
             </div>
         </div>
 
-        <!-- 3行目: KPIカード + CSV出力 -->
+        <!-- 3行目: KPIカード + CSVエクスポート -->
         <div class="header-row3">
             <div class="kpi-cards">
                 <div class="kpi-card">
@@ -606,28 +662,27 @@
                     <div class="kpi-label">役員報酬計</div>
                     <div class="kpi-value" id="executiveCompKPI">---万円</div>
                 </div>
-                <!-- CSV出力カード -->
                 <div class="kpi-card csv-export-card">
-                    <div class="kpi-label">データ出力</div>
-                    <button class="csv-btn" onclick="exportUnifiedCSV()">CSV出力</button>
+                    <div class="kpi-label">データエクスポート</div>
+                    <button class="csv-btn" onclick="exportUnifiedCSV()">CSVエクスポート</button>
                 </div>
             </div>
         </div>
 
-        <!-- 4行目: 連携ステータス + 説明 -->
+        <!-- 4行目: ステータス情報 -->
         <div class="header-row4">
             <div class="status-info">
-                <div class="department-description">Phase 4統合PLシステム - 4事業部統合分析ダッシュボード</div>
-                <div id="executiveSyncStatus" class="executive-sync-status">
-                    役員報酬連携: 初期化中...
-                </div>
+                <div class="department-description">統合PLシステム v4.0 - 4事業部統合分析・リアルタイム監視対応</div>
                 <div id="lastUpdate" class="data-source">最終更新: 自動取得中...</div>
             </div>
         </div>
     </div>
 
+    <!-- 通知表示エリア -->
+    <div id="notification" class="notification"></div>
+
     <div class="container">
-        <!-- 事業部データ受信状況（1行テーブル） -->
+        <!-- 事業部データ受信状況 -->
         <div class="status-section">
             <h2 class="section-title">事業部別データ受信状況</h2>
             <table class="status-table">
@@ -643,19 +698,19 @@
                 <tbody>
                     <tr>
                         <td>
-                            <span class="status-indicator" id="srStatus"></span>
+                            <span class="status-indicator" id="srStatusIndicator"></span>
                             <div id="srLastUpdate">未受信</div>
                         </td>
                         <td>
-                            <span class="status-indicator" id="wStatus"></span>
+                            <span class="status-indicator" id="wStatusIndicator"></span>
                             <div id="wLastUpdate">未受信</div>
                         </td>
                         <td>
-                            <span class="status-indicator" id="rcStatus"></span>
+                            <span class="status-indicator" id="rcStatusIndicator"></span>
                             <div id="rcLastUpdate">未受信</div>
                         </td>
                         <td>
-                            <span class="status-indicator" id="rcdStatus"></span>
+                            <span class="status-indicator" id="rcdStatusIndicator"></span>
                             <div id="rcdLastUpdate">未受信</div>
                         </td>
                         <td>
@@ -668,13 +723,13 @@
             </table>
         </div>
 
-        <!-- 月次推移グラフ（2軸：売上・販管費棒グラフ + 営業利益累計折れ線） -->
+        <!-- 月次推移グラフ -->
         <div class="chart-container">
             <h2 class="section-title">月次推移グラフ（売上・販管費・営業利益累計）</h2>
             <canvas id="salesChart"></canvas>
         </div>
 
-        <!-- 統合損益計算書・販管費19項目詳細（1ブロック統合版・レイアウト最適化） -->
+        <!-- 統合損益計算書 -->
         <div class="pl-section">
             <h2 class="section-title">統合損益計算書・販管費19項目詳細（7月開始年度）</h2>
             <div class="table-scroll">
@@ -705,22 +760,9 @@
             </div>
         </div>
 
-        <!-- 役員報酬（ダッシュボード連携・統一レイアウト・連携強化） -->
+        <!-- 役員報酬 -->
         <div class="executive-section">
             <h2 class="section-title">役員報酬（ダッシュボード連携強化版）</h2>
-            
-            <div class="executive-controls">
-                <button class="executive-btn" onclick="loadExecutiveFromDashboard()">
-                    ダッシュボードから読み込み
-                </button>
-                <button class="executive-btn executive-btn-warning" onclick="showExecutiveDebugInfo()">
-                    連携状況確認
-                </button>
-                <span id="executiveLastSync" style="font-size: 0.8em; color: #666;">
-                    最終同期: 未実行
-                </span>
-            </div>
-            
             <div class="table-scroll">
                 <table class="unified-table" id="executiveTable">
                     <thead>
@@ -749,38 +791,7 @@
             </div>
         </div>
 
-        <!-- 全社共通費販管費（万円単位CSVデータ・統一レイアウト） -->
-        <div class="common-expense-section">
-            <h2 class="section-title">全社共通費販管費（万円単位）</h2>
-            <div class="table-scroll">
-                <table class="unified-table" id="commonExpenseTable">
-                    <thead>
-                        <tr>
-                            <th class="id-column">ID</th>
-                            <th>項目名</th>
-                            <th>7月</th>
-                            <th>8月</th>
-                            <th>9月</th>
-                            <th>10月</th>
-                            <th>11月</th>
-                            <th>12月</th>
-                            <th>1月</th>
-                            <th>2月</th>
-                            <th>3月</th>
-                            <th>4月</th>
-                            <th>5月</th>
-                            <th>6月</th>
-                            <th>年間合計</th>
-                        </tr>
-                    </thead>
-                    <tbody id="commonExpenseBody">
-                        <!-- 動的に生成される全社共通費データ -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- RC全体集計（統一レイアウト） -->
+        <!-- RC全体集計 -->
         <div class="summary-section">
             <h2 class="section-title">RC全体集計</h2>
             <div class="table-scroll">
@@ -810,22 +821,56 @@
                 </table>
             </div>
         </div>
+
+        <!-- データ受信・整合性監視（フッター情報として統合） -->
+        <div class="monitoring-section">
+            <h2 class="section-title">データ受信・整合性監視</h2>
+            <div class="monitoring-content">
+                <div class="dept-status-grid">
+                    <div class="dept-status-item dept-status-waiting" id="statusSR">
+                        <div class="dept-name">SR事業部</div>
+                        <div class="quality-score" id="qualitySR">品質: ---%</div>
+                    </div>
+                    <div class="dept-status-item dept-status-waiting" id="statusW">
+                        <div class="dept-name">W事業部</div>
+                        <div class="quality-score" id="qualityW">品質: ---%</div>
+                    </div>
+                    <div class="dept-status-item dept-status-waiting" id="statusRC">
+                        <div class="dept-name">RC事業部</div>
+                        <div class="quality-score" id="qualityRC">品質: ---%</div>
+                    </div>
+                    <div class="dept-status-item dept-status-waiting" id="statusRCD">
+                        <div class="dept-name">RCD事業部</div>
+                        <div class="quality-score" id="qualityRCD">品質: ---%</div>
+                    </div>
+                </div>
+
+                <div class="monitoring-controls">
+                    <button class="monitor-btn monitor-btn-primary" onclick="manualUpdate()">手動更新</button>
+                    <button class="monitor-btn monitor-btn-toggle" id="autoToggleBtn" onclick="toggleAutoUpdate()">自動更新:ON</button>
+                </div>
+
+                <div class="last-update-time" id="monitorLastUpdate">
+                    最終更新: --:--:--
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // 統一構造 Version 3.0 対応データ管理システム（7月開始年度対応・レイアウト最適化版・役員報酬連携強化）
-        class Phase4DataManagerEnhanced {
+        // 統合PLシステム v4.0 - リアルタイム監視・整合性チェック対応版
+        class EnhancedPLManager {
             constructor() {
-                // 修正: LocalStorageキーを統一
+                // 修正済みLocalStorageキー構造（v4.0対応）
                 this.STORAGE_KEYS = {
-                    sr: 'pl_system_sr_corrected_data',  // 修正後のキー
-                    w: 'pl_system_w_corrected_data',   // 修正後のキー
-                    rc: 'pl_system_rc_data',
-                    rcd: 'pl_system_rcd_data',
-                    executive: 'executive_compensation_csv_settings'  // 役員報酬専用キー
+                    'SR': 'pl_system_sr_corrected_data',
+                    'W': 'pl_system_w_corrected_data', 
+                    'RC': 'pl_system_rc_corrected_data',
+                    'RCD': 'pl_system_rcd_corrected_data',
+                    'executive': 'executive_compensation_csv_settings'
                 };
 
-                // 販管費19項目統一構造マッピング（Version 3.0）
+                // 販管費19項目統一構造マッピング
                 this.EXPENSE_ITEMS = {
                     1: '人件費統合',
                     2: '法定福利費',
@@ -848,6 +893,15 @@
                     19: '減価償却費'
                 };
 
+                // 品質チェック項目（各20点満点）
+                this.QUALITY_CHECKS = {
+                    departmentMatch: 20,
+                    dataProtection: 15,
+                    salesData: 25,
+                    cogsData: 20,
+                    annualData: 20
+                };
+
                 // 全社共通費データ（万円単位・CSV更新対応）
                 this.commonExpenseData = {
                     '管理諸費': [34, 37, 41, 34, 37, 44, 36, 39, 44, 36, 39, 44],
@@ -863,49 +917,133 @@
                     '寄付金': [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
                 };
 
+                // 監視システム設定
+                this.autoUpdateEnabled = true;
+                this.monitoringInterval = null;
+
                 this.initializeSystem();
             }
 
             initializeSystem() {
+                console.log('統合PLシステム v4.0 初期化開始');
                 this.loadAllDepartmentData();
-                this.loadExecutiveDataFromDashboard();  // 強化：役員報酬データを優先読み込み
+                this.loadExecutiveDataFromDashboard();
                 this.calculateUnifiedPL();
                 this.updateDisplay();
-                this.startAutoRefresh();
-                this.updateExecutiveSyncStatus('初期化完了', 'success');
+                this.startMonitoring();
+                this.showNotification('システム初期化完了', 'success');
             }
 
-            // データ受信キーの統一
+            // リアルタイム監視システム
+            startMonitoring() {
+                this.monitoringInterval = setInterval(() => {
+                    if (this.autoUpdateEnabled) {
+                        this.checkAllDepartments();
+                        this.loadAllDepartmentData();
+                        this.loadExecutiveDataFromDashboard();
+                        this.calculateUnifiedPL();
+                        this.updateDisplay();
+                        this.updateMonitoringPanel();
+                    }
+                }, 5000); // 5秒間隔
+
+                console.log('リアルタイム監視システム開始');
+            }
+
+            // 全事業部データチェック
+            checkAllDepartments() {
+                const departments = ['SR', 'W', 'RC', 'RCD'];
+                let issuesFound = [];
+
+                departments.forEach(dept => {
+                    const data = this.loadDepartmentData(dept);
+                    const quality = this.calculateQualityScore(data, dept);
+                    
+                    if (quality < 80) {
+                        issuesFound.push(`${dept}事業部: 品質スコア${quality}%`);
+                    }
+                });
+
+                if (issuesFound.length > 0) {
+                    this.showNotification(`品質警告: ${issuesFound.join(', ')}`, 'warning');
+                }
+            }
+
+            // データ品質スコア算出
+            calculateQualityScore(data, dept) {
+                if (!data) return 0;
+
+                let score = 0;
+                
+                // 部署情報一致チェック（20点）
+                if (data.metadata && data.metadata.department === dept) {
+                    score += this.QUALITY_CHECKS.departmentMatch;
+                }
+
+                // データ保護状況チェック（15点）
+                if (data.metadata && data.metadata.dataProtectionEnabled) {
+                    score += this.QUALITY_CHECKS.dataProtection;
+                }
+
+                // 売上データ完全性チェック（25点）
+                if (data.sales && Array.isArray(data.sales) && data.sales.length === 12) {
+                    const validSales = data.sales.filter(val => typeof val === 'number' && val >= 0);
+                    score += Math.round((validSales.length / 12) * this.QUALITY_CHECKS.salesData);
+                }
+
+                // 原価データ完全性チェック（20点）
+                if (data.cogs && Array.isArray(data.cogs) && data.cogs.length === 12) {
+                    const validCogs = data.cogs.filter(val => typeof val === 'number' && val >= 0);
+                    score += Math.round((validCogs.length / 12) * this.QUALITY_CHECKS.cogsData);
+                }
+
+                // 年間集計データチェック（20点）
+                if (data.annual && typeof data.annual === 'object') {
+                    const requiredFields = ['totalSales', 'totalCogs', 'grossProfit', 'operatingProfit'];
+                    const validFields = requiredFields.filter(field => 
+                        data.annual[field] !== undefined && typeof data.annual[field] === 'number'
+                    );
+                    score += Math.round((validFields.length / requiredFields.length) * this.QUALITY_CHECKS.annualData);
+                }
+
+                return Math.min(100, score);
+            }
+
+            // 統一キーでのデータ読み込み
             loadAllDepartmentData() {
                 this.departmentData = {};
                 
                 Object.keys(this.STORAGE_KEYS).forEach(dept => {
-                    if (dept === 'executive') return; // 役員報酬は別処理
+                    if (dept === 'executive') return;
                     
-                    const data = localStorage.getItem(this.STORAGE_KEYS[dept]);
-                    if (data) {
-                        try {
-                            this.departmentData[dept] = JSON.parse(data);
-                            console.log(`${dept} データ読み込み成功:`, this.departmentData[dept].metadata || 'メタデータなし');
-                        } catch (e) {
-                            console.error(`Error parsing ${dept} data:`, e);
-                            this.departmentData[dept] = null;
-                        }
-                    } else {
-                        console.warn(`${dept} データが見つかりません (キー: ${this.STORAGE_KEYS[dept]})`);
-                        this.departmentData[dept] = null;
-                    }
+                    this.departmentData[dept] = this.loadDepartmentData(dept);
                 });
             }
 
-            // 【強化】ダッシュボードから役員報酬データを取得（連携強化版）
+            loadDepartmentData(dept) {
+                const data = localStorage.getItem(this.STORAGE_KEYS[dept]);
+                if (data) {
+                    try {
+                        const parsed = JSON.parse(data);
+                        console.log(`${dept} データ読み込み成功:`, parsed.metadata || 'メタデータなし');
+                        return parsed;
+                    } catch (e) {
+                        console.error(`Error parsing ${dept} data:`, e);
+                        return null;
+                    }
+                } else {
+                    console.warn(`${dept} データが見つかりません (キー: ${this.STORAGE_KEYS[dept]})`);
+                    return null;
+                }
+            }
+
+            // 役員報酬データ強化読み込み
             loadExecutiveDataFromDashboard() {
                 try {
                     const executiveSettings = localStorage.getItem(this.STORAGE_KEYS.executive);
                     if (executiveSettings) {
                         const settings = JSON.parse(executiveSettings);
                         
-                        // データ構造の検証
                         if (settings.monthlyCompensation && settings.welfare) {
                             this.executiveData = {
                                 compensation: [...settings.monthlyCompensation],
@@ -913,11 +1051,6 @@
                                 lastUpdate: settings.lastUpdate,
                                 metadata: settings.metadata
                             };
-                            
-                            this.updateExecutiveSyncStatus(
-                                `ダッシュボード連携成功 (${new Date(settings.lastUpdate).toLocaleString()})`, 
-                                'success'
-                            );
                             
                             console.log('Executive data loaded from dashboard:', {
                                 totalCompensation: this.executiveData.compensation.reduce((sum, val) => sum + val, 0),
@@ -935,8 +1068,6 @@
                             lastUpdate: new Date().toISOString(),
                             metadata: { version: 'default' }
                         };
-                        
-                        this.updateExecutiveSyncStatus('デフォルトデータ使用中', 'warning');
                     }
                 } catch (error) {
                     console.error('役員報酬データ取得エラー:', error);
@@ -948,8 +1079,6 @@
                         lastUpdate: new Date().toISOString(),
                         metadata: { version: 'error_fallback' }
                     };
-                    
-                    this.updateExecutiveSyncStatus(`連携エラー: ${error.message}`, 'warning');
                 }
             }
 
@@ -1039,11 +1168,11 @@
                 this.updateKPICards();
                 this.updateCombinedPLTable();
                 this.updateExecutiveTable();
-                this.updateCommonExpenseTable();
                 this.updateSummaryTable();
                 this.updateDepartmentStatus();
                 this.updateChart();
                 this.updateLastUpdate();
+                this.updateMonitoringPanel();
             }
 
             updateKPICards() {
@@ -1062,6 +1191,29 @@
                 document.getElementById('operatingProfitKPI').textContent = `${Math.round(totalOperatingProfit).toLocaleString()}万円`;
                 document.getElementById('profitMarginKPI').textContent = `${profitMargin.toFixed(1)}%`;
                 document.getElementById('executiveCompKPI').textContent = `${Math.round(totalExecutiveComp).toLocaleString()}万円`;
+            }
+
+            // 監視パネル更新
+            updateMonitoringPanel() {
+                const departments = ['SR', 'W', 'RC', 'RCD'];
+                
+                departments.forEach(dept => {
+                    const data = this.loadDepartmentData(dept);
+                    const quality = this.calculateQualityScore(data, dept);
+                    const statusElement = document.getElementById(`status${dept}`);
+                    
+                    if (data && data.metadata) {
+                        statusElement.className = 'dept-status-item dept-status-complete';
+                        document.getElementById(`quality${dept}`).textContent = `品質: ${quality}%`;
+                    } else {
+                        statusElement.className = 'dept-status-item dept-status-waiting';
+                        document.getElementById(`quality${dept}`).textContent = '品質: ---%';
+                    }
+                });
+
+                // 最終更新時刻
+                document.getElementById('monitorLastUpdate').textContent = 
+                    `最終更新: ${new Date().toLocaleTimeString()}`;
             }
 
             updateCombinedPLTable() {
@@ -1112,24 +1264,6 @@
                 // 法定福利費行（ダッシュボードから受信）
                 const welfareRow = this.createUnifiedRow('', '法定福利費', this.executiveData.welfare || [], '');
                 tbody.appendChild(welfareRow);
-
-                // 最終同期時刻の更新
-                if (this.executiveData.lastUpdate) {
-                    document.getElementById('executiveLastSync').textContent = 
-                        `最終同期: ${new Date(this.executiveData.lastUpdate).toLocaleString()}`;
-                }
-            }
-
-            updateCommonExpenseTable() {
-                const tbody = document.getElementById('commonExpenseBody');
-                tbody.innerHTML = '';
-
-                let idCounter = 24; // CSVのID開始番号
-                Object.entries(this.commonExpenseData).forEach(([itemName, monthlyData]) => {
-                    const row = this.createUnifiedRow(idCounter, itemName, monthlyData, '');
-                    tbody.appendChild(row);
-                    idCounter++;
-                });
             }
 
             updateSummaryTable() {
@@ -1148,7 +1282,6 @@
                 tbody.appendChild(operatingProfitRow);
             }
 
-            // 行数計算の修正
             createUnifiedRow(id, label, data, className) {
                 const row = document.createElement('tr');
                 if (className) row.className = className;
@@ -1190,10 +1323,11 @@
                 let completedCount = 0;
                 
                 departments.forEach(dept => {
-                    const statusElement = document.getElementById(`${dept}Status`);
+                    const deptUpper = dept.toUpperCase();
+                    const statusElement = document.getElementById(`${dept}StatusIndicator`);
                     const updateElement = document.getElementById(`${dept}LastUpdate`);
                     
-                    const data = this.departmentData[dept];
+                    const data = this.departmentData[deptUpper];
                     
                     if (data && data.metadata) {
                         statusElement.className = 'status-indicator status-completed';
@@ -1310,105 +1444,68 @@
                     `最終更新: ${new Date().toLocaleString()}`;
             }
 
-            // 【新機能】役員報酬連携ステータス更新
-            updateExecutiveSyncStatus(message, type) {
-                const statusDiv = document.getElementById('executiveSyncStatus');
-                if (statusDiv) {
-                    statusDiv.textContent = `役員報酬連携: ${message}`;
-                    statusDiv.className = `executive-sync-status ${type === 'warning' ? 'executive-sync-warning' : ''}`;
-                }
-            }
+            // 通知システム
+            showNotification(message, type) {
+                const notification = document.getElementById('notification');
+                notification.textContent = message;
+                notification.className = `notification notification-${type}`;
+                notification.classList.add('show');
 
-            startAutoRefresh() {
-                // 5秒間隔でデータを自動更新
-                setInterval(() => {
-                    console.log('自動更新実行中...');
-                    this.loadAllDepartmentData();
-                    this.loadExecutiveDataFromDashboard();  // 役員報酬も自動更新
-                    this.calculateUnifiedPL();
-                    this.updateDisplay();
-                }, 5000);
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
             }
         }
 
-        // 【強化】役員報酬連携機能
-        function loadExecutiveFromDashboard() {
+        // 手動更新機能
+        function manualUpdate() {
             try {
-                const manager = window.phase4Manager;
+                const manager = window.enhancedPLManager;
                 if (manager) {
+                    manager.loadAllDepartmentData();
                     manager.loadExecutiveDataFromDashboard();
                     manager.calculateUnifiedPL();
                     manager.updateDisplay();
-                    
-                    const total = manager.executiveData.compensation.reduce((sum, val) => sum + val, 0) +
-                                 manager.executiveData.welfare.reduce((sum, val) => sum + val, 0);
-                    
-                    alert(`ダッシュボードから役員報酬データを読み込みました。\n年間合計: ${total.toLocaleString()}万円`);
+                    manager.showNotification('手動更新完了', 'success');
                 } else {
-                    alert('システムが初期化されていません。');
+                    throw new Error('システムが初期化されていません');
                 }
             } catch (error) {
-                alert(`読み込みエラー: ${error.message}`);
-                console.error('Executive data loading error:', error);
+                manager.showNotification(`更新エラー: ${error.message}`, 'error');
+                console.error('Manual update error:', error);
             }
         }
 
-        function showExecutiveDebugInfo() {
-            try {
-                const stored = localStorage.getItem('executive_compensation_csv_settings');
-                let debugText = `=== 役員報酬連携デバッグ情報 ===\n\n`;
+        // 自動更新切り替え
+        function toggleAutoUpdate() {
+            const manager = window.enhancedPLManager;
+            const toggleBtn = document.getElementById('autoToggleBtn');
+            
+            if (manager) {
+                manager.autoUpdateEnabled = !manager.autoUpdateEnabled;
                 
-                if (stored) {
-                    const data = JSON.parse(stored);
-                    debugText += `✅ データ存在: あり\n`;
-                    debugText += `📅 最終更新: ${data.lastUpdate}\n`;
-                    debugText += `🏢 役員報酬合計: ${data.monthlyCompensation.reduce((sum, val) => sum + val, 0).toLocaleString()}万円\n`;
-                    debugText += `💰 福利費合計: ${data.welfare.reduce((sum, val) => sum + val, 0).toLocaleString()}万円\n`;
-                    debugText += `📋 バージョン: ${data.metadata?.version || '不明'}\n\n`;
-                    
-                    debugText += `月別詳細 (役員報酬/福利費):\n`;
-                    const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
-                    months.forEach((month, i) => {
-                        debugText += `${month}: ${data.monthlyCompensation[i]}万円/${data.welfare[i]}万円\n`;
-                    });
-                    
-                    // 合計PL側の実際の値と比較
-                    const manager = window.phase4Manager;
-                    if (manager && manager.executiveData) {
-                        const managerTotal = manager.executiveData.compensation.reduce((sum, val) => sum + val, 0) +
-                                           manager.executiveData.welfare.reduce((sum, val) => sum + val, 0);
-                        const storedTotal = data.monthlyCompensation.reduce((sum, val) => sum + val, 0) +
-                                          data.welfare.reduce((sum, val) => sum + val, 0);
-                        
-                        debugText += `\n=== 同期状況 ===\n`;
-                        debugText += `LocalStorage合計: ${storedTotal.toLocaleString()}万円\n`;
-                        debugText += `システム内合計: ${managerTotal.toLocaleString()}万円\n`;
-                        debugText += `同期状況: ${storedTotal === managerTotal ? '✅ 一致' : '❌ 不一致'}\n`;
-                    }
+                if (manager.autoUpdateEnabled) {
+                    toggleBtn.textContent = '自動更新:ON';
+                    toggleBtn.classList.remove('disabled');
+                    manager.showNotification('自動更新を有効にしました', 'success');
                 } else {
-                    debugText += `❌ データ存在: なし\n`;
-                    debugText += `LocalStorageキー 'executive_compensation_csv_settings' が見つかりません。\n`;
-                    debugText += `ダッシュボード側で役員報酬を設定してください。`;
+                    toggleBtn.textContent = '自動更新:OFF';
+                    toggleBtn.classList.add('disabled');
+                    manager.showNotification('自動更新を無効にしました', 'warning');
                 }
-                
-                alert(debugText);
-                console.log('Executive Debug Info:', debugText);
-                
-            } catch (error) {
-                alert(`デバッグ情報取得エラー: ${error.message}`);
             }
         }
 
-        // CSV出力機能（統合PL版）
+        // CSVエクスポート機能（統合PL版）
         function exportUnifiedCSV() {
             try {
-                const manager = window.phase4Manager;
+                const manager = window.enhancedPLManager;
                 if (!manager) {
                     alert('システムが初期化されていません。');
                     return;
                 }
 
-                // CSV出力データ生成（37項目統一仕様）
+                // CSVエクスポートデータ生成（37項目統一仕様）
                 const csvData = [];
                 const months = ['項目名', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月', '年間合計'];
                 csvData.push(months);
@@ -1451,21 +1548,26 @@
                 const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = `統合PL_${new Date().toISOString().split('T')[0]}.csv`;
+                link.download = `統合PL_v4.0_${new Date().toISOString().split('T')[0]}.csv`;
                 link.click();
                 
-                alert('統合PLデータのCSV出力が完了しました。');
+                manager.showNotification('統合PLデータのCSVエクスポートが完了しました。', 'success');
                 
             } catch (error) {
-                alert('CSV出力でエラーが発生しました: ' + error.message);
-                console.error('CSV出力エラー:', error);
+                const manager = window.enhancedPLManager;
+                if (manager) {
+                    manager.showNotification('CSVエクスポートでエラーが発生しました: ' + error.message, 'error');
+                } else {
+                    alert('CSVエクスポートでエラーが発生しました: ' + error.message);
+                }
+                console.error('CSVエクスポートエラー:', error);
             }
         }
 
         // システム初期化
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('統合PLシステム初期化開始');
-            window.phase4Manager = new Phase4DataManagerEnhanced();
+            console.log('統合PLシステム v4.0 初期化開始');
+            window.enhancedPLManager = new EnhancedPLManager();
         });
     </script>
 </body>
