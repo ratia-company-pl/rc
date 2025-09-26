@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RCD社PLシミュレーター Phase 4完成版（精度向上版）</title>
+    <title>RCD社PLシミュレーター Phase 4完成版（精度向上版）v4.0</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -14,7 +14,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
             min-height: 100vh;
             color: #333;
         }
@@ -23,6 +23,88 @@
             max-width: 1600px;
             margin: 0 auto;
             padding: 15px;
+        }
+
+        /* データ保護状況表示 */
+        .data-protection-status {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 12px 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-left: 4px solid #805ad5;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .protection-toggle {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .protection-toggle.protected {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+        }
+
+        .protection-toggle.unprotected {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .protection-toggle:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 通知システム */
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 15px;
+            z-index: 1001;
+            padding: 12px 18px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85rem;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transform: translateX(400px);
+            transition: transform 0.4s ease;
+            max-width: 320px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        }
+
+        .notification.warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .notification.info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
         }
 
         .header-section {
@@ -133,6 +215,18 @@
         .action-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* パルス効果 */
+        .btn-pulse {
+            animation: pulse 1.5s infinite;
+            box-shadow: 0 0 20px rgba(128, 90, 213, 0.6);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 20px rgba(128, 90, 213, 0.6); }
+            50% { box-shadow: 0 0 30px rgba(128, 90, 213, 0.8); }
+            100% { box-shadow: 0 0 20px rgba(128, 90, 213, 0.6); }
         }
 
         .chart-section {
@@ -463,10 +557,24 @@
             .preset-buttons { justify-content: center; }
             .settings-inline { justify-content: center; }
             .kpi-display { flex-direction: column; gap: 15px; }
+            .data-protection-status { right: 10px; top: 10px; padding: 8px 10px; }
+            .notification { right: 10px; max-width: 280px; }
         }
     </style>
 </head>
 <body>
+    <!-- データ保護状況表示 -->
+    <div class="data-protection-status" id="data-protection-status">
+        <span id="protection-status-text">データ保護: OFF</span>
+        <button class="protection-toggle unprotected" id="protection-toggle" onclick="toggleDataProtection()">
+            🔓 解除
+        </button>
+        <span id="auto-save-indicator" style="color: #27ae60; font-size: 0.7rem;">自動保存有効</span>
+    </div>
+
+    <!-- 通知エリア -->
+    <div class="notification" id="notification"></div>
+
     <div class="container">
         <!-- RCD事業部統合ヘッダー -->
         <div class="header-section">
@@ -495,7 +603,7 @@
                     <span style="color: #f39c12; font-weight: 600;">合計PL統合</span>
                 </div>
                 <div class="workflow-actions">
-                    <button class="action-btn btn-primary" onclick="sendRCDDataAndNavigateToNext()">
+                    <button class="action-btn btn-primary" id="send-data-btn" onclick="sendRCDDataAndNavigateToNext()">
                         RCD社データ送信 → 統合PLへ
                     </button>
                     <button class="action-btn btn-csv" onclick="exportRCDCSV()">
@@ -516,7 +624,7 @@
         <!-- RCD事業部チャートセクション -->
         <div class="chart-section">
             <div class="chart-header">
-                参考前年数値との比較グラフ（統一構造 Version 3.0 - 精度向上版）
+                参考前年数値との比較グラフ（統一構造 Version 4.0 - 精度向上版）
             </div>
             
             <div class="kpi-display">
@@ -661,7 +769,7 @@
         <!-- RCD事業部利益テーブル -->
         <div class="profit-section">
             <div class="profit-header">
-                売上総利益・営業利益月額表（統一構造 Version 3.0 - 精度向上版）
+                売上総利益・営業利益月額表（統一構造 Version 4.0 - 精度向上版）
             </div>
             <table class="profit-table">
                 <thead>
@@ -681,7 +789,7 @@
         <!-- RCD事業部販管費テーブル -->
         <div class="expense-section">
             <div class="expense-header">
-                販管費19項目詳細表示（統一構造 Version 3.0 - 精度向上版）
+                販管費19項目詳細表示（統一構造 Version 4.0 - 精度向上版）
             </div>
             <table class="expense-table">
                 <thead>
@@ -716,6 +824,179 @@
         };
 
         let rcdChart = null;
+        let isDataProtected = false;
+        let autoSaveInterval = null;
+        let csvExported = false;
+        let backupCount = 0;
+
+        // LocalStorageキー（統一規則）
+        const STORAGE_KEY = 'pl_system_rcd_corrected_data';
+        const BACKUP_KEY = 'rcd_pl_backups';
+        const EMERGENCY_KEY = 'rcd_pl_emergency_backup';
+
+        // 通知システム
+        function showNotification(message, type = 'info', duration = 4000) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, duration);
+        }
+
+        // データ保護機能
+        function toggleDataProtection() {
+            isDataProtected = !isDataProtected;
+            updateProtectionStatus();
+            
+            if (isDataProtected) {
+                saveToStorage(true);
+                showNotification('データ保護を有効にしました。タブ移動・ページ遷移時もデータが保持されます。', 'success');
+            } else {
+                showNotification('データ保護を解除しました。編集可能状態に戻りました。', 'warning');
+            }
+        }
+
+        function updateProtectionStatus() {
+            const statusText = document.getElementById('protection-status-text');
+            const toggleBtn = document.getElementById('protection-toggle');
+            
+            if (isDataProtected) {
+                statusText.textContent = 'データ保護: ON';
+                toggleBtn.textContent = '🔒 保護中';
+                toggleBtn.className = 'protection-toggle protected';
+            } else {
+                statusText.textContent = 'データ保護: OFF';
+                toggleBtn.textContent = '🔓 解除';
+                toggleBtn.className = 'protection-toggle unprotected';
+            }
+        }
+
+        // 自動保存機能
+        function startAutoSave() {
+            if (autoSaveInterval) clearInterval(autoSaveInterval);
+            
+            autoSaveInterval = setInterval(() => {
+                if (!isDataProtected) {
+                    saveBackup();
+                }
+            }, 30000);
+        }
+
+        function saveBackup() {
+            try {
+                const backupData = {
+                    ...rcdData,
+                    timestamp: new Date().toISOString(),
+                    backupId: ++backupCount
+                };
+                
+                let backups = JSON.parse(localStorage.getItem(BACKUP_KEY) || '[]');
+                backups.unshift(backupData);
+                backups = backups.slice(0, 3);
+                
+                localStorage.setItem(BACKUP_KEY, JSON.stringify(backups));
+                
+                const indicator = document.getElementById('auto-save-indicator');
+                indicator.style.color = '#27ae60';
+                indicator.textContent = `自動保存済 ${new Date().toLocaleTimeString()}`;
+                
+            } catch (error) {
+                console.error('自動保存エラー:', error);
+            }
+        }
+
+        function saveToStorage(isProtection = false) {
+            try {
+                const results = calculateRCD();
+                
+                const unifiedData = {
+                    metadata: {
+                        department: 'RCD',
+                        version: '4.0_unified_corrected',
+                        lastUpdate: new Date().toISOString(),
+                        dataProtectionEnabled: isDataProtected,
+                        unifiedStructure: true,
+                        precisionImproved: true,
+                        unitPurchase: rcdData.unitPurchase,
+                        profitRate: rcdData.profitRate,
+                        feePerOccurrence: rcdData.feePerOccurrence
+                    },
+                    sales: results.monthlyResults.map(m => m.sales),
+                    cogs: results.monthlyResults.map(m => m.cogs),
+                    personnel: Array(12).fill(0), // RCD社は外部委託型のため人件費0
+                    totalExpenses: results.monthlyResults.map(m => m.totalExpenses),
+                    operatingProfit: results.monthlyResults.map(m => m.operatingProfit),
+                    expenses: {},
+                    annual: {
+                        sales: results.annual.sales,
+                        cogs: results.annual.cogs,
+                        grossProfit: results.annual.grossProfit,
+                        totalExpenses: results.annual.totalExpenses,
+                        operatingProfit: results.annual.operatingProfit
+                    },
+                    exportedAt: csvExported ? new Date().toISOString() : null
+                };
+
+                // 37項目統一フォーマット対応
+                for (let i = 1; i <= 19; i++) {
+                    if (i === 15) {
+                        unifiedData.expenses[i] = results.monthlyResults.map(m => m.paymentFees);
+                    } else {
+                        unifiedData.expenses[i] = Array(12).fill(0);
+                    }
+                }
+
+                // 統合PL用のゼロ項目追加（20-37）
+                for (let i = 20; i <= 37; i++) {
+                    unifiedData.expenses[i] = Array(12).fill(0);
+                }
+
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(unifiedData));
+                
+                if (isProtection) {
+                    showNotification('データが正常に保護されました。', 'success');
+                }
+                
+            } catch (error) {
+                console.error('保存エラー:', error);
+                showNotification('データ保存でエラーが発生しました。', 'error');
+            }
+        }
+
+        function loadFromStorage() {
+            try {
+                const savedData = localStorage.getItem(STORAGE_KEY);
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    if (data.metadata && data.metadata.dataProtectionEnabled) {
+                        isDataProtected = data.metadata.dataProtectionEnabled;
+                        updateProtectionStatus();
+                    }
+                    showNotification('保存されたデータを読み込みました。', 'info');
+                    return true;
+                }
+            } catch (error) {
+                console.error('読み込みエラー:', error);
+            }
+            return false;
+        }
+
+        // 緊急保存（ページ離脱時）
+        function emergencySave() {
+            try {
+                const emergencyData = {
+                    ...rcdData,
+                    timestamp: new Date().toISOString(),
+                    reason: 'page_unload'
+                };
+                localStorage.setItem(EMERGENCY_KEY, JSON.stringify(emergencyData));
+            } catch (error) {
+                console.error('緊急保存エラー:', error);
+            }
+        }
 
         // RCD社計算エンジン（精度向上版：入力小数2位・出力整数万円）
         function calculateRCD() {
@@ -798,6 +1079,9 @@
             updateChart();
             updateProfitTable(results);
             updateExpenseTable(results.expenses);
+            
+            // 自動保存実行
+            if (!isDataProtected) saveBackup();
         }
 
         function updateSalesDisplay() {
@@ -1038,19 +1322,22 @@
             }
             
             updateRCDSales();
+            showNotification(`${presetType}パターンを適用しました。`, 'success');
         }
 
         function exportRCDCSV() {
             try {
                 const results = calculateRCD();
                 const csvData = [];
-                const months = ['項目名', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月', '年間合計'];
-                csvData.push(months);
+                const csvHeaders = ['項目名', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月', '年間合計'];
+                csvData.push(csvHeaders);
 
+                // 基本PL項目（37項目統一フォーマット対応）
                 csvData.push(['売上高', ...results.monthlyResults.map(m => m.sales), results.annual.sales]);
                 csvData.push(['売上原価', ...results.monthlyResults.map(m => m.cogs), results.annual.cogs]);
                 csvData.push(['売上総利益', ...results.monthlyResults.map(m => m.grossProfit), results.annual.grossProfit]);
 
+                // 販管費項目
                 const expenseNames = [
                     '人件費統合', '法定福利費', '衛生費', '物流管理費', '地代家賃',
                     '外注費', '貨物運賃', '広告宣伝費', '旅費交通費', '通信費',
@@ -1065,21 +1352,19 @@
                     csvData.push([name, ...monthlyExpenses, annual]);
                 });
 
+                // 統合PL用ゼロ項目
                 const zeroData = Array(12).fill(0);
-                csvData.push(['役員報酬', ...zeroData, 0]);
-                csvData.push(['役員法定福利費', ...zeroData, 0]);
-                csvData.push(['管理諸費', ...zeroData, 0]);
-                csvData.push(['修繕費', ...zeroData, 0]);
-                csvData.push(['車両費', ...zeroData, 0]);
-                csvData.push(['租税公課', ...zeroData, 0]);
-                csvData.push(['交際費', ...zeroData, 0]);
-                csvData.push(['諸会費', ...zeroData, 0]);
-                csvData.push(['会議費', ...zeroData, 0]);
-                csvData.push(['福利厚生費', ...zeroData, 0]);
-                csvData.push(['研修費', ...zeroData, 0]);
-                csvData.push(['雑費', ...zeroData, 0]);
-                csvData.push(['寄付金', ...zeroData, 0]);
+                const zeroItems = [
+                    '役員報酬', '役員法定福利費', '管理諸費', '修繕費', '車両費', '租税公課',
+                    '交際費', '諸会費', '会議費', '福利厚生費', '研修費', '雑費', '寄付金',
+                    '特別費用1', '特別費用2', '特別費用3', '特別費用4', '予備費'
+                ];
+                
+                zeroItems.forEach(name => {
+                    csvData.push([name, ...zeroData, 0]);
+                });
 
+                // 計算項目
                 csvData.push(['販管費合計', ...results.monthlyResults.map(m => m.totalExpenses), results.annual.totalExpenses]);
                 csvData.push(['営業利益', ...results.monthlyResults.map(m => m.operatingProfit), results.annual.operatingProfit]);
 
@@ -1090,39 +1375,32 @@
                 link.download = `RCD社_PL_精度向上版_${new Date().toISOString().split('T')[0]}.csv`;
                 link.click();
                 
-                alert('RCD社PLデータ（精度向上版）のCSV出力が完了しました。');
+                csvExported = true;
+                showNotification('CSV出力が完了しました。送信準備が整いました！', 'success');
+                
+                // 送信ボタンにパルス効果を追加
+                const sendBtn = document.getElementById('send-data-btn');
+                sendBtn.classList.add('btn-pulse');
 
             } catch (error) {
-                alert('CSV出力でエラーが発生しました: ' + error.message);
+                showNotification('CSV出力でエラーが発生しました: ' + error.message, 'error');
                 console.error('CSV出力エラー:', error);
             }
         }
 
         function sendRCDDataAndNavigateToNext() {
             try {
+                if (!csvExported) {
+                    showNotification('先にCSV出力を実行してください。', 'warning');
+                    return;
+                }
+
                 const results = calculateRCD();
                 
-                const unifiedData = {
-                    metadata: {
-                        department: 'RCD',
-                        lastUpdate: new Date().toISOString(),
-                        version: '3.0',
-                        unifiedStructure: true,
-                        precisionImproved: true,
-                        unitPurchase: rcdData.unitPurchase,
-                        profitRate: rcdData.profitRate,
-                        feePerOccurrence: rcdData.feePerOccurrence,
-                        monthlyPurchases: rcdData.monthlyPurchases,
-                        monthlyFeeOccurrences: rcdData.monthlyFeeOccurrences
-                    },
-                    
-                    // 整数万円単位での送信
-                    sales: results.monthlyResults.map(m => m.sales),
-                    cogs: results.monthlyResults.map(m => m.cogs),
-                    expenses: results.expenses
-                };
-
-                localStorage.setItem('pl_system_rcd_data', JSON.stringify(unifiedData));
+                // データ保護を自動で有効化
+                isDataProtected = true;
+                updateProtectionStatus();
+                saveToStorage(false);
                 
                 const workflowProgress = {
                     step1_SR: 'completed',
@@ -1134,7 +1412,14 @@
                 };
                 localStorage.setItem('workflow_progress', JSON.stringify(workflowProgress));
                 
-                alert(`RCD社データ送信完了！（精度向上版・整数万円単位出力）\n\n年間売上: ${results.annual.sales.toLocaleString()}万円\n年間営業利益: ${results.annual.operatingProfit.toLocaleString()}万円\n営業利益率: ${(results.annual.operatingProfit / results.annual.sales * 100).toFixed(1)}%\n\nPhase 4完了！統合PLで全体結果を確認します。\n3秒後に自動移動します...`);
+                showNotification(`RCD社データ送信完了！（精度向上版・整数万円単位出力）
+
+年間売上: ${results.annual.sales.toLocaleString()}万円
+年間営業利益: ${results.annual.operatingProfit.toLocaleString()}万円
+営業利益率: ${(results.annual.operatingProfit / results.annual.sales * 100).toFixed(1)}%
+
+Phase 4完了！統合PLで全体結果を確認します。
+3秒後に自動移動します...`, 'success', 6000);
                 
                 setTimeout(() => {
                     window.location.href = '../combined-dashboard/index.html';
@@ -1143,7 +1428,7 @@
                 return results.annual.sales;
 
             } catch (error) {
-                alert('データ送信に失敗しました: ' + error.message);
+                showNotification('データ送信に失敗しました: ' + error.message, 'error');
                 console.error('RCD送信エラー:', error);
                 return 0;
             }
@@ -1161,19 +1446,46 @@
             };
         }
 
+        // イベントリスナー設定
+        function setupEventListeners() {
+            // 入力フィールドへのイベントリスナー設定
+            const inputs = document.querySelectorAll('input[data-month]');
+            inputs.forEach(input => {
+                input.addEventListener('input', debounce(() => {
+                    updateRCDSales();
+                }, 300));
+            });
+
+            // ページ離脱時の緊急保存
+            window.addEventListener('beforeunload', (e) => {
+                emergencySave();
+                if (!isDataProtected && csvExported) {
+                    e.preventDefault();
+                    e.returnValue = 'データが未保護です。離脱してもよろしいですか？';
+                }
+            });
+
+            // ページ非表示時の保存
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden && !isDataProtected) {
+                    emergencySave();
+                }
+            });
+        }
+
         function initialize() {
             try {
+                loadFromStorage();
                 updateRCDSales();
+                setupEventListeners();
+                startAutoSave();
                 
-                const inputs = document.querySelectorAll('input[data-month]');
-                inputs.forEach(input => {
-                    input.addEventListener('input', debounce(updateRCDSales, 300));
-                });
-                
+                showNotification('RCD社PLシステム v4.0（精度向上版）が起動しました。', 'info');
                 console.log('RCD社PLシステム初期化完了（精度向上版・整数万円単位出力）');
                 
             } catch (error) {
                 console.error('初期化エラー:', error);
+                showNotification('システム初期化でエラーが発生しました。', 'error');
             }
         }
 
