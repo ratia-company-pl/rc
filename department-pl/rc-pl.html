@@ -855,8 +855,8 @@
             { name: '衛生費', calculate: () => 0 },
             { name: '物流管理費', calculate: () => 74 },
             { name: '地代家賃', calculate: () => 0 },
-            { name: '外注費', calculate: () => 0 },
-            { name: '貨物運賃', calculate: () => 0 },
+            { name: '外注費', calculate: () => 57 },
+            { name: '貨物運賃', calculate: () => 62 },
             { name: '広告宣伝費', calculate: () => appData.advertising },
             { name: '旅費交通費', calculate: () => 15 },
             { name: '通信費', calculate: () => 1 },
@@ -866,17 +866,17 @@
                 if (month === 11) base += appData.bwjTokyo;
                 return base;
             }},
-            { name: '消耗品費', calculate: () => 0 },
+            { name: '消耗品費', calculate: () => 36 },
             { name: '事務用品費', calculate: () => 10 },
             { name: '水道光熱費', calculate: () => 2 },
             { name: '支払手数料', calculate: () => 70 },
-            { name: 'リース料', calculate: () => 0 },
+            { name: 'リース料', calculate: () => 7 },
             { name: '保険料', calculate: () => 1 },
             { name: '支払報酬料', calculate: () => 10 },
             { name: '減価償却費', calculate: () => 7 }
         ];
 
-        // 通知システム
+        // 通知システム 
         function showNotification(message, type = 'info', duration = 4000) {
             const notification = document.getElementById('notification');
             notification.textContent = message;
@@ -1517,6 +1517,3 @@
 
         // ページ読み込み完了時に初期化
         window.addEventListener('load', initialize);
-    </script>
-</body>
-</html>
