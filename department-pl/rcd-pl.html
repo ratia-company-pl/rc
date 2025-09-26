@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RCD社PLシミュレーター Phase 4完成版（小数1位対応）</title>
+    <title>RCD社PLシミュレーター Phase 4完成版（精度向上版）</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -289,20 +289,6 @@
             white-space: nowrap;
         }
 
-        .setting-input {
-            width: 80px;
-            padding: 6px 8px;
-            border: 2px solid #805ad5;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            text-align: center;
-        }
-
-        .setting-input:focus {
-            border-color: #9f7aea;
-            outline: none;
-        }
-
         .input-table {
             width: 100%;
             border-collapse: collapse;
@@ -368,14 +354,16 @@
         .diff-negative { color: #e74c3c; font-weight: 700; }
         .reference-value { color: #7f8c8d; font-size: 0.65rem; }
 
-        .profit-section {
+        .profit-section, .expense-section {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 12px;
             margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border-left: 5px solid #52c41a;
         }
+
+        .profit-section { border-left: 5px solid #52c41a; }
+        .expense-section { border-left: 5px solid #34495e; }
 
         .profit-header {
             background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%);
@@ -383,15 +371,6 @@
             padding: 12px 20px;
             font-weight: 700;
             font-size: 1rem;
-        }
-
-        .expense-section {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border-left: 5px solid #34495e;
         }
 
         .expense-header {
@@ -402,8 +381,7 @@
             font-size: 1rem;
         }
 
-        .profit-table,
-        .expense-table {
+        .profit-table, .expense-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.7rem;
@@ -411,10 +389,7 @@
             table-layout: fixed;
         }
 
-        .profit-table th,
-        .profit-table td,
-        .expense-table th,
-        .expense-table td {
+        .profit-table th, .profit-table td, .expense-table th, .expense-table td {
             border: 1px solid #e2e8f0;
             padding: 6px 4px;
             text-align: center;
@@ -423,8 +398,7 @@
             white-space: nowrap;
         }
 
-        .profit-table th:first-child,
-        .profit-table td:first-child {
+        .profit-table th:first-child, .profit-table td:first-child {
             width: 120px;
             white-space: normal;
             word-wrap: break-word;
@@ -432,13 +406,8 @@
             padding-left: 10px;
         }
 
-        .expense-table th:first-child,
-        .expense-table td:first-child {
-            width: 40px;
-        }
-
-        .expense-table th:nth-child(2),
-        .expense-table td:nth-child(2) {
+        .expense-table th:first-child, .expense-table td:first-child { width: 40px; }
+        .expense-table th:nth-child(2), .expense-table td:nth-child(2) {
             width: 120px;
             white-space: normal;
             word-wrap: break-word;
@@ -446,17 +415,13 @@
             padding-left: 10px;
         }
 
-        .profit-table th:nth-child(n+2):nth-child(-n+13),
-        .profit-table td:nth-child(n+2):nth-child(-n+13),
-        .expense-table th:nth-child(n+3):nth-child(-n+14),
-        .expense-table td:nth-child(n+3):nth-child(-n+14) {
+        .profit-table th:nth-child(n+2):nth-child(-n+13), .profit-table td:nth-child(n+2):nth-child(-n+13),
+        .expense-table th:nth-child(n+3):nth-child(-n+14), .expense-table td:nth-child(n+3):nth-child(-n+14) {
             width: 60px;
         }
 
-        .profit-table th:nth-child(n+14),
-        .profit-table td:nth-child(n+14),
-        .expense-table th:nth-child(n+15),
-        .expense-table td:nth-child(n+15) {
+        .profit-table th:nth-child(n+14), .profit-table td:nth-child(n+14),
+        .expense-table th:nth-child(n+15), .expense-table td:nth-child(n+15) {
             width: 80px;
         }
 
@@ -474,12 +439,7 @@
             font-size: 0.65rem;
         }
 
-        .profit-table .profit-name {
-            background: #f8f9fa;
-            font-weight: 600;
-        }
-
-        .expense-table .expense-name {
+        .profit-table .profit-name, .expense-table .expense-name {
             background: #f8f9fa;
             font-weight: 600;
         }
@@ -508,7 +468,7 @@
 </head>
 <body>
     <div class="container">
-        <!-- RCD事業部パターン統合ヘッダー -->
+        <!-- RCD事業部統合ヘッダー -->
         <div class="header-section">
             <div class="nav-section">
                 <div class="nav-buttons">
@@ -522,7 +482,7 @@
             </div>
 
             <div class="workflow-section">
-                <div class="workflow-title">統合PLシステム ワークフロー - Step 4/4 最終段階（小数1位対応版）</div>
+                <div class="workflow-title">統合PLシステム ワークフロー - Step 4/4 最終段階（精度向上版）</div>
                 <div class="workflow-info">
                     <span style="color: #27ae60; font-weight: 600;">✓ SR事業部完了</span>
                     <span style="margin: 0 10px; color: #bdc3c7;">|</span>
@@ -550,23 +510,23 @@
 
         <!-- 精度改善通知 -->
         <div class="precision-note">
-            <strong>🔧 計算精度改善:</strong> 仕入本数を小数1位まで入力可能。大額取引に対応した高精度計算を実行します。
+            <strong>🔧 計算精度改善:</strong> 仕入本数を小数2位まで入力可能。計算結果は万円単位で整数化して出力します。
         </div>
 
-        <!-- RCD事業部パターンチャートセクション -->
+        <!-- RCD事業部チャートセクション -->
         <div class="chart-section">
             <div class="chart-header">
-                参考前年数値との比較グラフ（統一構造 Version 3.1 - 小数1位対応）
+                参考前年数値との比較グラフ（統一構造 Version 3.0 - 精度向上版）
             </div>
             
             <div class="kpi-display">
                 <div class="kpi-item">
                     <div class="kpi-label">年間売上合計</div>
-                    <div class="kpi-value" id="annual-sales">197,760.0万円</div>
+                    <div class="kpi-value" id="annual-sales">197,760万円</div>
                 </div>
                 <div class="kpi-item">
                     <div class="kpi-label">前年対比増減</div>
-                    <div class="kpi-value" id="sales-diff">+27,581.0万円</div>
+                    <div class="kpi-value" id="sales-diff">+27,581万円</div>
                 </div>
                 <div class="kpi-item">
                     <div class="kpi-label">営業利益率</div>
@@ -589,10 +549,10 @@
             </div>
         </div>
 
-        <!-- RCD事業部パターン入力セクション -->
+        <!-- RCD事業部入力セクション -->
         <div class="input-section">
             <div class="input-header">
-                RCD社 仕入本数・手数料発生回数入力システム（小数1位対応） 
+                RCD社 仕入本数・手数料発生回数入力システム（精度向上版） 
             </div>
             
             <div class="input-controls">
@@ -621,18 +581,18 @@
                 <tbody>
                     <tr>
                         <td class="row-header">仕入本数</td>
-                        <td><input type="number" step="0.1" data-month="0" data-type="purchase" value="8.0" onchange="updateRCDSales()" /></td>
-                        <td><input type="number" step="0.1" data-month="1" data-type="purchase" value="8.0" onchange="updateRCDSales()" /></td>
-                        <td><input type="number" step="0.1" data-month="2" data-type="purchase" value="8.0" onchange="updateRCDSales()" /></td>
-                        <td><input type="number" step="0.1" data-month="3" data-type="purchase" value="8.0" onchange="updateRCDSales()" /></td>
-                        <td><input type="number" step="0.1" data-month="4" data-type="purchase" value="8.0" onchange="updateRCDSales()" /></td>
-                        <td><input type="number" step="0.1" data-month="5" data-type="purchase" value="8.0" onchange="updateRCDSales()" /></td>
-                        <td><input type="number" step="0.1" data-month="6" data-type="purchase" value="8.0" onchange="updateRCDSales()" /></td>
-                        <td><input type="number" step="0.1" data-month="7" data-type="purchase" value="8.0" onchange="updateRCDSales()" /></td>
-                        <td><input type="number" step="0.1" data-month="8" data-type="purchase" value="8.0" onchange="updateRCDSales()" /></td>
-                        <td><input type="number" step="0.1" data-month="9" data-type="purchase" value="8.0" onchange="updateRCDSales()" /></td>
-                        <td><input type="number" step="0.1" data-month="10" data-type="purchase" value="8.0" onchange="updateRCDSales()" /></td>
-                        <td><input type="number" step="0.1" data-month="11" data-type="purchase" value="8.0" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" step="0.01" data-month="0" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" step="0.01" data-month="1" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" step="0.01" data-month="2" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" step="0.01" data-month="3" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" step="0.01" data-month="4" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" step="0.01" data-month="5" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" step="0.01" data-month="6" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" step="0.01" data-month="7" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" step="0.01" data-month="8" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" step="0.01" data-month="9" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" step="0.01" data-month="10" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" step="0.01" data-month="11" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
                     </tr>
                     <tr>
                         <td class="row-header">手数料回数</td>
@@ -651,18 +611,18 @@
                     </tr>
                     <tr>
                         <td class="row-header">売上予測</td>
-                        <td class="calculated-value" data-sales="0">16,480.0</td>
-                        <td class="calculated-value" data-sales="1">16,480.0</td>
-                        <td class="calculated-value" data-sales="2">16,480.0</td>
-                        <td class="calculated-value" data-sales="3">16,480.0</td>
-                        <td class="calculated-value" data-sales="4">16,480.0</td>
-                        <td class="calculated-value" data-sales="5">16,480.0</td>
-                        <td class="calculated-value" data-sales="6">16,480.0</td>
-                        <td class="calculated-value" data-sales="7">16,480.0</td>
-                        <td class="calculated-value" data-sales="8">16,480.0</td>
-                        <td class="calculated-value" data-sales="9">16,480.0</td>
-                        <td class="calculated-value" data-sales="10">16,480.0</td>
-                        <td class="calculated-value" data-sales="11">16,480.0</td>
+                        <td class="calculated-value" data-sales="0">16,480</td>
+                        <td class="calculated-value" data-sales="1">16,480</td>
+                        <td class="calculated-value" data-sales="2">16,480</td>
+                        <td class="calculated-value" data-sales="3">16,480</td>
+                        <td class="calculated-value" data-sales="4">16,480</td>
+                        <td class="calculated-value" data-sales="5">16,480</td>
+                        <td class="calculated-value" data-sales="6">16,480</td>
+                        <td class="calculated-value" data-sales="7">16,480</td>
+                        <td class="calculated-value" data-sales="8">16,480</td>
+                        <td class="calculated-value" data-sales="9">16,480</td>
+                        <td class="calculated-value" data-sales="10">16,480</td>
+                        <td class="calculated-value" data-sales="11">16,480</td>
                     </tr>
                     <tr>
                         <td class="row-header">増減</td>
@@ -698,10 +658,10 @@
             </table>
         </div>
 
-        <!-- RCD事業部パターン利益テーブル -->
+        <!-- RCD事業部利益テーブル -->
         <div class="profit-section">
             <div class="profit-header">
-                売上総利益・営業利益月額表（統一構造 Version 3.1 - 小数1位対応）
+                売上総利益・営業利益月額表（統一構造 Version 3.0 - 精度向上版）
             </div>
             <table class="profit-table">
                 <thead>
@@ -718,10 +678,10 @@
             </table>
         </div>
 
-        <!-- RCD事業部パターン販管費テーブル -->
+        <!-- RCD事業部販管費テーブル -->
         <div class="expense-section">
             <div class="expense-header">
-                販管費19項目詳細表示（統一構造 Version 3.1 - 小数1位対応）
+                販管費19項目詳細表示（統一構造 Version 3.0 - 精度向上版）
             </div>
             <table class="expense-table">
                 <thead>
@@ -743,7 +703,7 @@
     </div>
 
     <script>
-        // RCD社データ管理（シミュレーター準拠・小数1位対応）
+        // RCD社データ管理（精度向上版）
         const rcdReferenceData = [11037, 14297, 11504, 14664, 12507, 14920, 13661, 15455, 14439, 15857, 15478, 16360];
         const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
         
@@ -751,21 +711,13 @@
             unitPurchase: 2000,    // 仕入単価2,000万円/本
             profitRate: 0.03,      // 利益率3%固定
             feePerOccurrence: 90.6, // 支払手数料90.6万円/件
-            monthlyPurchases: [8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0, 8.0], // 月別仕入本数（小数1位対応）
-            monthlyFeeOccurrences: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] // 月別手数料発生回数
+            monthlyPurchases: [8.00, 8.00, 8.00, 8.00, 8.00, 8.00, 8.00, 8.00, 8.00, 8.00, 8.00, 8.00],
+            monthlyFeeOccurrences: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         };
 
         let rcdChart = null;
 
-        // 小数1位対応の数値フォーマット関数
-        function formatNumberDecimal(num, decimals = 1) {
-            return parseFloat(num.toFixed(decimals)).toLocaleString(undefined, {
-                minimumFractionDigits: decimals,
-                maximumFractionDigits: decimals
-            });
-        }
-
-        // RCD社計算エンジン（シミュレーター準拠・小数1位対応・RC事業部パターン統合）
+        // RCD社計算エンジン（精度向上版：入力小数2位・出力整数万円）
         function calculateRCD() {
             const results = {
                 monthlyResults: [],
@@ -785,25 +737,25 @@
                 rcdData.monthlyFeeOccurrences[i] = parseInt(input.value) || 0;
             });
 
-            // 月次計算実行（小数1位対応の正しいRCD社仕様）
+            // 月次計算実行（精度向上：計算は小数で行い、結果は整数化）
             results.monthlyResults = rcdData.monthlyPurchases.map((purchaseCount, i) => {
-                // 売上計算: 仕入本数×2,000万円×1.03（小数1位保持）
-                const sales = purchaseCount * rcdData.unitPurchase * (1 + rcdData.profitRate);
+                // 売上計算: 仕入本数×2,000万円×1.03（小数計算）→ 整数化
+                const salesCalc = purchaseCount * rcdData.unitPurchase * (1 + rcdData.profitRate);
+                const sales = Math.floor(salesCalc); // 小数切り捨てで整数化
                 
-                // 仕入原価: 仕入本数×2,000万円（小数1位保持）
-                const cogs = purchaseCount * rcdData.unitPurchase;
+                // 仕入原価: 仕入本数×2,000万円（小数計算）→ 整数化
+                const cogsCalc = purchaseCount * rcdData.unitPurchase;
+                const cogs = Math.floor(cogsCalc); // 小数切り捨てで整数化
                 
-                // 売上総利益（小数1位保持）
+                // 売上総利益（整数）
                 const grossProfit = sales - cogs;
                 
-                // 支払手数料: 発生回数×90.6万円（小数1位保持）
-                const paymentFees = rcdData.monthlyFeeOccurrences[i] * rcdData.feePerOccurrence;
+                // 支払手数料: 発生回数×90.6万円 → 整数化
+                const paymentFeesCalc = rcdData.monthlyFeeOccurrences[i] * rcdData.feePerOccurrence;
+                const paymentFees = Math.floor(paymentFeesCalc); // 小数切り捨てで整数化
                 
-                // RCD社は外部委託のため人件費・経費は全て0円
-                const totalExpenses = paymentFees; // 支払手数料のみ
-                
-                // 営業利益（小数1位保持）
-                const operatingProfit = grossProfit - totalExpenses;
+                // 営業利益（整数）
+                const operatingProfit = grossProfit - paymentFees;
                 
                 return {
                     purchaseCount,
@@ -811,23 +763,21 @@
                     cogs, 
                     grossProfit, 
                     paymentFees,
-                    totalExpenses,
+                    totalExpenses: paymentFees,
                     operatingProfit
                 };
             });
 
-            // 販管費19項目データ構造（RCD社は支払手数料以外0円）
+            // 販管費19項目データ構造（RCD社は支払手数料以外0円・整数）
             for (let i = 1; i <= 19; i++) {
                 if (i === 15) {
-                    // 支払手数料のみ計算値（小数1位保持）
                     results.expenses[i] = results.monthlyResults.map(m => m.paymentFees);
                 } else {
-                    // その他は0円（外部委託のため）
                     results.expenses[i] = new Array(12).fill(0);
                 }
             }
 
-            // 年間集計（小数1位保持）
+            // 年間集計（整数）
             results.annual = {
                 purchaseCount: results.monthlyResults.reduce((sum, m) => sum + m.purchaseCount, 0),
                 sales: results.monthlyResults.reduce((sum, m) => sum + m.sales, 0),
@@ -842,7 +792,6 @@
 
         function updateRCDSales() {
             const results = calculateRCD();
-
             updateSalesDisplay();
             updateDifferenceDisplay();
             updateKPIDisplay(results.annual);
@@ -853,17 +802,19 @@
 
         function updateSalesDisplay() {
             rcdData.monthlyPurchases.forEach((purchaseCount, i) => {
-                const sales = purchaseCount * rcdData.unitPurchase * (1 + rcdData.profitRate);
+                const salesCalc = purchaseCount * rcdData.unitPurchase * (1 + rcdData.profitRate);
+                const sales = Math.floor(salesCalc); // 整数化
                 const salesElement = document.querySelector(`[data-sales="${i}"]`);
                 if (salesElement) {
-                    salesElement.textContent = formatNumberDecimal(sales);
+                    salesElement.textContent = sales.toLocaleString();
                 }
             });
         }
 
         function updateDifferenceDisplay() {
             rcdData.monthlyPurchases.forEach((purchaseCount, i) => {
-                const currentSales = purchaseCount * rcdData.unitPurchase * (1 + rcdData.profitRate);
+                const salesCalc = purchaseCount * rcdData.unitPurchase * (1 + rcdData.profitRate);
+                const currentSales = Math.floor(salesCalc);
                 const referenceValue = rcdReferenceData[i];
                 const diffPercent = ((currentSales - referenceValue) / referenceValue * 100);
                 
@@ -880,11 +831,10 @@
             const salesDiff = annual.sales - refTotal;
             const profitRate = annual.sales > 0 ? (annual.operatingProfit / annual.sales * 100).toFixed(1) : '0.0';
 
-            document.getElementById('annual-sales').textContent = formatNumberDecimal(annual.sales) + '万円';
-            document.getElementById('sales-diff').textContent = (salesDiff >= 0 ? '+' : '') + formatNumberDecimal(salesDiff) + '万円';
+            document.getElementById('annual-sales').textContent = annual.sales.toLocaleString() + '万円';
+            document.getElementById('sales-diff').textContent = (salesDiff >= 0 ? '+' : '') + salesDiff.toLocaleString() + '万円';
             document.getElementById('profit-rate').textContent = profitRate + '%';
 
-            // 営業利益率の色分け
             const profitRateElement = document.getElementById('profit-rate');
             if (annual.operatingProfit >= 0) {
                 profitRateElement.className = 'kpi-value';
@@ -899,9 +849,10 @@
 
             if (rcdChart) rcdChart.destroy();
 
-            const currentSales = rcdData.monthlyPurchases.map(purchaseCount => 
-                purchaseCount * rcdData.unitPurchase * (1 + rcdData.profitRate)
-            );
+            const currentSales = rcdData.monthlyPurchases.map(purchaseCount => {
+                const salesCalc = purchaseCount * rcdData.unitPurchase * (1 + rcdData.profitRate);
+                return Math.floor(salesCalc); // 整数化
+            });
 
             rcdChart = new Chart(ctx, {
                 type: 'bar',
@@ -942,7 +893,6 @@
             
             tbody.innerHTML = '';
 
-            // 月次販管費合計計算（小数1位保持）
             const monthlySGAExpenses = new Array(12).fill(0);
             Object.values(results.expenses).forEach(expenseArray => {
                 expenseArray.forEach((val, monthIndex) => {
@@ -980,14 +930,14 @@
 
             tableData.forEach((row) => {
                 const annual = row.values.reduce((sum, val) => sum + val, 0);
-                const average = annual / 12;
+                const average = Math.round(annual / 12);
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="profit-name">${row.name}</td>
-                    ${row.values.map(val => `<td style="${row.style}">${formatNumberDecimal(val)}</td>`).join('')}
-                    <td style="${row.style} border-left: 3px solid #333;">${formatNumberDecimal(annual)}</td>
-                    <td style="${row.style} border-left: 2px solid #666;">${formatNumberDecimal(average)}</td>
+                    ${row.values.map(val => `<td style="${row.style}">${val.toLocaleString()}</td>`).join('')}
+                    <td style="${row.style} border-left: 3px solid #333;">${annual.toLocaleString()}</td>
+                    <td style="${row.style} border-left: 2px solid #666;">${average.toLocaleString()}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -1014,7 +964,6 @@
                 const monthlyExpenses = expenses[expenseId];
                 const annual = monthlyExpenses.reduce((sum, val) => sum + val, 0);
 
-                // 0円項目は非表示・データ構造保持
                 if (annual === 0) return;
 
                 monthlyExpenses.forEach((val, monthIndex) => {
@@ -1026,14 +975,13 @@
                 row.innerHTML = `
                     <td style="font-weight: 600; background: #f8f9fa; text-align: center;">${expenseId}</td>
                     <td class="expense-name">${name}</td>
-                    ${monthlyExpenses.map(val => `<td>${formatNumberDecimal(val)}</td>`).join('')}
-                    <td style="font-weight: 700; background: #f8f9fa;">${formatNumberDecimal(annual)}</td>
-                    <td style="font-weight: 700; background: #e8f5e8; color: #27ae60;">${formatNumberDecimal(annual / 12)}</td>
+                    ${monthlyExpenses.map(val => `<td>${val.toLocaleString()}</td>`).join('')}
+                    <td style="font-weight: 700; background: #f8f9fa;">${annual.toLocaleString()}</td>
+                    <td style="font-weight: 700; background: #e8f5e8; color: #27ae60;">${Math.round(annual / 12).toLocaleString()}</td>
                 `;
                 tbody.appendChild(row);
             });
 
-            // 合計行
             const totalRow = document.createElement('tr');
             totalRow.style.background = '#34495e';
             totalRow.style.color = 'white';
@@ -1041,9 +989,9 @@
             totalRow.innerHTML = `
                 <td style="text-align: center;">合計</td>
                 <td style="text-align: left; padding-left: 10px;">販管費合計</td>
-                ${monthlyTotals.map(val => `<td>${formatNumberDecimal(val)}</td>`).join('')}
-                <td style="background: #2c3e50;">${formatNumberDecimal(grandTotal)}</td>
-                <td style="background: #2c3e50;">${formatNumberDecimal(grandTotal / 12)}</td>
+                ${monthlyTotals.map(val => `<td>${val.toLocaleString()}</td>`).join('')}
+                <td style="background: #2c3e50;">${grandTotal.toLocaleString()}</td>
+                <td style="background: #2c3e50;">${Math.round(grandTotal / 12).toLocaleString()}</td>
             `;
             tfoot.appendChild(totalRow);
         }
@@ -1054,12 +1002,11 @@
             
             switch(presetType) {
                 case 'actual':
-                    // 実績パターン（シミュレーター準拠・小数1位対応）
-                    const actualPurchases = [5.5, 7.1, 5.8, 7.3, 6.3, 7.5, 6.8, 7.7, 7.2, 7.9, 7.7, 8.2];
+                    const actualPurchases = [5.50, 7.10, 5.80, 7.30, 6.30, 7.50, 6.80, 7.70, 7.20, 7.90, 7.70, 8.20];
                     const actualFees = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1];
                     actualPurchases.forEach((val, i) => {
                         rcdData.monthlyPurchases[i] = val;
-                        purchaseInputs[i].value = val;
+                        purchaseInputs[i].value = val.toFixed(2);
                     });
                     actualFees.forEach((val, i) => {
                         rcdData.monthlyFeeOccurrences[i] = val;
@@ -1067,28 +1014,24 @@
                     });
                     break;
                 case 'standard':
-                    // 標準設定（月8本）
-                    rcdData.monthlyPurchases.fill(8.0);
+                    rcdData.monthlyPurchases.fill(8.00);
                     rcdData.monthlyFeeOccurrences.fill(1);
-                    purchaseInputs.forEach(input => input.value = 8.0);
+                    purchaseInputs.forEach(input => input.value = "8.00");
                     feeInputs.forEach(input => input.value = 1);
                     break;
                 case 'growth':
-                    // 月7本設定
-                    rcdData.monthlyPurchases.fill(7.0);
+                    rcdData.monthlyPurchases.fill(7.00);
                     rcdData.monthlyFeeOccurrences.fill(1);
-                    purchaseInputs.forEach(input => input.value = 7.0);
+                    purchaseInputs.forEach(input => input.value = "7.00");
                     feeInputs.forEach(input => input.value = 1);
                     break;
                 case 'improve':
-                    // 月6本設定
-                    rcdData.monthlyPurchases.fill(6.0);
+                    rcdData.monthlyPurchases.fill(6.00);
                     rcdData.monthlyFeeOccurrences.fill(0);
-                    purchaseInputs.forEach(input => input.value = 6.0);
+                    purchaseInputs.forEach(input => input.value = "6.00");
                     feeInputs.forEach(input => input.value = 0);
                     break;
                 case 'zero_fee':
-                    // 支払手数料0（売上は現在の設定を維持、手数料のみ0）
                     rcdData.monthlyFeeOccurrences.fill(0);
                     feeInputs.forEach(input => input.value = 0);
                     break;
@@ -1097,22 +1040,17 @@
             updateRCDSales();
         }
 
-        // CSV出力機能（RCD社版・小数1位対応）
         function exportRCDCSV() {
             try {
                 const results = calculateRCD();
-
-                // CSV出力データ生成（37項目統一仕様・小数1位対応）
                 const csvData = [];
                 const months = ['項目名', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月', '年間合計'];
                 csvData.push(months);
 
-                // 基本PL項目（3項目・小数1位対応）
-                csvData.push(['売上高', ...results.monthlyResults.map(m => m.sales.toFixed(1)), results.annual.sales.toFixed(1)]);
-                csvData.push(['売上原価', ...results.monthlyResults.map(m => m.cogs.toFixed(1)), results.annual.cogs.toFixed(1)]);
-                csvData.push(['売上総利益', ...results.monthlyResults.map(m => m.grossProfit.toFixed(1)), results.annual.grossProfit.toFixed(1)]);
+                csvData.push(['売上高', ...results.monthlyResults.map(m => m.sales), results.annual.sales]);
+                csvData.push(['売上原価', ...results.monthlyResults.map(m => m.cogs), results.annual.cogs]);
+                csvData.push(['売上総利益', ...results.monthlyResults.map(m => m.grossProfit), results.annual.grossProfit]);
 
-                // 販管費19項目（RCD社は支払手数料のみ実データ、他は0円・小数1位対応）
                 const expenseNames = [
                     '人件費統合', '法定福利費', '衛生費', '物流管理費', '地代家賃',
                     '外注費', '貨物運賃', '広告宣伝費', '旅費交通費', '通信費',
@@ -1124,40 +1062,35 @@
                     const expenseId = index + 1;
                     const monthlyExpenses = results.expenses[expenseId];
                     const annual = monthlyExpenses.reduce((sum, val) => sum + val, 0);
-                    csvData.push([name, ...monthlyExpenses.map(val => val.toFixed(1)), annual.toFixed(1)]);
+                    csvData.push([name, ...monthlyExpenses, annual]);
                 });
 
-                // 統合PL専用項目（RCD社では0円出力・小数1位対応）
                 const zeroData = Array(12).fill(0);
-                csvData.push(['役員報酬', ...zeroData.map(val => val.toFixed(1)), '0.0']);
-                csvData.push(['役員法定福利費', ...zeroData.map(val => val.toFixed(1)), '0.0']);
-                csvData.push(['管理諸費', ...zeroData.map(val => val.toFixed(1)), '0.0']);
-                csvData.push(['修繕費', ...zeroData.map(val => val.toFixed(1)), '0.0']);
-                csvData.push(['車両費', ...zeroData.map(val => val.toFixed(1)), '0.0']);
-                csvData.push(['租税公課', ...zeroData.map(val => val.toFixed(1)), '0.0']);
-                csvData.push(['交際費', ...zeroData.map(val => val.toFixed(1)), '0.0']);
-                csvData.push(['諸会費', ...zeroData.map(val => val.toFixed(1)), '0.0']);
-                csvData.push(['会議費', ...zeroData.map(val => val.toFixed(1)), '0.0']);
-                csvData.push(['福利厚生費', ...zeroData.map(val => val.toFixed(1)), '0.0']);
-                csvData.push(['研修費', ...zeroData.map(val => val.toFixed(1)), '0.0']);
-                csvData.push(['雑費', ...zeroData.map(val => val.toFixed(1)), '0.0']);
-                csvData.push(['寄付金', ...zeroData.map(val => val.toFixed(1)), '0.0']);
+                csvData.push(['役員報酬', ...zeroData, 0]);
+                csvData.push(['役員法定福利費', ...zeroData, 0]);
+                csvData.push(['管理諸費', ...zeroData, 0]);
+                csvData.push(['修繕費', ...zeroData, 0]);
+                csvData.push(['車両費', ...zeroData, 0]);
+                csvData.push(['租税公課', ...zeroData, 0]);
+                csvData.push(['交際費', ...zeroData, 0]);
+                csvData.push(['諸会費', ...zeroData, 0]);
+                csvData.push(['会議費', ...zeroData, 0]);
+                csvData.push(['福利厚生費', ...zeroData, 0]);
+                csvData.push(['研修費', ...zeroData, 0]);
+                csvData.push(['雑費', ...zeroData, 0]);
+                csvData.push(['寄付金', ...zeroData, 0]);
 
-                // 計算項目（小数1位対応）
-                csvData.push(['販管費合計', ...results.monthlyResults.map(m => m.totalExpenses.toFixed(1)), results.annual.totalExpenses.toFixed(1)]);
-                csvData.push(['営業利益', ...results.monthlyResults.map(m => m.operatingProfit.toFixed(1)), results.annual.operatingProfit.toFixed(1)]);
+                csvData.push(['販管費合計', ...results.monthlyResults.map(m => m.totalExpenses), results.annual.totalExpenses]);
+                csvData.push(['営業利益', ...results.monthlyResults.map(m => m.operatingProfit), results.annual.operatingProfit]);
 
-                // CSV文字列生成
                 const csvString = '\uFEFF' + csvData.map(row => row.join(',')).join('\n');
-                
-                // ダウンロード実行
                 const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = `RCD社_PL_小数1位対応_${new Date().toISOString().split('T')[0]}.csv`;
+                link.download = `RCD社_PL_精度向上版_${new Date().toISOString().split('T')[0]}.csv`;
                 link.click();
                 
-                alert('RCD社PLデータ（小数1位対応版）のCSV出力が完了しました。');
+                alert('RCD社PLデータ（精度向上版）のCSV出力が完了しました。');
 
             } catch (error) {
                 alert('CSV出力でエラーが発生しました: ' + error.message);
@@ -1169,14 +1102,13 @@
             try {
                 const results = calculateRCD();
                 
-                // 統一構造データ生成（引継書準拠・小数1位対応）
                 const unifiedData = {
                     metadata: {
                         department: 'RCD',
                         lastUpdate: new Date().toISOString(),
-                        version: '3.1',
+                        version: '3.0',
                         unifiedStructure: true,
-                        decimalPrecision: 1,
+                        precisionImproved: true,
                         unitPurchase: rcdData.unitPurchase,
                         profitRate: rcdData.profitRate,
                         feePerOccurrence: rcdData.feePerOccurrence,
@@ -1184,22 +1116,14 @@
                         monthlyFeeOccurrences: rcdData.monthlyFeeOccurrences
                     },
                     
-                    // 売上・原価データ（小数1位保持）
-                    sales: results.monthlyResults.map(m => parseFloat(m.sales.toFixed(1))),
-                    cogs: results.monthlyResults.map(m => parseFloat(m.cogs.toFixed(1))),
-                    
-                    // 19項目販管費データ（RCD社は支払手数料以外0円・小数1位対応）
-                    expenses: Object.fromEntries(
-                        Object.entries(results.expenses).map(([key, values]) => [
-                            key, values.map(val => parseFloat(val.toFixed(1)))
-                        ])
-                    )
+                    // 整数万円単位での送信
+                    sales: results.monthlyResults.map(m => m.sales),
+                    cogs: results.monthlyResults.map(m => m.cogs),
+                    expenses: results.expenses
                 };
 
-                // LocalStorageに保存（統一キー）
                 localStorage.setItem('pl_system_rcd_data', JSON.stringify(unifiedData));
                 
-                // ワークフロー進行状況更新
                 const workflowProgress = {
                     step1_SR: 'completed',
                     step2_W: 'completed',
@@ -1210,8 +1134,7 @@
                 };
                 localStorage.setItem('workflow_progress', JSON.stringify(workflowProgress));
                 
-                // 成功通知＆移動
-                alert(`RCD社データ送信完了！（小数1位対応版）\n\n年間売上: ${formatNumberDecimal(results.annual.sales)}万円\n年間営業利益: ${formatNumberDecimal(results.annual.operatingProfit)}万円\n営業利益率: ${(results.annual.operatingProfit / results.annual.sales * 100).toFixed(1)}%\n\nPhase 4完了！統合PLで全体結果を確認します。\n3秒後に自動移動します...`);
+                alert(`RCD社データ送信完了！（精度向上版・整数万円単位出力）\n\n年間売上: ${results.annual.sales.toLocaleString()}万円\n年間営業利益: ${results.annual.operatingProfit.toLocaleString()}万円\n営業利益率: ${(results.annual.operatingProfit / results.annual.sales * 100).toFixed(1)}%\n\nPhase 4完了！統合PLで全体結果を確認します。\n3秒後に自動移動します...`);
                 
                 setTimeout(() => {
                     window.location.href = '../combined-dashboard/index.html';
@@ -1224,10 +1147,6 @@
                 console.error('RCD送信エラー:', error);
                 return 0;
             }
-        }
-
-        function formatNumber(num) {
-            return Math.round(num).toLocaleString();
         }
 
         function debounce(func, wait) {
@@ -1251,7 +1170,7 @@
                     input.addEventListener('input', debounce(updateRCDSales, 300));
                 });
                 
-                console.log('RCD社PLシステム初期化完了（小数1位対応版） - RC事業部パターン統合版');
+                console.log('RCD社PLシステム初期化完了（精度向上版・整数万円単位出力）');
                 
             } catch (error) {
                 console.error('初期化エラー:', error);
