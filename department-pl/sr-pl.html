@@ -1189,34 +1189,7 @@
             updateSRSales();
         }
 
-        // 【修正版】CSV出力 - 販管費19項目詳細を含む完全版
-        function exportSRCSV() {
-            try {
-                if (!window.srResults) {
-                    alert('計算データがありません。先に計算を実行してください。');
-                    return;
-                }
-
-                const { monthlyResults, annual, monthlySales, expenseDetails } = window.srResults;
-                const csvData = [];
-                
-                // ヘッダー行
-                csvData.push(['項目名', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月', '年間合計']);
-                
-                // 基本PL項目
-                csvData.push(['売上高', ...monthlySales, annual.sales]);
-                csvData.push(['売上原価', ...monthlyResults.map(m => m.cogs), monthlyResults.reduce((sum, m) => sum + m.cogs, 0)]);
-                csvData.push(['売上総利益', ...monthlyResults.map(m => m.grossProfit), monthlyResults.reduce((sum, m) => sum + m.grossProfit, 0)]);
-                
-                // 空行追加
-                csvData.push(['']);
-                csvData.push(['=== 販管費詳細 19項目 ===']);
-                
-                // 販管費19項目詳細
-                for (let id = 1; id <= 19; id++) {
-                    const expenseData = expenseDetails[id];
-                    const expenseName = expenseItems[id].name;
-                    const annual_expense = expenseData.reduce((sum, val) => sum + val, 0);
+) => sum + val, 0);
                     
                     csvData.push([`${id}. ${expenseName}`, ...expenseData, annual_expense]);
                 }
