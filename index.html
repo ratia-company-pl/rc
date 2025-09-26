@@ -501,12 +501,12 @@
     <div class="container">
         <div class="nav-section">
             <div class="nav-buttons">
-                <button class="btn-nav btn-active">ダッシュボード</button>
-                <button class="btn-nav">SR事業部PL</button>
-                <button class="btn-nav">W事業部PL</button>
-                <button class="btn-nav">RC事業部PL</button>
-                <button class="btn-nav">RCD事業部PL</button>
-                <button class="btn-nav">全体PL分析</button>
+                <button class="btn-nav btn-active" onclick="navigateTo('dashboard')">ダッシュボード</button>
+                <button class="btn-nav" onclick="navigateTo('sr-pl.html')">SR事業部PL</button>
+                <button class="btn-nav" onclick="navigateTo('w-pl.html')">W事業部PL</button>
+                <button class="btn-nav" onclick="navigateTo('rc-pl.html')">RC事業部PL</button>
+                <button class="btn-nav" onclick="navigateTo('rcd-pl.html')">RCD事業部PL</button>
+                <button class="btn-nav" onclick="navigateTo('combined-dashboard/index.html')">全体PL分析</button>
             </div>
         </div>
 
@@ -849,6 +849,53 @@
             compensation: [826,826,826,676,676,676,676,676,676,676,676,676],
             welfare: [107,107,107,88,88,88,88,88,88,88,88,88]
         };
+
+        // ナビゲーション機能
+        function navigateTo(page) {
+            try {
+                // アクティブボタンの更新
+                document.querySelectorAll('.btn-nav').forEach(btn => btn.classList.remove('btn-active'));
+                event.target.classList.add('btn-active');
+
+                if (page === 'dashboard') {
+                    // 現在のページなので何もしない
+                    updateStatus('ダッシュボードが表示されています', 'success');
+                    return;
+                }
+                
+                // 各ページへのナビゲーション
+                const pageUrls = {
+                    'sr-pl.html': '../department-pl/sr-pl.html',
+                    'w-pl.html': '../department-pl/w-pl.html',
+                    'rc-pl.html': '../department-pl/rc-pl.html',
+                    'rcd-pl.html': '../department-pl/rcd-pl.html',
+                    'combined-dashboard/index.html': '../combined-dashboard/index.html'
+                };
+                
+                if (pageUrls[page]) {
+                    // 実際のファイルが存在するかチェック
+                    fetch(pageUrls[page])
+                        .then(response => {
+                            if (response.ok) {
+                                window.location.href = pageUrls[page];
+                            } else {
+                                // ファイルが存在しない場合のフォールバック
+                                updateStatus(`${page} は開発中です。まもなく利用可能になります。`, 'warning');
+                                console.warn(`Navigation target ${page} not found, showing placeholder`);
+                            }
+                        })
+                        .catch(() => {
+                            // ネットワークエラーの場合もフォールバック
+                            updateStatus(`${page} への移動中にエラーが発生しました。`, 'error');
+                        });
+                } else {
+                    updateStatus(`不明なページ: ${page}`, 'error');
+                }
+            } catch (e) {
+                console.error('Navigation error:', e);
+                updateStatus('ナビゲーションエラー', 'error');
+            }
+        }
 
         const Charts = {
             main: null,
