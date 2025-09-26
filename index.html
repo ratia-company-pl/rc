@@ -855,7 +855,9 @@
             try {
                 // アクティブボタンの更新
                 document.querySelectorAll('.btn-nav').forEach(btn => btn.classList.remove('btn-active'));
-                event.target.classList.add('btn-active');
+                if (event && event.target) {
+                    event.target.classList.add('btn-active');
+                }
 
                 if (page === 'dashboard') {
                     // 現在のページなので何もしない
@@ -863,37 +865,30 @@
                     return;
                 }
                 
-                // 各ページへのナビゲーション
+                // GitHubディレクトリ構造に基づく正しいパス
                 const pageUrls = {
-                    'sr-pl.html': '../department-pl/sr-pl.html',
-                    'w-pl.html': '../department-pl/w-pl.html',
-                    'rc-pl.html': '../department-pl/rc-pl.html',
-                    'rcd-pl.html': '../department-pl/rcd-pl.html',
-                    'combined-dashboard/index.html': '../combined-dashboard/index.html'
+                    'sr-pl.html': './department-pl/sr-pl.html',
+                    'w-pl.html': './department-pl/w-pl.html', 
+                    'rc-pl.html': './department-pl/rc-pl.html',
+                    'rcd-pl.html': './department-pl/rcd-pl.html',
+                    'combined-dashboard/index.html': './combined-dashboard/index.html'
                 };
                 
                 if (pageUrls[page]) {
-                    // 実際のファイルが存在するかチェック
-                    fetch(pageUrls[page])
-                        .then(response => {
-                            if (response.ok) {
-                                window.location.href = pageUrls[page];
-                            } else {
-                                // ファイルが存在しない場合のフォールバック
-                                updateStatus(`${page} は開発中です。まもなく利用可能になります。`, 'warning');
-                                console.warn(`Navigation target ${page} not found, showing placeholder`);
-                            }
-                        })
-                        .catch(() => {
-                            // ネットワークエラーの場合もフォールバック
-                            updateStatus(`${page} への移動中にエラーが発生しました。`, 'error');
-                        });
+                    // 直接遷移を試行（GitHub Pagesでのfetchは制限があるため）
+                    updateStatus(`${page} に移動しています...`, 'success');
+                    console.log(`Navigating to: ${pageUrls[page]}`);
+                    
+                    // 短い遅延の後に遷移
+                    setTimeout(() => {
+                        window.location.href = pageUrls[page];
+                    }, 500);
                 } else {
                     updateStatus(`不明なページ: ${page}`, 'error');
                 }
             } catch (e) {
                 console.error('Navigation error:', e);
-                updateStatus('ナビゲーションエラー', 'error');
+                updateStatus('ナビゲーションエラー: ' + e.message, 'error');
             }
         }
 
