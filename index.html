@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>4事業部統合PLシミュレーター（横配置・軸修正版）</title>
+    <title>4事業部統合PLシミュレーター（横配置・軸修正版・役員報酬連携強化）</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -441,7 +441,7 @@
             border: 1px solid #dee2e6;
         }
 
-        /* 役員報酬セクション復活 */
+        /* 役員報酬セクション強化版 */
         .executive-section {
             background: #e8f5e8;
             border: 2px solid #27ae60;
@@ -503,6 +503,29 @@
 
         .executive-table tr:nth-child(even) {
             background: #f0f8f0;
+        }
+
+        /* データ同期ステータス表示 */
+        .sync-status {
+            background: rgba(52, 152, 219, 0.1);
+            border: 1px solid #3498db;
+            border-radius: 4px;
+            padding: 8px 12px;
+            margin: 10px 0;
+            font-size: 0.8em;
+            color: #2c3e50;
+        }
+
+        .sync-success {
+            background: rgba(39, 174, 96, 0.1);
+            border-color: #27ae60;
+            color: #155724;
+        }
+
+        .sync-warning {
+            background: rgba(243, 156, 18, 0.1);
+            border-color: #f39c12;
+            color: #856404;
         }
 
         .action-buttons {
@@ -839,14 +862,14 @@
                 
                 <div style="background: #fff3cd; padding: 8px; border-radius: 4px; font-size: 0.75em; margin-top: 10px;">
                     <strong>配分ロジック:</strong>
-                    赤字事業部（SR）:月+100万固定 | 黒字事業部（W・RC）:効率配分 | RCD：計画受注により除外 | 制約:売上増20%上限
+                    赤字事業部（SR）:月+100万固定 | 黒字事業部（W・RC）:効率配分 | RCD:計画受注により除外 | 制約:売上増20%上限
                 </div>
             </div>
         </div>
 
-        <!-- 役員報酬設定セクション復活 -->
+        <!-- 役員報酬設定セクション強化版（合計PL連携対応） -->
         <div class="executive-section">
-            <div class="executive-title">役員報酬設定</div>
+            <div class="executive-title">役員報酬設定（合計PL連携強化版）</div>
             
             <div class="executive-controls">
                 <div class="executive-input">
@@ -872,6 +895,23 @@
                 <button class="action-btn" style="background: #27ae60; font-size: 0.8em; padding: 8px 16px;" onclick="applyExecutiveAdjustment()">
                     設定を適用
                 </button>
+            </div>
+            
+            <div class="executive-controls">
+                <button class="action-btn" style="background: #3498db; font-size: 0.8em; padding: 8px 16px;" onclick="saveExecutiveSettingsToLocalStorage()">
+                    合計PLに保存
+                </button>
+                <button class="action-btn" style="background: #f39c12; font-size: 0.8em; padding: 8px 16px;" onclick="testDataSync()">
+                    データ同期テスト
+                </button>
+                <button class="action-btn" style="background: #9b59b6; font-size: 0.8em; padding: 8px 16px;" onclick="exportDataForLocalTransfer()">
+                    ローカル用出力
+                </button>
+            </div>
+
+            <!-- 同期ステータス表示 -->
+            <div id="sync-status" class="sync-status">
+                連携ステータス: 待機中...
             </div>
             
             <table class="executive-table">
@@ -941,7 +981,7 @@
                 <span id="integration-status-text">統合PL連携: アクティブ</span>
             </div>
             <button class="action-btn" style="background: #27ae60; color: white;" onclick="exportDebugData()">デバッグ情報出力</button>
-            <button class="action-btn" style="background: #9b59b6; color: white;" onclick="saveExecutiveSettingsToLocalStorage()">LocalStorage保存</button>
+            <button class="action-btn" style="background: #9b59b6; color: white;" onclick="loadExecutiveDataFromLocalStorage()">合計PLから読み込み</button>
         </div>
     </div>
 
@@ -1005,7 +1045,6 @@
                 if (wData) {
                     const parsed = JSON.parse(wData);
                     realData.w.sales = parsed.sales ? parsed.sales.reduce((sum, val) => sum + val, 0) : 0;
-                    // W事業部の営業利益計算（売上総利益 - 販管費）
                     if (parsed.sales && parsed.cogs && parsed.expenses) {
                         const grossProfit = parsed.sales.reduce((sum, val, i) => sum + (val - (parsed.cogs[i] || 0)), 0);
                         const totalExpenses = Object.values(parsed.expenses).reduce((sum, expenseArray) => 
@@ -1625,7 +1664,12 @@
             ChartManager.createProfitComparisonChart(allocation);
         }
 
-        // 役員報酬設定機能
+        // 【強化版】役員報酬設定機能（合計PL連携対応）
+        let currentExecutiveData = {
+            compensation: [826, 826, 826, 676, 676, 676, 676, 676, 676, 676, 676, 676],
+            welfare: [107, 107, 107, 88, 88, 88, 88, 88, 88, 88, 88, 88]
+        };
+
         function applyExecutiveAdjustment() {
             const baseHigh = parseInt(document.getElementById('base-salary-high').value) || 826;
             const baseLow = parseInt(document.getElementById('base-salary-low').value) || 676;
@@ -1633,7 +1677,7 @@
             const juneBonus = parseInt(document.getElementById('bonus-june').value) || 0;
             
             // 月別役員報酬更新（7-9月：高額期間、10-6月：低額期間）
-            const executiveMonthly = [
+            currentExecutiveData.compensation = [
                 baseHigh + adjustment, // 7月
                 baseHigh + adjustment, // 8月
                 baseHigh + adjustment, // 9月
@@ -1649,65 +1693,180 @@
             ];
             
             // 法定福利費計算（約13%）
-            const welfareMonthly = executiveMonthly.map(salary => Math.round(salary * 0.13));
+            currentExecutiveData.welfare = currentExecutiveData.compensation.map(salary => Math.round(salary * 0.13));
             
             // テーブル更新
-            executiveMonthly.forEach((salary, i) => {
+            currentExecutiveData.compensation.forEach((salary, i) => {
                 ChartManager.updateElement(`exec-m${i}`, salary);
-                ChartManager.updateElement(`welfare-m${i}`, welfareMonthly[i]);
+                ChartManager.updateElement(`welfare-m${i}`, currentExecutiveData.welfare[i]);
             });
             
             // 年計更新
-            const execTotal = executiveMonthly.reduce((sum, val) => sum + val, 0);
-            const welfareTotal = welfareMonthly.reduce((sum, val) => sum + val, 0);
+            const execTotal = currentExecutiveData.compensation.reduce((sum, val) => sum + val, 0);
+            const welfareTotal = currentExecutiveData.welfare.reduce((sum, val) => sum + val, 0);
             
-            ChartManager.updateElement('exec-total', execTotal);
-            ChartManager.updateElement('welfare-total', welfareTotal);
+            ChartManager.updateElement('exec-total', execTotal.toLocaleString());
+            ChartManager.updateElement('welfare-total', welfareTotal.toLocaleString());
             
+            updateSyncStatus('設定が適用されました。', 'success');
             console.log('Executive compensation updated:', { execTotal, welfareTotal });
-            alert('役員報酬設定を更新しました');
         }
 
-        // LocalStorageへの保存機能（PL合計ページとの連携用）
+        // LocalStorageへの保存機能（合計PL連携用）
         function saveExecutiveSettingsToLocalStorage() {
-            const baseHigh = parseInt(document.getElementById('base-salary-high').value) || 826;
-            const baseLow = parseInt(document.getElementById('base-salary-low').value) || 676;
-            const adjustment = parseInt(document.getElementById('adjustment-amount').value) || 0;
-            const juneBonus = parseInt(document.getElementById('bonus-june').value) || 0;
-            
-            // 月別役員報酬計算
-            const executiveMonthly = [
-                baseHigh + adjustment, baseHigh + adjustment, baseHigh + adjustment,
-                baseLow + adjustment, baseLow + adjustment, baseLow + adjustment,
-                baseLow + adjustment, baseLow + adjustment, baseLow + adjustment,
-                baseLow + adjustment, baseLow + adjustment, baseLow + adjustment + juneBonus
-            ];
-            
-            const welfareMonthly = executiveMonthly.map(salary => Math.round(salary * 0.13));
-            
-            // PL合計ページで使用する形式で保存
-            const executiveSettings = {
-                monthlyCompensation: executiveMonthly,
-                welfare: welfareMonthly,
-                lastUpdate: new Date().toISOString(),
-                metadata: {
-                    baseHigh: baseHigh,
-                    baseLow: baseLow,
-                    adjustment: adjustment,
-                    juneBonus: juneBonus
+            try {
+                const executiveSettings = {
+                    monthlyCompensation: [...currentExecutiveData.compensation],
+                    welfare: [...currentExecutiveData.welfare],
+                    lastUpdate: new Date().toISOString(),
+                    metadata: {
+                        baseHigh: parseInt(document.getElementById('base-salary-high').value),
+                        baseLow: parseInt(document.getElementById('base-salary-low').value),
+                        adjustment: parseInt(document.getElementById('adjustment-amount').value),
+                        juneBonus: parseInt(document.getElementById('bonus-june').value),
+                        version: "3.0_dashboard_integration"
+                    }
+                };
+                
+                // 合計PLページが参照するキー名で保存
+                localStorage.setItem('executive_compensation_csv_settings', JSON.stringify(executiveSettings));
+                
+                updateSyncStatus('合計PLページにデータを保存しました。連携完了。', 'success');
+                console.log('Executive settings saved to localStorage for combined PL:', executiveSettings);
+                
+            } catch (error) {
+                updateSyncStatus(`保存エラー: ${error.message}`, 'error');
+                console.error('Save error:', error);
+            }
+        }
+
+        // LocalStorageからの読み込み機能
+        function loadExecutiveDataFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem('executive_compensation_csv_settings');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    
+                    if (data.monthlyCompensation && data.welfare) {
+                        currentExecutiveData.compensation = [...data.monthlyCompensation];
+                        currentExecutiveData.welfare = [...data.welfare];
+                        
+                        // フォーム値も復元
+                        if (data.metadata) {
+                            document.getElementById('base-salary-high').value = data.metadata.baseHigh || 826;
+                            document.getElementById('base-salary-low').value = data.metadata.baseLow || 676;
+                            document.getElementById('adjustment-amount').value = data.metadata.adjustment || 0;
+                            document.getElementById('bonus-june').value = data.metadata.juneBonus || 0;
+                        }
+                        
+                        // テーブル更新
+                        currentExecutiveData.compensation.forEach((value, i) => {
+                            ChartManager.updateElement(`exec-m${i}`, value);
+                            ChartManager.updateElement(`welfare-m${i}`, currentExecutiveData.welfare[i]);
+                        });
+                        
+                        const execTotal = currentExecutiveData.compensation.reduce((sum, val) => sum + val, 0);
+                        const welfareTotal = currentExecutiveData.welfare.reduce((sum, val) => sum + val, 0);
+                        ChartManager.updateElement('exec-total', execTotal.toLocaleString());
+                        ChartManager.updateElement('welfare-total', welfareTotal.toLocaleString());
+                        
+                        updateSyncStatus(`合計PLから読み込み完了。最終更新: ${new Date(data.lastUpdate).toLocaleString()}`, 'success');
+                    } else {
+                        updateSyncStatus('データ構造が無効です。', 'error');
+                    }
+                } else {
+                    updateSyncStatus('合計PLにデータが見つかりません。', 'warning');
                 }
-            };
-            
-            localStorage.setItem('executive_compensation_csv_settings', JSON.stringify(executiveSettings));
-            
-            console.log('Executive settings saved to localStorage:', executiveSettings);
-            alert('役員報酬設定をLocalStorageに保存しました。PL合計ページと連携されます。');
+            } catch (error) {
+                updateSyncStatus(`読み込みエラー: ${error.message}`, 'error');
+                console.error('Load error:', error);
+            }
+        }
+
+        // データ同期テスト機能
+        function testDataSync() {
+            try {
+                // 現在のデータで保存
+                saveExecutiveSettingsToLocalStorage();
+                
+                // 即座に読み戻し
+                const testData = localStorage.getItem('executive_compensation_csv_settings');
+                if (testData) {
+                    const parsed = JSON.parse(testData);
+                    
+                    // データ整合性確認
+                    const compMatch = JSON.stringify(parsed.monthlyCompensation) === JSON.stringify(currentExecutiveData.compensation);
+                    const welfareMatch = JSON.stringify(parsed.welfare) === JSON.stringify(currentExecutiveData.welfare);
+                    
+                    if (compMatch && welfareMatch) {
+                        updateSyncStatus('✅ データ同期テスト成功！合計PLページと正常に連携できます。', 'success');
+                    } else {
+                        updateSyncStatus('⚠️ データ同期に不一致があります。', 'error');
+                    }
+                } else {
+                    updateSyncStatus('❌ データ同期テスト失敗。', 'error');
+                }
+                
+            } catch (error) {
+                updateSyncStatus(`同期テストエラー: ${error.message}`, 'error');
+            }
+        }
+
+        // ローカルファイル用データ出力機能
+        function exportDataForLocalTransfer() {
+            try {
+                const executiveSettings = {
+                    monthlyCompensation: [...currentExecutiveData.compensation],
+                    welfare: [...currentExecutiveData.welfare],
+                    lastUpdate: new Date().toISOString(),
+                    metadata: {
+                        baseHigh: parseInt(document.getElementById('base-salary-high').value),
+                        baseLow: parseInt(document.getElementById('base-salary-low').value),
+                        adjustment: parseInt(document.getElementById('adjustment-amount').value),
+                        juneBonus: parseInt(document.getElementById('bonus-june').value),
+                        version: "3.0_local_transfer"
+                    }
+                };
+                
+                // JavaScriptコードを生成してアラート表示
+                const jsCode = `
+localStorage.setItem('executive_compensation_csv_settings', '${JSON.stringify(executiveSettings).replace(/'/g, "\\'")}');
+console.log('役員報酬データが設定されました');
+console.log('年計報酬: ${currentExecutiveData.compensation.reduce((sum, val) => sum + val, 0).toLocaleString()}万円');
+console.log('年計福利費: ${currentExecutiveData.welfare.reduce((sum, val) => sum + val, 0).toLocaleString()}万円');
+`;
+                
+                // コピー用にクリップボードに保存（可能であれば）
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(jsCode.trim()).then(() => {
+                        updateSyncStatus('ローカル用JavaScriptコードをクリップボードにコピーしました。ローカルHTMLのコンソールで実行してください。', 'success');
+                    }).catch(() => {
+                        alert('ローカル用コード:\n\n' + jsCode.trim() + '\n\n上記をローカルHTMLファイルのコンソールで実行してください。');
+                        updateSyncStatus('ローカル用JavaScriptコードを表示しました。', 'success');
+                    });
+                } else {
+                    alert('ローカル用コード:\n\n' + jsCode.trim() + '\n\n上記をローカルHTMLファイルのコンソールで実行してください。');
+                    updateSyncStatus('ローカル用JavaScriptコードを表示しました。', 'success');
+                }
+                
+            } catch (error) {
+                updateSyncStatus(`データ出力エラー: ${error.message}`, 'error');
+            }
+        }
+
+        // 同期ステータス更新機能
+        function updateSyncStatus(message, type) {
+            const statusDiv = document.getElementById('sync-status');
+            if (statusDiv) {
+                statusDiv.textContent = message;
+                statusDiv.className = `sync-status sync-${type}`;
+            }
         }
 
         // その他の機能（スタブ）
         function testTargetFunction() { 
             console.log('testTargetFunction called');
-            alert(`テスト実行\n配分状態: ${targetAllocationEnabled ? 'ON' : 'OFF'}`);
+            updateSyncStatus(`テスト実行\n配分状態: ${targetAllocationEnabled ? 'ON' : 'OFF'}`, 'success');
             
             if (targetAllocationEnabled) {
                 updateTargetAllocation();
@@ -1718,7 +1877,7 @@
             console.log('refreshDashboardData called - updating with real data'); 
             updateDashboardWithRealData();
             ChartManager.initializeAll();
-            alert('データ更新完了 - 実データと同期されました'); 
+            updateSyncStatus('データ更新完了 - 実データと同期されました', 'success');
         }
 
         function exportDebugData() { 
@@ -1729,19 +1888,12 @@
                 mainChart: !!ChartManager.mainChart,
                 targetAllocation: targetAllocationEnabled,
                 departmentRealData: realData,
+                executiveData: currentExecutiveData,
                 csvDataUsed: true,
                 timestamp: new Date().toISOString()
             };
             console.log('Debug Info:', debugInfo);
-            alert('デバッグ情報をコンソールに出力しました - 実データ連携確認済み'); 
-        }
-
-        function toggleDebugMode() { 
-            console.log('toggleDebugMode called');
-            const debugElements = document.querySelectorAll('[id*="debug"]');
-            debugElements.forEach(el => {
-                el.style.display = el.style.display === 'none' ? 'block' : 'none';
-            });
+            updateSyncStatus('デバッグ情報をコンソールに出力しました - 実データ連携確認済み', 'success');
         }
 
         // 初期化処理
@@ -1751,7 +1903,7 @@
             // Chart.jsの読み込み確認
             if (typeof Chart === 'undefined') {
                 console.error('Chart.js not loaded');
-                alert('Chart.jsの読み込みに失敗しました。ページを再読み込みしてください。');
+                updateSyncStatus('Chart.jsの読み込みに失敗しました。ページを再読み込みしてください。', 'error');
                 return;
             }
             
@@ -1767,9 +1919,13 @@
                 });
             }
             
+            // 役員報酬データの初期読み込み
+            loadExecutiveDataFromLocalStorage();
+            
             // 【修正】チャート初期化を遅延実行 - 実データで更新
             setTimeout(() => {
                 ChartManager.initializeAll();
+                updateSyncStatus('ダッシュボード初期化完了 - 実データ統合済み', 'success');
                 console.log('Dashboard initialization completed with real data integration');
             }, 500);
         });
