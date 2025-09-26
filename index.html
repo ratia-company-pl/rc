@@ -487,6 +487,18 @@
         .sync-warning { background: rgba(243, 156, 18, 0.1); border-color: #f39c12; color: #856404; }
         .sync-error { background: rgba(231, 76, 60, 0.1); border-color: #e74c3c; color: #721c24; }
 
+        .data-debug {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 0.75em;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
         @media (max-width: 768px) {
             .main-chart-row { flex-direction: column; }
             .chart-graph-cell, .chart-kpi-cell { flex: none; width: 100%; }
@@ -524,7 +536,7 @@
                 <span style="color: #667eea; font-weight: 700;">統合PL分析中</span>
             </div>
             <div class="workflow-actions">
-                <button class="action-btn btn-primary">全体PL統合分析を開始</button>
+                <button class="action-btn btn-primary" onclick="loadUnifiedData()">統合PLからデータ取得</button>
                 <button class="action-btn btn-secondary" onclick="refreshData()">全データ更新</button>
                 <div class="status-indicator status-complete">
                     <span>データ取得: 4/4部門</span>
@@ -533,6 +545,7 @@
                     <span>統合PL連携: アクティブ</span>
                 </div>
                 <button class="action-btn btn-info" onclick="exportDebug()">デバッグ情報出力</button>
+                <button class="action-btn btn-success" onclick="testUnifiedConnection()">統合PL接続テスト</button>
             </div>
         </div>
 
@@ -553,7 +566,7 @@
                         <div class="kpi-title">統合実績サマリー</div>
                         
                         <div class="kpi-section-primary">
-                            <div class="kpi-section-title">シミュレーション想定値</div>
+                            <div class="kpi-section-title">統合PLからの実際値</div>
                             <div class="kpi-item">
                                 <span class="kpi-label">年間売上合計</span>
                                 <span class="kpi-value" id="total-annual-sales">---万円</span>
@@ -597,37 +610,33 @@
         </div>
 
         <div class="dept-comparison-section">
-            <div class="section-title">各事業部個別データ表示・分析（前年同月実績比較）</div>
+            <div class="section-title">各事業部個別データ表示・分析（統合PLから取得）</div>
             
             <div class="dept-grid">
                 <div class="dept-card dept-sr">
                     <div class="dept-header">
                         <span class="dept-name">SR事業部</span>
-                        <span class="dept-yoy">前年比: +4.2%</span>
+                        <span class="dept-yoy">統合PL連携: <span id="sr-status">待機中</span></span>
                     </div>
                     <div class="dept-chart">
                         <canvas id="sr-monthly-chart"></canvas>
                     </div>
                     <div class="dept-kpi">
                         <div class="dept-kpi-item">
-                            <span class="dept-kpi-label">前年売上</span>
-                            <span class="dept-kpi-value">31,382万円</span>
+                            <span class="dept-kpi-label">年間売上</span>
+                            <span class="dept-kpi-value" id="sr-annual-sales">---万円</span>
                         </div>
                         <div class="dept-kpi-item">
-                            <span class="dept-kpi-label">今期売上</span>
-                            <span class="dept-kpi-value" id="sr-sim-sales">---万円</span>
+                            <span class="dept-kpi-label">営業利益</span>
+                            <span class="dept-kpi-value" id="sr-operating-profit">---万円</span>
                         </div>
                         <div class="dept-kpi-item">
-                            <span class="dept-kpi-label">増減額</span>
-                            <span class="dept-kpi-value" id="sr-increase">---万円</span>
+                            <span class="dept-kpi-label">利益率</span>
+                            <span class="dept-kpi-value" id="sr-profit-margin">---%</span>
                         </div>
                         <div class="dept-kpi-item">
-                            <span class="dept-kpi-label">伸び率</span>
-                            <span class="dept-kpi-value" id="sr-growth">---%</span>
-                        </div>
-                        <div class="dept-kpi-item">
-                            <span class="dept-kpi-label">累計利益</span>
-                            <span class="dept-kpi-value" id="sr-cumulative">---万円</span>
+                            <span class="dept-kpi-label">データ品質</span>
+                            <span class="dept-kpi-value" id="sr-data-quality">---%</span>
                         </div>
                     </div>
                 </div>
@@ -635,31 +644,27 @@
                 <div class="dept-card dept-w">
                     <div class="dept-header">
                         <span class="dept-name">W事業部</span>
-                        <span class="dept-yoy">前年比: -2.1%</span>
+                        <span class="dept-yoy">統合PL連携: <span id="w-status">待機中</span></span>
                     </div>
                     <div class="dept-chart">
                         <canvas id="w-monthly-chart"></canvas>
                     </div>
                     <div class="dept-kpi">
                         <div class="dept-kpi-item">
-                            <span class="dept-kpi-label">前年売上</span>
-                            <span class="dept-kpi-value">11,521万円</span>
+                            <span class="dept-kpi-label">年間売上</span>
+                            <span class="dept-kpi-value" id="w-annual-sales">---万円</span>
                         </div>
                         <div class="dept-kpi-item">
-                            <span class="dept-kpi-label">今期売上</span>
-                            <span class="dept-kpi-value" id="w-sim-sales">---万円</span>
+                            <span class="dept-kpi-label">営業利益</span>
+                            <span class="dept-kpi-value" id="w-operating-profit">---万円</span>
                         </div>
                         <div class="dept-kpi-item">
-                            <span class="dept-kpi-label">増減額</span>
-                            <span class="dept-kpi-value" id="w-increase">---万円</span>
+                            <span class="dept-kpi-label">利益率</span>
+                            <span class="dept-kpi-value" id="w-profit-margin">---%</span>
                         </div>
                         <div class="dept-kpi-item">
-                            <span class="dept-kpi-label">伸び率</span>
-                            <span class="dept-kpi-value" id="w-growth">---%</span>
-                        </div>
-                        <div class="dept-kpi-item">
-                            <span class="dept-kpi-label">累計利益</span>
-                            <span class="dept-kpi-value" id="w-cumulative">---万円</span>
+                            <span class="dept-kpi-label">データ品質</span>
+                            <span class="dept-kpi-value" id="w-data-quality">---%</span>
                         </div>
                     </div>
                 </div>
@@ -667,63 +672,55 @@
                 <div class="dept-card dept-rc">
                     <div class="dept-header">
                         <span class="dept-name">RC事業部</span>
-                        <span class="dept-yoy">前年比: +7.6%</span>
+                        <span class="dept-yoy">統合PL連携: <span id="rc-status">待機中</span></span>
                     </div>
                     <div class="dept-chart">
                         <canvas id="rc-monthly-chart"></canvas>
                     </div>
                     <div class="dept-kpi">
                         <div class="dept-kpi-item">
-                            <span class="dept-kpi-label">前年売上</span>
-                            <span class="dept-kpi-value">18,359万円</span>
+                            <span class="dept-kpi-label">年間売上</span>
+                            <span class="dept-kpi-value" id="rc-annual-sales">---万円</span>
                         </div>
                         <div class="dept-kpi-item">
-                            <span class="dept-kpi-label">今期売上</span>
-                            <span class="dept-kpi-value" id="rc-sim-sales">---万円</span>
+                            <span class="dept-kpi-label">営業利益</span>
+                            <span class="dept-kpi-value" id="rc-operating-profit">---万円</span>
                         </div>
                         <div class="dept-kpi-item">
-                            <span class="dept-kpi-label">増減額</span>
-                            <span class="dept-kpi-value" id="rc-increase">---万円</span>
+                            <span class="dept-kpi-label">利益率</span>
+                            <span class="dept-kpi-value" id="rc-profit-margin">---%</span>
                         </div>
                         <div class="dept-kpi-item">
-                            <span class="dept-kpi-label">伸び率</span>
-                            <span class="dept-kpi-value" id="rc-growth">---%</span>
-                        </div>
-                        <div class="dept-kpi-item">
-                            <span class="dept-kpi-label">累計利益</span>
-                            <span class="dept-kpi-value" id="rc-cumulative">---万円</span>
+                            <span class="dept-kpi-label">データ品質</span>
+                            <span class="dept-kpi-value" id="rc-data-quality">---%</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="dept-card dept-rcd">
                     <div class="dept-header">
-                        <span class="dept-name">RCD事業部（計画受注）</span>
-                        <span class="dept-yoy">前年比: +2.8%</span>
+                        <span class="dept-name">RCD事業部</span>
+                        <span class="dept-yoy">統合PL連携: <span id="rcd-status">待機中</span></span>
                     </div>
                     <div class="dept-chart">
                         <canvas id="rcd-monthly-chart"></canvas>
                     </div>
                     <div class="dept-kpi">
                         <div class="dept-kpi-item">
-                            <span class="dept-kpi-label">前年売上</span>
-                            <span class="dept-kpi-value">170,179万円</span>
+                            <span class="dept-kpi-label">年間売上</span>
+                            <span class="dept-kpi-value" id="rcd-annual-sales">---万円</span>
                         </div>
                         <div class="dept-kpi-item">
-                            <span class="dept-kpi-label">今期売上</span>
-                            <span class="dept-kpi-value" id="rcd-sim-sales">---万円</span>
+                            <span class="dept-kpi-label">営業利益</span>
+                            <span class="dept-kpi-value" id="rcd-operating-profit">---万円</span>
                         </div>
                         <div class="dept-kpi-item">
-                            <span class="dept-kpi-label">増減額</span>
-                            <span class="dept-kpi-value" id="rcd-increase">---万円</span>
+                            <span class="dept-kpi-label">利益率</span>
+                            <span class="dept-kpi-value" id="rcd-profit-margin">---%</span>
                         </div>
                         <div class="dept-kpi-item">
-                            <span class="dept-kpi-label">伸び率</span>
-                            <span class="dept-kpi-value" id="rcd-growth">---%</span>
-                        </div>
-                        <div class="dept-kpi-item">
-                            <span class="dept-kpi-label">累計利益</span>
-                            <span class="dept-kpi-value" id="rcd-cumulative">---万円</span>
+                            <span class="dept-kpi-label">データ品質</span>
+                            <span class="dept-kpi-value" id="rcd-data-quality">---%</span>
                         </div>
                     </div>
                 </div>
@@ -795,6 +792,10 @@
                 連携ステータス: 待機中...
             </div>
             
+            <div id="data-debug" class="data-debug" style="display: none;">
+                統合PLデータデバッグ情報がここに表示されます
+            </div>
+            
             <table class="executive-table">
                 <thead>
                     <tr>
@@ -829,12 +830,28 @@
     <script>
         let chartMode = 'current';
         let targetEnabled = false;
+        let unifiedDataLoaded = false;
         
-        const PREV_DATA = {
-            sr: { monthly: [2236,2916,2927,2810,2544,2663,3008,2324,2403,2602,2228,2721], annual: 31382 },
-            w: { monthly: [886,500,669,1174,1257,2331,712,772,865,824,608,923], annual: 11521 },
-            rc: { monthly: [1947,1645,1530,1730,1165,1846,1475,1585,1241,1173,1602,1420], annual: 18359 },
-            rcd: { monthly: [11037,14297,11504,14664,12507,14920,13661,15455,14439,15857,15478,16360], annual: 170179 }
+        // 統合PLシステムのストレージキー定義
+        const UNIFIED_STORAGE_KEYS = {
+            'SR': 'pl_system_sr_corrected_data',
+            'W': 'pl_system_w_corrected_data', 
+            'RC': 'pl_system_rc_corrected_data',
+            'RCD': 'pl_system_rcd_corrected_data',
+            'executive': 'executive_compensation_csv_settings'
+        };
+
+        // 統合PLからのデータ構造
+        let unifiedPLData = {
+            sales: Array(12).fill(0),
+            cogs: Array(12).fill(0),
+            operatingProfit: Array(12).fill(0),
+            departments: {
+                'SR': { sales: Array(12).fill(0), operatingProfit: Array(12).fill(0), quality: 0 },
+                'W': { sales: Array(12).fill(0), operatingProfit: Array(12).fill(0), quality: 0 },
+                'RC': { sales: Array(12).fill(0), operatingProfit: Array(12).fill(0), quality: 0 },
+                'RCD': { sales: Array(12).fill(0), operatingProfit: Array(12).fill(0), quality: 0 }
+            }
         };
 
         const PREV_TOTALS = {
@@ -850,45 +867,332 @@
             welfare: [107,107,107,88,88,88,88,88,88,88,88,88]
         };
 
-        // ナビゲーション機能
-        function navigateTo(page) {
+        // 統合PLからデータを取得する関数（修正版）
+        function loadUnifiedData() {
             try {
-                // アクティブボタンの更新
-                document.querySelectorAll('.btn-nav').forEach(btn => btn.classList.remove('btn-active'));
-                if (event && event.target) {
-                    event.target.classList.add('btn-active');
+                updateStatus('統合PLからデータを取得中...', 'info');
+                console.log('統合PLデータ取得開始');
+                
+                let successCount = 0;
+                let totalDepartments = 4;
+                
+                // 各事業部のデータを統合PLから取得
+                Object.entries(UNIFIED_STORAGE_KEYS).forEach(([dept, key]) => {
+                    if (dept === 'executive') return;
+                    
+                    try {
+                        const rawData = localStorage.getItem(key);
+                        console.log(`${dept} データ取得試行 (キー: ${key}):`, rawData ? 'データあり' : 'データなし');
+                        
+                        if (rawData) {
+                            const parsedData = JSON.parse(rawData);
+                            console.log(`${dept} パース成功:`, parsedData.metadata || 'メタデータなし');
+                            
+                            // 統合PLから正しくデータを読み取り
+                            if (parsedData.sales && parsedData.cogs && parsedData.annual) {
+                                // 月次売上データ（万円単位で統一）
+                                unifiedPLData.departments[dept].sales = [...parsedData.sales];
+                                
+                                // 営業利益計算（売上 - 原価 - 販管費）
+                                const monthlyOperatingProfit = Array(12).fill(0);
+                                for (let m = 0; m < 12; m++) {
+                                    let monthlyExpenses = 0;
+                                    // 販管費19項目を合計
+                                    if (parsedData.expenses) {
+                                        for (let i = 1; i <= 19; i++) {
+                                            if (parsedData.expenses[i] && parsedData.expenses[i][m]) {
+                                                monthlyExpenses += parsedData.expenses[i][m];
+                                            }
+                                        }
+                                    }
+                                    monthlyOperatingProfit[m] = (parsedData.sales[m] || 0) - (parsedData.cogs[m] || 0) - monthlyExpenses;
+                                }
+                                unifiedPLData.departments[dept].operatingProfit = monthlyOperatingProfit;
+                                
+                                // データ品質スコア計算
+                                unifiedPLData.departments[dept].quality = calculateQualityScore(parsedData);
+                                
+                                successCount++;
+                                updateDepartmentStatus(dept, 'success');
+                                
+                                console.log(`${dept} データ統合完了:`, {
+                                    annualSales: parsedData.sales.reduce((s, v) => s + v, 0),
+                                    quality: unifiedPLData.departments[dept].quality
+                                });
+                            } else {
+                                console.warn(`${dept} データ構造が不正です:`, Object.keys(parsedData));
+                                updateDepartmentStatus(dept, 'error');
+                            }
+                        } else {
+                            console.warn(`${dept} データが存在しません (キー: ${key})`);
+                            updateDepartmentStatus(dept, 'waiting');
+                        }
+                    } catch (error) {
+                        console.error(`${dept} データ処理エラー:`, error);
+                        updateDepartmentStatus(dept, 'error');
+                    }
+                });
+
+                // 全体の売上・営業利益を集計
+                for (let m = 0; m < 12; m++) {
+                    unifiedPLData.sales[m] = 0;
+                    unifiedPLData.operatingProfit[m] = 0;
+                    
+                    Object.values(unifiedPLData.departments).forEach(deptData => {
+                        unifiedPLData.sales[m] += deptData.sales[m];
+                        unifiedPLData.operatingProfit[m] += deptData.operatingProfit[m];
+                    });
                 }
 
-                if (page === 'dashboard') {
-                    // 現在のページなので何もしない
-                    updateStatus('ダッシュボードが表示されています', 'success');
-                    return;
+                unifiedDataLoaded = true;
+                
+                updateStatus(`統合PLデータ取得完了: ${successCount}/${totalDepartments}部門`, 
+                           successCount === totalDepartments ? 'success' : 'warning');
+                
+                // データ表示を更新
+                updateAllDisplays();
+                
+                // デバッグ情報を表示
+                showDebugInfo();
+                
+                console.log('統合PLデータ統合完了:', {
+                    totalAnnualSales: unifiedPLData.sales.reduce((s, v) => s + v, 0),
+                    totalAnnualProfit: unifiedPLData.operatingProfit.reduce((s, v) => s + v, 0),
+                    successRate: `${successCount}/${totalDepartments}`
+                });
+                
+            } catch (error) {
+                console.error('統合PLデータ取得エラー:', error);
+                updateStatus('統合PLデータ取得エラー: ' + error.message, 'error');
+            }
+        }
+
+        // データ品質スコア計算
+        function calculateQualityScore(data) {
+            let score = 0;
+            
+            // 基本データ構造チェック (25点)
+            if (data.sales && Array.isArray(data.sales) && data.sales.length === 12) score += 25;
+            if (data.cogs && Array.isArray(data.cogs) && data.cogs.length === 12) score += 25;
+            
+            // 販管費データチェック (25点)
+            if (data.expenses) {
+                let expenseCount = 0;
+                for (let i = 1; i <= 19; i++) {
+                    if (data.expenses[i] && Array.isArray(data.expenses[i])) expenseCount++;
                 }
+                score += Math.round((expenseCount / 19) * 25);
+            }
+            
+            // 年間データチェック (25点)
+            if (data.annual && data.annual.totalSales && data.annual.operatingProfit) score += 25;
+            
+            return Math.min(100, score);
+        }
+
+        // 事業部ステータス更新
+        function updateDepartmentStatus(dept, status) {
+            const statusSpan = document.getElementById(`${dept.toLowerCase()}-status`);
+            if (statusSpan) {
+                switch (status) {
+                    case 'success':
+                        statusSpan.textContent = '接続済み';
+                        statusSpan.style.color = '#27ae60';
+                        break;
+                    case 'error':
+                        statusSpan.textContent = 'エラー';
+                        statusSpan.style.color = '#e74c3c';
+                        break;
+                    default:
+                        statusSpan.textContent = '待機中';
+                        statusSpan.style.color = '#f39c12';
+                }
+            }
+        }
+
+        // 全表示の更新
+        function updateAllDisplays() {
+            if (!unifiedDataLoaded) return;
+            
+            updateKPIs();
+            updateMainChart();
+            updateDepartmentCharts();
+            updateDepartmentKPIs();
+        }
+
+        // KPI更新（統合PLデータ使用）
+        function updateKPIs() {
+            if (!unifiedDataLoaded) return;
+            
+            const totalSales = unifiedPLData.sales.reduce((sum, val) => sum + val, 0);
+            const totalProfit = unifiedPLData.operatingProfit.reduce((sum, val) => sum + val, 0);
+            const avgSales = Math.round(totalSales / 12);
+            const avgProfit = Math.round(totalProfit / 12);
+            const profitRate = totalSales > 0 ? ((totalProfit / totalSales) * 100).toFixed(1) : '0.0';
+
+            Charts.updateElement('total-annual-sales', totalSales.toLocaleString() + '万円');
+            Charts.updateElement('avg-monthly-sales', avgSales.toLocaleString() + '万円');
+            Charts.updateElement('total-annual-profit', (totalProfit >= 0 ? '+' : '') + totalProfit.toLocaleString() + '万円');
+            Charts.updateElement('avg-monthly-profit', (avgProfit >= 0 ? '+' : '') + avgProfit.toLocaleString() + '万円');
+            Charts.updateElement('profit-margin', profitRate + '%');
+
+            const salesInc = totalSales - PREV_TOTALS.sales;
+            const profitInc = totalProfit - PREV_TOTALS.profit;
+            const growthRate = PREV_TOTALS.sales > 0 ? ((salesInc / PREV_TOTALS.sales) * 100).toFixed(1) : '0.0';
+
+            Charts.updateElement('yoy-sales-increase', (salesInc >= 0 ? '+' : '') + Math.round(salesInc).toLocaleString() + '万円');
+            Charts.updateElement('yoy-profit-increase', (profitInc >= 0 ? '+' : '') + Math.round(profitInc).toLocaleString() + '万円');
+            Charts.updateElement('yoy-sales-growth', (growthRate >= 0 ? '+' : '') + growthRate + '%');
+
+            // KPI値の色分け
+            [document.getElementById('yoy-sales-increase'), document.getElementById('yoy-profit-increase'), document.getElementById('yoy-sales-growth')].forEach((el, i) => {
+                if (el) {
+                    const val = i === 2 ? parseFloat(growthRate) : (i === 0 ? salesInc : profitInc);
+                    el.className = 'kpi-value ' + (val > 0 ? 'positive' : val < 0 ? 'negative' : 'neutral');
+                }
+            });
+        }
+
+        // メインチャート更新（統合PLデータ使用）
+        function updateMainChart() {
+            if (!unifiedDataLoaded) return;
+            
+            Charts.createMain();
+        }
+
+        // 事業部別チャート更新（統合PLデータ使用）
+        function updateDepartmentCharts() {
+            if (!unifiedDataLoaded) return;
+            
+            Object.keys(unifiedPLData.departments).forEach(dept => {
+                const deptData = unifiedPLData.departments[dept];
+                const ctx = document.getElementById(`${dept.toLowerCase()}-monthly-chart`);
                 
-                // GitHubディレクトリ構造に基づく正しいパス
-                const pageUrls = {
-                    'sr-pl.html': './department-pl/sr-pl.html',
-                    'w-pl.html': './department-pl/w-pl.html', 
-                    'rc-pl.html': './department-pl/rc-pl.html',
-                    'rcd-pl.html': './department-pl/rcd-pl.html',
-                    'combined-dashboard/index.html': './combined-dashboard/index.html'
-                };
-                
-                if (pageUrls[page]) {
-                    // 直接遷移を試行（GitHub Pagesでのfetchは制限があるため）
-                    updateStatus(`${page} に移動しています...`, 'success');
-                    console.log(`Navigating to: ${pageUrls[page]}`);
+                if (ctx && !Charts.depts[dept.toLowerCase()]) {
+                    const months = ['7','8','9','10','11','12','1','2','3','4','5','6'];
+                    const color = COLORS[dept.toLowerCase()];
                     
-                    // 短い遅延の後に遷移
-                    setTimeout(() => {
-                        window.location.href = pageUrls[page];
-                    }, 500);
-                } else {
-                    updateStatus(`不明なページ: ${page}`, 'error');
+                    Charts.depts[dept.toLowerCase()] = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: months,
+                            datasets: [{
+                                label: '月次売上',
+                                data: deptData.sales,
+                                backgroundColor: color + '77',
+                                borderColor: color,
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { 
+                                legend: { display: true, position: 'top', labels: { font: {size: 9} } }
+                            },
+                            scales: { 
+                                x: { ticks: { font: {size: 8} } }, 
+                                y: { ticks: { font: {size: 8}, callback: function(value) { return value.toLocaleString(); } } } 
+                            }
+                        }
+                    });
+                } else if (Charts.depts[dept.toLowerCase()]) {
+                    // 既存チャートのデータ更新
+                    Charts.depts[dept.toLowerCase()].data.datasets[0].data = deptData.sales;
+                    Charts.depts[dept.toLowerCase()].update();
                 }
-            } catch (e) {
-                console.error('Navigation error:', e);
-                updateStatus('ナビゲーションエラー: ' + e.message, 'error');
+            });
+        }
+
+        // 事業部別KPI更新（統合PLデータ使用）
+        function updateDepartmentKPIs() {
+            if (!unifiedDataLoaded) return;
+            
+            Object.entries(unifiedPLData.departments).forEach(([dept, data]) => {
+                const deptLower = dept.toLowerCase();
+                const annualSales = data.sales.reduce((sum, val) => sum + val, 0);
+                const annualProfit = data.operatingProfit.reduce((sum, val) => sum + val, 0);
+                const profitMargin = annualSales > 0 ? ((annualProfit / annualSales) * 100).toFixed(1) : '0.0';
+                
+                Charts.updateElement(`${deptLower}-annual-sales`, annualSales.toLocaleString() + '万円');
+                Charts.updateElement(`${deptLower}-operating-profit`, (annualProfit >= 0 ? '+' : '') + annualProfit.toLocaleString() + '万円');
+                Charts.updateElement(`${deptLower}-profit-margin`, profitMargin + '%');
+                Charts.updateElement(`${deptLower}-data-quality`, data.quality + '%');
+            });
+        }
+
+        // デバッグ情報表示
+        function showDebugInfo() {
+            const debugElement = document.getElementById('data-debug');
+            if (debugElement) {
+                debugElement.style.display = 'block';
+                debugElement.innerHTML = `
+                    <strong>統合PLデータ状況:</strong><br>
+                    年間売上合計: ${unifiedPLData.sales.reduce((s, v) => s + v, 0).toLocaleString()}万円<br>
+                    年間利益合計: ${unifiedPLData.operatingProfit.reduce((s, v) => s + v, 0).toLocaleString()}万円<br>
+                    データ取得時刻: ${new Date().toLocaleString()}<br>
+                    <br><strong>事業部別状況:</strong><br>
+                    ${Object.entries(unifiedPLData.departments).map(([dept, data]) => 
+                        `${dept}: 売上${data.sales.reduce((s, v) => s + v, 0).toLocaleString()}万円, 品質${data.quality}%`
+                    ).join('<br>')}
+                `;
+            }
+        }
+
+        // 統合PL接続テスト
+        function testUnifiedConnection() {
+            try {
+                updateStatus('統合PL接続テスト実行中...', 'info');
+                
+                let connectionResults = [];
+                let testsPassed = 0;
+                let totalTests = 5;
+                
+                // テスト1: ストレージキーの存在確認
+                Object.entries(UNIFIED_STORAGE_KEYS).forEach(([dept, key]) => {
+                    if (dept === 'executive') return;
+                    const data = localStorage.getItem(key);
+                    if (data) {
+                        connectionResults.push(`✓ ${dept}: ストレージキー確認OK`);
+                        testsPassed++;
+                    } else {
+                        connectionResults.push(`✗ ${dept}: ストレージキーなし`);
+                    }
+                });
+                
+                // テスト2: データ構造の妥当性確認
+                if (unifiedDataLoaded) {
+                    connectionResults.push(`✓ 統合データ読み込み完了`);
+                    testsPassed++;
+                } else {
+                    connectionResults.push(`✗ 統合データ未読み込み`);
+                }
+                
+                const testResult = testsPassed >= 3 ? 'success' : 'warning';
+                const resultMessage = `統合PL接続テスト完了: ${testsPassed}/${totalTests + Object.keys(UNIFIED_STORAGE_KEYS).length - 1}項目成功`;
+                
+                updateStatus(resultMessage, testResult);
+                
+                // 詳細結果をデバッグエリアに表示
+                const debugElement = document.getElementById('data-debug');
+                if (debugElement) {
+                    debugElement.style.display = 'block';
+                    debugElement.innerHTML = `
+                        <strong>統合PL接続テスト結果:</strong><br>
+                        ${connectionResults.join('<br>')}<br>
+                        <br><strong>総合評価:</strong> ${resultMessage}
+                    `;
+                }
+                
+                console.log('統合PL接続テスト完了:', {
+                    passed: testsPassed,
+                    total: totalTests + Object.keys(UNIFIED_STORAGE_KEYS).length - 1,
+                    results: connectionResults
+                });
+                
+            } catch (error) {
+                console.error('統合PL接続テストエラー:', error);
+                updateStatus('接続テストエラー: ' + error.message, 'error');
             }
         }
 
@@ -906,14 +1210,14 @@
                 if (!ctx) return;
 
                 const months = ['7月','8月','9月','10月','11月','12月','1月','2月','3月','4月','5月','6月'];
-                const sales = [16399,19688,17073,20752,17944,22290,19202,20544,19342,20874,20300,21957];
-                const profit = [250,380,420,650,580,920,680,450,380,520,440,633];
+                
+                // 統合PLデータを使用（デフォルトデータから切り替え）
+                const sales = unifiedDataLoaded ? unifiedPLData.sales : [16399,19688,17073,20752,17944,22290,19202,20544,19342,20874,20300,21957];
+                const profit = unifiedDataLoaded ? unifiedPLData.operatingProfit : [250,380,420,650,580,920,680,450,380,520,440,633];
                 
                 const cumProfit = [];
                 let cum = 0;
                 profit.forEach(p => { cum += p; cumProfit.push(cum); });
-
-                this.updateKPIs(sales, profit);
 
                 let datasets;
                 if (chartMode === 'comparison') {
@@ -941,6 +1245,12 @@
                         maintainAspectRatio: false,
                         interaction: { mode: 'index', intersect: false },
                         plugins: {
+                            title: {
+                                display: true,
+                                text: unifiedDataLoaded ? '統合PLから取得したリアルデータ' : 'サンプルデータ表示中',
+                                font: { size: 14, weight: 'bold' },
+                                color: unifiedDataLoaded ? '#27ae60' : '#f39c12'
+                            },
                             legend: { display: true, position: 'top', labels: { usePointStyle: true, font: {size: 10, weight: 'bold'}, padding: 8 } },
                             tooltip: {
                                 callbacks: {
@@ -968,36 +1278,24 @@
                 });
             },
 
-            updateKPIs(sales, profit) {
-                const totalSales = sales.reduce((s,v) => s + v, 0);
-                const totalProfit = profit.reduce((s,v) => s + v, 0);
-                const avgSales = Math.round(totalSales / 12);
-                const avgProfit = Math.round(totalProfit / 12);
-                const profitRate = totalSales > 0 ? ((totalProfit / totalSales) * 100).toFixed(1) : '0.0';
-
-                this.updateElement('total-annual-sales', totalSales.toLocaleString() + '万円');
-                this.updateElement('avg-monthly-sales', avgSales.toLocaleString() + '万円');
-                this.updateElement('total-annual-profit', (totalProfit >= 0 ? '+' : '') + totalProfit.toLocaleString() + '万円');
-                this.updateElement('avg-monthly-profit', (avgProfit >= 0 ? '+' : '') + avgProfit.toLocaleString() + '万円');
-                this.updateElement('profit-margin', profitRate + '%');
-
-                const salesInc = totalSales - PREV_TOTALS.sales;
-                const profitInc = totalProfit - PREV_TOTALS.profit;
-                const growthRate = PREV_TOTALS.sales > 0 ? ((salesInc / PREV_TOTALS.sales) * 100).toFixed(1) : '0.0';
-
-                this.updateElement('yoy-sales-increase', (salesInc >= 0 ? '+' : '') + Math.round(salesInc).toLocaleString() + '万円');
-                this.updateElement('yoy-profit-increase', (profitInc >= 0 ? '+' : '') + Math.round(profitInc).toLocaleString() + '万円');
-                this.updateElement('yoy-sales-growth', (growthRate >= 0 ? '+' : '') + growthRate + '%');
-
-                [document.getElementById('yoy-sales-increase'), document.getElementById('yoy-profit-increase'), document.getElementById('yoy-sales-growth')].forEach((el, i) => {
-                    if (el) {
-                        const val = i === 2 ? parseFloat(growthRate) : (i === 0 ? salesInc : profitInc);
-                        el.className = 'kpi-value ' + (val > 0 ? 'positive' : val < 0 ? 'negative' : 'neutral');
-                    }
-                });
+            createDepts() {
+                // 統合PLデータが読み込まれている場合は、そのデータを使用
+                if (unifiedDataLoaded) {
+                    updateDepartmentCharts();
+                } else {
+                    // デフォルトデータでチャート作成
+                    this.createDefaultDeptCharts();
+                }
             },
 
-            createDepts() {
+            createDefaultDeptCharts() {
+                const PREV_DATA = {
+                    sr: { monthly: [2236,2916,2927,2810,2544,2663,3008,2324,2403,2602,2228,2721], annual: 31382 },
+                    w: { monthly: [886,500,669,1174,1257,2331,712,772,865,824,608,923], annual: 11521 },
+                    rc: { monthly: [1947,1645,1530,1730,1165,1846,1475,1585,1241,1173,1602,1420], annual: 18359 },
+                    rcd: { monthly: [11037,14297,11504,14664,12507,14920,13661,15455,14439,15857,15478,16360], annual: 170179 }
+                };
+
                 ['sr','w','rc','rcd'].forEach(dept => {
                     const ctx = document.getElementById(`${dept}-monthly-chart`);
                     if (!ctx || this.depts[dept]) return;
@@ -1026,30 +1324,8 @@
                 });
             },
 
-            updateDepts() {
-                const demo = {
-                    sr: { sales: 32700, profit: -1200 },
-                    w: { sales: 11280, profit: 820 },
-                    rc: { sales: 19730, profit: 1580 },
-                    rcd: { sales: 174900, profit: 4200 }
-                };
-                
-                Object.entries(demo).forEach(([dept, data]) => {
-                    this.updateElement(`${dept}-sim-sales`, data.sales.toLocaleString() + '万円');
-                    this.updateElement(`${dept}-cumulative`, (data.profit >= 0 ? '+' : '') + data.profit.toLocaleString() + '万円');
-                    
-                    const prevAnnual = PREV_DATA[dept].annual;
-                    const inc = data.sales - prevAnnual;
-                    const growth = prevAnnual > 0 ? ((inc / prevAnnual) * 100) : 0;
-                    
-                    this.updateElement(`${dept}-increase`, (inc >= 0 ? '+' : '') + Math.round(inc).toLocaleString() + '万円');
-                    this.updateElement(`${dept}-growth`, (growth >= 0 ? '+' : '') + growth.toFixed(1) + '%');
-                });
-            },
-
             init() {
                 try {
-                    this.updateDepts();
                     this.createMain();
                     setTimeout(() => this.createDepts(), 100);
                 } catch (e) {
@@ -1057,6 +1333,39 @@
                 }
             }
         };
+
+        // ナビゲーション機能
+        function navigateTo(page) {
+            try {
+                document.querySelectorAll('.btn-nav').forEach(btn => btn.classList.remove('btn-active'));
+                if (event && event.target) {
+                    event.target.classList.add('btn-active');
+                }
+
+                if (page === 'dashboard') {
+                    updateStatus('ダッシュボードが表示されています', 'success');
+                    return;
+                }
+                
+                const pageUrls = {
+                    'sr-pl.html': './department-pl/sr-pl.html',
+                    'w-pl.html': './department-pl/w-pl.html', 
+                    'rc-pl.html': './department-pl/rc-pl.html',
+                    'rcd-pl.html': './department-pl/rcd-pl.html',
+                    'combined-dashboard/index.html': './combined-dashboard/index.html'
+                };
+                
+                if (pageUrls[page]) {
+                    updateStatus(`${page} に移動しています...`, 'success');
+                    setTimeout(() => { window.location.href = pageUrls[page]; }, 500);
+                } else {
+                    updateStatus(`不明なページ: ${page}`, 'error');
+                }
+            } catch (e) {
+                console.error('Navigation error:', e);
+                updateStatus('ナビゲーションエラー: ' + e.message, 'error');
+            }
+        }
 
         function toggleChart() {
             try {
@@ -1103,7 +1412,6 @@
                 const low = parseInt(document.getElementById('base-salary-low').value) || 676;
                 const juneBonus = parseInt(document.getElementById('bonus-june').value) || 0;
                 
-                // 12ヶ月対応（7-9月：高額、10-6月：低額、6月に賞与加算）
                 execData.compensation = [high,high,high,low,low,low,low,low,low,low,low,low + juneBonus];
                 execData.welfare = execData.compensation.map(s => Math.round(s * 0.13));
                 
@@ -1135,7 +1443,7 @@
                         baseHigh: parseInt(document.getElementById('base-salary-high').value),
                         baseLow: parseInt(document.getElementById('base-salary-low').value),
                         juneBonus: parseInt(document.getElementById('bonus-june').value) || 0,
-                        version: "4.0_dashboard_integration"
+                        version: "4.0_dashboard_integration_fixed"
                     }
                 };
                 
@@ -1158,14 +1466,12 @@
                         execData.compensation = [...data.monthlyCompensation];
                         execData.welfare = [...data.welfare];
                         
-                        // フォーム値も復元
                         if (data.metadata) {
                             document.getElementById('base-salary-high').value = data.metadata.baseHigh || 826;
                             document.getElementById('base-salary-low').value = data.metadata.baseLow || 676;
                             document.getElementById('bonus-june').value = data.metadata.juneBonus || 0;
                         }
                         
-                        // テーブル更新
                         execData.compensation.forEach((value, i) => {
                             Charts.updateElement(`exec-m${i}`, value);
                             Charts.updateElement(`welfare-m${i}`, execData.welfare[i]);
@@ -1191,15 +1497,10 @@
 
         function testDataSync() {
             try {
-                // 現在のデータで保存
                 saveToLocalStorage();
-                
-                // 即座に読み戻し
                 const testData = localStorage.getItem('executive_compensation_csv_settings');
                 if (testData) {
                     const parsed = JSON.parse(testData);
-                    
-                    // データ整合性確認
                     const compMatch = JSON.stringify(parsed.monthlyCompensation) === JSON.stringify(execData.compensation);
                     const welfareMatch = JSON.stringify(parsed.welfare) === JSON.stringify(execData.welfare);
                     
@@ -1277,8 +1578,9 @@ console.log('年計福利費: ${execData.welfare.reduce((s,v) => s + v, 0).toLoc
 
         function refreshData() {
             try {
-                Charts.updateDepts();
-                Charts.init();
+                updateStatus('データ更新中...', 'info');
+                loadUnifiedData();
+                loadFromLocalStorage();
                 updateStatus('データ更新完了', 'success');
             } catch (e) {
                 console.error('Refresh error:', e);
@@ -1289,21 +1591,29 @@ console.log('年計福利費: ${execData.welfare.reduce((s,v) => s + v, 0).toLoc
         function exportDebug() {
             try {
                 const debug = {
-                    charts: Object.keys(Charts.depts),
-                    mainChart: !!Charts.main,
-                    targetEnabled,
+                    unifiedDataLoaded,
                     chartMode,
-                    execData,
+                    targetEnabled,
+                    unifiedPLDataSummary: {
+                        totalSales: unifiedPLData.sales.reduce((s, v) => s + v, 0),
+                        totalProfit: unifiedPLData.operatingProfit.reduce((s, v) => s + v, 0),
+                        departmentCount: Object.keys(unifiedPLData.departments).length
+                    },
+                    storageKeys: UNIFIED_STORAGE_KEYS,
                     timestamp: new Date().toISOString()
                 };
                 console.log('Debug Info:', debug);
                 updateStatus('デバッグ情報をコンソールに出力しました', 'success');
+                
+                // デバッグエリアにも表示
+                showDebugInfo();
             } catch (e) {
                 console.error('Export debug error:', e);
                 updateStatus('デバッグ出力エラー', 'error');
             }
         }
 
+        // システム初期化
         document.addEventListener('DOMContentLoaded', function() {
             try {
                 if (typeof Chart === 'undefined') {
@@ -1311,30 +1621,37 @@ console.log('年計福利費: ${execData.welfare.reduce((s,v) => s + v, 0).toLoc
                     return;
                 }
                 
+                updateStatus('ダッシュボード初期化中...', 'info');
+                
                 // 役員報酬データの初期読み込み
                 loadFromLocalStorage();
                 
+                // チャート初期化
                 setTimeout(() => {
                     try {
                         Charts.init();
-                        updateStatus('ダッシュボード初期化完了', 'success');
+                        updateStatus('ダッシュボード初期化完了。統合PLデータ取得ボタンをクリックしてください。', 'success');
                     } catch (e) {
                         console.error('Init error:', e);
                         updateStatus('初期化エラー', 'error');
                     }
                 }, 300);
+                
             } catch (e) {
                 console.error('DOMContentLoaded error:', e);
             }
         });
 
+        // 定期的な自動更新（統合PLデータが読み込まれている場合のみ）
         setInterval(() => {
             try {
-                Charts.updateDepts();
+                if (unifiedDataLoaded) {
+                    loadUnifiedData();
+                }
             } catch (e) {
                 console.error('Auto refresh error:', e);
             }
-        }, 10000);
+        }, 30000); // 30秒間隔
     </script>
 </body>
 </html>
