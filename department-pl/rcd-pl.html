@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RC事業部PLシミュレーター BWJ費用可変対応版 v4.0（修正版）</title>
+    <title>RCD社PLシミュレーター Phase 4完成版（精度向上版）v4.0（修正版）</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -14,7 +14,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
             min-height: 100vh;
             color: #333;
         }
@@ -24,33 +24,6 @@
             margin: 0 auto;
             padding: 15px;
         }
-
-        /* データ保護状況表示（画面右上固定） */
-        .data-protection-status {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 10px 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            border: 2px solid #e2e8f0;
-        }
-
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-
-        .status-protected { background: #10b981; }
-        .status-unprotected { background: #f59e0b; }
 
         /* 通知システム */
         .notification {
@@ -130,13 +103,13 @@
 
         .btn-nav.btn-sr { background: #e53e3e; border-color: #e53e3e; }
         .btn-nav.btn-w { background: #3498db; border-color: #3498db; }
-        .btn-nav.btn-rc { background: #38a169; border-color: #38a169; box-shadow: 0 4px 12px rgba(56, 161, 105, 0.4); }
-        .btn-nav.btn-rcd { background: #805ad5; border-color: #805ad5; }
+        .btn-nav.btn-rc { background: #38a169; border-color: #38a169; }
+        .btn-nav.btn-rcd { background: #805ad5; border-color: #805ad5; box-shadow: 0 4px 12px rgba(128, 90, 213, 0.4); }
 
         .workflow-section {
-            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
             padding: 18px 20px;
-            border-bottom: 3px solid #38a169;
+            border-bottom: 3px solid #805ad5;
         }
 
         .workflow-title {
@@ -180,7 +153,7 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #38a169, #2f7d59);
+            background: linear-gradient(135deg, #805ad5, #6b46c1);
             color: white;
         }
 
@@ -208,17 +181,29 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
+        /* パルス効果 */
+        .btn-pulse {
+            animation: pulse 1.5s infinite;
+            box-shadow: 0 0 20px rgba(128, 90, 213, 0.6);
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 20px rgba(128, 90, 213, 0.6); }
+            50% { box-shadow: 0 0 30px rgba(128, 90, 213, 0.8); }
+            100% { box-shadow: 0 0 20px rgba(128, 90, 213, 0.6); }
+        }
+
         .chart-section {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 12px;
             margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border-left: 5px solid #38a169;
+            border-left: 5px solid #805ad5;
         }
 
         .chart-header {
-            background: linear-gradient(135deg, #38a169 0%, #48bb78 100%);
+            background: linear-gradient(135deg, #805ad5 0%, #9f7aea 100%);
             color: white;
             padding: 12px 20px;
             font-weight: 700;
@@ -229,11 +214,11 @@
             display: flex;
             justify-content: space-around;
             align-items: center;
-            background: rgba(56, 161, 105, 0.1);
+            background: rgba(128, 90, 213, 0.1);
             padding: 15px;
             margin: 10px 20px;
             border-radius: 8px;
-            border: 2px solid #38a169;
+            border: 2px solid #805ad5;
             flex-wrap: wrap;
             gap: 10px;
         }
@@ -253,7 +238,7 @@
         .kpi-value {
             font-size: 1.2rem;
             font-weight: 700;
-            color: #38a169;
+            color: #805ad5;
         }
 
         .kpi-value.negative {
@@ -289,8 +274,8 @@
             border-radius: 2px;
         }
 
-        .legend-blue { background: rgba(59, 130, 246, 0.7); }
-        .legend-green { background: rgba(56, 161, 105, 0.7); }
+        .legend-purple { background: rgba(128, 90, 213, 0.7); }
+        .legend-red { background: rgba(231, 76, 60, 0.7); }
 
         .input-section {
             background: rgba(255, 255, 255, 0.95);
@@ -298,11 +283,11 @@
             border-radius: 12px;
             margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border-left: 5px solid #38a169;
+            border-left: 5px solid #805ad5;
         }
 
         .input-header {
-            background: linear-gradient(135deg, #38a169 0%, #48bb78 100%);
+            background: linear-gradient(135deg, #805ad5 0%, #9f7aea 100%);
             color: white;
             padding: 12px 20px;
             font-weight: 700;
@@ -335,9 +320,9 @@
             min-width: 90px;
         }
 
-        .preset-btn.green { background: linear-gradient(135deg, #27ae60, #229954); color: white; }
+        .preset-btn.green { background: linear-gradient(135deg, #52c41a, #389e0d); color: white; }
         .preset-btn.blue { background: linear-gradient(135deg, #3498db, #2980b9); color: white; }
-        .preset-btn.purple { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; }
+        .preset-btn.purple { background: linear-gradient(135deg, #722ed1, #531dab); color: white; }
         .preset-btn.red { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; }
 
         .preset-btn:hover {
@@ -355,37 +340,17 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            background: #fff3e0;
+            background: #f3e8ff;
             padding: 10px 15px;
             border-radius: 8px;
-            border: 2px solid #ff9800;
+            border: 2px solid #805ad5;
         }
 
         .setting-label {
             font-weight: 600;
-            color: #e65100;
+            color: #6b46c1;
             font-size: 0.8rem;
             white-space: nowrap;
-        }
-
-        .setting-input {
-            width: 80px;
-            padding: 6px 8px;
-            border: 2px solid #ffcc02;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            text-align: center;
-        }
-
-        .setting-input:focus {
-            border-color: #ff9800;
-            outline: none;
-        }
-
-        .setting-input:disabled {
-            background-color: #f8f9fa;
-            color: #6c757d;
-            opacity: 0.8;
         }
 
         .input-table {
@@ -397,6 +362,7 @@
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             margin: 20px 0;
+            table-layout: fixed;
         }
 
         .input-table th,
@@ -405,14 +371,21 @@
             padding: 8px 6px;
             text-align: center;
             line-height: 1.2;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .input-table th {
-            background: linear-gradient(135deg, #38a169, #48bb78);
+            background: linear-gradient(135deg, #805ad5, #9f7aea);
             color: white;
             font-weight: 600;
             font-size: 0.7rem;
         }
+
+        .input-table th:first-child { width: 120px; }
+        .input-table th:nth-child(n+2):nth-child(-n+13) { width: 60px; }
+        .input-table th:nth-child(n+14) { width: 80px; }
 
         .input-table .row-header {
             background: #f8f9fa;
@@ -420,14 +393,15 @@
             color: #2c3e50;
             text-align: left;
             padding-left: 12px;
-            min-width: 60px;
+            white-space: normal;
+            word-wrap: break-word;
         }
 
         .input-table input {
             width: 100%;
             padding: 4px 6px;
             border: 1px solid #ddd;
-            background: rgba(56, 161, 105, 0.1);
+            background: rgba(128, 90, 213, 0.1);
             border-radius: 3px;
             text-align: center;
             font-size: 0.7rem;
@@ -435,8 +409,8 @@
         }
 
         .input-table input:focus {
-            background: rgba(56, 161, 105, 0.2);
-            border-color: #38a169;
+            background: rgba(128, 90, 213, 0.2);
+            border-color: #805ad5;
             outline: none;
         }
 
@@ -450,14 +424,16 @@
         .diff-negative { color: #e74c3c; font-weight: 700; }
         .reference-value { color: #7f8c8d; font-size: 0.65rem; }
 
-        .profit-section {
+        .profit-section, .expense-section {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 12px;
             margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border-left: 5px solid #52c41a;
         }
+
+        .profit-section { border-left: 5px solid #52c41a; }
+        .expense-section { border-left: 5px solid #34495e; }
 
         .profit-header {
             background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%);
@@ -465,15 +441,6 @@
             padding: 12px 20px;
             font-weight: 700;
             font-size: 1rem;
-        }
-
-        .expense-section {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border-left: 5px solid #34495e;
         }
 
         .expense-header {
@@ -484,8 +451,7 @@
             font-size: 1rem;
         }
 
-        .profit-table,
-        .expense-table {
+        .profit-table, .expense-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.7rem;
@@ -493,10 +459,7 @@
             table-layout: fixed;
         }
 
-        .profit-table th,
-        .profit-table td,
-        .expense-table th,
-        .expense-table td {
+        .profit-table th, .profit-table td, .expense-table th, .expense-table td {
             border: 1px solid #e2e8f0;
             padding: 6px 4px;
             text-align: center;
@@ -505,8 +468,7 @@
             white-space: nowrap;
         }
 
-        .profit-table th:first-child,
-        .profit-table td:first-child {
+        .profit-table th:first-child, .profit-table td:first-child {
             width: 120px;
             white-space: normal;
             word-wrap: break-word;
@@ -514,13 +476,8 @@
             padding-left: 10px;
         }
 
-        .expense-table th:first-child,
-        .expense-table td:first-child {
-            width: 40px;
-        }
-
-        .expense-table th:nth-child(2),
-        .expense-table td:nth-child(2) {
+        .expense-table th:first-child, .expense-table td:first-child { width: 40px; }
+        .expense-table th:nth-child(2), .expense-table td:nth-child(2) {
             width: 120px;
             white-space: normal;
             word-wrap: break-word;
@@ -528,17 +485,13 @@
             padding-left: 10px;
         }
 
-        .profit-table th:nth-child(n+2):nth-child(-n+13),
-        .profit-table td:nth-child(n+2):nth-child(-n+13),
-        .expense-table th:nth-child(n+3):nth-child(-n+14),
-        .expense-table td:nth-child(n+3):nth-child(-n+14) {
+        .profit-table th:nth-child(n+2):nth-child(-n+13), .profit-table td:nth-child(n+2):nth-child(-n+13),
+        .expense-table th:nth-child(n+3):nth-child(-n+14), .expense-table td:nth-child(n+3):nth-child(-n+14) {
             width: 60px;
         }
 
-        .profit-table th:nth-child(n+14),
-        .profit-table td:nth-child(n+14),
-        .expense-table th:nth-child(n+15),
-        .expense-table td:nth-child(n+15) {
+        .profit-table th:nth-child(n+14), .profit-table td:nth-child(n+14),
+        .expense-table th:nth-child(n+15), .expense-table td:nth-child(n+15) {
             width: 80px;
         }
 
@@ -556,14 +509,20 @@
             font-size: 0.65rem;
         }
 
-        .profit-table .profit-name {
+        .profit-table .profit-name, .expense-table .expense-name {
             background: #f8f9fa;
             font-weight: 600;
         }
 
-        .expense-table .expense-name {
-            background: #f8f9fa;
-            font-weight: 600;
+        .precision-note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin: 10px 20px;
+            font-size: 0.75rem;
+            color: #856404;
+            text-align: center;
         }
 
         @media (max-width: 768px) {
@@ -574,25 +533,12 @@
             .preset-buttons { justify-content: center; }
             .settings-inline { justify-content: center; }
             .kpi-display { flex-direction: column; gap: 15px; }
-            .data-protection-status { 
-                position: relative; 
-                top: auto; 
-                right: auto; 
-                margin-bottom: 10px;
-                width: 100%;
-                justify-content: center;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- データ保護状況表示 -->
-    <div class="data-protection-status" id="protection-status">
-        <div class="status-indicator" id="status-indicator"></div>
-        <span id="status-text">データ保護OFF</span>
-    </div>
-
     <div class="container">
+        <!-- RCD事業部統合ヘッダー -->
         <div class="header-section">
             <div class="nav-section">
                 <div class="nav-buttons">
@@ -606,16 +552,15 @@
             </div>
 
             <div class="workflow-section">
-                <div class="workflow-title">統合PLシステム ワークフロー - Step 3/4 進行中</div>
-
+                <div class="workflow-title">統合PLシステム ワークフロー - Step 4/4 最終段階（精度向上版）</div>
                 <div class="workflow-info">
                     <span style="color: #27ae60; font-weight: 600;">✓ SR事業部完了</span>
                     <span style="margin: 0 10px; color: #bdc3c7;">|</span>
                     <span style="color: #27ae60; font-weight: 600;">✓ W事業部完了</span>
                     <span style="margin: 0 10px; color: #bdc3c7;">|</span>
-                    <span style="color: #38a169; font-weight: 700;">● RC事業部設定中</span>
+                    <span style="color: #27ae60; font-weight: 600;">✓ RC事業部完了</span>
                     <span style="margin: 0 10px; color: #bdc3c7;">|</span>
-                    <span style="color: #95a5a6;">RCD社待機</span>
+                    <span style="color: #805ad5; font-weight: 700;">● RCD社設定中</span>
                     <span style="margin: 0 10px; color: #bdc3c7;">→</span>
                     <span style="color: #f39c12; font-weight: 600;">合計PL統合</span>
                 </div>
@@ -623,80 +568,78 @@
                     <button class="action-btn btn-protection" id="protection-btn" onclick="toggleDataProtection()">
                         🔓 データ保護OFF
                     </button>
-                    <button class="action-btn btn-csv" onclick="exportRCCSV()">
+                    <button class="action-btn btn-csv" onclick="exportRCDCSV()">
                         CSVエクスポート（任意）
                     </button>
-                    <button class="action-btn btn-primary" id="send-btn" onclick="sendRCDataAndNavigateToNext()">
-                        RCデータ送信 → 次のステップ (RCD社)
+                    <button class="action-btn btn-primary" id="send-data-btn" onclick="sendRCDDataAndNavigateToNext()">
+                        RCD社データ送信 → 統合PLへ
+                    </button>
+                    <button class="action-btn btn-secondary" onclick="location.href='../combined-dashboard/index.html'">
+                        全体PL分析へ
                     </button>
                 </div>
             </div>
         </div>
 
+        <!-- 精度改善通知 -->
+        <div class="precision-note">
+            <strong>🔧 計算精度改善:</strong> 仕入本数を小数2位まで入力可能。計算結果は万円単位で整数化して出力します。
+        </div>
+
+        <!-- RCD事業部チャートセクション -->
         <div class="chart-section">
             <div class="chart-header">
-                参考前年数値との比較グラフ（統一構造 Version 4.0）
+                参考前年数値との比較グラフ（統一構造 Version 4.0 - 精度向上版）
             </div>
             
             <div class="kpi-display">
                 <div class="kpi-item">
                     <div class="kpi-label">年間売上合計</div>
-                    <div class="kpi-value" id="annual-sales">18,600万円</div>
+                    <div class="kpi-value" id="annual-sales">197,760万円</div>
                 </div>
                 <div class="kpi-item">
                     <div class="kpi-label">前年対比増減</div>
-                    <div class="kpi-value" id="sales-diff">+234万円</div>
+                    <div class="kpi-value" id="sales-diff">+27,581万円</div>
                 </div>
                 <div class="kpi-item">
                     <div class="kpi-label">営業利益率</div>
-                    <div class="kpi-value" id="profit-rate">49.3%</div>
+                    <div class="kpi-value" id="profit-rate">2.4%</div>
                 </div>
             </div>
             
             <div class="chart-container">
                 <div class="chart-legend">
                     <div class="legend-item">
-                        <div class="legend-color legend-blue"></div>
+                        <div class="legend-color legend-red"></div>
                         <span>参考</span>
                     </div>
                     <div class="legend-item">
-                        <div class="legend-color legend-green"></div>
+                        <div class="legend-color legend-purple"></div>
                         <span>予算</span>
                     </div>
                 </div>
-                <canvas id="rc-comparison-chart"></canvas>
+                <canvas id="rcd-comparison-chart"></canvas>
             </div>
         </div>
 
+        <!-- RCD事業部入力セクション -->
         <div class="input-section">
             <div class="input-header">
-                基準売上1,550万円 + 月別増減額入力 (万円)
+                RCD社 仕入本数・手数料発生回数入力システム（精度向上版） 
             </div>
             
             <div class="input-controls">
                 <div class="preset-buttons">
-                    <button class="preset-btn green" onclick="applyRCPreset('actual')">実績値</button>
-                    <button class="preset-btn blue" onclick="applyRCPreset('standard')">標準設定</button>
-                    <button class="preset-btn purple" onclick="applyRCPreset('growth4')">成長4%</button>
-                    <button class="preset-btn red" onclick="applyRCPreset('improvement7')">改善7%</button>
+                    <button class="preset-btn green" onclick="applyRCDPreset('actual')">実績パターン</button>
+                    <button class="preset-btn blue" onclick="applyRCDPreset('standard')">標準設定(月8本)</button>
+                    <button class="preset-btn purple" onclick="applyRCDPreset('growth')">月7本設定</button>
+                    <button class="preset-btn red" onclick="applyRCDPreset('improve')">月6本設定</button>
+                    <button class="preset-btn" style="background: linear-gradient(135deg, #95a5a6, #7f8c8d); color: white;" onclick="applyRCDPreset('zero_fee')">支払手数料0</button>
                 </div>
 
                 <div class="settings-inline">
-                    <label class="setting-label">広告宣伝費</label>
-                    <input type="number" class="setting-input" id="advertising" value="40" onchange="updateRCSales()">
-                    <span class="setting-label">万円/月</span>
-                    
-                    <div style="border-left: 2px solid #ff9800; height: 25px; margin: 0 8px;"></div>
-                    
-                    <label class="setting-label">BWJ施工費</label>
-                    <input type="number" class="setting-input" id="bwj-construction" value="90" onchange="updateRCSales()">
-                    <span class="setting-label">万円</span>
-                    
-                    <div style="border-left: 2px solid #ff9800; height: 25px; margin: 0 8px;"></div>
-                    
-                    <label class="setting-label">BWJ東京ブース費</label>
-                    <input type="number" class="setting-input" id="bwj-tokyo" value="90" onchange="updateRCSales()">
-                    <span class="setting-label">万円</span>
+                    <label class="setting-label">外部委託型</label>
+                    <span class="setting-label">人件費・経費0円処理</span>
                 </div>
             </div>
 
@@ -710,72 +653,88 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td class="row-header">増減額</td>
-                        <td><input type="number" data-month="0" value="0" onchange="updateRCSales()" /></td>
-                        <td><input type="number" data-month="1" value="0" onchange="updateRCSales()" /></td>
-                        <td><input type="number" data-month="2" value="0" onchange="updateRCSales()" /></td>
-                        <td><input type="number" data-month="3" value="0" onchange="updateRCSales()" /></td>
-                        <td><input type="number" data-month="4" value="0" onchange="updateRCSales()" /></td>
-                        <td><input type="number" data-month="5" value="0" onchange="updateRCSales()" /></td>
-                        <td><input type="number" data-month="6" value="0" onchange="updateRCSales()" /></td>
-                        <td><input type="number" data-month="7" value="0" onchange="updateRCSales()" /></td>
-                        <td><input type="number" data-month="8" value="0" onchange="updateRCSales()" /></td>
-                        <td><input type="number" data-month="9" value="0" onchange="updateRCSales()" /></td>
-                        <td><input type="number" data-month="10" value="0" onchange="updateRCSales()" /></td>
-                        <td><input type="number" data-month="11" value="0" onchange="updateRCSales()" /></td>
+                        <td class="row-header">仕入本数</td>
+                        <td><input type="number" step="0.01" data-month="0" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" step="0.01" data-month="1" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" step="0.01" data-month="2" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" step="0.01" data-month="3" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" step="0.01" data-month="4" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" step="0.01" data-month="5" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" step="0.01" data-month="6" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" step="0.01" data-month="7" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" step="0.01" data-month="8" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" step="0.01" data-month="9" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" step="0.01" data-month="10" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" step="0.01" data-month="11" data-type="purchase" value="8.00" onchange="updateRCDSales()" /></td>
                     </tr>
                     <tr>
-                        <td class="row-header">売上</td>
-                        <td class="calculated-value" id="sales-0">1550</td>
-                        <td class="calculated-value" id="sales-1">1550</td>
-                        <td class="calculated-value" id="sales-2">1550</td>
-                        <td class="calculated-value" id="sales-3">1550</td>
-                        <td class="calculated-value" id="sales-4">1550</td>
-                        <td class="calculated-value" id="sales-5">1550</td>
-                        <td class="calculated-value" id="sales-6">1550</td>
-                        <td class="calculated-value" id="sales-7">1550</td>
-                        <td class="calculated-value" id="sales-8">1550</td>
-                        <td class="calculated-value" id="sales-9">1550</td>
-                        <td class="calculated-value" id="sales-10">1550</td>
-                        <td class="calculated-value" id="sales-11">1550</td>
+                        <td class="row-header">手数料回数</td>
+                        <td><input type="number" data-month="0" data-type="fee" value="1" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" data-month="1" data-type="fee" value="1" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" data-month="2" data-type="fee" value="1" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" data-month="3" data-type="fee" value="1" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" data-month="4" data-type="fee" value="1" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" data-month="5" data-type="fee" value="1" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" data-month="6" data-type="fee" value="1" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" data-month="7" data-type="fee" value="1" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" data-month="8" data-type="fee" value="1" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" data-month="9" data-type="fee" value="1" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" data-month="10" data-type="fee" value="1" onchange="updateRCDSales()" /></td>
+                        <td><input type="number" data-month="11" data-type="fee" value="1" onchange="updateRCDSales()" /></td>
+                    </tr>
+                    <tr>
+                        <td class="row-header">売上予測</td>
+                        <td class="calculated-value" data-sales="0">16,480</td>
+                        <td class="calculated-value" data-sales="1">16,480</td>
+                        <td class="calculated-value" data-sales="2">16,480</td>
+                        <td class="calculated-value" data-sales="3">16,480</td>
+                        <td class="calculated-value" data-sales="4">16,480</td>
+                        <td class="calculated-value" data-sales="5">16,480</td>
+                        <td class="calculated-value" data-sales="6">16,480</td>
+                        <td class="calculated-value" data-sales="7">16,480</td>
+                        <td class="calculated-value" data-sales="8">16,480</td>
+                        <td class="calculated-value" data-sales="9">16,480</td>
+                        <td class="calculated-value" data-sales="10">16,480</td>
+                        <td class="calculated-value" data-sales="11">16,480</td>
                     </tr>
                     <tr>
                         <td class="row-header">増減</td>
-                        <td class="diff-value" data-diff="0">+0</td>
-                        <td class="diff-value" data-diff="1">+0</td>
-                        <td class="diff-value" data-diff="2">+0</td>
-                        <td class="diff-value" data-diff="3">+0</td>
-                        <td class="diff-value" data-diff="4">+0</td>
-                        <td class="diff-value" data-diff="5">+0</td>
-                        <td class="diff-value" data-diff="6">+0</td>
-                        <td class="diff-value" data-diff="7">+0</td>
-                        <td class="diff-value" data-diff="8">+0</td>
-                        <td class="diff-value" data-diff="9">+0</td>
-                        <td class="diff-value" data-diff="10">+0</td>
-                        <td class="diff-value" data-diff="11">+0</td>
+                        <td class="diff-value" data-diff="0">+49%</td>
+                        <td class="diff-value" data-diff="1">+15%</td>
+                        <td class="diff-value" data-diff="2">+43%</td>
+                        <td class="diff-value" data-diff="3">+12%</td>
+                        <td class="diff-value" data-diff="4">+32%</td>
+                        <td class="diff-value" data-diff="5">+10%</td>
+                        <td class="diff-value" data-diff="6">+21%</td>
+                        <td class="diff-value" data-diff="7">+7%</td>
+                        <td class="diff-value" data-diff="8">+14%</td>
+                        <td class="diff-value" data-diff="9">+4%</td>
+                        <td class="diff-value" data-diff="10">+6%</td>
+                        <td class="diff-value" data-diff="11">+1%</td>
                     </tr>
                     <tr>
                         <td class="row-header">参考</td>
-                        <td class="reference-value">1947</td>
-                        <td class="reference-value">1645</td>
-                        <td class="reference-value">1530</td>
-                        <td class="reference-value">1730</td>
-                        <td class="reference-value">1165</td>
-                        <td class="reference-value">1846</td>
-                        <td class="reference-value">1475</td>
-                        <td class="reference-value">1585</td>
-                        <td class="reference-value">1241</td>
-                        <td class="reference-value">1173</td>
-                        <td class="reference-value">1602</td>
-                        <td class="reference-value">1420</td>
+                        <td class="reference-value">11,037</td>
+                        <td class="reference-value">14,297</td>
+                        <td class="reference-value">11,504</td>
+                        <td class="reference-value">14,664</td>
+                        <td class="reference-value">12,507</td>
+                        <td class="reference-value">14,920</td>
+                        <td class="reference-value">13,661</td>
+                        <td class="reference-value">15,455</td>
+                        <td class="reference-value">14,439</td>
+                        <td class="reference-value">15,857</td>
+                        <td class="reference-value">15,478</td>
+                        <td class="reference-value">16,360</td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
+        <!-- RCD事業部利益テーブル -->
         <div class="profit-section">
             <div class="profit-header">
-                売上総利益・営業利益月額表（修正版固定費用対応）
+                売上総利益・営業利益月額表（統一構造 Version 4.0 - 精度向上版）
             </div>
             <table class="profit-table">
                 <thead>
@@ -792,9 +751,10 @@
             </table>
         </div>
 
+        <!-- RCD事業部販管費テーブル -->
         <div class="expense-section">
             <div class="expense-header">
-                販管費19項目詳細表示（統一構造 Version 4.0）
+                販管費19項目詳細表示（統一構造 Version 4.0 - 精度向上版）
             </div>
             <table class="expense-table">
                 <thead>
@@ -816,222 +776,31 @@
     </div>
 
     <script>
-        // グローバル変数
-        const rcReferenceData = [1947, 1645, 1530, 1730, 1165, 1846, 1475, 1585, 1241, 1173, 1602, 1420];
+        // RCD社データ管理（精度向上版）
+        const rcdReferenceData = [11037, 14297, 11504, 14664, 12507, 14920, 13661, 15455, 14439, 15857, 15478, 16360];
         const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
         
-        let rcData = {
-            baseSales: 1550,
-            variations: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            advertising: 40,
-            bwjConstruction: 90,
-            bwjTokyo: 90,
-            cogsRate: 0.352,
-            fixedPersonnel: 50
+        let rcdData = {
+            unitPurchase: 2000,    // 仕入単価2,000万円/本
+            profitRate: 0.03,      // 利益率3%固定
+            feePerOccurrence: 90.6, // 支払手数料90.6万円/件
+            monthlyPurchases: [8.00, 8.00, 8.00, 8.00, 8.00, 8.00, 8.00, 8.00, 8.00, 8.00, 8.00, 8.00],
+            monthlyFeeOccurrences: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         };
 
-        // データ保護システム
+        let rcdChart = null;
         let dataProtectionState = {
             isProtected: false,
             autoSaveInterval: null,
             backupCount: 3
         };
 
-        let rcChart = null;
+        // LocalStorageキー（統一規則）
+        const STORAGE_KEY = 'pl_system_rcd_corrected_data';
+        const BACKUP_KEY = 'rcd_pl_backups';
+        const EMERGENCY_KEY = 'rcd_pl_emergency_backup';
 
-        // 販管費19項目の設定（修正版：固定費用追加）
-        const expenseItems = [
-            { name: '人件費', calculate: () => rcData.fixedPersonnel },
-            { name: '法定福利費', calculate: () => 7 },
-            { name: '衛生費', calculate: () => 0 },
-            { name: '物流管理費', calculate: () => 74 },
-            { name: '地代家賃', calculate: () => 0 },
-            { name: '外注費', calculate: () => 57 },        // 修正：固定57万円/月
-            { name: '運送運賃', calculate: () => 62 },       // 修正：固定62万円/月
-            { name: '広告宣伝費', calculate: () => rcData.advertising },
-            { name: '旅費交通費', calculate: () => 15 },
-            { name: '通信費', calculate: () => 1 },
-            { name: '販売促進費', calculate: (month) => {
-                let base = 10;
-                if (month === 4) base += rcData.bwjConstruction;
-                if (month === 11) base += rcData.bwjTokyo;
-                return base;
-            }},
-            { name: '消耗品費', calculate: () => 36 },       // 修正：固定36万円/月
-            { name: '事務用品費', calculate: () => 10 },
-            { name: '水道光熱費', calculate: () => 2 },
-            { name: '支払手数料', calculate: () => 70 },
-            { name: 'リース料', calculate: () => 7 },        // 修正：固定7万円/月
-            { name: '保険料', calculate: () => 1 },
-            { name: '支払報酬料', calculate: () => 10 },
-            { name: '減価償却費', calculate: () => 7 }
-        ];
-
-        // データ保護機能
-        function toggleDataProtection() {
-            dataProtectionState.isProtected = !dataProtectionState.isProtected;
-            
-            if (dataProtectionState.isProtected) {
-                enableDataProtection();
-            } else {
-                disableDataProtection();
-            }
-            
-            updateProtectionStatus();
-            saveDataToStorage();
-        }
-
-        function enableDataProtection() {
-            // 入力フィールドを無効化
-            const inputs = document.querySelectorAll('.input-table input, .setting-input');
-            inputs.forEach(input => input.disabled = true);
-            
-            // プリセットボタンを無効化
-            const presetBtns = document.querySelectorAll('.preset-btn');
-            presetBtns.forEach(btn => btn.disabled = true);
-            
-            // 自動保存開始
-            if (dataProtectionState.autoSaveInterval) {
-                clearInterval(dataProtectionState.autoSaveInterval);
-            }
-            dataProtectionState.autoSaveInterval = setInterval(autoSave, 30000); // 30秒間隔
-            
-            // ページ離脱時の保存
-            window.addEventListener('beforeunload', emergencySave);
-            
-            showNotification('データ保護が有効になりました。タブ移動・ページ遷移後もデータが保持されます。', 'success');
-        }
-
-        function disableDataProtection() {
-            // 入力フィールドを有効化
-            const inputs = document.querySelectorAll('.input-table input, .setting-input');
-            inputs.forEach(input => input.disabled = false);
-            
-            // プリセットボタンを有効化
-            const presetBtns = document.querySelectorAll('.preset-btn');
-            presetBtns.forEach(btn => btn.disabled = false);
-            
-            // 自動保存停止
-            if (dataProtectionState.autoSaveInterval) {
-                clearInterval(dataProtectionState.autoSaveInterval);
-                dataProtectionState.autoSaveInterval = null;
-            }
-            
-            // ページ離脱時の保存を無効化
-            window.removeEventListener('beforeunload', emergencySave);
-            
-            showNotification('データ保護が無効になりました。編集可能状態に戻りました。', 'warning');
-        }
-
-        function updateProtectionStatus() {
-            const statusIndicator = document.getElementById('status-indicator');
-            const statusText = document.getElementById('status-text');
-            const protectionBtn = document.getElementById('protection-btn');
-            
-            if (dataProtectionState.isProtected) {
-                statusIndicator.className = 'status-indicator status-protected';
-                statusText.textContent = 'データ保護ON';
-                protectionBtn.innerHTML = '🔒 データ保護ON';
-                protectionBtn.className = 'action-btn btn-protection protected';
-            } else {
-                statusIndicator.className = 'status-indicator status-unprotected';
-                statusText.textContent = 'データ保護OFF';
-                protectionBtn.innerHTML = '🔓 データ保護OFF';
-                protectionBtn.className = 'action-btn btn-protection';
-            }
-        }
-
-        function autoSave() {
-            try {
-                const timestamp = new Date().toISOString();
-                const backupData = {
-                    rcData: JSON.parse(JSON.stringify(rcData)),
-                    timestamp: timestamp,
-                    version: 'auto-backup'
-                };
-                
-                // 最新3件のバックアップを保持
-                let backups = JSON.parse(localStorage.getItem('rc_pl_backups') || '[]');
-                backups.unshift(backupData);
-                backups = backups.slice(0, dataProtectionState.backupCount);
-                
-                localStorage.setItem('rc_pl_backups', JSON.stringify(backups));
-                console.log('自動保存完了:', timestamp);
-            } catch (error) {
-                console.error('自動保存エラー:', error);
-            }
-        }
-
-        function emergencySave() {
-            try {
-                const emergencyData = {
-                    rcData: JSON.parse(JSON.stringify(rcData)),
-                    timestamp: new Date().toISOString(),
-                    version: 'emergency-save'
-                };
-                
-                localStorage.setItem('rc_pl_emergency_backup', JSON.stringify(emergencyData));
-                console.log('緊急保存完了');
-            } catch (error) {
-                console.error('緊急保存エラー:', error);
-            }
-        }
-
-        function saveDataToStorage() {
-            try {
-                const storageData = {
-                    rcData: JSON.parse(JSON.stringify(rcData)),
-                    protectionState: dataProtectionState.isProtected,
-                    timestamp: new Date().toISOString(),
-                    version: 'v4.0'
-                };
-                
-                localStorage.setItem('pl_system_rc_corrected_data', JSON.stringify(storageData));
-            } catch (error) {
-                console.error('データ保存エラー:', error);
-                showNotification('データ保存に失敗しました: ' + error.message, 'error');
-            }
-        }
-
-        function loadDataFromStorage() {
-            try {
-                const stored = localStorage.getItem('pl_system_rc_corrected_data');
-                if (stored) {
-                    const storageData = JSON.parse(stored);
-                    
-                    if (storageData.rcData) {
-                        rcData = storageData.rcData;
-                        
-                        // 設定値をUIに反映
-                        document.getElementById('advertising').value = rcData.advertising;
-                        document.getElementById('bwj-construction').value = rcData.bwjConstruction;
-                        document.getElementById('bwj-tokyo').value = rcData.bwjTokyo;
-                        
-                        // 売上値をUIに反映
-                        const inputs = document.querySelectorAll('input[data-month]');
-                        inputs.forEach((input, i) => {
-                            input.value = rcData.variations[i];
-                        });
-                    }
-                    
-                    if (storageData.protectionState) {
-                        dataProtectionState.isProtected = true;
-                        enableDataProtection();
-                    }
-                    
-                    updateProtectionStatus();
-                    
-                    console.log('保存データから復元しました');
-                    return true;
-                }
-            } catch (error) {
-                console.error('データ読み込みエラー:', error);
-                showNotification('保存データの読み込みに失敗しました。初期値を使用します。', 'warning');
-            }
-            return false;
-        }
-
-        // 通知システム
+        // 通知システム 
         function showNotification(message, type = 'success', duration = 3000) {
             // 既存の通知を削除
             const existingNotifications = document.querySelectorAll('.notification, .notification-overlay');
@@ -1074,76 +843,264 @@
             notifications.forEach(el => el.remove());
         }
 
-        // RC事業部専用計算システム
-        function calculateRC() {
+        // データ保護機能
+        function toggleDataProtection() {
+            dataProtectionState.isProtected = !dataProtectionState.isProtected;
+            
+            if (dataProtectionState.isProtected) {
+                enableDataProtection();
+            } else {
+                disableDataProtection();
+            }
+            
+            updateProtectionStatus();
+            saveToStorage(true);
+        }
+
+        function enableDataProtection() {
+            // 入力フィールドを無効化
+            const inputs = document.querySelectorAll('.input-table input');
+            inputs.forEach(input => input.disabled = true);
+            
+            // プリセットボタンを無効化
+            const presetBtns = document.querySelectorAll('.preset-btn');
+            presetBtns.forEach(btn => btn.disabled = true);
+            
+            // 自動保存開始
+            if (dataProtectionState.autoSaveInterval) {
+                clearInterval(dataProtectionState.autoSaveInterval);
+            }
+            dataProtectionState.autoSaveInterval = setInterval(autoSave, 30000); // 30秒間隔
+            
+            // ページ離脱時の保存
+            window.addEventListener('beforeunload', emergencySave);
+            
+            showNotification('データ保護が有効になりました。タブ移動・ページ遷移時もデータが保持されます。', 'success');
+        }
+
+        function disableDataProtection() {
+            // 入力フィールドを有効化
+            const inputs = document.querySelectorAll('.input-table input');
+            inputs.forEach(input => input.disabled = false);
+            
+            // プリセットボタンを有効化
+            const presetBtns = document.querySelectorAll('.preset-btn');
+            presetBtns.forEach(btn => btn.disabled = false);
+            
+            // 自動保存停止
+            if (dataProtectionState.autoSaveInterval) {
+                clearInterval(dataProtectionState.autoSaveInterval);
+                dataProtectionState.autoSaveInterval = null;
+            }
+            
+            // ページ離脱時の保存を無効化
+            window.removeEventListener('beforeunload', emergencySave);
+            
+            showNotification('データ保護が無効になりました。編集可能状態に戻りました。', 'warning');
+        }
+
+        function updateProtectionStatus() {
+            const protectionBtn = document.getElementById('protection-btn');
+            
+            if (dataProtectionState.isProtected) {
+                protectionBtn.innerHTML = '🔒 データ保護ON';
+                protectionBtn.className = 'action-btn btn-protection protected';
+            } else {
+                protectionBtn.innerHTML = '🔓 データ保護OFF';
+                protectionBtn.className = 'action-btn btn-protection';
+            }
+        }
+
+        function autoSave() {
+            try {
+                const timestamp = new Date().toISOString();
+                const backupData = {
+                    ...rcdData,
+                    timestamp: timestamp,
+                    version: 'auto-backup'
+                };
+                
+                // 最新3件のバックアップを保持
+                let backups = JSON.parse(localStorage.getItem(BACKUP_KEY) || '[]');
+                backups.unshift(backupData);
+                backups = backups.slice(0, dataProtectionState.backupCount);
+                
+                localStorage.setItem(BACKUP_KEY, JSON.stringify(backups));
+                console.log('自動保存完了:', timestamp);
+            } catch (error) {
+                console.error('自動保存エラー:', error);
+            }
+        }
+
+        function emergencySave() {
+            try {
+                const emergencyData = {
+                    ...rcdData,
+                    timestamp: new Date().toISOString(),
+                    version: 'emergency-save'
+                };
+                
+                localStorage.setItem(EMERGENCY_KEY, JSON.stringify(emergencyData));
+                console.log('緊急保存完了');
+            } catch (error) {
+                console.error('緊急保存エラー:', error);
+            }
+        }
+
+        function saveToStorage(isProtection = false) {
+            try {
+                const results = calculateRCD();
+                
+                const unifiedData = {
+                    metadata: {
+                        department: 'RCD',
+                        version: '4.0_unified_corrected',
+                        lastUpdate: new Date().toISOString(),
+                        dataProtectionEnabled: dataProtectionState.isProtected,
+                        unifiedStructure: true,
+                        precisionImproved: true,
+                        unitPurchase: rcdData.unitPurchase,
+                        profitRate: rcdData.profitRate,
+                        feePerOccurrence: rcdData.feePerOccurrence
+                    },
+                    sales: results.monthlyResults.map(m => m.sales),
+                    cogs: results.monthlyResults.map(m => m.cogs),
+                    personnel: Array(12).fill(0), // RCD社は外部委託型のため人件費0
+                    totalExpenses: results.monthlyResults.map(m => m.totalExpenses),
+                    operatingProfit: results.monthlyResults.map(m => m.operatingProfit),
+                    expenses: {},
+                    annual: {
+                        sales: results.annual.sales,
+                        cogs: results.annual.cogs,
+                        grossProfit: results.annual.grossProfit,
+                        totalExpenses: results.annual.totalExpenses,
+                        operatingProfit: results.annual.operatingProfit
+                    },
+                    exportedAt: new Date().toISOString()
+                };
+
+                // 37項目統一フォーマット対応
+                for (let i = 1; i <= 19; i++) {
+                    if (i === 15) {
+                        unifiedData.expenses[i] = results.monthlyResults.map(m => m.paymentFees);
+                    } else {
+                        unifiedData.expenses[i] = Array(12).fill(0);
+                    }
+                }
+
+                // 統合PL用のゼロ項目追加（20-37）
+                for (let i = 20; i <= 37; i++) {
+                    unifiedData.expenses[i] = Array(12).fill(0);
+                }
+
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(unifiedData));
+                
+                if (isProtection) {
+                    showNotification('データが正常に保護されました。', 'success');
+                }
+                
+            } catch (error) {
+                console.error('保存エラー:', error);
+                showNotification('データ保存でエラーが発生しました。', 'error');
+            }
+        }
+
+        function loadFromStorage() {
+            try {
+                const savedData = localStorage.getItem(STORAGE_KEY);
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    if (data.metadata && data.metadata.dataProtectionEnabled) {
+                        dataProtectionState.isProtected = data.metadata.dataProtectionEnabled;
+                        if (dataProtectionState.isProtected) {
+                            enableDataProtection();
+                        }
+                        updateProtectionStatus();
+                    }
+                    showNotification('保存されたデータを読み込みました。', 'success', 2000);
+                    return true;
+                }
+            } catch (error) {
+                console.error('読み込みエラー:', error);
+            }
+            return false;
+        }
+
+        // RCD社計算エンジン（精度向上版：入力小数2位・出力整数万円）
+        function calculateRCD() {
             const results = {
                 monthlyResults: [],
                 expenses: {},
                 annual: {}
             };
 
-            results.monthlyResults = rcData.variations.map((variation, i) => {
-                const sales = rcData.baseSales + variation;
-                const cogs = Math.round(sales * rcData.cogsRate);
-                const grossProfit = sales - cogs;
-                return { sales, cogs, grossProfit };
+            // 入力データ収集
+            const purchaseInputs = document.querySelectorAll('input[data-type="purchase"]');
+            const feeInputs = document.querySelectorAll('input[data-type="fee"]');
+            
+            purchaseInputs.forEach((input, i) => {
+                rcdData.monthlyPurchases[i] = parseFloat(input.value) || 0;
+            });
+            
+            feeInputs.forEach((input, i) => {
+                rcdData.monthlyFeeOccurrences[i] = parseInt(input.value) || 0;
             });
 
-            results.expenses = {
-                1: results.monthlyResults.map(() => rcData.fixedPersonnel),
-                2: results.monthlyResults.map(() => 7),
-                3: results.monthlyResults.map(() => 0),
-                4: results.monthlyResults.map(() => 74),
-                5: results.monthlyResults.map(() => 0),
-                6: results.monthlyResults.map(() => 57),
-                7: results.monthlyResults.map(() => 62),
-                8: results.monthlyResults.map(() => rcData.advertising),
-                9: results.monthlyResults.map(() => 15),
-                10: results.monthlyResults.map(() => 1),
-                11: results.monthlyResults.map((m, i) => {
-                    let base = 10;
-                    if (i === 4) base += rcData.bwjConstruction;
-                    if (i === 11) base += rcData.bwjTokyo;
-                    return base;
-                }),
-                12: results.monthlyResults.map(() => 36),
-                13: results.monthlyResults.map(() => 10),
-                14: results.monthlyResults.map(() => 2),
-                15: results.monthlyResults.map(() => 70),
-                16: results.monthlyResults.map(() => 7),
-                17: results.monthlyResults.map(() => 1),
-                18: results.monthlyResults.map(() => 10),
-                19: results.monthlyResults.map(() => 7)
-            };
+            // 月次計算実行（精度向上：計算は小数で行い、結果は整数化）
+            results.monthlyResults = rcdData.monthlyPurchases.map((purchaseCount, i) => {
+                // 売上計算: 仕入本数×2,000万円×1.03（小数計算）→ 整数化
+                const salesCalc = purchaseCount * rcdData.unitPurchase * (1 + rcdData.profitRate);
+                const sales = Math.floor(salesCalc); // 小数切り捨てで整数化
+                
+                // 仕入原価: 仕入本数×2,000万円（小数計算）→ 整数化
+                const cogsCalc = purchaseCount * rcdData.unitPurchase;
+                const cogs = Math.floor(cogsCalc); // 小数切り捨てで整数化
+                
+                // 売上総利益（整数）
+                const grossProfit = sales - cogs;
+                
+                // 支払手数料: 発生回数×90.6万円 → 整数化
+                const paymentFeesCalc = rcdData.monthlyFeeOccurrences[i] * rcdData.feePerOccurrence;
+                const paymentFees = Math.floor(paymentFeesCalc); // 小数切り捨てで整数化
+                
+                // 営業利益（整数）
+                const operatingProfit = grossProfit - paymentFees;
+                
+                return {
+                    purchaseCount,
+                    sales, 
+                    cogs, 
+                    grossProfit, 
+                    paymentFees,
+                    totalExpenses: paymentFees,
+                    operatingProfit
+                };
+            });
 
+            // 販管費19項目データ構造（RCD社は支払手数料以外0円・整数）
+            for (let i = 1; i <= 19; i++) {
+                if (i === 15) {
+                    results.expenses[i] = results.monthlyResults.map(m => m.paymentFees);
+                } else {
+                    results.expenses[i] = new Array(12).fill(0);
+                }
+            }
+
+            // 年間集計（整数）
             results.annual = {
+                purchaseCount: results.monthlyResults.reduce((sum, m) => sum + m.purchaseCount, 0),
                 sales: results.monthlyResults.reduce((sum, m) => sum + m.sales, 0),
                 cogs: results.monthlyResults.reduce((sum, m) => sum + m.cogs, 0),
                 grossProfit: results.monthlyResults.reduce((sum, m) => sum + m.grossProfit, 0),
-                totalExpenses: Object.values(results.expenses).reduce((sum, expenseArray) => 
-                    sum + expenseArray.reduce((expSum, val) => expSum + val, 0), 0),
+                totalExpenses: results.monthlyResults.reduce((sum, m) => sum + m.totalExpenses, 0),
+                operatingProfit: results.monthlyResults.reduce((sum, m) => sum + m.operatingProfit, 0)
             };
-            results.annual.operatingProfit = results.annual.grossProfit - results.annual.totalExpenses;
 
             return results;
         }
 
-        function updateRCSales() {
-            if (dataProtectionState.isProtected) return;
-            
-            const inputs = document.querySelectorAll('input[data-month]');
-            inputs.forEach(input => {
-                const month = parseInt(input.dataset.month);
-                const value = parseInt(input.value) || 0;
-                rcData.variations[month] = value;
-            });
-
-            rcData.advertising = parseInt(document.getElementById('advertising').value) || 40;
-            rcData.bwjConstruction = parseInt(document.getElementById('bwj-construction').value) || 90;
-            rcData.bwjTokyo = parseInt(document.getElementById('bwj-tokyo').value) || 90;
-            
-            const results = calculateRC();
-
+        function updateRCDSales() {
+            const results = calculateRCD();
             updateSalesDisplay();
             updateDifferenceDisplay();
             updateKPIDisplay(results.annual);
@@ -1151,69 +1108,83 @@
             updateProfitTable(results);
             updateExpenseTable(results.expenses);
             
-            // データ保護が有効な場合は自動保存
+            // 自動保存実行
             if (dataProtectionState.isProtected) {
-                saveDataToStorage();
+                saveToStorage();
             }
         }
 
         function updateSalesDisplay() {
-            rcData.variations.forEach((variation, i) => {
-                const element = document.getElementById(`sales-${i}`);
-                if (element) {
-                    element.textContent = formatNumber(rcData.baseSales + variation);
+            rcdData.monthlyPurchases.forEach((purchaseCount, i) => {
+                const salesCalc = purchaseCount * rcdData.unitPurchase * (1 + rcdData.profitRate);
+                const sales = Math.floor(salesCalc); // 整数化
+                const salesElement = document.querySelector(`[data-sales="${i}"]`);
+                if (salesElement) {
+                    salesElement.textContent = sales.toLocaleString();
                 }
             });
         }
 
         function updateDifferenceDisplay() {
-            rcData.variations.forEach((variation, i) => {
+            rcdData.monthlyPurchases.forEach((purchaseCount, i) => {
+                const salesCalc = purchaseCount * rcdData.unitPurchase * (1 + rcdData.profitRate);
+                const currentSales = Math.floor(salesCalc);
+                const referenceValue = rcdReferenceData[i];
+                const diffPercent = ((currentSales - referenceValue) / referenceValue * 100);
+                
                 const diffElement = document.querySelector(`[data-diff="${i}"]`);
                 if (diffElement) {
-                    const currentSales = rcData.baseSales + variation;
-                    const referenceValue = rcReferenceData[i];
-                    const diff = currentSales - referenceValue;
-                    diffElement.textContent = diff >= 0 ? `+${diff}` : `${diff}`;
-                    diffElement.className = diff >= 0 ? 'diff-value diff-positive' : 'diff-value diff-negative';
+                    diffElement.textContent = (diffPercent >= 0 ? '+' : '') + diffPercent.toFixed(0) + '%';
+                    diffElement.className = diffPercent >= 0 ? 'diff-value diff-positive' : 'diff-value diff-negative';
                 }
             });
         }
 
         function updateKPIDisplay(annual) {
-            const refTotal = rcReferenceData.reduce((sum, val) => sum + val, 0);
+            const refTotal = rcdReferenceData.reduce((sum, val) => sum + val, 0);
             const salesDiff = annual.sales - refTotal;
             const profitRate = annual.sales > 0 ? (annual.operatingProfit / annual.sales * 100).toFixed(1) : '0.0';
 
-            document.getElementById('annual-sales').textContent = formatNumber(annual.sales) + '万円';
-            document.getElementById('sales-diff').textContent = (salesDiff >= 0 ? '+' : '') + formatNumber(salesDiff) + '万円';
+            document.getElementById('annual-sales').textContent = annual.sales.toLocaleString() + '万円';
+            document.getElementById('sales-diff').textContent = (salesDiff >= 0 ? '+' : '') + salesDiff.toLocaleString() + '万円';
             document.getElementById('profit-rate').textContent = profitRate + '%';
+
+            const profitRateElement = document.getElementById('profit-rate');
+            if (annual.operatingProfit >= 0) {
+                profitRateElement.className = 'kpi-value';
+            } else {
+                profitRateElement.className = 'kpi-value negative';
+            }
         }
 
         function updateChart() {
-            const ctx = document.getElementById('rc-comparison-chart');
+            const ctx = document.getElementById('rcd-comparison-chart');
             if (!ctx) return;
 
-            if (rcChart) rcChart.destroy();
+            if (rcdChart) rcdChart.destroy();
 
-            const currentSales = rcData.variations.map(variation => rcData.baseSales + variation);
+            const currentSales = rcdData.monthlyPurchases.map(purchaseCount => {
+                const salesCalc = purchaseCount * rcdData.unitPurchase * (1 + rcdData.profitRate);
+                return Math.floor(salesCalc); // 整数化
+            });
 
-            rcChart = new Chart(ctx, {
+            rcdChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: months,
                     datasets: [
                         {
                             label: '参考売上',
-                            data: rcReferenceData,
-                            backgroundColor: 'rgba(59, 130, 246, 0.7)',
-                            borderColor: 'rgba(59, 130, 246, 1)',
+                            data: rcdReferenceData,
+                            backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                            borderColor: 'rgba(231, 76, 60, 1)',
                             borderWidth: 2
                         },
                         {
                             label: '予算設定',
                             data: currentSales,
-                            backgroundColor: 'rgba(56, 161, 105, 0.7)',
-                            borderColor: 'rgba(56, 161, 105, 1)',
+                            backgroundColor: 'rgba(128, 90, 213, 0.7)',
+                            borderColor: 'rgba(128, 90, 213, 1)',
                             borderWidth: 2
                         }
                     ]
@@ -1236,7 +1207,6 @@
             
             tbody.innerHTML = '';
 
-            // 月次販管費合計計算
             const monthlySGAExpenses = new Array(12).fill(0);
             Object.values(results.expenses).forEach(expenseArray => {
                 expenseArray.forEach((val, monthIndex) => {
@@ -1245,36 +1215,6 @@
             });
 
             const tableData = [
-                {
-                    name: '売上高',
-                    values: results.monthlyResults.map(m => m.sales),
-                    style: 'background: #f6ffed; font-weight: 600; color: #237804;'
-                },
-                {
-                    name: '仕入原価',
-                    values: results.monthlyResults.map(m => m.cogs),
-                    style: 'background: #fff7e6; font-weight: 600; color: #d48806;'
-                },
-                {
-                    name: '売上総利益',
-                    values: results.monthlyResults.map(m => m.grossProfit),
-                    style: 'background: #e6f7ff; font-weight: 600; color: #1890ff;'
-                },
-                {
-                    name: '人件費固定（修正版）',
-                    values: results.monthlyResults.map(() => rcData.fixedPersonnel),
-                    style: 'background: #fff3cd; font-weight: bold; color: #e65100;'
-                },
-                {
-                    name: '法定福利費',
-                    values: results.monthlyResults.map(() => 7),
-                    style: 'background: #f0f9ff; font-weight: 600; color: #0369a1;'
-                },
-                {
-                    name: '販管費合計',
-                    values: monthlySGAExpenses,
-                    style: 'background: #fff0f6; font-weight: 600; color: #c41d7f;'
-                },
                 {
                     name: '営業利益',
                     values: results.monthlyResults.map((m, i) => m.grossProfit - monthlySGAExpenses[i]),
@@ -1289,9 +1229,9 @@
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td class="profit-name">${row.name}</td>
-                    ${row.values.map(val => `<td style="${row.style}">${formatNumber(Math.round(val))}</td>`).join('')}
-                    <td style="${row.style} border-left: 3px solid #333;">${formatNumber(annual)}</td>
-                    <td style="${row.style} border-left: 2px solid #666;">${formatNumber(average)}</td>
+                    ${row.values.map(val => `<td style="${row.style}">${val.toLocaleString()}</td>`).join('')}
+                    <td style="${row.style} border-left: 3px solid #333;">${annual.toLocaleString()}</td>
+                    <td style="${row.style} border-left: 2px solid #666;">${average.toLocaleString()}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -1299,8 +1239,8 @@
 
         function updateExpenseTable(expenses) {
             const expenseNames = [
-                '人件費', '法定福利費', '衛生費', '物流管理費', '地代家賃',
-                '外注費', '運送運賃', '広告宣伝費', '旅費交通費', '通信費',
+                '人件費統合', '法定福利費', '衛生費', '物流管理費', '地代家賃',
+                '外注費', '貨物運賃', '広告宣伝費', '旅費交通費', '通信費',
                 '販売促進費', '消耗品費', '事務用品費', '水道光熱費', '支払手数料',
                 'リース料', '保険料', '支払報酬料', '減価償却費'
             ];
@@ -1329,9 +1269,9 @@
                 row.innerHTML = `
                     <td style="font-weight: 600; background: #f8f9fa; text-align: center;">${expenseId}</td>
                     <td class="expense-name">${name}</td>
-                    ${monthlyExpenses.map(val => `<td>${formatNumber(val)}</td>`).join('')}
-                    <td style="font-weight: 700; background: #f8f9fa;">${formatNumber(annual)}</td>
-                    <td style="font-weight: 700; background: #e8f5e8; color: #27ae60;">${formatNumber(Math.round(annual / 12))}</td>
+                    ${monthlyExpenses.map(val => `<td>${val.toLocaleString()}</td>`).join('')}
+                    <td style="font-weight: 700; background: #f8f9fa;">${annual.toLocaleString()}</td>
+                    <td style="font-weight: 700; background: #e8f5e8; color: #27ae60;">${Math.round(annual / 12).toLocaleString()}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -1343,72 +1283,79 @@
             totalRow.innerHTML = `
                 <td style="text-align: center;">合計</td>
                 <td style="text-align: left; padding-left: 10px;">販管費合計</td>
-                ${monthlyTotals.map(val => `<td>${formatNumber(val)}</td>`).join('')}
-                <td style="background: #2c3e50;">${formatNumber(grandTotal)}</td>
-                <td style="background: #2c3e50;">${formatNumber(Math.round(grandTotal / 12))}</td>
+                ${monthlyTotals.map(val => `<td>${val.toLocaleString()}</td>`).join('')}
+                <td style="background: #2c3e50;">${grandTotal.toLocaleString()}</td>
+                <td style="background: #2c3e50;">${Math.round(grandTotal / 12).toLocaleString()}</td>
             `;
             tfoot.appendChild(totalRow);
         }
 
-        function applyRCPreset(presetType) {
+        function applyRCDPreset(presetType) {
             if (dataProtectionState.isProtected) {
                 showNotification('データ保護が有効です。先に保護を無効にしてください。', 'warning');
                 return;
             }
             
-            const inputs = document.querySelectorAll('input[data-month]');
+            const purchaseInputs = document.querySelectorAll('input[data-type="purchase"]');
+            const feeInputs = document.querySelectorAll('input[data-type="fee"]');
             
             switch(presetType) {
                 case 'actual':
-                    rcReferenceData.forEach((value, i) => {
-                        const variation = value - rcData.baseSales;
-                        rcData.variations[i] = variation;
-                        inputs[i].value = variation;
+                    const actualPurchases = [5.50, 7.10, 5.80, 7.30, 6.30, 7.50, 6.80, 7.70, 7.20, 7.90, 7.70, 8.20];
+                    const actualFees = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1];
+                    actualPurchases.forEach((val, i) => {
+                        rcdData.monthlyPurchases[i] = val;
+                        purchaseInputs[i].value = val.toFixed(2);
+                    });
+                    actualFees.forEach((val, i) => {
+                        rcdData.monthlyFeeOccurrences[i] = val;
+                        feeInputs[i].value = val;
                     });
                     break;
                 case 'standard':
-                    rcData.variations.fill(0);
-                    inputs.forEach(input => input.value = 0);
+                    rcdData.monthlyPurchases.fill(8.00);
+                    rcdData.monthlyFeeOccurrences.fill(1);
+                    purchaseInputs.forEach(input => input.value = "8.00");
+                    feeInputs.forEach(input => input.value = 1);
                     break;
-                case 'growth4':
-                    rcReferenceData.forEach((value, i) => {
-                        const targetSales = Math.round(value * 1.04);
-                        const variation = targetSales - rcData.baseSales;
-                        rcData.variations[i] = variation;
-                        inputs[i].value = variation;
-                    });
+                case 'growth':
+                    rcdData.monthlyPurchases.fill(7.00);
+                    rcdData.monthlyFeeOccurrences.fill(1);
+                    purchaseInputs.forEach(input => input.value = "7.00");
+                    feeInputs.forEach(input => input.value = 1);
                     break;
-                case 'improvement7':
-                    rcReferenceData.forEach((value, i) => {
-                        const targetSales = Math.round(value * 1.07);
-                        const variation = targetSales - rcData.baseSales;
-                        rcData.variations[i] = variation;
-                        inputs[i].value = variation;
-                    });
+                case 'improve':
+                    rcdData.monthlyPurchases.fill(6.00);
+                    rcdData.monthlyFeeOccurrences.fill(0);
+                    purchaseInputs.forEach(input => input.value = "6.00");
+                    feeInputs.forEach(input => input.value = 0);
+                    break;
+                case 'zero_fee':
+                    rcdData.monthlyFeeOccurrences.fill(0);
+                    feeInputs.forEach(input => input.value = 0);
                     break;
             }
             
-            updateRCSales();
+            updateRCDSales();
+            showNotification(`${presetType}パターンを適用しました。`, 'success');
         }
 
-        // CSVエクスポート機能（RC事業部版）
-        function exportRCCSV() {
+        function exportRCDCSV() {
             try {
-                const results = calculateRC();
-
+                const results = calculateRCD();
                 const csvData = [];
-                const headers = ['項目名', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月', '年間合計'];
-                csvData.push(headers);
+                const csvHeaders = ['項目名', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月', '年間合計'];
+                csvData.push(csvHeaders);
 
-                // 基本PL項目
-                csvData.push(['売上高', ...rcData.variations.map(v => rcData.baseSales + v), results.annual.sales]);
+                // 基本PL項目（37項目統一フォーマット対応）
+                csvData.push(['売上高', ...results.monthlyResults.map(m => m.sales), results.annual.sales]);
                 csvData.push(['売上原価', ...results.monthlyResults.map(m => m.cogs), results.annual.cogs]);
                 csvData.push(['売上総利益', ...results.monthlyResults.map(m => m.grossProfit), results.annual.grossProfit]);
 
-                // 販管費19項目
+                // 販管費項目
                 const expenseNames = [
-                    '人件費', '法定福利費', '衛生費', '物流管理費', '地代家賃',
-                    '外注費', '運送運賃', '広告宣伝費', '旅費交通費', '通信費',
+                    '人件費統合', '法定福利費', '衛生費', '物流管理費', '地代家賃',
+                    '外注費', '貨物運賃', '広告宣伝費', '旅費交通費', '通信費',
                     '販売促進費', '消耗品費', '事務用品費', '水道光熱費', '支払手数料',
                     'リース料', '保険料', '支払報酬料', '減価償却費'
                 ];
@@ -1420,89 +1367,41 @@
                     csvData.push([name, ...monthlyExpenses, annual]);
                 });
 
-                // 統合PL専用項目（RC事業部では0円出力）
+                // 統合PL用ゼロ項目
                 const zeroData = Array(12).fill(0);
-                csvData.push(['役員報酬', ...zeroData, 0]);
-                csvData.push(['役員法定福利費', ...zeroData, 0]);
-                csvData.push(['管理諸費', ...zeroData, 0]);
-                csvData.push(['修繕費', ...zeroData, 0]);
-                csvData.push(['車両費', ...zeroData, 0]);
-                csvData.push(['租税公課', ...zeroData, 0]);
-                csvData.push(['交際費', ...zeroData, 0]);
-                csvData.push(['諸会費', ...zeroData, 0]);
-                csvData.push(['会議費', ...zeroData, 0]);
-                csvData.push(['福利厚生費', ...zeroData, 0]);
-                csvData.push(['研修費', ...zeroData, 0]);
-                csvData.push(['雑費', ...zeroData, 0]);
-                csvData.push(['寄付金', ...zeroData, 0]);
-
-                // 計算項目
-                const totalExpensesData = new Array(12).fill(0);
-                Object.values(results.expenses).forEach(expenseArray => {
-                    expenseArray.forEach((val, monthIndex) => {
-                        totalExpensesData[monthIndex] += val;
-                    });
+                const zeroItems = [
+                    '役員報酬', '役員法定福利費', '管理諸費', '修繕費', '車両費', '租税公課',
+                    '交際費', '諸会費', '会議費', '福利厚生費', '研修費', '雑費', '寄付金',
+                    '特別費用1', '特別費用2', '特別費用3', '特別費用4', '予備費'
+                ];
+                
+                zeroItems.forEach(name => {
+                    csvData.push([name, ...zeroData, 0]);
                 });
 
-                const operatingProfitData = results.monthlyResults.map((m, i) => m.grossProfit - totalExpensesData[i]);
-                csvData.push(['販管費合計', ...totalExpensesData, results.annual.totalExpenses]);
-                csvData.push(['営業利益', ...operatingProfitData, results.annual.operatingProfit]);
+                // 計算項目
+                csvData.push(['販管費合計', ...results.monthlyResults.map(m => m.totalExpenses), results.annual.totalExpenses]);
+                csvData.push(['営業利益', ...results.monthlyResults.map(m => m.operatingProfit), results.annual.operatingProfit]);
 
                 const csvString = '\uFEFF' + csvData.map(row => row.join(',')).join('\n');
                 const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = `RC事業部_修正版PL_${new Date().toISOString().split('T')[0]}.csv`;
+                link.download = `RCD社_PL_精度向上版_${new Date().toISOString().split('T')[0]}.csv`;
                 link.click();
                 
-                showNotification('修正版RC事業部PLデータのCSV出力が完了しました。', 'success');
+                showNotification('CSVエクスポートが完了しました。', 'success');
 
             } catch (error) {
-                console.error('CSV出力エラー:', error);
-                showNotification('CSV出力でエラーが発生しました: ' + error.message, 'error');
+                showNotification('CSVエクスポートでエラーが発生しました: ' + error.message, 'error');
+                console.error('CSVエクスポートエラー:', error);
             }
         }
 
-        // CSV必須制約を解除した送信関数
-        function sendRCDataAndNavigateToNext() {
+        // CSV必須制約を解除したデータ送信
+        function sendRCDDataAndNavigateToNext() {
             try {
-                const results = calculateRC();
-                
-                const unifiedData = {
-                    metadata: {
-                        department: 'RC',
-                        lastUpdate: new Date().toISOString(),
-                        version: '4.0_corrected',
-                        unifiedStructure: true,
-                        workflowStep: 3,
-                        workflowStatus: 'completed',
-                        personnelCalculationMethod: 'fixed_50_corrected',
-                        dataProtectionEnabled: dataProtectionState.isProtected
-                    },
-                    sales: rcData.variations.map(v => rcData.baseSales + v),
-                    cogs: results.monthlyResults.map(m => m.cogs),
-                    personnel: results.monthlyResults.map(() => rcData.fixedPersonnel),
-                    totalExpenses: results.monthlyResults.map(m => {
-                        let totalExp = 0;
-                        Object.values(results.expenses).forEach(expenseArray => {
-                            totalExp += expenseArray[results.monthlyResults.indexOf(m)];
-                        });
-                        return totalExp;
-                    }),
-                    operatingProfit: results.monthlyResults.map(m => {
-                        let totalExp = 0;
-                        Object.values(results.expenses).forEach(expenseArray => {
-                            totalExp += expenseArray[results.monthlyResults.indexOf(m)];
-                        });
-                        return m.grossProfit - totalExp;
-                    }),
-                    expenses: results.expenses,
-                    annual: results.annual,
-                    exportedAt: new Date().toISOString()
-                };
-
-                // 修正されたキーで保存
-                localStorage.setItem('pl_system_rc_corrected_data', JSON.stringify(unifiedData));
+                const results = calculateRCD();
                 
                 // データ保護を自動で有効化
                 if (!dataProtectionState.isProtected) {
@@ -1510,37 +1409,38 @@
                     enableDataProtection();
                     updateProtectionStatus();
                 }
+                saveToStorage(false);
+                
+                const workflowProgress = {
+                    step1_SR: 'completed',
+                    step2_W: 'completed',
+                    step3_RC: 'completed',
+                    step4_RCD: 'completed',
+                    currentStep: 5,
+                    lastUpdate: new Date().toISOString()
+                };
+                localStorage.setItem('workflow_progress', JSON.stringify(workflowProgress));
+                
+                showNotification(`RCD社データ送信完了！（精度向上版・整数万円単位出力）
 
-                showNotification(`修正版RC事業部データを統合PLシステムに送信しました!
+年間売上: ${results.annual.sales.toLocaleString()}万円
+年間営業利益: ${results.annual.operatingProfit.toLocaleString()}万円
+営業利益率: ${(results.annual.operatingProfit / results.annual.sales * 100).toFixed(1)}%
 
-年間売上: ${formatNumber(results.annual.sales)}万円
-年間営業利益: ${formatNumber(results.annual.operatingProfit)}万円
-人件費計算方式: 固定50万円/月（修正版）
-
-追加費用項目:
-・外注費: 684万円/年 (57万円/月)
-・運送運賃: 744万円/年 (62万円/月)  
-・消耗品費: 432万円/年 (36万円/月)
-・リース料: 84万円/年 (7万円/月)
-
-データ保護が自動で有効になりました。
-2秒後にRCD社画面に移動します。`, 'success', 5000);
-
+Phase 4完了！統合PLで全体結果を確認します。
+3秒後に自動移動します...`, 'success', 6000);
+                
                 setTimeout(() => {
-                    window.location.href = 'rcd-pl.html';
-                }, 2000);
+                    window.location.href = '../combined-dashboard/index.html';
+                }, 3000);
 
                 return results.annual.sales;
 
             } catch (error) {
-                console.error('データ送信エラー:', error);
                 showNotification('データ送信に失敗しました: ' + error.message, 'error');
+                console.error('RCD送信エラー:', error);
                 return 0;
             }
-        }
-
-        function formatNumber(num) {
-            return Math.round(num).toLocaleString();
         }
 
         function debounce(func, wait) {
@@ -1555,55 +1455,49 @@
             };
         }
 
+        // イベントリスナー設定
+        function setupEventListeners() {
+            // 入力フィールドへのイベントリスナー設定
+            const inputs = document.querySelectorAll('input[data-month]');
+            inputs.forEach(input => {
+                input.addEventListener('input', debounce(() => {
+                    updateRCDSales();
+                }, 300));
+            });
+
+            // ページ離脱時の緊急保存
+            window.addEventListener('beforeunload', (e) => {
+                emergencySave();
+                if (!dataProtectionState.isProtected) {
+                    e.preventDefault();
+                    e.returnValue = 'データが未保護です。離脱してもよろしいですか？';
+                }
+            });
+
+            // ページ非表示時の保存
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden && !dataProtectionState.isProtected) {
+                    emergencySave();
+                }
+            });
+        }
+
         function initialize() {
             try {
-                // 保存データからの復元を試行
-                const dataRestored = loadDataFromStorage();
+                loadFromStorage();
+                updateRCDSales();
+                setupEventListeners();
                 
-                if (!dataRestored) {
-                    // 初回起動時の初期化
-                    updateProtectionStatus();
-                }
-                
-                updateRCSales();
-                
-                const inputs = document.querySelectorAll('input[data-month]');
-                inputs.forEach(input => {
-                    input.addEventListener('input', debounce(updateRCSales, 300));
-                });
-                
-                document.getElementById('advertising').addEventListener('input', debounce(updateRCSales, 300));
-                document.getElementById('bwj-construction').addEventListener('input', debounce(updateRCSales, 300));
-                document.getElementById('bwj-tokyo').addEventListener('input', debounce(updateRCSales, 300));
-                
-                // 結果をグローバルに保存
-                window.rcResults = calculateRC();
-                
-                console.log('RC事業部PLシミュレーター完全修正版初期化完了');
-                
-                // 初期化完了通知
-                if (!dataRestored) {
-                    showNotification('RC事業部PLシミュレーター（修正版）が初期化されました。\n\nCSV必須制約を解除しました。\nデータ保護機能が追加されています。', 'success', 2000);
-                } else {
-                    showNotification('保存されたデータから復元しました。', 'success', 2000);
-                }
+                showNotification('RCD社PLシステム v4.0（精度向上版・修正版）が起動しました。', 'success', 2000);
+                console.log('RCD社PLシステム初期化完了（精度向上版・整数万円単位出力・CSV必須制約解除）');
                 
             } catch (error) {
                 console.error('初期化エラー:', error);
-                showNotification('システムの初期化でエラーが発生しました: ' + error.message, 'error');
+                showNotification('システム初期化でエラーが発生しました。', 'error');
             }
         }
 
-        // イベントリスナー設定
         window.addEventListener('load', initialize);
-        
-        // ページ離脱前の確認（データ保護が有効でない場合のみ）
-        window.addEventListener('beforeunload', (event) => {
-            if (!dataProtectionState.isProtected && window.rcResults) {
-                event.preventDefault();
-                event.returnValue = 'データが保存されていません。本当にページを離れますか？';
-            }
-        });
     </script>
 </body>
 </html>
