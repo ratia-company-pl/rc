@@ -25,33 +25,42 @@
             padding: 15px;
         }
 
-        /* データ保護状況表示 */
-        .data-protection-status {
+        /* 通知システム */
+        .notification {
             position: fixed;
-            top: 10px;
-            right: 10px;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 10px 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            border: 2px solid #e2e8f0;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            z-index: 2000;
+            text-align: center;
+            max-width: 400px;
         }
 
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
+        .notification.success {
+            border-left: 5px solid #10b981;
         }
 
-        .status-protected { background: #10b981; }
-        .status-unprotected { background: #f59e0b; }
-        .status-error { background: #ef4444; }
+        .notification.warning {
+            border-left: 5px solid #f59e0b;
+        }
+
+        .notification.error {
+            border-left: 5px solid #ef4444;
+        }
+
+        .notification-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1999;
+        }
 
         /* ヘッダーセクション */
         .header-section {
@@ -98,6 +107,9 @@
             border-color: #C477CC; 
             box-shadow: 0 4px 12px rgba(196, 119, 204, 0.4);
         }
+        .btn-nav.btn-w { background: #3498db; border-color: #3498db; }
+        .btn-nav.btn-rc { background: #38a169; border-color: #38a169; }
+        .btn-nav.btn-rcd { background: #805ad5; border-color: #805ad5; }
 
         .workflow-section {
             background: linear-gradient(135deg, #ecf0f1 0%, #d5dbdb 100%);
@@ -316,6 +328,12 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
+        .preset-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .settings-inline {
             display: flex;
             align-items: center;
@@ -341,6 +359,12 @@
             border-radius: 4px;
             font-size: 0.8rem;
             text-align: center;
+        }
+
+        .setting-input:disabled {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            opacity: 0.8;
         }
 
         /* 入力テーブル */
@@ -443,6 +467,12 @@
         .store-btn:hover { 
             opacity: 0.8; 
             transform: scale(0.95);
+        }
+
+        .store-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .month-input {
@@ -552,43 +582,6 @@
             font-weight: 600;
         }
 
-        /* 通知メッセージ */
-        .notification {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            z-index: 2000;
-            text-align: center;
-            max-width: 400px;
-        }
-
-        .notification.success {
-            border-left: 5px solid #10b981;
-        }
-
-        .notification.warning {
-            border-left: 5px solid #f59e0b;
-        }
-
-        .notification.error {
-            border-left: 5px solid #ef4444;
-        }
-
-        .notification-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1999;
-        }
-
         /* レスポンシブ対応 */
         @media (max-width: 768px) {
             .container { padding: 10px; }
@@ -598,34 +591,20 @@
             .preset-buttons { justify-content: center; }
             .settings-inline { justify-content: center; }
             .kpi-display { flex-direction: column; gap: 15px; }
-            .data-protection-status { 
-                position: relative; 
-                top: auto; 
-                right: auto; 
-                margin-bottom: 10px;
-                width: 100%;
-                justify-content: center;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- データ保護状況表示 -->
-    <div class="data-protection-status" id="protection-status">
-        <div class="status-indicator" id="status-indicator"></div>
-        <span id="status-text">データ保護OFF</span>
-    </div>
-
     <div class="container">
         <!-- ヘッダーセクション -->
         <div class="header-section">
             <div class="nav-section">
                 <div class="nav-buttons">
                     <a href="../index.html" class="btn-nav">ダッシュボード</a>
-                    <a href="#" class="btn-nav btn-sr">SR事業部</a>
-                    <a href="w-pl.html" class="btn-nav">W事業部</a>
-                    <a href="rc-pl.html" class="btn-nav">RC支店</a>
-                    <a href="rcd-pl.html" class="btn-nav">RCD社</a>
+                    <a href="sr-pl.html" class="btn-nav btn-sr">SR事業部</a>
+                    <a href="w-pl.html" class="btn-nav btn-w">W事業部</a>
+                    <a href="rc-pl.html" class="btn-nav btn-rc">RC事業部</a>
+                    <a href="rcd-pl.html" class="btn-nav btn-rcd">RCD社</a>
                     <a href="../combined-dashboard/index.html" class="btn-nav">全体PL</a>
                 </div>
             </div>
@@ -784,7 +763,7 @@
                 '静岡店': [369, 386, 600, 535, 285, 437, 351, 270, 369, 391, 256, 242],
                 '掛川店': [284, 375, 508, 278, 394, 394, 377, 309, 248, 469, 448, 535],
                 '市野店': [328, 547, 723, 520, 528, 607, 574, 318, 714, 657, 700, 600],
-                '住吉台店': [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
+                '住吉小店': [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
                 '広島店': [490, 493, 427, 542, 558, 416, 622, 641, 496, 385, 253, 620]
             },
             settings: {
@@ -795,7 +774,7 @@
             }
         };
 
-        // データ保護システム
+        // データ保護システム 
         let dataProtectionState = {
             isProtected: false,
             autoSaveInterval: null,
@@ -869,6 +848,49 @@
             19: { name: "減価償却費", type: "fixed", annual: 230 }
         };
 
+        // 通知システム 
+        function showNotification(message, type = 'success', duration = 3000) {
+            // 既存の通知を削除
+            const existingNotifications = document.querySelectorAll('.notification, .notification-overlay');
+            existingNotifications.forEach(el => el.remove());
+            
+            // オーバーレイ作成
+            const overlay = document.createElement('div');
+            overlay.className = 'notification-overlay';
+            document.body.appendChild(overlay);
+            
+            // 通知作成
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div style="margin-bottom: 15px; font-weight: 600; font-size: 1.1rem;">
+                    ${type === 'success' ? '✅' : type === 'warning' ? '⚠️' : '❌'} 
+                    ${type === 'success' ? '成功' : type === 'warning' ? '警告' : 'エラー'}
+                </div>
+                <div style="margin-bottom: 20px; line-height: 1.5;">
+                    ${message}
+                </div>
+                <button onclick="closeNotification()" style="padding: 8px 20px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; cursor: pointer;">
+                    OK
+                </button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // 自動閉じる
+            setTimeout(() => {
+                closeNotification();
+            }, duration);
+            
+            // オーバーレイクリックで閉じる
+            overlay.addEventListener('click', closeNotification);
+        }
+
+        function closeNotification() {
+            const notifications = document.querySelectorAll('.notification, .notification-overlay');
+            notifications.forEach(el => el.remove());
+        }
+
         // データ保護機能
         function toggleDataProtection() {
             dataProtectionState.isProtected = !dataProtectionState.isProtected;
@@ -926,18 +948,12 @@
         }
 
         function updateProtectionStatus() {
-            const statusIndicator = document.getElementById('status-indicator');
-            const statusText = document.getElementById('status-text');
             const protectionBtn = document.getElementById('protection-btn');
             
             if (dataProtectionState.isProtected) {
-                statusIndicator.className = 'status-indicator status-protected';
-                statusText.textContent = 'データ保護ON';
                 protectionBtn.innerHTML = '🔒 データ保護ON';
                 protectionBtn.className = 'action-btn btn-protection protected';
             } else {
-                statusIndicator.className = 'status-indicator status-unprotected';
-                statusText.textContent = 'データ保護OFF';
                 protectionBtn.innerHTML = '🔓 データ保護OFF';
                 protectionBtn.className = 'action-btn btn-protection';
             }
@@ -1004,7 +1020,7 @@
                     if (storageData.srData) {
                         srData = storageData.srData;
                         
-                        // 設定値をUIに反映
+                        // 設定値をUIに反映 
                         document.getElementById('commission').value = srData.settings.commission;
                         document.getElementById('bonus6').value = srData.settings.bonus6;
                         document.getElementById('bonus12').value = srData.settings.bonus12;
@@ -1026,49 +1042,6 @@
                 showNotification('保存データの読み込みに失敗しました。初期値を使用します。', 'warning');
             }
             return false;
-        }
-
-        // 通知システム
-        function showNotification(message, type = 'success', duration = 3000) {
-            // 既存の通知を削除
-            const existingNotifications = document.querySelectorAll('.notification, .notification-overlay');
-            existingNotifications.forEach(el => el.remove());
-            
-            // オーバーレイ作成
-            const overlay = document.createElement('div');
-            overlay.className = 'notification-overlay';
-            document.body.appendChild(overlay);
-            
-            // 通知作成
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.innerHTML = `
-                <div style="margin-bottom: 15px; font-weight: 600; font-size: 1.1rem;">
-                    ${type === 'success' ? '✅' : type === 'warning' ? '⚠️' : '❌'} 
-                    ${type === 'success' ? '成功' : type === 'warning' ? '警告' : 'エラー'}
-                </div>
-                <div style="margin-bottom: 20px; line-height: 1.5;">
-                    ${message}
-                </div>
-                <button onclick="closeNotification()" style="padding: 8px 20px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; cursor: pointer;">
-                    OK
-                </button>
-            `;
-            
-            document.body.appendChild(notification);
-            
-            // 自動閉じる
-            setTimeout(() => {
-                closeNotification();
-            }, duration);
-            
-            // オーバーレイクリックで閉じる
-            overlay.addEventListener('click', closeNotification);
-        }
-
-        function closeNotification() {
-            const notifications = document.querySelectorAll('.notification, .notification-overlay');
-            notifications.forEach(el => el.remove());
         }
 
         // 人件費計算（売上レンジ別率システム）
@@ -1339,6 +1312,14 @@
                 saveDataToStorage();
             }
             
+            // CSVが生成済みの場合はリセット
+            if (csvExported) {
+                csvExported = false;
+                document.getElementById('send-btn').classList.remove('btn-ready-to-send');
+                document.getElementById('send-btn').className = 'action-btn btn-primary';
+                document.getElementById('send-btn').innerHTML = 'SRデータ送信 → 次のステップ (W事業部)';
+            }
+            
             return { monthlyResults, annual };
         }
 
@@ -1443,7 +1424,7 @@
                 csvExported = true;
                 updateSendButtonState();
                 
-                showNotification('SR事業部統一フォーマット（37項目）PLデータのCSV出力が完了しました。\n\n次に「SRデータ送信」ボタンが利用可能になりました。', 'success');
+                showNotification('SR事業部統一フォーマット（37項目）PLデータのCSV出力が完了しました。送信準備が整いました！', 'success');
             } catch (error) {
                 console.error('CSV出力エラー:', error);
                 showNotification('CSV出力でエラーが発生しました: ' + error.message, 'error');
@@ -1503,7 +1484,13 @@
                     updateProtectionStatus();
                 }
 
-                showNotification(`SR事業部データを統合PLシステムに送信しました!\n\n年間売上: ${formatNumber(annual.sales)}万円\n年間営業利益: ${formatNumber(annual.operatingProfit)}万円\n\nデータ保護が自動で有効になりました。\n2秒後にW事業部画面に移動します。`, 'success', 5000);
+                showNotification(`SR事業部データを統合PLシステムに送信しました！
+
+年間売上: ${formatNumber(annual.sales)}万円
+年間営業利益: ${formatNumber(annual.operatingProfit)}万円
+
+データ保護が自動で有効になりました。
+2秒後にW事業部画面に移動します。`, 'success', 5000);
 
                 setTimeout(() => {
                     window.location.href = 'w-pl.html';
@@ -1540,13 +1527,6 @@
             
             calculateSR();
             generateSRInputTable();
-            
-            // CSV未出力状態にリセット
-            csvExported = false;
-            readyToSend = false;
-            const sendBtn = document.getElementById('send-btn');
-            sendBtn.className = 'action-btn btn-primary';
-            sendBtn.innerHTML = 'SRデータ送信 → 次のステップ (W事業部)';
         }
 
         function incrementStore(storeName, amount) {
@@ -1575,7 +1555,7 @@
                 '静岡店': [369, 386, 600, 535, 285, 437, 351, 270, 369, 391, 256, 242],
                 '掛川店': [284, 375, 508, 278, 394, 394, 377, 309, 248, 469, 448, 535],
                 '市野店': [328, 547, 723, 520, 528, 607, 574, 318, 714, 657, 700, 600],
-                '住吉台店': [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
+                '住吉小店': [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
                 '広島店': [490, 493, 427, 542, 558, 416, 622, 641, 496, 385, 253, 620]
             };
             
@@ -1596,7 +1576,7 @@
                 '静岡店': [369, 386, 600, 535, 285, 437, 351, 270, 369, 391, 256, 242],
                 '掛川店': [284, 375, 508, 278, 394, 394, 377, 309, 248, 469, 448, 535],
                 '市野店': [328, 547, 723, 520, 528, 607, 574, 318, 714, 657, 700, 600],
-                '住吉台店': [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
+                '住吉小店': [349, 719, 247, 433, 308, 265, 516, 311, 222, 293, 272, 379],
                 '広島店': [490, 493, 427, 542, 558, 416, 622, 641, 496, 385, 253, 620]
             };
             
