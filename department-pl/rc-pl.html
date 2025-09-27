@@ -25,41 +25,86 @@
             padding: 15px;
         }
 
+        /* データ保護状況表示 */
+        .data-protection-status {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 12px 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-left: 4px solid #38a169;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .protection-toggle {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .protection-toggle.protected {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+        }
+
+        .protection-toggle.unprotected {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+
+        .protection-toggle:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
         /* 通知システム */
         .notification {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            z-index: 2000;
-            text-align: center;
-            max-width: 400px;
+            top: 80px;
+            right: 15px;
+            z-index: 1001;
+            padding: 12px 18px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.85rem;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transform: translateX(400px);
+            transition: transform 0.4s ease;
+            max-width: 320px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
         }
 
         .notification.success {
-            border-left: 5px solid #10b981;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
         }
 
         .notification.warning {
-            border-left: 5px solid #f59e0b;
+            background: linear-gradient(135deg, #f39c12, #e67e22);
         }
 
         .notification.error {
-            border-left: 5px solid #ef4444;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
         }
 
-        .notification-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1999;
+        .notification.info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
         }
 
         .header-section {
@@ -169,30 +214,9 @@
             color: white;
         }
 
-        .btn-protection {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-        }
-
-        .btn-protection.protected {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-        }
-
         .action-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        /* パルス効果 */
-        .btn-pulse {
-            animation: pulse 1.5s infinite;
-            box-shadow: 0 0 20px rgba(56, 161, 105, 0.6);
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 20px rgba(56, 161, 105, 0.6); }
-            50% { box-shadow: 0 0 30px rgba(56, 161, 105, 0.8); }
-            100% { box-shadow: 0 0 20px rgba(56, 161, 105, 0.6); }
         }
 
         .chart-section {
@@ -332,12 +356,6 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
-        .preset-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
         .settings-inline {
             display: flex;
             align-items: center;
@@ -368,12 +386,6 @@
         .setting-input:focus {
             border-color: #ff9800;
             outline: none;
-        }
-
-        .setting-input:disabled {
-            background-color: #f8f9fa;
-            color: #6c757d;
-            opacity: 0.8;
         }
 
         .input-table {
@@ -426,12 +438,6 @@
             background: rgba(56, 161, 105, 0.2);
             border-color: #38a169;
             outline: none;
-        }
-
-        .input-table input:disabled {
-            background-color: #f8f9fa;
-            color: #6c757d;
-            opacity: 0.8;
         }
 
         .diff-positive { color: #27ae60; font-weight: 700; }
@@ -564,10 +570,24 @@
             .setting-input { width: 55px; }
             .setting-label { font-size: 0.7rem; }
             .kpi-display { flex-direction: column; gap: 15px; }
+            .data-protection-status { right: 10px; top: 10px; padding: 8px 10px; }
+            .notification { right: 10px; max-width: 280px; }
         }
     </style>
 </head>
 <body>
+    <!-- データ保護状況表示 -->
+    <div class="data-protection-status" id="data-protection-status">
+        <span id="protection-status-text">データ保護: OFF</span>
+        <button class="protection-toggle unprotected" id="protection-toggle" onclick="toggleDataProtection()">
+            🔓 解除
+        </button>
+        <span id="auto-save-indicator" style="color: #27ae60; font-size: 0.7rem;">自動保存有効</span>
+    </div>
+
+    <!-- 通知エリア -->
+    <div class="notification" id="notification"></div>
+
     <div class="container">
         <div class="header-section">
             <div class="nav-section">
@@ -595,14 +615,11 @@
                     <span style="color: #f39c12; font-weight: 600;">合計PL統合</span>
                 </div>
                 <div class="workflow-actions">
-                    <button class="action-btn btn-protection" id="protection-btn" onclick="toggleDataProtection()">
-                        🔓 データ保護OFF
-                    </button>
-                    <button class="action-btn btn-csv" onclick="exportCSV()">
-                        CSVエクスポート
-                    </button>
                     <button class="action-btn btn-primary" id="send-data-btn" onclick="sendDataAndNavigate()">
                         RC事業部データ送信 → 次のステップ
+                    </button>
+                    <button class="action-btn btn-csv" onclick="exportCSV()">
+                        CSVエクスポート（任意）
                     </button>
                     <button class="action-btn btn-secondary" onclick="location.href='../combined-dashboard/index.html'">
                         全体PL分析へ
@@ -809,12 +826,8 @@
         };
 
         let chart = null;
-        let dataProtectionState = {
-            isProtected: false,
-            autoSaveInterval: null,
-            backupCount: 3
-        };
-        let csvExported = false;
+        let isDataProtected = false;
+        let autoSaveInterval = null;
         let backupCount = 0;
 
         // LocalStorageキー（統一規則）
@@ -822,15 +835,15 @@
         const BACKUP_KEY = 'rc_pl_backups';
         const EMERGENCY_KEY = 'rc_pl_emergency_backup';
 
-        // 販管費19項目の設定
+        // 販管費19項目の設定（修正版：固定費用追加）
         const expenseItems = [
             { name: '人件費', calculate: () => appData.fixedPersonnel },
             { name: '法定福利費', calculate: () => 7 },
             { name: '衛生費', calculate: () => 0 },
             { name: '物流管理費', calculate: () => 74 },
             { name: '地代家賃', calculate: () => 0 },
-            { name: '外注費', calculate: () => 57 },
-            { name: '貨物運賃', calculate: () => 62 },
+            { name: '外注費', calculate: () => 57 },        // 修正：固定57万円/月
+            { name: '荷造運賃', calculate: () => 62 },       // 修正：固定62万円/月
             { name: '広告宣伝費', calculate: () => appData.advertising },
             { name: '旅費交通費', calculate: () => 15 },
             { name: '通信費', calculate: () => 1 },
@@ -840,160 +853,88 @@
                 if (month === 11) base += appData.bwjTokyo;
                 return base;
             }},
-            { name: '消耗品費', calculate: () => 36 },
+            { name: '消耗品費', calculate: () => 36 },       // 修正：固定36万円/月
             { name: '事務用品費', calculate: () => 10 },
             { name: '水道光熱費', calculate: () => 2 },
             { name: '支払手数料', calculate: () => 70 },
-            { name: 'リース料', calculate: () => 7 },
+            { name: 'リース料', calculate: () => 7 },        // 修正：固定7万円/月
             { name: '保険料', calculate: () => 1 },
             { name: '支払報酬料', calculate: () => 10 },
             { name: '減価償却費', calculate: () => 7 }
         ];
 
-        // 通知システム 
-        function showNotification(message, type = 'success', duration = 3000) {
-            // 既存の通知を削除
-            const existingNotifications = document.querySelectorAll('.notification, .notification-overlay');
-            existingNotifications.forEach(el => el.remove());
-            
-            // オーバーレイ作成
-            const overlay = document.createElement('div');
-            overlay.className = 'notification-overlay';
-            document.body.appendChild(overlay);
-            
-            // 通知作成
-            const notification = document.createElement('div');
+        // 通知システム
+        function showNotification(message, type = 'info', duration = 4000) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
             notification.className = `notification ${type}`;
-            notification.innerHTML = `
-                <div style="margin-bottom: 15px; font-weight: 600; font-size: 1.1rem;">
-                    ${type === 'success' ? '✅' : type === 'warning' ? '⚠️' : '❌'} 
-                    ${type === 'success' ? '成功' : type === 'warning' ? '警告' : 'エラー'}
-                </div>
-                <div style="margin-bottom: 20px; line-height: 1.5;">
-                    ${message}
-                </div>
-                <button onclick="closeNotification()" style="padding: 8px 20px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; cursor: pointer;">
-                    OK
-                </button>
-            `;
-            
-            document.body.appendChild(notification);
-            
-            // 自動閉じる
-            setTimeout(() => {
-                closeNotification();
-            }, duration);
-            
-            // オーバーレイクリックで閉じる
-            overlay.addEventListener('click', closeNotification);
-        }
+            notification.classList.add('show');
 
-        function closeNotification() {
-            const notifications = document.querySelectorAll('.notification, .notification-overlay');
-            notifications.forEach(el => el.remove());
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, duration);
         }
 
         // データ保護機能
         function toggleDataProtection() {
-            dataProtectionState.isProtected = !dataProtectionState.isProtected;
-            
-            if (dataProtectionState.isProtected) {
-                enableDataProtection();
-            } else {
-                disableDataProtection();
-            }
-            
+            isDataProtected = !isDataProtected;
             updateProtectionStatus();
-            saveToStorage(true);
-        }
-
-        function enableDataProtection() {
-            // 入力フィールドを無効化
-            const inputs = document.querySelectorAll('.input-table input, .setting-input');
-            inputs.forEach(input => input.disabled = true);
             
-            // プリセットボタンを無効化
-            const presetBtns = document.querySelectorAll('.preset-btn');
-            presetBtns.forEach(btn => btn.disabled = true);
-            
-            // 自動保存開始
-            if (dataProtectionState.autoSaveInterval) {
-                clearInterval(dataProtectionState.autoSaveInterval);
+            if (isDataProtected) {
+                saveToStorage(true);
+                showNotification('データ保護を有効にしました。タブ移動・ページ遷移時もデータが保持されます。', 'success');
+            } else {
+                showNotification('データ保護を解除しました。編集可能状態に戻りました。', 'warning');
             }
-            dataProtectionState.autoSaveInterval = setInterval(autoSave, 30000); // 30秒間隔
-            
-            // ページ離脱時の保存
-            window.addEventListener('beforeunload', emergencySave);
-            
-            showNotification('データ保護が有効になりました。タブ移動・ページ遷移後もデータが保持されます。', 'success');
-        }
-
-        function disableDataProtection() {
-            // 入力フィールドを有効化
-            const inputs = document.querySelectorAll('.input-table input, .setting-input');
-            inputs.forEach(input => input.disabled = false);
-            
-            // プリセットボタンを有効化
-            const presetBtns = document.querySelectorAll('.preset-btn');
-            presetBtns.forEach(btn => btn.disabled = false);
-            
-            // 自動保存停止
-            if (dataProtectionState.autoSaveInterval) {
-                clearInterval(dataProtectionState.autoSaveInterval);
-                dataProtectionState.autoSaveInterval = null;
-            }
-            
-            // ページ離脱時の保存を無効化
-            window.removeEventListener('beforeunload', emergencySave);
-            
-            showNotification('データ保護が無効になりました。編集可能状態に戻りました。', 'warning');
         }
 
         function updateProtectionStatus() {
-            const protectionBtn = document.getElementById('protection-btn');
+            const statusText = document.getElementById('protection-status-text');
+            const toggleBtn = document.getElementById('protection-toggle');
             
-            if (dataProtectionState.isProtected) {
-                protectionBtn.innerHTML = '🔒 データ保護ON';
-                protectionBtn.className = 'action-btn btn-protection protected';
+            if (isDataProtected) {
+                statusText.textContent = 'データ保護: ON';
+                toggleBtn.textContent = '🔒 保護中';
+                toggleBtn.className = 'protection-toggle protected';
             } else {
-                protectionBtn.innerHTML = '🔓 データ保護OFF';
-                protectionBtn.className = 'action-btn btn-protection';
+                statusText.textContent = 'データ保護: OFF';
+                toggleBtn.textContent = '🔓 解除';
+                toggleBtn.className = 'protection-toggle unprotected';
             }
         }
 
-        function autoSave() {
+        // 自動保存機能
+        function startAutoSave() {
+            if (autoSaveInterval) clearInterval(autoSaveInterval);
+            
+            autoSaveInterval = setInterval(() => {
+                if (!isDataProtected) {
+                    saveBackup();
+                }
+            }, 30000); // 30秒間隔
+        }
+
+        function saveBackup() {
             try {
-                const timestamp = new Date().toISOString();
                 const backupData = {
                     ...appData,
-                    timestamp: timestamp,
-                    version: 'auto-backup'
+                    timestamp: new Date().toISOString(),
+                    backupId: ++backupCount
                 };
                 
                 // 最新3件のバックアップを保持
                 let backups = JSON.parse(localStorage.getItem(BACKUP_KEY) || '[]');
                 backups.unshift(backupData);
-                backups = backups.slice(0, dataProtectionState.backupCount);
+                backups = backups.slice(0, 3);
                 
                 localStorage.setItem(BACKUP_KEY, JSON.stringify(backups));
-                console.log('自動保存完了:', timestamp);
+                
+                const indicator = document.getElementById('auto-save-indicator');
+                indicator.style.color = '#27ae60';
+                indicator.textContent = `自動保存済 ${new Date().toLocaleTimeString()}`;
+                
             } catch (error) {
                 console.error('自動保存エラー:', error);
-            }
-        }
-
-        function emergencySave() {
-            try {
-                const emergencyData = {
-                    ...appData,
-                    timestamp: new Date().toISOString(),
-                    version: 'emergency-save'
-                };
-                
-                localStorage.setItem(EMERGENCY_KEY, JSON.stringify(emergencyData));
-                console.log('緊急保存完了');
-            } catch (error) {
-                console.error('緊急保存エラー:', error);
             }
         }
 
@@ -1006,7 +947,7 @@
                         department: 'RC',
                         version: '4.0_unified_corrected',
                         lastUpdate: new Date().toISOString(),
-                        dataProtectionEnabled: dataProtectionState.isProtected,
+                        dataProtectionEnabled: isDataProtected,
                         personnelCalculationMethod: 'fixed_50',
                         bwjVariableCostSupport: true
                     },
@@ -1032,7 +973,7 @@
                         totalExpenses: results.annual.totalExpenses,
                         operatingProfit: results.annual.operatingProfit
                     },
-                    exportedAt: csvExported ? new Date().toISOString() : null
+                    exportedAt: new Date().toISOString()
                 };
 
                 // 37項目統一フォーマット対応
@@ -1063,19 +1004,30 @@
                 if (savedData) {
                     const data = JSON.parse(savedData);
                     if (data.metadata && data.metadata.dataProtectionEnabled) {
-                        dataProtectionState.isProtected = data.metadata.dataProtectionEnabled;
-                        if (dataProtectionState.isProtected) {
-                            enableDataProtection();
-                        }
+                        isDataProtected = data.metadata.dataProtectionEnabled;
                         updateProtectionStatus();
                     }
-                    showNotification('保存されたデータを読み込みました。', 'success', 2000);
+                    showNotification('保存されたデータを読み込みました。', 'info');
                     return true;
                 }
             } catch (error) {
                 console.error('読み込みエラー:', error);
             }
             return false;
+        }
+
+        // 緊急保存（ページ離脱時）
+        function emergencySave() {
+            try {
+                const emergencyData = {
+                    ...appData,
+                    timestamp: new Date().toISOString(),
+                    reason: 'page_unload'
+                };
+                localStorage.setItem(EMERGENCY_KEY, JSON.stringify(emergencyData));
+            } catch (error) {
+                console.error('緊急保存エラー:', error);
+            }
         }
 
         // メイン計算関数
@@ -1119,8 +1071,6 @@
 
         // 入力値収集
         function collectInputs() {
-            if (dataProtectionState.isProtected) return;
-            
             const inputs = document.querySelectorAll('input[data-month]');
             inputs.forEach(input => {
                 const month = parseInt(input.dataset.month);
@@ -1147,17 +1097,6 @@
             updateChart();
             updateProfitTable(results);
             updateExpenseTable(results.expenses);
-            
-            // CSVが生成済みの場合はリセット
-            if (csvExported) {
-                csvExported = false;
-                document.getElementById('send-data-btn').classList.remove('btn-pulse');
-            }
-            
-            // データ保護が有効な場合は自動保存
-            if (dataProtectionState.isProtected) {
-                saveToStorage();
-            }
         }
 
         // 売上表示更新
@@ -1354,11 +1293,6 @@
 
         // プリセット適用
         function applyPreset(presetType) {
-            if (dataProtectionState.isProtected) {
-                showNotification('データ保護が有効です。先に保護を無効にしてください。', 'warning');
-                return;
-            }
-            
             const inputs = document.querySelectorAll('input[data-month]');
             
             switch(presetType) {
@@ -1395,7 +1329,7 @@
             showNotification(`${presetType}パターンを適用しました。`, 'success');
         }
 
-        // CSV出力
+        // CSVエクスポート
         function exportCSV() {
             try {
                 const results = calculate();
@@ -1441,34 +1375,21 @@
                 link.download = `RC事業部_PL_${new Date().toISOString().split('T')[0]}.csv`;
                 link.click();
                 
-                csvExported = true;
-                showNotification('CSV出力が完了しました。送信準備が整いました！', 'success');
-                
-                // 送信ボタンにパルス効果を追加
-                const sendBtn = document.getElementById('send-data-btn');
-                sendBtn.classList.add('btn-pulse');
+                showNotification('CSVエクスポートが完了しました。', 'success');
                 
             } catch (error) {
-                showNotification('CSV出力でエラーが発生しました: ' + error.message, 'error');
+                showNotification('CSVエクスポートでエラーが発生しました: ' + error.message, 'error');
             }
         }
 
-        // データ送信・画面移動
+        // CSV必須制約を解除したデータ送信・画面移動
         function sendDataAndNavigate() {
             try {
-                if (!csvExported) {
-                    showNotification('先にCSVエクスポートを実行してください。', 'warning');
-                    return;
-                }
-
                 const results = calculate();
                 
                 // データ保護を自動で有効化
-                if (!dataProtectionState.isProtected) {
-                    dataProtectionState.isProtected = true;
-                    enableDataProtection();
-                    updateProtectionStatus();
-                }
+                isDataProtected = true;
+                updateProtectionStatus();
                 saveToStorage(false);
                 
                 const workflowProgress = {
@@ -1486,6 +1407,12 @@
 年間売上: ${formatNumber(results.annual.sales)}万円
 年間営業利益: ${formatNumber(results.annual.operatingProfit)}万円
 営業利益率: ${(results.annual.operatingProfit / results.annual.sales * 100).toFixed(1)}%
+
+追加費用項目:
+・外注費: 684万円/年 (57万円/月)
+・荷造運賃: 744万円/年 (62万円/月)  
+・消耗品費: 432万円/年 (36万円/月)
+・リース料: 84万円/年 (7万円/月)
 
 次のステップに移動します...`, 'success', 6000);
                 
@@ -1522,6 +1449,7 @@
             monthInputs.forEach(input => {
                 input.addEventListener('input', debounce(() => {
                     updateDisplay();
+                    if (!isDataProtected) saveBackup();
                 }, 300));
             });
 
@@ -1532,6 +1460,7 @@
                 if (element) {
                     element.addEventListener('input', debounce(() => {
                         updateDisplay();
+                        if (!isDataProtected) saveBackup();
                     }, 300));
                 }
             });
@@ -1539,7 +1468,7 @@
             // ページ離脱時の緊急保存
             window.addEventListener('beforeunload', (e) => {
                 emergencySave();
-                if (!dataProtectionState.isProtected && csvExported) {
+                if (!isDataProtected) {
                     e.preventDefault();
                     e.returnValue = 'データが未保護です。離脱してもよろしいですか？';
                 }
@@ -1547,7 +1476,7 @@
 
             // ページ非表示時の保存
             document.addEventListener('visibilitychange', () => {
-                if (document.hidden && !dataProtectionState.isProtected) {
+                if (document.hidden && !isDataProtected) {
                     emergencySave();
                 }
             });
@@ -1559,8 +1488,9 @@
                 loadFromStorage();
                 updateDisplay();
                 setupEventListeners();
+                startAutoSave();
                 
-                showNotification('RC事業部PLシステム v4.0 が起動しました。', 'success', 2000);
+                showNotification('RC事業部PLシステム v4.0 が起動しました。\n\n追加費用項目:\n・外注費: 57万円/月\n・荷造運賃: 62万円/月\n・消耗品費: 36万円/月\n・リース料: 7万円/月', 'info');
                 
             } catch (error) {
                 console.error('初期化エラー:', error);
@@ -1570,3 +1500,6 @@
 
         // ページ読み込み完了時に初期化
         window.addEventListener('load', initialize);
+    </script>
+</body>
+</html>
