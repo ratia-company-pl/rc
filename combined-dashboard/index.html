@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>統合PL v4.0 - リアルタイム監視・整合性チェック対応版</title>
+    <title>統合PLシステム v5.0 - 全機能統合版</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -21,286 +21,342 @@
         }
 
         /* 4行ヘッダー構造 */
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        /* 1行目: タイトル */
         .header-row1 {
-            background: linear-gradient(135deg, #fdf2e9 0%, #fcf3cf 100%);
-            color: #8b4513;
-            padding: 12px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
         }
 
-        .header-row1 h1 {
-            font-size: 1.8em;
-            margin: 0;
-            color: #d35400;
+        .header-title {
+            font-size: 2em;
             font-weight: bold;
+            margin-bottom: 8px;
         }
 
-        .version-badge {
-            background: rgba(243, 156, 18, 0.15);
-            color: #d35400;
-            padding: 4px 12px;
+        .version-info {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 6px 16px;
             border-radius: 15px;
             font-weight: bold;
-            font-size: 0.8em;
-            border: 1px solid rgba(243, 156, 18, 0.3);
+            font-size: 0.9em;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: inline-block;
         }
 
-        /* 2行目: グローバルナビゲーション */
+        /* 2行目: グローバルナビゲーション（5ボタン） */
         .header-row2 {
-            background: linear-gradient(135deg, #fdf2e9 0%, #fcf3cf 100%);
+            background: linear-gradient(135deg, #e67e22 0%, #f39c12 100%);
             padding: 8px 15px;
         }
 
-        .nav-buttons {
+        .nav-container {
             display: flex;
+            gap: 8px;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 15px;
-            max-width: 1200px;
-            margin: 0 auto;
         }
 
         .btn {
             flex: 1;
-            min-width: 140px;
-            max-width: 180px;
+            min-width: 160px;
+            max-width: 200px;
             padding: 8px 16px;
             font-size: 0.8em;
             border-radius: 15px;
             font-weight: 600;
             transition: all 0.3s ease;
             background: rgba(255, 255, 255, 0.2);
-            color: #8b4513;
+            color: white;
             border: 1px solid rgba(255, 255, 255, 0.3);
             text-decoration: none;
-            display: inline-block;
             text-align: center;
+            cursor: pointer;
         }
 
         .btn:hover {
             background: rgba(255, 255, 255, 0.3);
             transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            color: white;
+            text-decoration: none;
         }
 
-        .btn-active-analysis { 
+        /* アクティブボタン（統合PLシステム） */
+        .btn-active-unified { 
             background: #f39c12 !important; 
-            color: white !important;
-            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+            box-shadow: 0 4px 8px rgba(243, 156, 18, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.5) !important;
+        }
+
+        .btn-active-sr { 
+            background: #C477CC !important; 
+            box-shadow: 0 4px 8px rgba(196, 119, 204, 0.3);
+        }
+        .btn-active-w { 
+            background: #3498db !important; 
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+        }
+        .btn-active-rc { 
+            background: #27ae60 !important; 
+            box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
+        }
+        .btn-active-rcd { 
+            background: #9b59b6 !important; 
+            box-shadow: 0 4px 8px rgba(155, 89, 182, 0.3);
         }
 
         /* 3行目: KPIカード */
         .header-row3 {
-            background: #fef9f3;
+            background: #f8f9fa;
             padding: 12px 15px;
         }
 
-        .kpi-cards {
+        .mini-kpi-container {
             display: flex;
+            gap: 15px;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 15px;
-            max-width: 1200px;
-            margin: 0 auto;
         }
 
-        .kpi-card {
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
-            padding: 10px 15px;
+        .mini-kpi {
+            background: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
             min-width: 120px;
             text-align: center;
-            border: 1px solid rgba(243, 156, 18, 0.2);
         }
 
-        .kpi-label {
+        .mini-kpi-label {
             font-size: 0.7em;
-            color: #d35400;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .mini-kpi-value {
+            font-size: 0.9em;
             font-weight: bold;
+            color: #f39c12;
         }
 
-        .kpi-value {
-            font-size: 1.1em;
-            font-weight: bold;
-            color: #e67e22;
-        }
-
-        /* CSVエクスポートカード */
-        .csv-export-card {
-            background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%);
-            border: 2px solid #27ae60 !important;
-            min-width: 140px;
-        }
-
-        .csv-export-card .kpi-label {
-            color: #155724;
-            margin-bottom: 8px;
-        }
-
-        .csv-btn {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 8px 16px;
-            font-size: 0.8em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-        }
-
-        .csv-btn:hover {
-            background: linear-gradient(135deg, #219a52, #27ae60);
-            transform: translateY(-1px);
-            box-shadow: 0 3px 10px rgba(39, 174, 96, 0.3);
-        }
-
-        /* 4行目: ステータス情報 */
+        /* 4行目: 連携ステータス */
         .header-row4 {
-            background: #fdf2e9;
+            background: #ecf0f1;
             padding: 10px 15px;
             text-align: center;
         }
 
-        .status-info {
-            max-width: 1200px;
-            margin: 0 auto;
+        .integration-status {
             display: flex;
-            justify-content: space-between;
+            gap: 20px;
+            justify-content: center;
             align-items: center;
             flex-wrap: wrap;
         }
 
-        .department-description {
-            font-size: 0.9em;
-            color: #8b4513;
-            font-weight: bold;
-        }
-
-        /* 通知システム */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            max-width: 350px;
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-size: 0.85em;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 1001;
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-        }
-
-        .notification.show {
-            transform: translateX(0);
-        }
-
-        .notification-success {
-            background: linear-gradient(135deg, #d4edda, #c3e6cb);
-            border-left: 4px solid #27ae60;
-            color: #155724;
-        }
-
-        .notification-warning {
-            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
-            border-left: 4px solid #f39c12;
-            color: #856404;
-        }
-
-        .notification-error {
-            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
-            border-left: 4px solid #e74c3c;
-            color: #721c24;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 15px auto;
-            padding: 0 15px;
-        }
-
-        /* データ受信状況テーブル */
-        .status-section {
-            background: rgba(253, 242, 233, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border: 2px solid rgba(243, 156, 18, 0.2);
-        }
-
-        .status-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9em;
-        }
-
-        .status-table th,
-        .status-table td {
-            padding: 10px 15px;
-            text-align: center;
-            border: 1px solid #fce4d6;
-        }
-
-        .status-table th {
-            background: linear-gradient(135deg, #f39c12, #e67e22);
-            color: white;
-            font-weight: bold;
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8em;
         }
 
         .status-indicator {
             display: inline-block;
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
-            margin-right: 8px;
         }
 
-        .status-completed { background-color: #27ae60; }
+        .status-connected { background-color: #27ae60; }
         .status-pending { background-color: #f39c12; }
         .status-error { background-color: #e74c3c; }
 
-        /* チャート表示 */
-        .chart-container {
-            background: rgba(253, 242, 233, 0.95);
+        /* 統合ヘッダー（従来スタイル維持） */
+        .unified-header {
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* ナビゲーションタブ */
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 2px solid #3498db;
+            border-radius: 25px;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-tab:hover, .nav-tab.active {
+            background: #3498db;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        /* KPIダッシュボード */
+        .kpi-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid;
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .kpi-card-sales { border-color: #3498db; }
+        .kpi-card-profit { border-color: #27ae60; }
+        .kpi-card-expenses { border-color: #e67e22; }
+        .kpi-card-margin { border-color: #9b59b6; }
+
+        .kpi-label {
+            font-size: 0.9em;
+            color: #666;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .kpi-card-sales .kpi-value { color: #3498db; }
+        .kpi-card-profit .kpi-value { color: #27ae60; }
+        .kpi-card-expenses .kpi-value { color: #e67e22; }
+        .kpi-card-margin .kpi-value { color: #9b59b6; }
+
+        .kpi-change {
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .kpi-change.positive { color: #27ae60; }
+        .kpi-change.negative { color: #e74c3c; }
+
+        /* 役員報酬設定セクション */
+        .executive-compensation {
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
             padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            height: 450px;
-            border: 2px solid rgba(243, 156, 18, 0.2);
+            margin-bottom: 30px;
+            border: 3px solid #27ae60;
         }
 
         .section-title {
             font-size: 1.3em;
-            color: #d35400;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #f39c12;
+            color: #27ae60;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #27ae60;
             padding-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .compensation-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-label {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 0.9em;
+        }
+
+        .control-input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .control-input:focus {
+            border-color: #27ae60;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+        }
+
+        .compensation-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 0.9em;
+        }
+
+        .btn-apply { background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; }
+        .btn-save { background: linear-gradient(135deg, #3498db, #2980b9); color: white; }
+        .btn-load { background: linear-gradient(135deg, #e67e22, #d35400); color: white; }
+        .btn-test { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
         /* 統一テーブルスタイル */
-        .pl-section {
-            background: rgba(253, 242, 233, 0.95);
-            backdrop-filter: blur(10px);
+        .unified-section {
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             border: 2px solid rgba(243, 156, 18, 0.2);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: -5px;
+            padding: 5px;
         }
 
         .unified-table {
@@ -379,47 +435,252 @@
             background-color: #fcf3cf;
         }
 
-        /* 役員報酬セクション強化 */
-        .executive-section {
-            background: rgba(253, 242, 233, 0.95);
-            backdrop-filter: blur(10px);
+        /* 事業部比較セクション */
+        .department-comparison {
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 3px solid #3498db;
+        }
+
+        .dept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .dept-card {
+            background: white;
+            border-radius: 12px;
             padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border: 2px solid rgba(39, 174, 96, 0.3);
+            border: 3px solid;
+            transition: all 0.3s ease;
         }
 
-        .executive-section .section-title {
-            border-bottom-color: #27ae60;
-            color: #27ae60;
+        .dept-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
 
-        .executive-section .unified-table th {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
+        .dept-sr { border-color: #C477CC; }
+        .dept-w { border-color: #3498db; }
+        .dept-rc { border-color: #27ae60; }
+        .dept-rcd { border-color: #9b59b6; }
+
+        .dept-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid;
         }
 
-        .executive-row {
-            background-color: #e8f5e8;
+        .dept-name {
+            font-size: 1.1em;
+            font-weight: bold;
         }
 
-        .summary-section {
-            background: rgba(253, 242, 233, 0.95);
-            backdrop-filter: blur(10px);
+        .dept-status {
+            font-size: 0.8em;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .dept-sr .dept-header { border-color: #C477CC; color: #C477CC; }
+        .dept-w .dept-header { border-color: #3498db; color: #3498db; }
+        .dept-rc .dept-header { border-color: #27ae60; color: #27ae60; }
+        .dept-rcd .dept-header { border-color: #9b59b6; color: #9b59b6; }
+
+        .dept-chart {
+            height: 200px;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .dept-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .metric-item {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .metric-label {
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .metric-change {
+            font-size: 0.7em;
+            margin-top: 3px;
+        }
+
+        /* チャートコンテナ */
+        .chart-section {
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 25px;
+            margin-bottom: 30px;
             border: 3px solid #e74c3c;
         }
 
-        .summary-section .section-title {
-            border-bottom-color: #e74c3c;
-            color: #e74c3c;
+        .chart-container {
+            position: relative;
+            height: 450px;
+            margin-bottom: 20px;
         }
 
-        .summary-section .unified-table th {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        .chart-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .chart-toggle {
+            padding: 8px 16px;
+            border: 2px solid #3498db;
+            background: white;
+            color: #3498db;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .chart-toggle:hover, .chart-toggle.active {
+            background: #3498db;
+            color: white;
+        }
+
+        /* 通知システム */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            max-width: 350px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            font-weight: 600;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-left: 5px solid #27ae60;
+            color: #155724;
+        }
+
+        .notification-warning {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border-left: 5px solid #f39c12;
+            color: #856404;
+        }
+
+        .notification-error {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            border-left: 5px solid #e74c3c;
+            color: #721c24;
+        }
+
+        /* レスポンシブ対応 */
+        @media (max-width: 768px) {
+            .header-row1, .header-row2, .header-row3, .header-row4 {
+                padding: 10px;
+            }
+            
+            .header-title {
+                font-size: 1.3em;
+            }
+            
+            .nav-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                min-width: 200px;
+                max-width: 300px;
+            }
+            
+            .mini-kpi-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .integration-status {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .unified-table {
+                font-size: 0.7em;
+            }
+            
+            .unified-table th,
+            .unified-table td {
+                padding: 3px 2px;
+            }
+
+            .kpi-dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .dept-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .compensation-controls {
+                grid-template-columns: 1fr;
+            }
+            
+            .compensation-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        /* データソース表示 */
+        .data-source {
+            text-align: center;
+            font-size: 0.8em;
+            color: #666;
+            margin: 10px 0;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+        }
+
+        /* 追加スタイル */
+        .executive-row {
+            background-color: #e8f5e8;
+            font-weight: bold;
         }
 
         .final-profit-positive {
@@ -434,434 +695,381 @@
             font-weight: bold;
         }
 
-        /* 監視パネル - フッター情報として統合 */
-        .monitoring-section {
-            background: rgba(253, 242, 233, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border: 2px solid rgba(52, 152, 219, 0.3);
+        .tab-content {
+            animation: fadeIn 0.3s ease-in-out;
         }
 
-        .monitoring-section .section-title {
-            border-bottom-color: #3498db;
-            color: #3498db;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .monitoring-content {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 20px;
-            font-size: 0.85em;
+        .metric-change.positive {
+            color: #27ae60;
         }
 
-        .dept-status-grid {
-            display: flex;
-            gap: 12px;
+        .metric-change.negative {
+            color: #e74c3c;
         }
 
-        .dept-status-item {
-            padding: 8px 12px;
-            border-radius: 8px;
-            text-align: center;
-            transition: all 0.3s ease;
-            min-width: 90px;
+        .chart-section {
+            border-left: 5px solid #e74c3c;
         }
 
-        .dept-status-complete {
-            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-            border: 1px solid #27ae60;
-            color: #155724;
+        .department-comparison {
+            border-left: 5px solid #3498db;
         }
 
-        .dept-status-waiting {
-            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-            border: 1px solid #f39c12;
-            color: #856404;
-        }
-
-        .dept-status-error {
-            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-            border: 1px solid #e74c3c;
-            color: #721c24;
-        }
-
-        .dept-name {
-            font-weight: bold;
-            margin-bottom: 3px;
-            font-size: 0.9em;
-        }
-
-        .quality-score {
-            font-size: 0.8em;
-            opacity: 0.8;
-        }
-
-        .monitoring-controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .monitor-btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 6px;
-            font-size: 0.8em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .monitor-btn-primary {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-        }
-
-        .monitor-btn-primary:hover {
-            background: linear-gradient(135deg, #2980b9, #1f6391);
-            transform: translateY(-1px);
-        }
-
-        .monitor-btn-toggle {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
-            color: white;
-        }
-
-        .monitor-btn-toggle.disabled {
-            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
-        }
-
-        .monitor-btn-toggle:hover {
-            background: linear-gradient(135deg, #219a52, #27ae60);
-            transform: translateY(-1px);
-        }
-
-        .last-update-time {
-            font-size: 0.75em;
-            color: #666;
-            font-weight: 500;
-        }
-
-        .data-source {
-            font-size: 0.8em;
-            color: #8b4513;
-            margin-top: 10px;
-            text-align: center;
-        }
-
-        /* レスポンシブ対応 */
-        @media (max-width: 1024px) {
-            .monitoring-content {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .dept-status-grid {
-                justify-content: center;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 0 10px;
-            }
-            
-            .header-row1 {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 5px;
-            }
-            
-            .header-row1 h1 {
-                font-size: 1.5em;
-            }
-            
-            .unified-table {
-                font-size: 0.7em;
-            }
-            
-            .unified-table th,
-            .unified-table td {
-                padding: 3px 2px;
-            }
-
-            .kpi-cards {
-                gap: 10px;
-            }
-            
-            .dept-status-grid {
-                flex-wrap: wrap;
-                gap: 8px;
-                justify-content: center;
-            }
-            
-            .dept-status-item {
-                min-width: 80px;
-                padding: 6px 10px;
-            }
-            
-            .monitoring-controls {
-                flex-direction: column;
-                gap: 8px;
-            }
-        }
-
-        /* スクロール用コンテナ */
-        .table-scroll {
-            overflow-x: auto;
-            margin: -5px;
-            padding: 5px;
+        .executive-compensation {
+            border-left: 5px solid #27ae60;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <!-- 1行目: タイトル -->
-        <div class="header-row1">
-            <h1>統合PLシステム v4.0</h1>
-            <div class="version-badge">リアルタイム監視・整合性チェック対応版</div>
-        </div>
+    <!-- 4行ヘッダー構造 -->
+    <!-- 1行目: タイトル -->
+    <div class="header-row1">
+        <h1 class="header-title">統合PLシステム v5.0</h1>
+        <div class="version-info">全機能統合版 - 役員報酬・前年比較・事業部分析・リアルタイム監視</div>
+    </div>
 
-        <!-- 2行目: グローバルナビゲーション -->
-        <div class="header-row2">
-            <div class="nav-buttons">
-                <a href="../index.html" class="btn">ダッシュボード</a>
-                <a href="../department-pl/sr-pl.html" class="btn">SR事業部PL</a>
-                <a href="../department-pl/w-pl.html" class="btn">W事業部PL</a>
-                <a href="../department-pl/rc-pl.html" class="btn">RC事業部PL</a>
-                <a href="../department-pl/rcd-pl.html" class="btn">RCD事業部PL</a>
-                <a href="#" class="btn btn-active-analysis">統合PLシステム</a>
+    <!-- 2行目: グローバルナビゲーション（5ボタン） -->
+    <div class="header-row2">
+        <div class="nav-container">
+            <a href="sr-pl-corrected.html" class="btn">SR事業部PL</a>
+            <a href="w-pl-fixed.html" class="btn">W事業部PL</a>
+            <a href="rc-pl-corrected.html" class="btn">RC事業部PL</a>
+            <a href="rcd-pl-corrected.html" class="btn">RCD事業部PL</a>
+            <a href="#" class="btn btn-active-unified">統合PLシステム</a>
+        </div>
+    </div>
+
+    <!-- 3行目: KPIカード -->
+    <div class="header-row3">
+        <div class="mini-kpi-container">
+            <div class="mini-kpi">
+                <div class="mini-kpi-label">統合売上高</div>
+                <div class="mini-kpi-value" id="mini-kpi-sales">---万円</div>
+            </div>
+            <div class="mini-kpi">
+                <div class="mini-kpi-label">全体販管費</div>
+                <div class="mini-kpi-value" id="mini-kpi-expenses">---万円</div>
+            </div>
+            <div class="mini-kpi">
+                <div class="mini-kpi-label">営業利益</div>
+                <div class="mini-kpi-value" id="mini-kpi-profit">---万円</div>
+            </div>
+            <div class="mini-kpi">
+                <div class="mini-kpi-label">利益率</div>
+                <div class="mini-kpi-value" id="mini-kpi-margin">---%</div>
             </div>
         </div>
+    </div>
 
-        <!-- 3行目: KPIカード + CSVエクスポート -->
-        <div class="header-row3">
-            <div class="kpi-cards">
-                <div class="kpi-card">
-                    <div class="kpi-label">統合売上高</div>
-                    <div class="kpi-value" id="totalSalesKPI">---</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">全体販管費</div>
-                    <div class="kpi-value" id="totalExpensesKPI">---</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">全体営業利益</div>
-                    <div class="kpi-value" id="operatingProfitKPI">---</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">利益率</div>
-                    <div class="kpi-value" id="profitMarginKPI">---%</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">役員報酬計</div>
-                    <div class="kpi-value" id="executiveCompKPI">---万円</div>
-                </div>
-                <div class="kpi-card csv-export-card">
-                    <div class="kpi-label">データエクスポート</div>
-                    <button class="csv-btn" onclick="exportUnifiedCSV()">CSVエクスポート</button>
-                </div>
+    <!-- 4行目: 連携ステータス -->
+    <div class="header-row4">
+        <div class="integration-status">
+            <div class="status-item">
+                <span class="status-indicator" id="sr-indicator"></span>
+                <span>SR事業部</span>
+            </div>
+            <div class="status-item">
+                <span class="status-indicator" id="w-indicator"></span>
+                <span>W事業部</span>
+            </div>
+            <div class="status-item">
+                <span class="status-indicator" id="rc-indicator"></span>
+                <span>RC事業部</span>
+            </div>
+            <div class="status-item">
+                <span class="status-indicator" id="rcd-indicator"></span>
+                <span>RCD事業部</span>
+            </div>
+            <div class="status-item">
+                <span class="status-indicator status-connected"></span>
+                <span>統合PLシステム 稼働中</span>
             </div>
         </div>
+    </div>
 
-        <!-- 4行目: ステータス情報 -->
-        <div class="header-row4">
-            <div class="status-info">
-                <div class="department-description">統合PLシステム v4.0 - 4事業部統合分析・リアルタイム監視対応</div>
-                <div id="lastUpdate" class="data-source">最終更新: 自動取得中...</div>
-            </div>
+    <!-- 従来の統合ヘッダー -->
+    <div class="unified-header">
+        <!-- ナビゲーションタブ -->
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="showSection('overview')">概要</div>
+            <div class="nav-tab" onclick="showSection('executive')">役員報酬</div>
+            <div class="nav-tab" onclick="showSection('departments')">事業部比較</div>
+            <div class="nav-tab" onclick="showSection('analysis')">分析</div>
+            <div class="nav-tab" onclick="showSection('pl-details')">PL詳細</div>
         </div>
     </div>
 
     <!-- 通知表示エリア -->
     <div id="notification" class="notification"></div>
 
-    <div class="container">
-        <!-- 事業部データ受信状況 -->
-        <div class="status-section">
-            <h2 class="section-title">事業部別データ受信状況</h2>
-            <table class="status-table">
-                <thead>
-                    <tr>
-                        <th>SR事業部</th>
-                        <th>W事業部</th>
-                        <th>RC事業部</th>
-                        <th>RCD事業部</th>
-                        <th>全体進捗</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <span class="status-indicator" id="srStatusIndicator"></span>
-                            <div id="srLastUpdate">未受信</div>
-                        </td>
-                        <td>
-                            <span class="status-indicator" id="wStatusIndicator"></span>
-                            <div id="wLastUpdate">未受信</div>
-                        </td>
-                        <td>
-                            <span class="status-indicator" id="rcStatusIndicator"></span>
-                            <div id="rcLastUpdate">未受信</div>
-                        </td>
-                        <td>
-                            <span class="status-indicator" id="rcdStatusIndicator"></span>
-                            <div id="rcdLastUpdate">未受信</div>
-                        </td>
-                        <td>
-                            <strong id="overallProgress">0/4完了</strong>
-                            <br>
-                            <span id="progressPercentage">0%</span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <div style="max-width: 1400px; margin: 0 auto; padding: 0 15px;">
+        
+        <!-- 概要セクション -->
+        <div id="overview-section" class="tab-content">
+            <!-- KPIダッシュボード -->
+            <div class="kpi-dashboard">
+                <div class="kpi-card kpi-card-sales">
+                    <div class="kpi-label">統合売上高</div>
+                    <div class="kpi-value" id="kpi-sales">---</div>
+                    <div class="kpi-change" id="kpi-sales-change">前年比 ---%</div>
+                </div>
+                <div class="kpi-card kpi-card-expenses">
+                    <div class="kpi-label">全体販管費</div>
+                    <div class="kpi-value" id="kpi-expenses">---</div>
+                    <div class="kpi-change" id="kpi-expenses-change">前年比 ---%</div>
+                </div>
+                <div class="kpi-card kpi-card-profit">
+                    <div class="kpi-label">営業利益</div>
+                    <div class="kpi-value" id="kpi-profit">---</div>
+                    <div class="kpi-change" id="kpi-profit-change">前年比 ---%</div>
+                </div>
+                <div class="kpi-card kpi-card-margin">
+                    <div class="kpi-label">利益率</div>
+                    <div class="kpi-value" id="kpi-margin">---%</div>
+                    <div class="kpi-change" id="kpi-margin-change">前年比 ---pt</div>
+                </div>
+            </div>
 
-        <!-- 月次推移グラフ -->
-        <div class="chart-container">
-            <h2 class="section-title">月次推移グラフ（売上・販管費・営業利益累計）</h2>
-            <canvas id="salesChart"></canvas>
-        </div>
-
-        <!-- 統合損益計算書 -->
-        <div class="pl-section">
-            <h2 class="section-title">統合損益計算書・販管費19項目詳細（7月開始年度）</h2>
-            <div class="table-scroll">
-                <table class="unified-table" id="combinedPLTable">
-                    <thead>
-                        <tr>
-                            <th class="id-column">ID</th>
-                            <th>項目名</th>
-                            <th>7月</th>
-                            <th>8月</th>
-                            <th>9月</th>
-                            <th>10月</th>
-                            <th>11月</th>
-                            <th>12月</th>
-                            <th>1月</th>
-                            <th>2月</th>
-                            <th>3月</th>
-                            <th>4月</th>
-                            <th>5月</th>
-                            <th>6月</th>
-                            <th>年間合計</th>
-                        </tr>
-                    </thead>
-                    <tbody id="combinedPLBody">
-                        <!-- 動的に生成される統合PLデータ -->
-                    </tbody>
-                </table>
+            <!-- メインチャート -->
+            <div class="chart-section">
+                <h2 class="section-title" style="color: #e74c3c;">月次推移グラフ（売上・販管費・営業利益累計）</h2>
+                <div class="chart-controls">
+                    <button class="chart-toggle active" onclick="toggleChartMode('current')">当期実績</button>
+                    <button class="chart-toggle" onclick="toggleChartMode('comparison')">前年比較</button>
+                    <button class="chart-toggle" onclick="toggleChartMode('department')">事業部別</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="main-chart"></canvas>
+                </div>
             </div>
         </div>
 
-        <!-- 役員報酬 -->
-        <div class="executive-section">
-            <h2 class="section-title">役員報酬（ダッシュボード連携強化版）</h2>
-            <div class="table-scroll">
-                <table class="unified-table" id="executiveTable">
-                    <thead>
-                        <tr>
-                            <th class="id-column"></th>
-                            <th>項目名</th>
-                            <th>7月</th>
-                            <th>8月</th>
-                            <th>9月</th>
-                            <th>10月</th>
-                            <th>11月</th>
-                            <th>12月</th>
-                            <th>1月</th>
-                            <th>2月</th>
-                            <th>3月</th>
-                            <th>4月</th>
-                            <th>5月</th>
-                            <th>6月</th>
-                            <th>年間合計</th>
-                        </tr>
-                    </thead>
-                    <tbody id="executiveBody">
-                        <!-- 動的に生成される役員報酬データ -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- RC全体集計 -->
-        <div class="summary-section">
-            <h2 class="section-title">RC全体集計</h2>
-            <div class="table-scroll">
-                <table class="unified-table" id="summaryTable">
-                    <thead>
-                        <tr>
-                            <th class="id-column"></th>
-                            <th>項目名</th>
-                            <th>7月</th>
-                            <th>8月</th>
-                            <th>9月</th>
-                            <th>10月</th>
-                            <th>11月</th>
-                            <th>12月</th>
-                            <th>1月</th>
-                            <th>2月</th>
-                            <th>3月</th>
-                            <th>4月</th>
-                            <th>5月</th>
-                            <th>6月</th>
-                            <th>年間合計</th>
-                        </tr>
-                    </thead>
-                    <tbody id="summaryBody">
-                        <!-- 動的に生成される集計データ -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- データ受信・整合性監視（フッター情報として統合） -->
-        <div class="monitoring-section">
-            <h2 class="section-title">データ受信・整合性監視</h2>
-            <div class="monitoring-content">
-                <div class="dept-status-grid">
-                    <div class="dept-status-item dept-status-waiting" id="statusSR">
-                        <div class="dept-name">SR事業部</div>
-                        <div class="quality-score" id="qualitySR">品質: ---%</div>
+        <!-- 役員報酬セクション -->
+        <div id="executive-section" class="tab-content" style="display: none;">
+            <div class="executive-compensation">
+                <h2 class="section-title">役員報酬・賞与設定</h2>
+                
+                <div class="compensation-controls">
+                    <div class="control-group">
+                        <label class="control-label">7-9月基準額（万円）</label>
+                        <input type="number" class="control-input" id="salary-high" value="826" step="10">
                     </div>
-                    <div class="dept-status-item dept-status-waiting" id="statusW">
-                        <div class="dept-name">W事業部</div>
-                        <div class="quality-score" id="qualityW">品質: ---%</div>
+                    <div class="control-group">
+                        <label class="control-label">10-6月基準額（万円）</label>
+                        <input type="number" class="control-input" id="salary-low" value="676" step="10">
                     </div>
-                    <div class="dept-status-item dept-status-waiting" id="statusRC">
-                        <div class="dept-name">RC事業部</div>
-                        <div class="quality-score" id="qualityRC">品質: ---%</div>
+                    <div class="control-group">
+                        <label class="control-label">6月賞与額（万円）</label>
+                        <input type="number" class="control-input" id="bonus-amount" value="0" step="50">
                     </div>
-                    <div class="dept-status-item dept-status-waiting" id="statusRCD">
-                        <div class="dept-name">RCD事業部</div>
-                        <div class="quality-score" id="qualityRCD">品質: ---%</div>
+                    <div class="control-group">
+                        <label class="control-label">福利費率（%）</label>
+                        <input type="number" class="control-input" id="welfare-rate" value="13" step="0.1" min="0" max="30">
                     </div>
                 </div>
 
-                <div class="monitoring-controls">
-                    <button class="monitor-btn monitor-btn-primary" onclick="manualUpdate()">手動更新</button>
-                    <button class="monitor-btn monitor-btn-toggle" id="autoToggleBtn" onclick="toggleAutoUpdate()">自動更新:ON</button>
+                <div class="compensation-actions">
+                    <button class="action-button btn-apply" onclick="applyCompensation()">設定適用</button>
+                    <button class="action-button btn-save" onclick="saveCompensation()">データ保存</button>
+                    <button class="action-button btn-load" onclick="loadCompensation()">データ読込</button>
+                    <button class="action-button btn-test" onclick="testCompensation()">動作テスト</button>
                 </div>
 
-                <div class="last-update-time" id="monitorLastUpdate">
-                    最終更新: --:--:--
+                <div id="compensation-status" class="data-source">
+                    ステータス: 待機中...
+                </div>
+
+                <!-- 役員報酬テーブル -->
+                <div class="table-container">
+                    <table class="unified-table" id="compensation-table">
+                        <thead>
+                            <tr>
+                                <th class="id-column"></th>
+                                <th>項目名</th>
+                                <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
+                                <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
+                                <th>年間合計</th>
+                            </tr>
+                        </thead>
+                        <tbody id="compensation-body">
+                            <!-- 動的に生成される役員報酬データ -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 事業部比較セクション -->
+        <div id="departments-section" class="tab-content" style="display: none;">
+            <div class="department-comparison">
+                <h2 class="section-title" style="color: #3498db;">事業部別比較・前年対比分析</h2>
+                
+                <div class="dept-grid">
+                    <div class="dept-card dept-sr">
+                        <div class="dept-header">
+                            <span class="dept-name">SR事業部</span>
+                            <span class="dept-status" id="sr-status">
+                                <span class="status-indicator status-pending"></span>待機中
+                            </span>
+                        </div>
+                        <div class="dept-chart">
+                            <canvas id="sr-chart"></canvas>
+                        </div>
+                        <div class="dept-metrics">
+                            <div class="metric-item">
+                                <div class="metric-label">年間売上</div>
+                                <div class="metric-value" id="sr-sales">---万円</div>
+                                <div class="metric-change positive" id="sr-sales-change">前年比 ---%</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">営業利益</div>
+                                <div class="metric-value" id="sr-profit">---万円</div>
+                                <div class="metric-change positive" id="sr-profit-change">前年比 ---%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dept-card dept-w">
+                        <div class="dept-header">
+                            <span class="dept-name">W事業部</span>
+                            <span class="dept-status" id="w-status">
+                                <span class="status-indicator status-pending"></span>待機中
+                            </span>
+                        </div>
+                        <div class="dept-chart">
+                            <canvas id="w-chart"></canvas>
+                        </div>
+                        <div class="dept-metrics">
+                            <div class="metric-item">
+                                <div class="metric-label">年間売上</div>
+                                <div class="metric-value" id="w-sales">---万円</div>
+                                <div class="metric-change positive" id="w-sales-change">前年比 ---%</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">営業利益</div>
+                                <div class="metric-value" id="w-profit">---万円</div>
+                                <div class="metric-change positive" id="w-profit-change">前年比 ---%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dept-card dept-rc">
+                        <div class="dept-header">
+                            <span class="dept-name">RC事業部</span>
+                            <span class="dept-status" id="rc-status">
+                                <span class="status-indicator status-pending"></span>待機中
+                            </span>
+                        </div>
+                        <div class="dept-chart">
+                            <canvas id="rc-chart"></canvas>
+                        </div>
+                        <div class="dept-metrics">
+                            <div class="metric-item">
+                                <div class="metric-label">年間売上</div>
+                                <div class="metric-value" id="rc-sales">---万円</div>
+                                <div class="metric-change positive" id="rc-sales-change">前年比 ---%</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">営業利益</div>
+                                <div class="metric-value" id="rc-profit">---万円</div>
+                                <div class="metric-change positive" id="rc-profit-change">前年比 ---%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dept-card dept-rcd">
+                        <div class="dept-header">
+                            <span class="dept-name">RCD事業部</span>
+                            <span class="dept-status" id="rcd-status">
+                                <span class="status-indicator status-pending"></span>待機中
+                            </span>
+                        </div>
+                        <div class="dept-chart">
+                            <canvas id="rcd-chart"></canvas>
+                        </div>
+                        <div class="dept-metrics">
+                            <div class="metric-item">
+                                <div class="metric-label">年間売上</div>
+                                <div class="metric-value" id="rcd-sales">---万円</div>
+                                <div class="metric-change positive" id="rcd-sales-change">前年比 ---%</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">営業利益</div>
+                                <div class="metric-value" id="rcd-profit">---万円</div>
+                                <div class="metric-change positive" id="rcd-profit-change">前年比 ---%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 分析セクション -->
+        <div id="analysis-section" class="tab-content" style="display: none;">
+            <div class="chart-section">
+                <h2 class="section-title" style="color: #e74c3c;">詳細分析・トレンド分析</h2>
+                <div class="chart-container">
+                    <canvas id="analysis-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- PL詳細セクション -->
+        <div id="pl-details-section" class="tab-content" style="display: none;">
+            <!-- 統合損益計算書 -->
+            <div class="unified-section">
+                <h2 class="section-title">統合損益計算書・販管費19項目詳細（7月開始年度）</h2>
+                <div class="table-container">
+                    <table class="unified-table" id="combined-pl-table">
+                        <thead>
+                            <tr>
+                                <th class="id-column">ID</th>
+                                <th>項目名</th>
+                                <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
+                                <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
+                                <th>年間合計</th>
+                            </tr>
+                        </thead>
+                        <tbody id="combined-pl-body">
+                            <!-- 動的に生成される統合PLデータ -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- RC全体集計 -->
+            <div class="unified-section">
+                <h2 class="section-title" style="color: #e74c3c;">RC全体集計</h2>
+                <div class="table-container">
+                    <table class="unified-table" id="summary-table">
+                        <thead>
+                            <tr>
+                                <th class="id-column"></th>
+                                <th>項目名</th>
+                                <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
+                                <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
+                                <th>年間合計</th>
+                            </tr>
+                        </thead>
+                        <tbody id="summary-body">
+                            <!-- 動的に生成される集計データ -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // 統合PLシステム v4.0 - リアルタイム監視・整合性チェック対応版
-        class EnhancedPLManager {
+        // 統合PLシステム v5.0 - 全機能統合版
+        class UnifiedPLSystem {
             constructor() {
-                // 修正済みLocalStorageキー構造（v4.0対応）
+                // ストレージキー定義
                 this.STORAGE_KEYS = {
                     'SR': 'pl_system_sr_corrected_data',
                     'W': 'pl_system_w_corrected_data', 
@@ -872,34 +1080,10 @@
 
                 // 販管費19項目統一構造マッピング
                 this.EXPENSE_ITEMS = {
-                    1: '人件費統合',
-                    2: '法定福利費',
-                    3: '衛生費',
-                    4: '物流管理費',
-                    5: '地代家賃',
-                    6: '外注費',
-                    7: '貨物運賃',
-                    8: '広告宣伝費',
-                    9: '旅費交通費',
-                    10: '通信費',
-                    11: '販売促進費',
-                    12: '消耗品費',
-                    13: '事務用品費',
-                    14: '水道光熱費',
-                    15: '支払手数料',
-                    16: 'リース料',
-                    17: '保険料',
-                    18: '支払報酬料',
-                    19: '減価償却費'
-                };
-
-                // 品質チェック項目（各20点満点）
-                this.QUALITY_CHECKS = {
-                    departmentMatch: 20,
-                    dataProtection: 15,
-                    salesData: 25,
-                    cogsData: 20,
-                    annualData: 20
+                    1: '人件費統合', 2: '法定福利費', 3: '衛生費', 4: '物流管理費', 5: '地代家賃',
+                    6: '外注費', 7: '貨物運賃', 8: '広告宣伝費', 9: '旅費交通費', 10: '通信費',
+                    11: '販売促進費', 12: '消耗品費', 13: '事務用品費', 14: '水道光熱費', 15: '支払手数料',
+                    16: 'リース料', 17: '保険料', 18: '支払報酬料', 19: '減価償却費'
                 };
 
                 // 全社共通費データ（万円単位・CSV更新対応）
@@ -917,128 +1101,69 @@
                     '寄付金': [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0]
                 };
 
-                // 監視システム設定
-                this.autoUpdateEnabled = true;
-                this.monitoringInterval = null;
+                // 前年データ（比較用）
+                this.previousYearData = {
+                    totalSales: 231441,
+                    totalProfit: 270,
+                    departmentSales: {
+                        'SR': 30382, 'W': 12721, 'RC': 18359, 'RCD': 169979
+                    },
+                    departmentProfit: {
+                        'SR': 3038, 'W': 1272, 'RC': 1835, 'RCD': 16997
+                    }
+                };
+
+                // 現在の表示モード
+                this.currentChartMode = 'current';
+                this.currentSection = 'overview';
+
+                // チャートインスタンス
+                this.charts = {};
+
+                // 役員報酬データ
+                this.executiveData = {
+                    compensation: [826, 826, 826, 676, 676, 676, 676, 676, 676, 676, 676, 676],
+                    welfare: [107, 107, 107, 88, 88, 88, 88, 88, 88, 88, 88, 88]
+                };
 
                 this.initializeSystem();
             }
 
             initializeSystem() {
-                console.log('統合PLシステム v4.0 初期化開始');
+                console.log('統合PLシステム v5.0 初期化開始');
                 this.loadAllDepartmentData();
-                this.loadExecutiveDataFromDashboard();
+                this.loadExecutiveData();
                 this.calculateUnifiedPL();
-                this.updateDisplay();
-                this.startMonitoring();
-                this.showNotification('システム初期化完了', 'success');
+                this.updateAllDisplays();
+                this.showNotification('統合PLシステム v5.0 初期化完了', 'success');
             }
 
-            // リアルタイム監視システム
-            startMonitoring() {
-                this.monitoringInterval = setInterval(() => {
-                    if (this.autoUpdateEnabled) {
-                        this.checkAllDepartments();
-                        this.loadAllDepartmentData();
-                        this.loadExecutiveDataFromDashboard();
-                        this.calculateUnifiedPL();
-                        this.updateDisplay();
-                        this.updateMonitoringPanel();
-                    }
-                }, 5000); // 5秒間隔
-
-                console.log('リアルタイム監視システム開始');
-            }
-
-            // 全事業部データチェック
-            checkAllDepartments() {
-                const departments = ['SR', 'W', 'RC', 'RCD'];
-                let issuesFound = [];
-
-                departments.forEach(dept => {
-                    const data = this.loadDepartmentData(dept);
-                    const quality = this.calculateQualityScore(data, dept);
-                    
-                    if (quality < 80) {
-                        issuesFound.push(`${dept}事業部: 品質スコア${quality}%`);
-                    }
-                });
-
-                if (issuesFound.length > 0) {
-                    this.showNotification(`品質警告: ${issuesFound.join(', ')}`, 'warning');
-                }
-            }
-
-            // データ品質スコア算出
-            calculateQualityScore(data, dept) {
-                if (!data) return 0;
-
-                let score = 0;
-                
-                // 部署情報一致チェック（20点）
-                if (data.metadata && data.metadata.department === dept) {
-                    score += this.QUALITY_CHECKS.departmentMatch;
-                }
-
-                // データ保護状況チェック（15点）
-                if (data.metadata && data.metadata.dataProtectionEnabled) {
-                    score += this.QUALITY_CHECKS.dataProtection;
-                }
-
-                // 売上データ完全性チェック（25点）
-                if (data.sales && Array.isArray(data.sales) && data.sales.length === 12) {
-                    const validSales = data.sales.filter(val => typeof val === 'number' && val >= 0);
-                    score += Math.round((validSales.length / 12) * this.QUALITY_CHECKS.salesData);
-                }
-
-                // 原価データ完全性チェック（20点）
-                if (data.cogs && Array.isArray(data.cogs) && data.cogs.length === 12) {
-                    const validCogs = data.cogs.filter(val => typeof val === 'number' && val >= 0);
-                    score += Math.round((validCogs.length / 12) * this.QUALITY_CHECKS.cogsData);
-                }
-
-                // 年間集計データチェック（20点）
-                if (data.annual && typeof data.annual === 'object') {
-                    const requiredFields = ['totalSales', 'totalCogs', 'grossProfit', 'operatingProfit'];
-                    const validFields = requiredFields.filter(field => 
-                        data.annual[field] !== undefined && typeof data.annual[field] === 'number'
-                    );
-                    score += Math.round((validFields.length / requiredFields.length) * this.QUALITY_CHECKS.annualData);
-                }
-
-                return Math.min(100, score);
-            }
-
-            // 統一キーでのデータ読み込み
+            // 全事業部データ読み込み
             loadAllDepartmentData() {
                 this.departmentData = {};
                 
                 Object.keys(this.STORAGE_KEYS).forEach(dept => {
                     if (dept === 'executive') return;
                     
-                    this.departmentData[dept] = this.loadDepartmentData(dept);
+                    const data = localStorage.getItem(this.STORAGE_KEYS[dept]);
+                    if (data) {
+                        try {
+                            const parsed = JSON.parse(data);
+                            this.departmentData[dept] = parsed;
+                            console.log(`${dept} データ読み込み成功`);
+                        } catch (e) {
+                            console.error(`Error parsing ${dept} data:`, e);
+                            this.departmentData[dept] = null;
+                        }
+                    } else {
+                        console.warn(`${dept} データが見つかりません`);
+                        this.departmentData[dept] = null;
+                    }
                 });
             }
 
-            loadDepartmentData(dept) {
-                const data = localStorage.getItem(this.STORAGE_KEYS[dept]);
-                if (data) {
-                    try {
-                        const parsed = JSON.parse(data);
-                        console.log(`${dept} データ読み込み成功:`, parsed.metadata || 'メタデータなし');
-                        return parsed;
-                    } catch (e) {
-                        console.error(`Error parsing ${dept} data:`, e);
-                        return null;
-                    }
-                } else {
-                    console.warn(`${dept} データが見つかりません (キー: ${this.STORAGE_KEYS[dept]})`);
-                    return null;
-                }
-            }
-
-            // 役員報酬データ強化読み込み
-            loadExecutiveDataFromDashboard() {
+            // 役員報酬データ読み込み
+            loadExecutiveData() {
                 try {
                     const executiveSettings = localStorage.getItem(this.STORAGE_KEYS.executive);
                     if (executiveSettings) {
@@ -1052,38 +1177,17 @@
                                 metadata: settings.metadata
                             };
                             
-                            console.log('Executive data loaded from dashboard:', {
-                                totalCompensation: this.executiveData.compensation.reduce((sum, val) => sum + val, 0),
-                                totalWelfare: this.executiveData.welfare.reduce((sum, val) => sum + val, 0),
-                                version: settings.metadata?.version
-                            });
-                        } else {
-                            throw new Error('データ構造が無効です');
+                            console.log('役員報酬データ読み込み成功');
                         }
-                    } else {
-                        // デフォルトデータ（ダッシュボード未連携時）
-                        this.executiveData = {
-                            compensation: [826, 826, 826, 676, 676, 676, 676, 676, 676, 676, 676, 676],
-                            welfare: [107, 107, 107, 88, 88, 88, 88, 88, 88, 88, 88, 88],
-                            lastUpdate: new Date().toISOString(),
-                            metadata: { version: 'default' }
-                        };
                     }
                 } catch (error) {
-                    console.error('役員報酬データ取得エラー:', error);
-                    
-                    // エラー時デフォルトデータ
-                    this.executiveData = {
-                        compensation: [826, 826, 826, 676, 676, 676, 676, 676, 676, 676, 676, 676],
-                        welfare: [107, 107, 107, 88, 88, 88, 88, 88, 88, 88, 88, 88],
-                        lastUpdate: new Date().toISOString(),
-                        metadata: { version: 'error_fallback' }
-                    };
+                    console.error('役員報酬データ読み込みエラー:', error);
                 }
             }
 
+            // 統合PL計算
             calculateUnifiedPL() {
-                // 統合データの初期化（7月開始の12ヶ月）
+                // 統合データの初期化
                 this.unifiedData = {
                     sales: Array(12).fill(0),
                     cogs: Array(12).fill(0),
@@ -1099,8 +1203,6 @@
                 Object.keys(this.departmentData).forEach(dept => {
                     const data = this.departmentData[dept];
                     if (data && data.metadata) {
-                        console.log(`${dept} データを統合中... バージョン:`, data.metadata.version);
-                        
                         // 売上・原価の統合
                         for (let month = 0; month < 12; month++) {
                             this.unifiedData.sales[month] += data.sales[month] || 0;
@@ -1116,34 +1218,32 @@
                                 }
                             }
                         }
-                    } else {
-                        console.warn(`${dept} データが無効または古い形式です`);
                     }
                 });
 
-                // 営業利益と累計営業利益の計算（役員報酬・共通費含む）
+                // 営業利益の計算
                 this.calculateFinalProfit();
             }
 
+            // 最終営業利益計算
             calculateFinalProfit() {
-                // 各月の営業利益計算（全社共通費含む）
                 this.monthlyOperatingProfit = Array(12).fill(0);
                 this.cumulativeOperatingProfit = Array(12).fill(0);
                 this.monthlyTotalExpenses = Array(12).fill(0);
                 
                 let cumulativeSum = 0;
                 for (let month = 0; month < 12; month++) {
-                    // 月次販管費合計（事業部分）
+                    // 事業部販管費合計
                     let monthlyDeptExpenses = 0;
                     for (let expenseId = 1; expenseId <= 19; expenseId++) {
                         monthlyDeptExpenses += this.unifiedData.expenses[expenseId][month];
                     }
 
-                    // 役員報酬追加（ダッシュボードから受信・万円単位）
+                    // 役員報酬追加
                     const executiveTotal = (this.executiveData.compensation[month] || 0) + 
                                           (this.executiveData.welfare[month] || 0);
                     
-                    // 全社共通費追加（万円単位）
+                    // 全社共通費追加
                     let commonExpenseTotal = 0;
                     Object.values(this.commonExpenseData).forEach(monthlyData => {
                         commonExpenseTotal += monthlyData[month];
@@ -1164,73 +1264,250 @@
                 }
             }
 
-            updateDisplay() {
-                this.updateKPICards();
-                this.updateCombinedPLTable();
-                this.updateExecutiveTable();
-                this.updateSummaryTable();
+            // 全表示更新
+            updateAllDisplays() {
+                this.updateKPIs();
+                this.updateMiniKPIs();
+                this.updateCharts();
+                this.updateTables();
                 this.updateDepartmentStatus();
-                this.updateChart();
-                this.updateLastUpdate();
-                this.updateMonitoringPanel();
+                this.updateCompensationTable();
             }
 
-            updateKPICards() {
-                // KPIカードの更新
+            // KPI更新
+            updateKPIs() {
                 const totalSales = this.unifiedData.sales.reduce((sum, val) => sum + val, 0);
                 const totalExpenses = this.monthlyTotalExpenses.reduce((sum, val) => sum + val, 0);
                 const totalOperatingProfit = this.monthlyOperatingProfit.reduce((sum, val) => sum + val, 0);
                 const profitMargin = totalSales > 0 ? (totalOperatingProfit / totalSales * 100) : 0;
-                
-                // 役員報酬合計の追加表示
-                const totalExecutiveComp = this.executiveData.compensation.reduce((sum, val) => sum + val, 0) + 
-                                         this.executiveData.welfare.reduce((sum, val) => sum + val, 0);
 
-                document.getElementById('totalSalesKPI').textContent = `${Math.round(totalSales).toLocaleString()}万円`;
-                document.getElementById('totalExpensesKPI').textContent = `${Math.round(totalExpenses).toLocaleString()}万円`;
-                document.getElementById('operatingProfitKPI').textContent = `${Math.round(totalOperatingProfit).toLocaleString()}万円`;
-                document.getElementById('profitMarginKPI').textContent = `${profitMargin.toFixed(1)}%`;
-                document.getElementById('executiveCompKPI').textContent = `${Math.round(totalExecutiveComp).toLocaleString()}万円`;
+                // 前年比計算
+                const salesGrowth = ((totalSales - this.previousYearData.totalSales) / this.previousYearData.totalSales * 100).toFixed(1);
+                const profitGrowth = ((totalOperatingProfit - this.previousYearData.totalProfit) / this.previousYearData.totalProfit * 100).toFixed(1);
+
+                // KPI表示更新
+                document.getElementById('kpi-sales').textContent = `${Math.round(totalSales).toLocaleString()}万円`;
+                document.getElementById('kpi-expenses').textContent = `${Math.round(totalExpenses).toLocaleString()}万円`;
+                document.getElementById('kpi-profit').textContent = `${Math.round(totalOperatingProfit).toLocaleString()}万円`;
+                document.getElementById('kpi-margin').textContent = `${profitMargin.toFixed(1)}%`;
+                
+                document.getElementById('kpi-sales-change').textContent = `前年比 ${salesGrowth >= 0 ? '+' : ''}${salesGrowth}%`;
+                document.getElementById('kpi-profit-change').textContent = `前年比 ${profitGrowth >= 0 ? '+' : ''}${profitGrowth}%`;
+                
+                // 前年比の色分け
+                document.getElementById('kpi-sales-change').className = `kpi-change ${salesGrowth >= 0 ? 'positive' : 'negative'}`;
+                document.getElementById('kpi-profit-change').className = `kpi-change ${profitGrowth >= 0 ? 'positive' : 'negative'}`;
             }
 
-            // 監視パネル更新
-            updateMonitoringPanel() {
-                const departments = ['SR', 'W', 'RC', 'RCD'];
+            // ミニKPI更新
+            updateMiniKPIs() {
+                const totalSales = this.unifiedData.sales.reduce((sum, val) => sum + val, 0);
+                const totalExpenses = this.monthlyTotalExpenses.reduce((sum, val) => sum + val, 0);
+                const totalOperatingProfit = this.monthlyOperatingProfit.reduce((sum, val) => sum + val, 0);
+                const profitMargin = totalSales > 0 ? (totalOperatingProfit / totalSales * 100) : 0;
+
+                document.getElementById('mini-kpi-sales').textContent = `${Math.round(totalSales).toLocaleString()}万円`;
+                document.getElementById('mini-kpi-expenses').textContent = `${Math.round(totalExpenses).toLocaleString()}万円`;
+                document.getElementById('mini-kpi-profit').textContent = `${Math.round(totalOperatingProfit).toLocaleString()}万円`;
+                document.getElementById('mini-kpi-margin').textContent = `${profitMargin.toFixed(1)}%`;
+            }
+
+            // チャート更新
+            updateCharts() {
+                this.updateMainChart();
+                this.updateDepartmentCharts();
+            }
+
+            // メインチャート更新
+            updateMainChart() {
+                const ctx = document.getElementById('main-chart');
+                if (!ctx) return;
+
+                if (this.charts.main) {
+                    this.charts.main.destroy();
+                }
+
+                const months = ['7月','8月','9月','10月','11月','12月','1月','2月','3月','4月','5月','6月'];
+
+                let datasets = [];
                 
-                departments.forEach(dept => {
-                    const data = this.loadDepartmentData(dept);
-                    const quality = this.calculateQualityScore(data, dept);
-                    const statusElement = document.getElementById(`status${dept}`);
-                    
-                    if (data && data.metadata) {
-                        statusElement.className = 'dept-status-item dept-status-complete';
-                        document.getElementById(`quality${dept}`).textContent = `品質: ${quality}%`;
-                    } else {
-                        statusElement.className = 'dept-status-item dept-status-waiting';
-                        document.getElementById(`quality${dept}`).textContent = '品質: ---%';
+                if (this.currentChartMode === 'current') {
+                    datasets = [
+                        {
+                            label: '月次売上高（万円）',
+                            type: 'bar',
+                            data: this.unifiedData.sales,
+                            backgroundColor: 'rgba(52,152,219,0.7)',
+                            borderColor: '#3498db',
+                            borderWidth: 2,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: '月次販管費（万円）',
+                            type: 'bar',
+                            data: this.monthlyTotalExpenses,
+                            backgroundColor: 'rgba(243,156,18,0.7)',
+                            borderColor: '#f39c12',
+                            borderWidth: 2,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: '営業利益累計（万円）',
+                            type: 'line',
+                            data: this.cumulativeOperatingProfit,
+                            borderColor: '#e74c3c',
+                            backgroundColor: 'rgba(231,76,60,0.1)',
+                            borderWidth: 4,
+                            fill: false,
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        }
+                    ];
+                } else if (this.currentChartMode === 'comparison') {
+                    // 前年比較モード（実装は省略）
+                    datasets = [
+                        {
+                            label: '今期売上高（万円）',
+                            type: 'bar',
+                            data: this.unifiedData.sales,
+                            backgroundColor: 'rgba(52,152,219,0.7)',
+                            borderColor: '#3498db',
+                            borderWidth: 2,
+                            yAxisID: 'y'
+                        }
+                        // 前年データは省略
+                    ];
+                }
+
+                this.charts.main = new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels: months, datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '統合PLシステム - 月次推移分析',
+                                font: { size: 16, weight: 'bold' },
+                                color: '#2c3e50'
+                            },
+                            legend: { 
+                                display: true, 
+                                position: 'top',
+                                labels: { usePointStyle: true, font: {size: 12, weight: 'bold'} }
+                            }
+                        },
+                        scales: {
+                            x: { 
+                                title: { display: true, text: '月度', font: {size: 14, weight: 'bold'} }
+                            },
+                            y: { 
+                                type: 'linear', 
+                                display: true, 
+                                position: 'left',
+                                title: { display: true, text: '売上高・販管費（万円）', font: {size: 14, weight: 'bold'}, color: '#3498db' },
+                                ticks: { color: '#3498db', callback: function(value) { return value.toLocaleString(); } }
+                            },
+                            y1: { 
+                                type: 'linear', 
+                                display: true, 
+                                position: 'right',
+                                title: { display: true, text: '営業利益累計（万円）', font: {size: 14, weight: 'bold'}, color: '#e74c3c' },
+                                ticks: { color: '#e74c3c', callback: function(value) { return value.toLocaleString(); } },
+                                grid: { drawOnChartArea: false }
+                            }
+                        }
                     }
                 });
-
-                // 最終更新時刻
-                document.getElementById('monitorLastUpdate').textContent = 
-                    `最終更新: ${new Date().toLocaleTimeString()}`;
             }
 
+            // 事業部別チャート更新
+            updateDepartmentCharts() {
+                const departments = ['SR', 'W', 'RC', 'RCD'];
+                const colors = { 'SR': '#C477CC', 'W': '#3498db', 'RC': '#27ae60', 'RCD': '#9b59b6' };
+                const months = ['7','8','9','10','11','12','1','2','3','4','5','6'];
+
+                departments.forEach(dept => {
+                    const ctx = document.getElementById(`${dept.toLowerCase()}-chart`);
+                    if (!ctx) return;
+
+                    if (this.charts[dept.toLowerCase()]) {
+                        this.charts[dept.toLowerCase()].destroy();
+                    }
+
+                    const data = this.departmentData[dept];
+                    let salesData = Array(12).fill(0);
+                    
+                    if (data && data.sales) {
+                        salesData = data.sales;
+                    }
+
+                    this.charts[dept.toLowerCase()] = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: months,
+                            datasets: [{
+                                label: '月次売上',
+                                data: salesData,
+                                backgroundColor: colors[dept] + '77',
+                                borderColor: colors[dept],
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { 
+                                legend: { display: false }
+                            },
+                            scales: { 
+                                x: { ticks: { font: {size: 10} } }, 
+                                y: { 
+                                    ticks: { 
+                                        font: {size: 10}, 
+                                        callback: function(value) { return value.toLocaleString(); } 
+                                    } 
+                                } 
+                            }
+                        }
+                    });
+
+                    // 事業部KPI更新
+                    const annualSales = salesData.reduce((sum, val) => sum + val, 0);
+                    const prevSales = this.previousYearData.departmentSales[dept] || 0;
+                    const salesGrowth = prevSales > 0 ? ((annualSales - prevSales) / prevSales * 100).toFixed(1) : '0.0';
+
+                    document.getElementById(`${dept.toLowerCase()}-sales`).textContent = `${Math.round(annualSales).toLocaleString()}万円`;
+                    document.getElementById(`${dept.toLowerCase()}-sales-change`).textContent = `前年比 ${salesGrowth >= 0 ? '+' : ''}${salesGrowth}%`;
+                    document.getElementById(`${dept.toLowerCase()}-sales-change`).className = `metric-change ${salesGrowth >= 0 ? 'positive' : 'negative'}`;
+                });
+            }
+
+            // テーブル更新
+            updateTables() {
+                this.updateCombinedPLTable();
+                this.updateSummaryTable();
+            }
+
+            // 統合PLテーブル更新
             updateCombinedPLTable() {
-                const tbody = document.getElementById('combinedPLBody');
+                const tbody = document.getElementById('combined-pl-body');
+                if (!tbody) return;
+                
                 tbody.innerHTML = '';
 
                 // 売上行
-                const salesRow = this.createUnifiedRow('', '売上高', this.unifiedData.sales, 'total-row');
+                const salesRow = this.createTableRow('', '売上高', this.unifiedData.sales, 'total-row');
                 tbody.appendChild(salesRow);
 
                 // 売上原価行
-                const cogsRow = this.createUnifiedRow('', '売上原価', this.unifiedData.cogs, '');
+                const cogsRow = this.createTableRow('', '売上原価', this.unifiedData.cogs, '');
                 tbody.appendChild(cogsRow);
 
                 // 売上総利益行
                 const grossProfitData = this.unifiedData.sales.map((sales, i) => sales - this.unifiedData.cogs[i]);
-                const grossProfitRow = this.createUnifiedRow('', '売上総利益', grossProfitData, 'profit-row');
+                const grossProfitRow = this.createTableRow('', '売上総利益', grossProfitData, 'profit-row');
                 tbody.appendChild(grossProfitRow);
 
                 // 販管費19項目詳細
@@ -1238,213 +1515,112 @@
                     const expenseData = this.unifiedData.expenses[expenseId];
                     const expenseName = this.EXPENSE_ITEMS[expenseId];
                     
-                    const row = this.createUnifiedRow(expenseId, expenseName, expenseData, 'admin-expense-row');
+                    const row = this.createTableRow(expenseId, expenseName, expenseData, 'admin-expense-row');
                     tbody.appendChild(row);
                 }
 
-                // 販管費合計行（事業部分のみ）
+                // 事業部販管費計
                 const deptExpensesData = Array(12).fill(0);
                 for (let month = 0; month < 12; month++) {
                     for (let expenseId = 1; expenseId <= 19; expenseId++) {
                         deptExpensesData[month] += this.unifiedData.expenses[expenseId][month];
                     }
                 }
-                const deptExpensesRow = this.createUnifiedRow('', '事業部販管費計', deptExpensesData, 'total-row');
+                const deptExpensesRow = this.createTableRow('', '事業部販管費計', deptExpensesData, 'total-row');
                 tbody.appendChild(deptExpensesRow);
             }
 
-            updateExecutiveTable() {
-                const tbody = document.getElementById('executiveBody');
-                tbody.innerHTML = '';
-
-                // 役員報酬行（ダッシュボードから受信・賞与含む）
-                const compensationRow = this.createUnifiedRow('', '役員報酬', this.executiveData.compensation || [], 'executive-row');
-                tbody.appendChild(compensationRow);
-
-                // 法定福利費行（ダッシュボードから受信）
-                const welfareRow = this.createUnifiedRow('', '法定福利費', this.executiveData.welfare || [], '');
-                tbody.appendChild(welfareRow);
-            }
-
+            // サマリーテーブル更新
             updateSummaryTable() {
-                const tbody = document.getElementById('summaryBody');
+                const tbody = document.getElementById('summary-body');
+                if (!tbody) return;
+                
                 tbody.innerHTML = '';
 
                 // RC全体販管費
-                const totalExpensesRow = this.createUnifiedRow('', 'RC全体販管費', 
-                    this.monthlyTotalExpenses, 'total-row');
+                const totalExpensesRow = this.createTableRow('', 'RC全体販管費', this.monthlyTotalExpenses, 'total-row');
                 tbody.appendChild(totalExpensesRow);
 
                 // 全体営業利益
                 const operatingProfitClass = this.monthlyOperatingProfit.some(val => val < 0) ? 'final-profit-negative' : 'final-profit-positive';
-                const operatingProfitRow = this.createUnifiedRow('', '全体営業利益', 
-                    this.monthlyOperatingProfit, operatingProfitClass);
+                const operatingProfitRow = this.createTableRow('', '全体営業利益', this.monthlyOperatingProfit, 'profit-row');
                 tbody.appendChild(operatingProfitRow);
             }
 
-            createUnifiedRow(id, label, data, className) {
+            // テーブル行作成
+            createTableRow(id, label, data, className) {
                 const row = document.createElement('tr');
                 if (className) row.className = className;
 
-                // IDカラム（統一レイアウト）
+                // IDカラム
                 const idCell = document.createElement('td');
                 idCell.textContent = id;
                 idCell.className = 'id-column';
                 row.appendChild(idCell);
 
-                // 項目名カラム（統一レイアウト）
+                // 項目名カラム
                 const labelCell = document.createElement('td');
                 labelCell.textContent = label;
                 row.appendChild(labelCell);
 
-                // 月別データカラム（12ヶ月・統一レイアウト）
+                // 月別データカラム
                 let yearTotal = 0;
                 for (let month = 0; month < 12; month++) {
                     const cell = document.createElement('td');
                     const value = data[month] || 0;
                     yearTotal += value;
-                    // 万円単位として直接表示（除算不要）
-                    const displayValue = Math.round(value);
-                    cell.textContent = displayValue.toLocaleString();
+                    cell.textContent = Math.round(value).toLocaleString();
                     row.appendChild(cell);
                 }
 
-                // 年間合計カラム（統一レイアウト）
+                // 年間合計カラム
                 const totalCell = document.createElement('td');
-                // 万円単位として直接表示
                 totalCell.textContent = Math.round(yearTotal).toLocaleString();
                 row.appendChild(totalCell);
 
                 return row;
             }
 
+            // 事業部ステータス更新
             updateDepartmentStatus() {
-                const departments = ['sr', 'w', 'rc', 'rcd'];
-                let completedCount = 0;
+                const departments = ['SR', 'W', 'RC', 'RCD'];
                 
                 departments.forEach(dept => {
-                    const deptUpper = dept.toUpperCase();
-                    const statusElement = document.getElementById(`${dept}StatusIndicator`);
-                    const updateElement = document.getElementById(`${dept}LastUpdate`);
-                    
-                    const data = this.departmentData[deptUpper];
+                    const statusElement = document.getElementById(`${dept.toLowerCase()}-status`);
+                    const indicatorElement = document.getElementById(`${dept.toLowerCase()}-indicator`);
+                    const data = this.departmentData[dept];
                     
                     if (data && data.metadata) {
-                        statusElement.className = 'status-indicator status-completed';
-                        updateElement.textContent = new Date(data.metadata.lastUpdate).toLocaleString();
-                        completedCount++;
+                        statusElement.innerHTML = '<span class="status-indicator status-connected"></span>接続済み';
+                        if (indicatorElement) {
+                            indicatorElement.className = 'status-indicator status-connected';
+                        }
                     } else {
-                        statusElement.className = 'status-indicator status-pending';
-                        updateElement.textContent = '未受信';
-                    }
-                });
-
-                // 全体進捗の更新
-                document.getElementById('overallProgress').textContent = `${completedCount}/4完了`;
-                document.getElementById('progressPercentage').textContent = `${Math.round((completedCount / 4) * 100)}%`;
-            }
-
-            updateChart() {
-                const ctx = document.getElementById('salesChart').getContext('2d');
-                
-                if (this.chart) {
-                    this.chart.destroy();
-                }
-
-                const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
-                
-                this.chart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: months,
-                        datasets: [
-                            {
-                                type: 'bar',
-                                label: '月次売上高（万円）',
-                                data: this.unifiedData.sales,
-                                backgroundColor: 'rgba(243, 156, 18, 0.7)',
-                                borderColor: '#f39c12',
-                                borderWidth: 1,
-                                yAxisID: 'y'
-                            },
-                            {
-                                type: 'bar',
-                                label: 'RC全体販管費（万円）',
-                                data: this.monthlyTotalExpenses,
-                                backgroundColor: 'rgba(52, 152, 219, 0.7)',
-                                borderColor: '#3498db',
-                                borderWidth: 1,
-                                yAxisID: 'y'
-                            },
-                            {
-                                type: 'line',
-                                label: '全体営業利益累計（万円）',
-                                data: this.cumulativeOperatingProfit,
-                                borderColor: '#e74c3c',
-                                backgroundColor: 'rgba(231, 76, 60, 0.1)',
-                                borderWidth: 4,
-                                fill: false,
-                                tension: 0.4,
-                                yAxisID: 'y1'
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: '月次推移（売上・RC全体販管費・全体営業利益累計）',
-                                font: {
-                                    size: 16,
-                                    weight: 'bold'
-                                },
-                                color: '#d35400'
-                            },
-                            legend: {
-                                position: 'top'
-                            }
-                        },
-                        scales: {
-                            y: {
-                                type: 'linear',
-                                display: true,
-                                position: 'left',
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: '売上高・販管費（万円）',
-                                    color: '#d35400'
-                                },
-                                grid: {
-                                    drawOnChartArea: false,
-                                }
-                            },
-                            y1: {
-                                type: 'linear',
-                                display: true,
-                                position: 'right',
-                                title: {
-                                    display: true,
-                                    text: '営業利益累計（万円）',
-                                    color: '#e74c3c'
-                                },
-                                grid: {
-                                    drawOnChartArea: true,
-                                }
-                            }
+                        statusElement.innerHTML = '<span class="status-indicator status-pending"></span>待機中';
+                        if (indicatorElement) {
+                            indicatorElement.className = 'status-indicator status-pending';
                         }
                     }
                 });
             }
 
-            updateLastUpdate() {
-                document.getElementById('lastUpdate').textContent = 
-                    `最終更新: ${new Date().toLocaleString()}`;
+            // 役員報酬テーブル更新
+            updateCompensationTable() {
+                const tbody = document.getElementById('compensation-body');
+                if (!tbody) return;
+                
+                tbody.innerHTML = '';
+
+                // 役員報酬行
+                const compensationRow = this.createTableRow('', '役員報酬', this.executiveData.compensation, 'executive-row');
+                tbody.appendChild(compensationRow);
+
+                // 法定福利費行
+                const welfareRow = this.createTableRow('', '法定福利費', this.executiveData.welfare, '');
+                tbody.appendChild(welfareRow);
             }
 
-            // 通知システム
+            // 通知表示
             showNotification(message, type) {
                 const notification = document.getElementById('notification');
                 notification.textContent = message;
@@ -1453,93 +1629,201 @@
 
                 setTimeout(() => {
                     notification.classList.remove('show');
-                }, 3000);
+                }, 4000);
             }
         }
 
-        // 手動更新機能
-        function manualUpdate() {
-            try {
-                const manager = window.enhancedPLManager;
-                if (manager) {
-                    manager.loadAllDepartmentData();
-                    manager.loadExecutiveDataFromDashboard();
-                    manager.calculateUnifiedPL();
-                    manager.updateDisplay();
-                    manager.showNotification('手動更新完了', 'success');
-                } else {
-                    throw new Error('システムが初期化されていません');
-                }
-            } catch (error) {
-                manager.showNotification(`更新エラー: ${error.message}`, 'error');
-                console.error('Manual update error:', error);
-            }
-        }
+        // グローバル変数
+        let unifiedPLSystem;
 
-        // 自動更新切り替え
-        function toggleAutoUpdate() {
-            const manager = window.enhancedPLManager;
-            const toggleBtn = document.getElementById('autoToggleBtn');
+        // セクション表示切替
+        function showSection(sectionName) {
+            // すべてのタブコンテンツを非表示
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
             
-            if (manager) {
-                manager.autoUpdateEnabled = !manager.autoUpdateEnabled;
-                
-                if (manager.autoUpdateEnabled) {
-                    toggleBtn.textContent = '自動更新:ON';
-                    toggleBtn.classList.remove('disabled');
-                    manager.showNotification('自動更新を有効にしました', 'success');
-                } else {
-                    toggleBtn.textContent = '自動更新:OFF';
-                    toggleBtn.classList.add('disabled');
-                    manager.showNotification('自動更新を無効にしました', 'warning');
+            // すべてのナビタブの active クラスを削除
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 指定されたセクションを表示
+            const targetSection = document.getElementById(`${sectionName}-section`);
+            if (targetSection) {
+                targetSection.style.display = 'block';
+            }
+            
+            // クリックされたタブに active クラスを追加
+            event.target.classList.add('active');
+            
+            unifiedPLSystem.currentSection = sectionName;
+        }
+
+        // チャートモード切替
+        function toggleChartMode(mode) {
+            document.querySelectorAll('.chart-toggle').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            unifiedPLSystem.currentChartMode = mode;
+            unifiedPLSystem.updateMainChart();
+        }
+
+        // 役員報酬機能
+        function applyCompensation() {
+            const high = parseInt(document.getElementById('salary-high').value) || 826;
+            const low = parseInt(document.getElementById('salary-low').value) || 676;
+            const bonus = parseInt(document.getElementById('bonus-amount').value) || 0;
+            const welfareRate = parseFloat(document.getElementById('welfare-rate').value) || 13;
+            
+            // 基本報酬設定
+            unifiedPLSystem.executiveData.compensation = [high,high,high,low,low,low,low,low,low,low,low,low];
+            
+            // 6月に賞与追加
+            unifiedPLSystem.executiveData.compensation[11] += bonus;
+            
+            // 法定福利費計算
+            unifiedPLSystem.executiveData.welfare = unifiedPLSystem.executiveData.compensation.map(s => Math.round(s * welfareRate / 100));
+            
+            // 再計算・表示更新
+            unifiedPLSystem.calculateFinalProfit();
+            unifiedPLSystem.updateAllDisplays();
+            
+            unifiedPLSystem.showNotification(`役員報酬設定完了（6月賞与: ${bonus.toLocaleString()}万円）`, 'success');
+        }
+
+        function saveCompensation() {
+            const executiveSettings = {
+                monthlyCompensation: [...unifiedPLSystem.executiveData.compensation],
+                welfare: [...unifiedPLSystem.executiveData.welfare],
+                lastUpdate: new Date().toISOString(),
+                metadata: {
+                    baseHigh: parseInt(document.getElementById('salary-high').value),
+                    baseLow: parseInt(document.getElementById('salary-low').value),
+                    bonusAmount: parseInt(document.getElementById('bonus-amount').value) || 0,
+                    welfareRate: parseFloat(document.getElementById('welfare-rate').value) || 13,
+                    version: "5.0_unified_system"
                 }
+            };
+            
+            localStorage.setItem('executive_compensation_csv_settings', JSON.stringify(executiveSettings));
+            unifiedPLSystem.showNotification('役員報酬データを保存しました', 'success');
+            
+            document.getElementById('compensation-status').textContent = `保存完了: ${new Date().toLocaleString()}`;
+        }
+
+        function loadCompensation() {
+            try {
+                const saved = localStorage.getItem('executive_compensation_csv_settings');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    
+                    if (data.monthlyCompensation && data.welfare) {
+                        unifiedPLSystem.executiveData.compensation = [...data.monthlyCompensation];
+                        unifiedPLSystem.executiveData.welfare = [...data.welfare];
+                        
+                        if (data.metadata) {
+                            document.getElementById('salary-high').value = data.metadata.baseHigh || 826;
+                            document.getElementById('salary-low').value = data.metadata.baseLow || 676;
+                            document.getElementById('bonus-amount').value = data.metadata.bonusAmount || 0;
+                            document.getElementById('welfare-rate').value = data.metadata.welfareRate || 13;
+                        }
+                        
+                        // 再計算・表示更新
+                        unifiedPLSystem.calculateFinalProfit();
+                        unifiedPLSystem.updateAllDisplays();
+                        
+                        unifiedPLSystem.showNotification('役員報酬データを読み込みました', 'success');
+                        document.getElementById('compensation-status').textContent = `読込完了: ${new Date(data.lastUpdate).toLocaleString()}`;
+                    }
+                } else {
+                    unifiedPLSystem.showNotification('保存されたデータが見つかりません', 'warning');
+                }
+            } catch (e) {
+                console.error('Load error:', e);
+                unifiedPLSystem.showNotification('読み込みエラー: ' + e.message, 'error');
             }
         }
 
-        // CSVエクスポート機能（統合PL版）
+        function testCompensation() {
+            try {
+                // データ整合性テスト
+                const testResults = [];
+                
+                // 1. 報酬データの妥当性
+                const totalComp = unifiedPLSystem.executiveData.compensation.reduce((s,v) => s + v, 0);
+                const totalWelfare = unifiedPLSystem.executiveData.welfare.reduce((s,v) => s + v, 0);
+                
+                if (totalComp > 0) {
+                    testResults.push('✓ 役員報酬データ正常');
+                } else {
+                    testResults.push('✗ 役員報酬データ異常');
+                }
+                
+                // 2. 営業利益への影響確認
+                const profitTotal = unifiedPLSystem.monthlyOperatingProfit.reduce((s,v) => s + v, 0);
+                if (Math.abs(profitTotal) < 100000) { // 10万万円以下
+                    testResults.push('✓ 営業利益計算正常');
+                } else {
+                    testResults.push('✗ 営業利益計算異常');
+                }
+                
+                // 3. 保存・読込テスト
+                saveCompensation();
+                setTimeout(() => {
+                    const saved = localStorage.getItem('executive_compensation_csv_settings');
+                    if (saved) {
+                        testResults.push('✓ 保存・読込機能正常');
+                    } else {
+                        testResults.push('✗ 保存・読込機能異常');
+                    }
+                    
+                    unifiedPLSystem.showNotification(`テスト完了: ${testResults.join(', ')}`, 'success');
+                    document.getElementById('compensation-status').textContent = `テスト結果: ${testResults.length}項目確認`;
+                }, 500);
+                
+            } catch (error) {
+                unifiedPLSystem.showNotification('テストエラー: ' + error.message, 'error');
+            }
+        }
+
+        // CSVエクスポート機能
         function exportUnifiedCSV() {
             try {
-                const manager = window.enhancedPLManager;
-                if (!manager) {
-                    alert('システムが初期化されていません。');
-                    return;
-                }
-
-                // CSVエクスポートデータ生成（37項目統一仕様）
                 const csvData = [];
                 const months = ['項目名', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月', '年間合計'];
                 csvData.push(months);
 
-                // 基本PL項目（3項目）
-                csvData.push(['売上高', ...manager.unifiedData.sales, manager.unifiedData.sales.reduce((sum, val) => sum + val, 0)]);
-                csvData.push(['売上原価', ...manager.unifiedData.cogs, manager.unifiedData.cogs.reduce((sum, val) => sum + val, 0)]);
+                // 基本PL項目
+                csvData.push(['売上高', ...unifiedPLSystem.unifiedData.sales, unifiedPLSystem.unifiedData.sales.reduce((sum, val) => sum + val, 0)]);
+                csvData.push(['売上原価', ...unifiedPLSystem.unifiedData.cogs, unifiedPLSystem.unifiedData.cogs.reduce((sum, val) => sum + val, 0)]);
                 
-                const grossProfitData = manager.unifiedData.sales.map((sales, i) => sales - manager.unifiedData.cogs[i]);
+                const grossProfitData = unifiedPLSystem.unifiedData.sales.map((sales, i) => sales - unifiedPLSystem.unifiedData.cogs[i]);
                 csvData.push(['売上総利益', ...grossProfitData, grossProfitData.reduce((sum, val) => sum + val, 0)]);
 
                 // 販管費19項目
                 for (let i = 1; i <= 19; i++) {
-                    const expenseData = manager.unifiedData.expenses[i];
-                    const expenseName = manager.EXPENSE_ITEMS[i];
+                    const expenseData = unifiedPLSystem.unifiedData.expenses[i];
+                    const expenseName = unifiedPLSystem.EXPENSE_ITEMS[i];
                     const annual = expenseData.reduce((sum, val) => sum + val, 0);
                     csvData.push([expenseName, ...expenseData, annual]);
                 }
 
-                // 統合PL専用項目
-                csvData.push(['役員報酬', ...manager.executiveData.compensation, manager.executiveData.compensation.reduce((sum, val) => sum + val, 0)]);
-                csvData.push(['役員法定福利費', ...manager.executiveData.welfare, manager.executiveData.welfare.reduce((sum, val) => sum + val, 0)]);
+                // 役員報酬
+                csvData.push(['役員報酬', ...unifiedPLSystem.executiveData.compensation, unifiedPLSystem.executiveData.compensation.reduce((sum, val) => sum + val, 0)]);
+                csvData.push(['役員法定福利費', ...unifiedPLSystem.executiveData.welfare, unifiedPLSystem.executiveData.welfare.reduce((sum, val) => sum + val, 0)]);
 
-                // 全社共通費11項目
-                const commonExpenseNames = ['管理諸費', '修繕費', '車両費', '租税公課', '交際費', '諸会費', '会議費', '福利厚生費', '研修費', '雑費', '寄付金'];
-                commonExpenseNames.forEach(name => {
-                    const data = manager.commonExpenseData[name];
+                // 全社共通費
+                Object.entries(unifiedPLSystem.commonExpenseData).forEach(([name, data]) => {
                     const annual = data.reduce((sum, val) => sum + val, 0);
                     csvData.push([name, ...data, annual]);
                 });
 
                 // 計算項目
-                csvData.push(['販管費合計', ...manager.monthlyTotalExpenses, manager.monthlyTotalExpenses.reduce((sum, val) => sum + val, 0)]);
-                csvData.push(['営業利益', ...manager.monthlyOperatingProfit, manager.monthlyOperatingProfit.reduce((sum, val) => sum + val, 0)]);
+                csvData.push(['販管費合計', ...unifiedPLSystem.monthlyTotalExpenses, unifiedPLSystem.monthlyTotalExpenses.reduce((sum, val) => sum + val, 0)]);
+                csvData.push(['営業利益', ...unifiedPLSystem.monthlyOperatingProfit, unifiedPLSystem.monthlyOperatingProfit.reduce((sum, val) => sum + val, 0)]);
 
                 // CSV文字列生成
                 const csvString = '\uFEFF' + csvData.map(row => row.join(',')).join('\n');
@@ -1548,26 +1832,43 @@
                 const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = `統合PL_v4.0_${new Date().toISOString().split('T')[0]}.csv`;
+                link.download = `統合PLシステム v5.0_${new Date().toISOString().split('T')[0]}.csv`;
                 link.click();
                 
-                manager.showNotification('統合PLデータのCSVエクスポートが完了しました。', 'success');
+                unifiedPLSystem.showNotification('統合PLデータのCSVエクスポートが完了しました', 'success');
                 
             } catch (error) {
-                const manager = window.enhancedPLManager;
-                if (manager) {
-                    manager.showNotification('CSVエクスポートでエラーが発生しました: ' + error.message, 'error');
-                } else {
-                    alert('CSVエクスポートでエラーが発生しました: ' + error.message);
-                }
+                unifiedPLSystem.showNotification('CSVエクスポートでエラーが発生しました: ' + error.message, 'error');
                 console.error('CSVエクスポートエラー:', error);
             }
         }
 
         // システム初期化
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('統合PLシステム v4.0 初期化開始');
-            window.enhancedPLManager = new EnhancedPLManager();
+            console.log('統合PLシステム v5.0 初期化開始');
+            unifiedPLSystem = new UnifiedPLSystem();
+
+            // 定期的な自動更新（30秒間隔）
+            setInterval(() => {
+                try {
+                    unifiedPLSystem.loadAllDepartmentData();
+                    unifiedPLSystem.calculateUnifiedPL();
+                    unifiedPLSystem.updateAllDisplays();
+                } catch (e) {
+                    console.error('Auto refresh error:', e);
+                }
+            }, 30000);
+
+            // CSVエクスポートボタンの追加
+            const exportButton = document.createElement('button');
+            exportButton.textContent = 'CSV一括エクスポート';
+            exportButton.className = 'action-button btn-save';
+            exportButton.onclick = exportUnifiedCSV;
+            exportButton.style.position = 'fixed';
+            exportButton.style.bottom = '20px';
+            exportButton.style.right = '20px';
+            exportButton.style.zIndex = '1000';
+            document.body.appendChild(exportButton);
         });
     </script>
 </body>
