@@ -198,7 +198,6 @@
 
         .status-protected { background: #10b981; }
         .status-unprotected { background: #f59e0b; }
-        .status-error { background: #ef4444; }
 
         .action-btn {
             padding: 10px 20px;
@@ -699,11 +698,11 @@
     <!-- 2行目: グローバルナビゲーション（5ボタン） -->
     <div class="header-row2">
         <div class="nav-container">
-            <a href="sr-pl-corrected.html" class="btn">SR事業部PL</a>
+            <a href="sr-pl.html" class="btn">SR事業部PL</a>
             <a href="#" class="btn btn-active-w">W事業部PL</a>
-            <a href="rc-pl-corrected.html" class="btn">RC事業部PL</a>
-            <a href="rcd-pl-corrected.html" class="btn">RCD事業部PL</a>
-            <a href="enhanced_combined_pl.html" class="btn">統合PLシステム</a>
+            <a href="rc-pl.html" class="btn">RC事業部PL</a>
+            <a href="rcd-pl.html" class="btn">RCD事業部PL</a>
+            <a href="../combined-dashboard/" class="btn">統合PLシステム</a>
         </div>
     </div>
 
@@ -927,7 +926,7 @@
             advertising: 30
         };
 
-        // データ保護システム  
+        // データ保護システム 
         let dataProtectionState = {
             isProtected: false,
             autoSaveInterval: null,
@@ -1151,7 +1150,7 @@
             notifications.forEach(el => el.remove());
         }
 
-        // 修正版：シミュレータ準拠の12段階人件費システム  
+        // 修正版：シミュレータ準拠の12段階人件費システム 
         function getWPersonnelAmount(salesAmount) {
             if (salesAmount <= 599) return 201;
             if (salesAmount <= 699) return 208.5;
@@ -1612,7 +1611,7 @@
 2秒後にRC事業部画面に移動します。`, 'success', 5000);
 
                 setTimeout(() => {
-                    window.location.href = 'rc-pl-corrected.html';
+                    window.location.href = 'rc-pl.html';
                 }, 2000);
 
                 return results.annual.sales;
