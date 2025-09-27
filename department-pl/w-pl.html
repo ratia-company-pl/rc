@@ -167,18 +167,6 @@
             background: linear-gradient(135deg, #ef4444, #dc2626);
         }
 
-        .btn-ready-to-send {
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-            color: white;
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
         .action-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -619,7 +607,7 @@
                     <a href="../index.html" class="btn-nav">ダッシュボード</a>
                     <a href="sr-pl.html" class="btn-nav btn-sr">SR事業部</a>
                     <a href="w-pl.html" class="btn-nav btn-w">W事業部</a>
-                    <a href="rc-pl.html" class="btn-nav btn-rc">RC支店</a>
+                    <a href="rc-pl.html" class="btn-nav btn-rc">RC事業部</a>
                     <a href="rcd-pl.html" class="btn-nav btn-rcd">RCD社</a>
                     <a href="../combined-dashboard/index.html" class="btn-nav">全体PL</a>
                 </div>
@@ -644,7 +632,7 @@
                         🔓 データ保護OFF
                     </button>
                     <button class="action-btn btn-csv" onclick="exportWCSV()">
-                        CSVエクスポート
+                        CSVエクスポート（任意）
                     </button>
                     <button class="action-btn btn-primary" id="send-btn" onclick="sendWDataAndNavigateToNext()">
                         Wデータ送信 → 次のステップ (RC事業部)
@@ -818,15 +806,13 @@
             advertising: 30
         };
 
-        // データ保護システム
+        // データ保護システム 
         let dataProtectionState = {
             isProtected: false,
             autoSaveInterval: null,
             backupCount: 3
         };
 
-        let csvExported = false;
-        let readyToSend = false;
         let wChart = null;
 
         // データ保護機能
@@ -1119,13 +1105,6 @@
             updateChart();
             updateProfitTable(results);
             updateExpenseTable(results.expenses);
-
-            // CSV未出力状態にリセット
-            csvExported = false;
-            readyToSend = false;
-            const sendBtn = document.getElementById('send-btn');
-            sendBtn.className = 'action-btn btn-primary';
-            sendBtn.innerHTML = 'Wデータ送信 → 次のステップ (RC事業部)';
             
             // データ保護が有効な場合は自動保存
             if (dataProtectionState.isProtected) {
@@ -1321,16 +1300,6 @@
             tfoot.appendChild(totalRow);
         }
 
-        // 送信ボタンの状態更新
-        function updateSendButtonState() {
-            const sendBtn = document.getElementById('send-btn');
-            if (csvExported && window.wResults) {
-                sendBtn.className = 'action-btn btn-ready-to-send';
-                sendBtn.innerHTML = '✨ 送信準備完了 → RC事業部へ';
-                readyToSend = true;
-            }
-        }
-
         function applyWPreset(presetType) {
             if (dataProtectionState.isProtected) {
                 showNotification('データ保護が有効です。先に保護を無効にしてください。', 'warning');
@@ -1433,10 +1402,7 @@
                 link.download = `W事業部_修正版PL_${new Date().toISOString().split('T')[0]}.csv`;
                 link.click();
                 
-                csvExported = true;
-                updateSendButtonState();
-                
-                showNotification('修正版W事業部PLデータのCSV出力が完了しました。\n\n次に「Wデータ送信」ボタンが利用可能になりました。', 'success');
+                showNotification('修正版W事業部PLデータのCSV出力が完了しました。', 'success');
 
             } catch (error) {
                 console.error('CSV出力エラー:', error);
@@ -1444,12 +1410,8 @@
             }
         }
 
+        // CSV必須制約を解除した送信関数
         function sendWDataAndNavigateToNext() {
-            if (!csvExported) {
-                showNotification('先にCSVエクスポートを実行してください。', 'warning');
-                return;
-            }
-
             try {
                 const results = calculateW();
                 
