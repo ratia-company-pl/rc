@@ -575,11 +575,11 @@
             <!-- 2行目：5ボタングローバルナビゲーション -->
             <div class="nav-section">
                 <div class="nav-buttons">
-                    <a href="sr-pl-corrected.html" class="btn-nav btn-sr">SR事業部</a>
-                    <a href="w-pl-fixed.html" class="btn-nav btn-w">W事業部</a>
-                    <a href="rc-pl-corrected.html" class="btn-nav btn-rc">RC事業部</a>
-                    <a href="rcd-pl-corrected.html" class="btn-nav btn-rcd">RCD事業部</a>
-                    <a href="../enhanced_combined_pl.html" class="btn-nav btn-unified">統合PLシステム</a>
+                    <a href="sr-pl.html" class="btn-nav btn-sr">SR事業部</a>
+                    <a href="w-pl.html" class="btn-nav btn-w">W事業部</a>
+                    <a href="rc-pl.html" class="btn-nav btn-rc">RC事業部</a>
+                    <a href="rcd-pl.html" class="btn-nav btn-rcd">RCD事業部</a>
+                    <a href="../combined-dashboard/" class="btn-nav btn-unified">統合PLシステム</a>
                 </div>
             </div>
 
@@ -629,7 +629,7 @@
                     <button class="action-btn btn-primary btn-pulse" id="send-data-btn" onclick="sendRCDDataAndNavigateToNext()">
                         RCD社データ送信 → 統合PLへ
                     </button>
-                    <button class="action-btn btn-secondary" onclick="location.href='../enhanced_combined_pl.html'">
+                    <button class="action-btn btn-secondary" onclick="location.href='../combined-dashboard/'">
                         統合PLシステムへ
                     </button>
                 </div>
@@ -835,7 +835,7 @@
         const BACKUP_KEY = 'rcd_pl_backups';
         const EMERGENCY_KEY = 'rcd_pl_emergency_backup';
 
-        // 通知システム  
+        // 通知システム   
         function showNotification(message, type = 'success', duration = 3000) {
             // 既存の通知を削除
             const existingNotifications = document.querySelectorAll('.notification, .notification-overlay');
@@ -1466,7 +1466,7 @@ Phase 4完了！統合PLで全体結果を確認します。
 3秒後に自動移動します...`, 'success', 6000);
                 
                 setTimeout(() => {
-                    window.location.href = '../enhanced_combined_pl.html';
+                    window.location.href = '../combined-dashboard/';
                 }, 3000);
 
                 return results.annual.sales;
