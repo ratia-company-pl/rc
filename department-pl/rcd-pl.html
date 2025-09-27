@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RCD社PLシミュレーター Phase 4完成版（精度向上版）v4.0</title>
+    <title>RCD社PLシミュレーター Phase 4完成版（精度向上版）v4.0（修正版）</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -569,7 +569,7 @@
                         🔓 データ保護OFF
                     </button>
                     <button class="action-btn btn-csv" onclick="exportRCDCSV()">
-                        CSVエクスポート
+                        CSVエクスポート（任意）
                     </button>
                     <button class="action-btn btn-primary" id="send-data-btn" onclick="sendRCDDataAndNavigateToNext()">
                         RCD社データ送信 → 統合PLへ
@@ -794,8 +794,6 @@
             autoSaveInterval: null,
             backupCount: 3
         };
-        let csvExported = false;
-        let backupCount = 0;
 
         // LocalStorageキー（統一規則）
         const STORAGE_KEY = 'pl_system_rcd_corrected_data';
@@ -978,7 +976,7 @@
                         totalExpenses: results.annual.totalExpenses,
                         operatingProfit: results.annual.operatingProfit
                     },
-                    exportedAt: csvExported ? new Date().toISOString() : null
+                    exportedAt: new Date().toISOString()
                 };
 
                 // 37項目統一フォーマット対応
@@ -1109,12 +1107,6 @@
             updateChart();
             updateProfitTable(results);
             updateExpenseTable(results.expenses);
-            
-            // CSVが生成済みの場合はリセット
-            if (csvExported) {
-                csvExported = false;
-                document.getElementById('send-data-btn').classList.remove('btn-pulse');
-            }
             
             // 自動保存実行
             if (dataProtectionState.isProtected) {
@@ -1398,26 +1390,17 @@
                 link.download = `RCD社_PL_精度向上版_${new Date().toISOString().split('T')[0]}.csv`;
                 link.click();
                 
-                csvExported = true;
-                showNotification('CSV出力が完了しました。送信準備が整いました！', 'success');
-                
-                // 送信ボタンにパルス効果を追加
-                const sendBtn = document.getElementById('send-data-btn');
-                sendBtn.classList.add('btn-pulse');
+                showNotification('CSVエクスポートが完了しました。', 'success');
 
             } catch (error) {
-                showNotification('CSV出力でエラーが発生しました: ' + error.message, 'error');
-                console.error('CSV出力エラー:', error);
+                showNotification('CSVエクスポートでエラーが発生しました: ' + error.message, 'error');
+                console.error('CSVエクスポートエラー:', error);
             }
         }
 
+        // CSV必須制約を解除したデータ送信
         function sendRCDDataAndNavigateToNext() {
             try {
-                if (!csvExported) {
-                    showNotification('先にCSVエクスポートを実行してください。', 'warning');
-                    return;
-                }
-
                 const results = calculateRCD();
                 
                 // データ保護を自動で有効化
@@ -1485,7 +1468,7 @@ Phase 4完了！統合PLで全体結果を確認します。
             // ページ離脱時の緊急保存
             window.addEventListener('beforeunload', (e) => {
                 emergencySave();
-                if (!dataProtectionState.isProtected && csvExported) {
+                if (!dataProtectionState.isProtected) {
                     e.preventDefault();
                     e.returnValue = 'データが未保護です。離脱してもよろしいですか？';
                 }
@@ -1505,8 +1488,8 @@ Phase 4完了！統合PLで全体結果を確認します。
                 updateRCDSales();
                 setupEventListeners();
                 
-                showNotification('RCD社PLシステム v4.0（精度向上版）が起動しました。', 'success', 2000);
-                console.log('RCD社PLシステム初期化完了（精度向上版・整数万円単位出力）');
+                showNotification('RCD社PLシステム v4.0（精度向上版・修正版）が起動しました。', 'success', 2000);
+                console.log('RCD社PLシステム初期化完了（精度向上版・整数万円単位出力・CSV必須制約解除）');
                 
             } catch (error) {
                 console.error('初期化エラー:', error);
@@ -1517,24 +1500,4 @@ Phase 4完了！統合PLで全体結果を確認します。
         window.addEventListener('load', initialize);
     </script>
 </body>
-</html>売上高',
-                    values: results.monthlyResults.map(m => m.sales),
-                    style: 'background: #f6ffed; font-weight: 600; color: #237804;'
-                },
-                {
-                    name: '仕入原価',
-                    values: results.monthlyResults.map(m => m.cogs),
-                    style: 'background: #fff7e6; font-weight: 600; color: #d48806;'
-                },
-                {
-                    name: '売上総利益',
-                    values: results.monthlyResults.map(m => m.grossProfit),
-                    style: 'background: #e6f7ff; font-weight: 600; color: #1890ff;'
-                },
-                {
-                    name: '販管費合計',
-                    values: monthlySGAExpenses,
-                    style: 'background: #fff0f6; font-weight: 600; color: #c41d7f;'
-                },
-                {
-                    name: '
+</html>
