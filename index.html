@@ -1010,12 +1010,17 @@
             });
         }
 
-        // 全表示の更新
+        // 全表示の更新（エラーハンドリング強化）
         function updateAllDisplays() {
-            updateKPIs();
-            updateMainChart();
-            updateDepartmentCharts();
-            updateDepartmentKPIs();
+            try {
+                updateKPIs();
+                Charts.updateMainChart();
+                Charts.updateDepartmentCharts();
+                updateDepartmentKPIs();
+            } catch (error) {
+                console.error('Display update error:', error);
+                updateStatus('表示更新エラー: ' + error.message, 'error');
+            }
         }
 
         const Charts = {
