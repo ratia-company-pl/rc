@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RC事業部PLシミュレーター BWJ費用可変対応版 v4.0</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -24,86 +25,41 @@
             padding: 15px;
         }
 
-        /* データ保護状況表示 */
-        .data-protection-status {
-            position: fixed;
-            top: 15px;
-            right: 15px;
-            z-index: 1000;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            padding: 12px 16px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-            border-left: 4px solid #38a169;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-
-        .protection-toggle {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .protection-toggle.protected {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
-            color: white;
-        }
-
-        .protection-toggle.unprotected {
-            background: linear-gradient(135deg, #f39c12, #e67e22);
-            color: white;
-        }
-
-        .protection-toggle:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-
         /* 通知システム */
         .notification {
             position: fixed;
-            top: 80px;
-            right: 15px;
-            z-index: 1001;
-            padding: 12px 18px;
-            border-radius: 8px;
-            color: white;
-            font-weight: 600;
-            font-size: 0.85rem;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-            transform: translateX(400px);
-            transition: transform 0.4s ease;
-            max-width: 320px;
-        }
-
-        .notification.show {
-            transform: translateX(0);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            z-index: 2000;
+            text-align: center;
+            max-width: 400px;
         }
 
         .notification.success {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            border-left: 5px solid #10b981;
         }
 
         .notification.warning {
-            background: linear-gradient(135deg, #f39c12, #e67e22);
+            border-left: 5px solid #f59e0b;
         }
 
         .notification.error {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            border-left: 5px solid #ef4444;
         }
 
-        .notification.info {
-            background: linear-gradient(135deg, #3498db, #2980b9);
+        .notification-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1999;
         }
 
         .header-section {
@@ -138,7 +94,6 @@
             font-size: 0.75rem;
             transition: all 0.3s ease;
             white-space: nowrap;
-            cursor: pointer;
         }
 
         .btn-nav:hover {
@@ -214,6 +169,15 @@
             color: white;
         }
 
+        .btn-protection {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-protection.protected {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
         .action-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -284,7 +248,7 @@
         }
 
         .chart-container {
-            height: 300px;
+            height: 250px;
             padding: 20px;
             background: white;
             position: relative;
@@ -368,6 +332,12 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
+        .preset-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .settings-inline {
             display: flex;
             align-items: center;
@@ -398,6 +368,12 @@
         .setting-input:focus {
             border-color: #ff9800;
             outline: none;
+        }
+
+        .setting-input:disabled {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            opacity: 0.8;
         }
 
         .input-table {
@@ -452,31 +428,23 @@
             outline: none;
         }
 
-        .calculated-value {
-            background: #f0f8f0;
-            font-weight: 700;
-            color: #2d5016;
+        .input-table input:disabled {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            opacity: 0.8;
         }
 
-        .diff-value {
-            font-weight: 700;
-        }
-
-        .diff-positive { color: #27ae60; }
-        .diff-negative { color: #e74c3c; }
+        .diff-positive { color: #27ae60; font-weight: 700; }
+        .diff-negative { color: #e74c3c; font-weight: 700; }
         .reference-value { color: #7f8c8d; font-size: 0.65rem; }
 
-        .profit-section, .expense-section {
+        .profit-section {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 12px;
             margin-bottom: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             border-left: 5px solid #52c41a;
-        }
-
-        .expense-section {
-            border-left-color: #34495e;
         }
 
         .profit-header {
@@ -487,6 +455,15 @@
             font-size: 1rem;
         }
 
+        .expense-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #34495e;
+        }
+
         .expense-header {
             background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
             color: white;
@@ -495,25 +472,62 @@
             font-size: 1rem;
         }
 
-        .profit-table, .expense-table {
+        .profit-table,
+        .expense-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.7rem;
             background: white;
+            table-layout: fixed;
         }
 
-        .profit-table th, .profit-table td,
-        .expense-table th, .expense-table td {
+        .profit-table th,
+        .profit-table td,
+        .expense-table th,
+        .expense-table td {
             border: 1px solid #e2e8f0;
             padding: 6px 4px;
             text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
-        .profit-table th:first-child, .profit-table td:first-child,
-        .expense-table th:nth-child(2), .expense-table td:nth-child(2) {
+        .profit-table th:first-child,
+        .profit-table td:first-child {
+            width: 120px;
+            white-space: normal;
+            word-wrap: break-word;
             text-align: left;
             padding-left: 10px;
-            min-width: 120px;
+        }
+
+        .expense-table th:first-child,
+        .expense-table td:first-child {
+            width: 40px;
+        }
+
+        .expense-table th:nth-child(2),
+        .expense-table td:nth-child(2) {
+            width: 120px;
+            white-space: normal;
+            word-wrap: break-word;
+            text-align: left;
+            padding-left: 10px;
+        }
+
+        .profit-table th:nth-child(n+2):nth-child(-n+13),
+        .profit-table td:nth-child(n+2):nth-child(-n+13),
+        .expense-table th:nth-child(n+3):nth-child(-n+14),
+        .expense-table td:nth-child(n+3):nth-child(-n+14) {
+            width: 60px;
+        }
+
+        .profit-table th:nth-child(n+14),
+        .profit-table td:nth-child(n+14),
+        .expense-table th:nth-child(n+15),
+        .expense-table td:nth-child(n+15) {
+            width: 80px;
         }
 
         .profit-table th {
@@ -530,7 +544,12 @@
             font-size: 0.65rem;
         }
 
-        .profit-name, .expense-name {
+        .profit-table .profit-name {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .expense-table .expense-name {
             background: #f8f9fa;
             font-weight: 600;
         }
@@ -545,34 +564,20 @@
             .setting-input { width: 55px; }
             .setting-label { font-size: 0.7rem; }
             .kpi-display { flex-direction: column; gap: 15px; }
-            .data-protection-status { right: 10px; top: 10px; padding: 8px 10px; }
-            .notification { right: 10px; max-width: 280px; }
         }
     </style>
 </head>
 <body>
-    <!-- データ保護状況表示 -->
-    <div class="data-protection-status" id="data-protection-status">
-        <span id="protection-status-text">データ保護: OFF</span>
-        <button class="protection-toggle unprotected" id="protection-toggle" onclick="toggleDataProtection()">
-            🔓 解除
-        </button>
-        <span id="auto-save-indicator" style="color: #27ae60; font-size: 0.7rem;">自動保存有効</span>
-    </div>
-
-    <!-- 通知エリア -->
-    <div class="notification" id="notification"></div>
-
     <div class="container">
         <div class="header-section">
             <div class="nav-section">
                 <div class="nav-buttons">
-                    <div class="btn-nav">ダッシュボード</div>
-                    <div class="btn-nav btn-sr">SR事業部</div>
-                    <div class="btn-nav btn-w">W事業部</div>
-                    <div class="btn-nav btn-rc">RC事業部</div>
-                    <div class="btn-nav btn-rcd">RCD社</div>
-                    <div class="btn-nav">全体PL</div>
+                    <a href="../index.html" class="btn-nav">ダッシュボード</a>
+                    <a href="sr-pl.html" class="btn-nav btn-sr">SR事業部</a>
+                    <a href="w-pl.html" class="btn-nav btn-w">W事業部</a>
+                    <a href="rc-pl.html" class="btn-nav btn-rc">RC事業部</a>
+                    <a href="rcd-pl.html" class="btn-nav btn-rcd">RCD社</a>
+                    <a href="../combined-dashboard/index.html" class="btn-nav">全体PL</a>
                 </div>
             </div>
 
@@ -590,13 +595,16 @@
                     <span style="color: #f39c12; font-weight: 600;">合計PL統合</span>
                 </div>
                 <div class="workflow-actions">
+                    <button class="action-btn btn-protection" id="protection-btn" onclick="toggleDataProtection()">
+                        🔓 データ保護OFF
+                    </button>
+                    <button class="action-btn btn-csv" onclick="exportCSV()">
+                        CSVエクスポート
+                    </button>
                     <button class="action-btn btn-primary" id="send-data-btn" onclick="sendDataAndNavigate()">
                         RC事業部データ送信 → 次のステップ
                     </button>
-                    <button class="action-btn btn-csv" onclick="exportCSV()">
-                        CSV出力
-                    </button>
-                    <button class="action-btn btn-secondary" onclick="alert('全体PL分析に移動')">
+                    <button class="action-btn btn-secondary" onclick="location.href='../combined-dashboard/index.html'">
                         全体PL分析へ
                     </button>
                 </div>
@@ -619,7 +627,7 @@
                 </div>
                 <div class="kpi-item">
                     <div class="kpi-label">営業利益率</div>
-                    <div class="kpi-value" id="profit-rate">39.8%</div>
+                    <div class="kpi-value" id="profit-rate">49.3%</div>
                 </div>
             </div>
             
@@ -653,19 +661,19 @@
 
                 <div class="settings-inline">
                     <label class="setting-label">広告宣伝費</label>
-                    <input type="number" class="setting-input" id="advertising" value="40" onchange="updateDisplay()">
+                    <input type="number" class="setting-input" id="advertising" value="40">
                     <span class="setting-label">万円/月</span>
                     
                     <div style="border-left: 2px solid #ff9800; height: 25px; margin: 0 8px;"></div>
                     
                     <label class="setting-label">BWJ施工費</label>
-                    <input type="number" class="setting-input" id="bwj-construction" value="90" onchange="updateDisplay()">
+                    <input type="number" class="setting-input" id="bwj-construction" value="90">
                     <span class="setting-label">万円</span>
                     
                     <div style="border-left: 2px solid #ff9800; height: 25px; margin: 0 8px;"></div>
                     
                     <label class="setting-label">BWJ東京ブース費</label>
-                    <input type="number" class="setting-input" id="bwj-tokyo" value="90" onchange="updateDisplay()">
+                    <input type="number" class="setting-input" id="bwj-tokyo" value="90">
                     <span class="setting-label">万円</span>
                 </div>
             </div>
@@ -681,33 +689,33 @@
                 <tbody>
                     <tr>
                         <td class="row-header">増減額</td>
-                        <td><input type="number" data-month="0" value="0" onchange="updateDisplay()" /></td>
-                        <td><input type="number" data-month="1" value="0" onchange="updateDisplay()" /></td>
-                        <td><input type="number" data-month="2" value="0" onchange="updateDisplay()" /></td>
-                        <td><input type="number" data-month="3" value="0" onchange="updateDisplay()" /></td>
-                        <td><input type="number" data-month="4" value="0" onchange="updateDisplay()" /></td>
-                        <td><input type="number" data-month="5" value="0" onchange="updateDisplay()" /></td>
-                        <td><input type="number" data-month="6" value="0" onchange="updateDisplay()" /></td>
-                        <td><input type="number" data-month="7" value="0" onchange="updateDisplay()" /></td>
-                        <td><input type="number" data-month="8" value="0" onchange="updateDisplay()" /></td>
-                        <td><input type="number" data-month="9" value="0" onchange="updateDisplay()" /></td>
-                        <td><input type="number" data-month="10" value="0" onchange="updateDisplay()" /></td>
-                        <td><input type="number" data-month="11" value="0" onchange="updateDisplay()" /></td>
+                        <td><input type="number" data-month="0" value="0" /></td>
+                        <td><input type="number" data-month="1" value="0" /></td>
+                        <td><input type="number" data-month="2" value="0" /></td>
+                        <td><input type="number" data-month="3" value="0" /></td>
+                        <td><input type="number" data-month="4" value="0" /></td>
+                        <td><input type="number" data-month="5" value="0" /></td>
+                        <td><input type="number" data-month="6" value="0" /></td>
+                        <td><input type="number" data-month="7" value="0" /></td>
+                        <td><input type="number" data-month="8" value="0" /></td>
+                        <td><input type="number" data-month="9" value="0" /></td>
+                        <td><input type="number" data-month="10" value="0" /></td>
+                        <td><input type="number" data-month="11" value="0" /></td>
                     </tr>
                     <tr>
                         <td class="row-header">売上</td>
-                        <td class="calculated-value" id="sales-0">1,550</td>
-                        <td class="calculated-value" id="sales-1">1,550</td>
-                        <td class="calculated-value" id="sales-2">1,550</td>
-                        <td class="calculated-value" id="sales-3">1,550</td>
-                        <td class="calculated-value" id="sales-4">1,550</td>
-                        <td class="calculated-value" id="sales-5">1,550</td>
-                        <td class="calculated-value" id="sales-6">1,550</td>
-                        <td class="calculated-value" id="sales-7">1,550</td>
-                        <td class="calculated-value" id="sales-8">1,550</td>
-                        <td class="calculated-value" id="sales-9">1,550</td>
-                        <td class="calculated-value" id="sales-10">1,550</td>
-                        <td class="calculated-value" id="sales-11">1,550</td>
+                        <td class="calculated-value" id="sales-0">1550</td>
+                        <td class="calculated-value" id="sales-1">1550</td>
+                        <td class="calculated-value" id="sales-2">1550</td>
+                        <td class="calculated-value" id="sales-3">1550</td>
+                        <td class="calculated-value" id="sales-4">1550</td>
+                        <td class="calculated-value" id="sales-5">1550</td>
+                        <td class="calculated-value" id="sales-6">1550</td>
+                        <td class="calculated-value" id="sales-7">1550</td>
+                        <td class="calculated-value" id="sales-8">1550</td>
+                        <td class="calculated-value" id="sales-9">1550</td>
+                        <td class="calculated-value" id="sales-10">1550</td>
+                        <td class="calculated-value" id="sales-11">1550</td>
                     </tr>
                     <tr>
                         <td class="row-header">増減</td>
@@ -758,7 +766,6 @@
                     </tr>
                 </thead>
                 <tbody id="profit-table-body">
-                    <!-- JavaScriptで動的生成 -->
                 </tbody>
             </table>
         </div>
@@ -779,18 +786,13 @@
                     </tr>
                 </thead>
                 <tbody id="expense-table-body">
-                    <!-- JavaScriptで動的生成 -->
                 </tbody>
                 <tfoot id="expense-table-footer">
-                    <!-- JavaScriptで動的生成 -->
                 </tfoot>
             </table>
         </div>
     </div>
 
-    <!-- Chart.js CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    
     <script>
         // グローバル変数
         const referenceData = [1947, 1645, 1530, 1730, 1165, 1846, 1475, 1585, 1241, 1173, 1602, 1420];
@@ -807,10 +809,20 @@
         };
 
         let chart = null;
-        let isDataProtected = false;
+        let dataProtectionState = {
+            isProtected: false,
+            autoSaveInterval: null,
+            backupCount: 3
+        };
         let csvExported = false;
+        let backupCount = 0;
 
-        // 修正された販管費項目（外注費57、貨物運賃62、消耗品費36、リース料7）
+        // LocalStorageキー（統一規則）
+        const STORAGE_KEY = 'pl_system_rc_corrected_data';
+        const BACKUP_KEY = 'rc_pl_backups';
+        const EMERGENCY_KEY = 'rc_pl_emergency_backup';
+
+        // 販管費19項目の設定
         const expenseItems = [
             { name: '人件費', calculate: () => appData.fixedPersonnel },
             { name: '法定福利費', calculate: () => 7 },
@@ -824,8 +836,8 @@
             { name: '通信費', calculate: () => 1 },
             { name: '販売促進費', calculate: (month) => {
                 let base = 10;
-                if (month === 4) base += appData.bwjConstruction;  // 11月
-                if (month === 11) base += appData.bwjTokyo;        // 6月
+                if (month === 4) base += appData.bwjConstruction;
+                if (month === 11) base += appData.bwjTokyo;
                 return base;
             }},
             { name: '消耗品費', calculate: () => 36 },
@@ -838,61 +850,232 @@
             { name: '減価償却費', calculate: () => 7 }
         ];
 
-        // 通知システム
-        function showNotification(message, type = 'info', duration = 4000) {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
+        // 通知システム 
+        function showNotification(message, type = 'success', duration = 3000) {
+            // 既存の通知を削除
+            const existingNotifications = document.querySelectorAll('.notification, .notification-overlay');
+            existingNotifications.forEach(el => el.remove());
+            
+            // オーバーレイ作成
+            const overlay = document.createElement('div');
+            overlay.className = 'notification-overlay';
+            document.body.appendChild(overlay);
+            
+            // 通知作成
+            const notification = document.createElement('div');
             notification.className = `notification ${type}`;
-            notification.classList.add('show');
-
+            notification.innerHTML = `
+                <div style="margin-bottom: 15px; font-weight: 600; font-size: 1.1rem;">
+                    ${type === 'success' ? '✅' : type === 'warning' ? '⚠️' : '❌'} 
+                    ${type === 'success' ? '成功' : type === 'warning' ? '警告' : 'エラー'}
+                </div>
+                <div style="margin-bottom: 20px; line-height: 1.5;">
+                    ${message}
+                </div>
+                <button onclick="closeNotification()" style="padding: 8px 20px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; cursor: pointer;">
+                    OK
+                </button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // 自動閉じる
             setTimeout(() => {
-                notification.classList.remove('show');
+                closeNotification();
             }, duration);
+            
+            // オーバーレイクリックで閉じる
+            overlay.addEventListener('click', closeNotification);
+        }
+
+        function closeNotification() {
+            const notifications = document.querySelectorAll('.notification, .notification-overlay');
+            notifications.forEach(el => el.remove());
         }
 
         // データ保護機能
         function toggleDataProtection() {
-            isDataProtected = !isDataProtected;
-            updateProtectionStatus();
+            dataProtectionState.isProtected = !dataProtectionState.isProtected;
             
-            if (isDataProtected) {
-                showNotification('データ保護を有効にしました。', 'success');
+            if (dataProtectionState.isProtected) {
+                enableDataProtection();
             } else {
-                showNotification('データ保護を解除しました。', 'warning');
+                disableDataProtection();
             }
+            
+            updateProtectionStatus();
+            saveToStorage(true);
+        }
+
+        function enableDataProtection() {
+            // 入力フィールドを無効化
+            const inputs = document.querySelectorAll('.input-table input, .setting-input');
+            inputs.forEach(input => input.disabled = true);
+            
+            // プリセットボタンを無効化
+            const presetBtns = document.querySelectorAll('.preset-btn');
+            presetBtns.forEach(btn => btn.disabled = true);
+            
+            // 自動保存開始
+            if (dataProtectionState.autoSaveInterval) {
+                clearInterval(dataProtectionState.autoSaveInterval);
+            }
+            dataProtectionState.autoSaveInterval = setInterval(autoSave, 30000); // 30秒間隔
+            
+            // ページ離脱時の保存
+            window.addEventListener('beforeunload', emergencySave);
+            
+            showNotification('データ保護が有効になりました。タブ移動・ページ遷移後もデータが保持されます。', 'success');
+        }
+
+        function disableDataProtection() {
+            // 入力フィールドを有効化
+            const inputs = document.querySelectorAll('.input-table input, .setting-input');
+            inputs.forEach(input => input.disabled = false);
+            
+            // プリセットボタンを有効化
+            const presetBtns = document.querySelectorAll('.preset-btn');
+            presetBtns.forEach(btn => btn.disabled = false);
+            
+            // 自動保存停止
+            if (dataProtectionState.autoSaveInterval) {
+                clearInterval(dataProtectionState.autoSaveInterval);
+                dataProtectionState.autoSaveInterval = null;
+            }
+            
+            // ページ離脱時の保存を無効化
+            window.removeEventListener('beforeunload', emergencySave);
+            
+            showNotification('データ保護が無効になりました。編集可能状態に戻りました。', 'warning');
         }
 
         function updateProtectionStatus() {
-            const statusText = document.getElementById('protection-status-text');
-            const toggleBtn = document.getElementById('protection-toggle');
+            const protectionBtn = document.getElementById('protection-btn');
             
-            if (isDataProtected) {
-                statusText.textContent = 'データ保護: ON';
-                toggleBtn.textContent = '🔒 保護中';
-                toggleBtn.className = 'protection-toggle protected';
+            if (dataProtectionState.isProtected) {
+                protectionBtn.innerHTML = '🔒 データ保護ON';
+                protectionBtn.className = 'action-btn btn-protection protected';
             } else {
-                statusText.textContent = 'データ保護: OFF';
-                toggleBtn.textContent = '🔓 解除';
-                toggleBtn.className = 'protection-toggle unprotected';
+                protectionBtn.innerHTML = '🔓 データ保護OFF';
+                protectionBtn.className = 'action-btn btn-protection';
             }
         }
 
-        // 入力値収集
-        function collectInputs() {
-            const inputs = document.querySelectorAll('input[data-month]');
-            inputs.forEach(input => {
-                const month = parseInt(input.dataset.month);
-                const value = parseInt(input.value) || 0;
-                appData.variations[month] = value;
-            });
+        function autoSave() {
+            try {
+                const timestamp = new Date().toISOString();
+                const backupData = {
+                    ...appData,
+                    timestamp: timestamp,
+                    version: 'auto-backup'
+                };
+                
+                // 最新3件のバックアップを保持
+                let backups = JSON.parse(localStorage.getItem(BACKUP_KEY) || '[]');
+                backups.unshift(backupData);
+                backups = backups.slice(0, dataProtectionState.backupCount);
+                
+                localStorage.setItem(BACKUP_KEY, JSON.stringify(backups));
+                console.log('自動保存完了:', timestamp);
+            } catch (error) {
+                console.error('自動保存エラー:', error);
+            }
+        }
 
-            const adElement = document.getElementById('advertising');
-            const bwjCElement = document.getElementById('bwj-construction');
-            const bwjTElement = document.getElementById('bwj-tokyo');
-            
-            if (adElement) appData.advertising = parseInt(adElement.value) || 40;
-            if (bwjCElement) appData.bwjConstruction = parseInt(bwjCElement.value) || 90;
-            if (bwjTElement) appData.bwjTokyo = parseInt(bwjTElement.value) || 90;
+        function emergencySave() {
+            try {
+                const emergencyData = {
+                    ...appData,
+                    timestamp: new Date().toISOString(),
+                    version: 'emergency-save'
+                };
+                
+                localStorage.setItem(EMERGENCY_KEY, JSON.stringify(emergencyData));
+                console.log('緊急保存完了');
+            } catch (error) {
+                console.error('緊急保存エラー:', error);
+            }
+        }
+
+        function saveToStorage(isProtection = false) {
+            try {
+                const results = calculate();
+                
+                const unifiedData = {
+                    metadata: {
+                        department: 'RC',
+                        version: '4.0_unified_corrected',
+                        lastUpdate: new Date().toISOString(),
+                        dataProtectionEnabled: dataProtectionState.isProtected,
+                        personnelCalculationMethod: 'fixed_50',
+                        bwjVariableCostSupport: true
+                    },
+                    sales: results.monthlyResults.map(m => m.sales),
+                    cogs: results.monthlyResults.map(m => m.cogs),
+                    personnel: Array(12).fill(appData.fixedPersonnel),
+                    totalExpenses: new Array(12).fill(0).map((_, i) => {
+                        return Object.values(results.expenses).reduce((sum, expenseArray) => {
+                            return sum + (expenseArray[i] || 0);
+                        }, 0);
+                    }),
+                    operatingProfit: results.monthlyResults.map((m, i) => {
+                        const totalExpense = Object.values(results.expenses).reduce((sum, expenseArray) => {
+                            return sum + (expenseArray[i] || 0);
+                        }, 0);
+                        return m.grossProfit - totalExpense;
+                    }),
+                    expenses: {},
+                    annual: {
+                        sales: results.annual.sales,
+                        cogs: results.annual.cogs,
+                        grossProfit: results.annual.grossProfit,
+                        totalExpenses: results.annual.totalExpenses,
+                        operatingProfit: results.annual.operatingProfit
+                    },
+                    exportedAt: csvExported ? new Date().toISOString() : null
+                };
+
+                // 37項目統一フォーマット対応
+                expenseItems.forEach((item, index) => {
+                    unifiedData.expenses[index + 1] = results.expenses[index];
+                });
+
+                // 統合PL用のゼロ項目追加
+                [20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37].forEach(i => {
+                    unifiedData.expenses[i] = Array(12).fill(0);
+                });
+
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(unifiedData));
+                
+                if (isProtection) {
+                    showNotification('データが正常に保護されました。', 'success');
+                }
+                
+            } catch (error) {
+                console.error('保存エラー:', error);
+                showNotification('データ保存でエラーが発生しました。', 'error');
+            }
+        }
+
+        function loadFromStorage() {
+            try {
+                const savedData = localStorage.getItem(STORAGE_KEY);
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    if (data.metadata && data.metadata.dataProtectionEnabled) {
+                        dataProtectionState.isProtected = data.metadata.dataProtectionEnabled;
+                        if (dataProtectionState.isProtected) {
+                            enableDataProtection();
+                        }
+                        updateProtectionStatus();
+                    }
+                    showNotification('保存されたデータを読み込みました。', 'success', 2000);
+                    return true;
+                }
+            } catch (error) {
+                console.error('読み込みエラー:', error);
+            }
+            return false;
         }
 
         // メイン計算関数
@@ -934,9 +1117,47 @@
             return results;
         }
 
-        // 数値フォーマット
-        function formatNumber(num) {
-            return Math.round(num).toLocaleString();
+        // 入力値収集
+        function collectInputs() {
+            if (dataProtectionState.isProtected) return;
+            
+            const inputs = document.querySelectorAll('input[data-month]');
+            inputs.forEach(input => {
+                const month = parseInt(input.dataset.month);
+                const value = parseInt(input.value) || 0;
+                appData.variations[month] = value;
+            });
+
+            const adElement = document.getElementById('advertising');
+            const bwjCElement = document.getElementById('bwj-construction');
+            const bwjTElement = document.getElementById('bwj-tokyo');
+            
+            if (adElement) appData.advertising = parseInt(adElement.value) || 40;
+            if (bwjCElement) appData.bwjConstruction = parseInt(bwjCElement.value) || 90;
+            if (bwjTElement) appData.bwjTokyo = parseInt(bwjTElement.value) || 90;
+        }
+
+        // 画面更新
+        function updateDisplay() {
+            const results = calculate();
+            
+            updateSalesDisplay();
+            updateDifferenceDisplay();
+            updateKPIDisplay(results.annual);
+            updateChart();
+            updateProfitTable(results);
+            updateExpenseTable(results.expenses);
+            
+            // CSVが生成済みの場合はリセット
+            if (csvExported) {
+                csvExported = false;
+                document.getElementById('send-data-btn').classList.remove('btn-pulse');
+            }
+            
+            // データ保護が有効な場合は自動保存
+            if (dataProtectionState.isProtected) {
+                saveToStorage();
+            }
         }
 
         // 売上表示更新
@@ -975,10 +1196,7 @@
             const rateElement = document.getElementById('profit-rate');
 
             if (salesElement) salesElement.textContent = formatNumber(annual.sales) + '万円';
-            if (diffElement) {
-                diffElement.textContent = (salesDiff >= 0 ? '+' : '') + formatNumber(salesDiff) + '万円';
-                diffElement.className = salesDiff >= 0 ? 'kpi-value' : 'kpi-value negative';
-            }
+            if (diffElement) diffElement.textContent = (salesDiff >= 0 ? '+' : '') + formatNumber(salesDiff) + '万円';
             if (rateElement) {
                 rateElement.textContent = profitRate + '%';
                 rateElement.className = annual.operatingProfit >= 0 ? 'kpi-value' : 'kpi-value negative';
@@ -1018,26 +1236,9 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + formatNumber(context.parsed.y) + '万円';
-                                }
-                            }
-                        }
-                    },
+                    plugins: { legend: { display: false } },
                     scales: {
-                        y: { 
-                            beginAtZero: true, 
-                            ticks: { 
-                                font: { size: 10 },
-                                callback: function(value) {
-                                    return formatNumber(value);
-                                }
-                            } 
-                        },
+                        y: { beginAtZero: true, ticks: { font: { size: 10 } } },
                         x: { ticks: { font: { size: 10 } } }
                     }
                 }
@@ -1118,6 +1319,8 @@
                 const monthlyExpenses = expenses[index];
                 const annual = monthlyExpenses.reduce((sum, val) => sum + val, 0);
 
+                if (annual === 0) return;
+
                 monthlyExpenses.forEach((val, monthIndex) => {
                     monthlyTotals[monthIndex] += val;
                 });
@@ -1149,20 +1352,13 @@
             tfoot.appendChild(totalRow);
         }
 
-        // 画面全体の更新
-        function updateDisplay() {
-            const results = calculate();
-            
-            updateSalesDisplay();
-            updateDifferenceDisplay();
-            updateKPIDisplay(results.annual);
-            updateChart();
-            updateProfitTable(results);
-            updateExpenseTable(results.expenses);
-        }
-
         // プリセット適用
         function applyPreset(presetType) {
+            if (dataProtectionState.isProtected) {
+                showNotification('データ保護が有効です。先に保護を無効にしてください。', 'warning');
+                return;
+            }
+            
             const inputs = document.querySelectorAll('input[data-month]');
             
             switch(presetType) {
@@ -1204,20 +1400,28 @@
             try {
                 const results = calculate();
                 const csvData = [];
-                
                 const headers = ['項目名', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月', '年間合計'];
                 csvData.push(headers);
 
+                // 基本PL項目（37項目統一フォーマット対応）
                 csvData.push(['売上高', ...results.monthlyResults.map(m => m.sales), results.annual.sales]);
                 csvData.push(['売上原価', ...results.monthlyResults.map(m => m.cogs), results.annual.cogs]);
                 csvData.push(['売上総利益', ...results.monthlyResults.map(m => m.grossProfit), results.annual.grossProfit]);
 
+                // 販管費項目
                 expenseItems.forEach((item, index) => {
                     const monthlyExpenses = results.expenses[index];
                     const annual = monthlyExpenses.reduce((sum, val) => sum + val, 0);
                     csvData.push([item.name, ...monthlyExpenses, annual]);
                 });
 
+                // 統合PL用ゼロ項目
+                const zeroData = Array(12).fill(0);
+                ['役員報酬', '役員法定福利費', '管理諸費', '修繕費', '車両費', '租税公課', '交際費', '諸会費', '会議費', '福利厚生費', '研修費', '雑費', '寄付金'].forEach(name => {
+                    csvData.push([name, ...zeroData, 0]);
+                });
+
+                // 計算項目
                 const totalExpensesData = new Array(12).fill(0);
                 Object.values(results.expenses).forEach(expenseArray => {
                     expenseArray.forEach((val, monthIndex) => {
@@ -1229,6 +1433,7 @@
                 csvData.push(['販管費合計', ...totalExpensesData, results.annual.totalExpenses]);
                 csvData.push(['営業利益', ...operatingProfitData, results.annual.operatingProfit]);
 
+                // CSV生成・ダウンロード
                 const csvString = '\uFEFF' + csvData.map(row => row.join(',')).join('\n');
                 const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a');
@@ -1239,25 +1444,44 @@
                 csvExported = true;
                 showNotification('CSV出力が完了しました。送信準備が整いました！', 'success');
                 
+                // 送信ボタンにパルス効果を追加
                 const sendBtn = document.getElementById('send-data-btn');
-                if (sendBtn) sendBtn.classList.add('btn-pulse');
+                sendBtn.classList.add('btn-pulse');
                 
             } catch (error) {
-                console.error('CSV出力エラー:', error);
                 showNotification('CSV出力でエラーが発生しました: ' + error.message, 'error');
             }
         }
 
         // データ送信・画面移動
         function sendDataAndNavigate() {
-            if (!csvExported) {
-                showNotification('先にCSV出力を実行してください。', 'warning');
-                return;
-            }
+            try {
+                if (!csvExported) {
+                    showNotification('先にCSVエクスポートを実行してください。', 'warning');
+                    return;
+                }
 
-            const results = calculate();
-            
-            showNotification(`RC事業部データ送信完了！
+                const results = calculate();
+                
+                // データ保護を自動で有効化
+                if (!dataProtectionState.isProtected) {
+                    dataProtectionState.isProtected = true;
+                    enableDataProtection();
+                    updateProtectionStatus();
+                }
+                saveToStorage(false);
+                
+                const workflowProgress = {
+                    step1_SR: 'completed',
+                    step2_W: 'completed',
+                    step3_RC: 'completed',
+                    step4_RCD: 'waiting',
+                    currentStep: 4,
+                    lastUpdate: new Date().toISOString()
+                };
+                localStorage.setItem('workflow_progress', JSON.stringify(workflowProgress));
+                
+                showNotification(`RC事業部データ送信完了！
 
 年間売上: ${formatNumber(results.annual.sales)}万円
 年間営業利益: ${formatNumber(results.annual.operatingProfit)}万円
@@ -1265,28 +1489,84 @@
 
 次のステップに移動します...`, 'success', 6000);
                 
-            setTimeout(() => {
-                alert('RCD社PLシステムに移動します（実際のシステムでは画面遷移）');
-            }, 3000);
+                setTimeout(() => {
+                    window.location.href = 'rcd-pl.html';
+                }, 3000);
+
+            } catch (error) {
+                showNotification('データ送信に失敗しました: ' + error.message, 'error');
+            }
+        }
+
+        // ユーティリティ関数
+        function formatNumber(num) {
+            return Math.round(num).toLocaleString();
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // イベントリスナー設定
+        function setupEventListeners() {
+            // 月別増減額入力
+            const monthInputs = document.querySelectorAll('input[data-month]');
+            monthInputs.forEach(input => {
+                input.addEventListener('input', debounce(() => {
+                    updateDisplay();
+                }, 300));
+            });
+
+            // 可変費用入力
+            const variableInputs = ['advertising', 'bwj-construction', 'bwj-tokyo'];
+            variableInputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', debounce(() => {
+                        updateDisplay();
+                    }, 300));
+                }
+            });
+
+            // ページ離脱時の緊急保存
+            window.addEventListener('beforeunload', (e) => {
+                emergencySave();
+                if (!dataProtectionState.isProtected && csvExported) {
+                    e.preventDefault();
+                    e.returnValue = 'データが未保護です。離脱してもよろしいですか？';
+                }
+            });
+
+            // ページ非表示時の保存
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden && !dataProtectionState.isProtected) {
+                    emergencySave();
+                }
+            });
         }
 
         // 初期化
         function initialize() {
             try {
+                loadFromStorage();
                 updateDisplay();
-                showNotification('RC事業部PLシステム v4.0 が起動しました。修正版の費用項目が適用されています。', 'info');
+                setupEventListeners();
+                
+                showNotification('RC事業部PLシステム v4.0 が起動しました。', 'success', 2000);
+                
             } catch (error) {
                 console.error('初期化エラー:', error);
                 showNotification('システム初期化でエラーが発生しました。', 'error');
             }
         }
 
-        // DOMContentLoaded または window.onload で初期化実行
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initialize);
-        } else {
-            initialize();
-        }
-    </script>
-</body>
-</html>
+        // ページ読み込み完了時に初期化
+        window.addEventListener('load', initialize);
