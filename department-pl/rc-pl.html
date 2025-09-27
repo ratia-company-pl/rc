@@ -697,11 +697,11 @@
     <!-- 2行目: グローバルナビゲーション（5ボタン） -->
     <div class="header-row2">
         <div class="nav-container">
-            <a href="sr-pl-corrected.html" class="btn">SR事業部PL</a>
-            <a href="w-pl-fixed.html" class="btn">W事業部PL</a>
+            <a href="sr-pl.html" class="btn">SR事業部PL</a>
+            <a href="w-pl.html" class="btn">W事業部PL</a>
             <a href="#" class="btn btn-active-rc">RC事業部PL</a>
-            <a href="rcd-pl-corrected.html" class="btn">RCD事業部PL</a>
-            <a href="enhanced_combined_pl.html" class="btn">統合PLシステム</a>
+            <a href="rcd-pl.html" class="btn">RCD事業部PL</a>
+            <a href="../combined-dashboard/" class="btn">統合PLシステム</a>
         </div>
     </div>
 
@@ -957,7 +957,7 @@
             fixedPersonnel: 50
         };
 
-        // データ保護システム 
+        // データ保護システム  
         let dataProtectionState = {
             isProtected: false,
             autoSaveInterval: null,
@@ -1677,7 +1677,7 @@
 2秒後にRCD社画面に移動します。`, 'success', 5000);
 
                 setTimeout(() => {
-                    window.location.href = 'rcd-pl-corrected.html';
+                    window.location.href = 'rcd-pl.html';
                 }, 2000);
 
                 return results.annual.sales;
