@@ -62,6 +62,7 @@
             z-index: 1999;
         }
 
+        /* 統一4行ヘッダー構造 */
         .header-section {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -71,6 +72,18 @@
             overflow: hidden;
         }
 
+        /* 1行目：事業部カラーグラデーションタイトル */
+        .department-title {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+            padding: 15px 20px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 2行目：5ボタングローバルナビゲーション */
         .nav-section {
             background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
             padding: 12px 20px;
@@ -78,22 +91,23 @@
 
         .nav-buttons {
             display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
             justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
         .btn-nav {
-            padding: 8px 14px;
+            padding: 10px 16px;
             border: 2px solid rgba(255,255,255,0.25);
             border-radius: 8px;
             background: rgba(255,255,255,0.15);
             color: white;
             text-decoration: none;
             font-weight: 600;
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             transition: all 0.3s ease;
-            white-space: nowrap;
+            min-width: 110px;
+            text-align: center;
         }
 
         .btn-nav:hover {
@@ -101,15 +115,74 @@
             transform: translateY(-1px);
         }
 
-        .btn-nav.btn-sr { background: #e53e3e; border-color: #e53e3e; }
-        .btn-nav.btn-w { background: #3498db; border-color: #3498db; }
-        .btn-nav.btn-rc { background: #38a169; border-color: #38a169; }
-        .btn-nav.btn-rcd { background: #805ad5; border-color: #805ad5; box-shadow: 0 4px 12px rgba(128, 90, 213, 0.4); }
+        .btn-nav.btn-sr { 
+            background: #C477CC; 
+            border-color: #C477CC; 
+        }
+        .btn-nav.btn-w { 
+            background: #3498db; 
+            border-color: #3498db; 
+        }
+        .btn-nav.btn-rc { 
+            background: #27ae60; 
+            border-color: #27ae60; 
+        }
+        .btn-nav.btn-rcd { 
+            background: #9b59b6; 
+            border-color: #9b59b6; 
+            box-shadow: 0 4px 12px rgba(155, 89, 182, 0.4);
+            transform: scale(1.05);
+        }
+        .btn-nav.btn-unified { 
+            background: #f39c12; 
+            border-color: #f39c12; 
+        }
 
+        /* 3行目：事業部固有KPIカード */
+        .kpi-section {
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+            padding: 15px 20px;
+        }
+
+        .kpi-display {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .kpi-item {
+            text-align: center;
+            min-width: 140px;
+            background: rgba(155, 89, 182, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #9b59b6;
+        }
+
+        .kpi-label {
+            font-size: 0.8rem;
+            color: #34495e;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .kpi-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #9b59b6;
+        }
+
+        .kpi-value.negative {
+            color: #e74c3c;
+        }
+
+        /* 4行目：連携ステータス表示 */
         .workflow-section {
             background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
             padding: 18px 20px;
-            border-bottom: 3px solid #805ad5;
+            border-bottom: 3px solid #9b59b6;
         }
 
         .workflow-title {
@@ -153,7 +226,7 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #805ad5, #6b46c1);
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
             color: white;
         }
 
@@ -184,13 +257,13 @@
         /* パルス効果 */
         .btn-pulse {
             animation: pulse 1.5s infinite;
-            box-shadow: 0 0 20px rgba(128, 90, 213, 0.6);
+            box-shadow: 0 0 20px rgba(155, 89, 182, 0.6);
         }
 
         @keyframes pulse {
-            0% { box-shadow: 0 0 20px rgba(128, 90, 213, 0.6); }
-            50% { box-shadow: 0 0 30px rgba(128, 90, 213, 0.8); }
-            100% { box-shadow: 0 0 20px rgba(128, 90, 213, 0.6); }
+            0% { box-shadow: 0 0 20px rgba(155, 89, 182, 0.6); }
+            50% { box-shadow: 0 0 30px rgba(155, 89, 182, 0.8); }
+            100% { box-shadow: 0 0 20px rgba(155, 89, 182, 0.6); }
         }
 
         .chart-section {
@@ -208,41 +281,6 @@
             padding: 12px 20px;
             font-weight: 700;
             font-size: 1rem;
-        }
-
-        .kpi-display {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            background: rgba(128, 90, 213, 0.1);
-            padding: 15px;
-            margin: 10px 20px;
-            border-radius: 8px;
-            border: 2px solid #805ad5;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .kpi-item {
-            text-align: center;
-            min-width: 120px;
-        }
-
-        .kpi-label {
-            font-size: 0.8rem;
-            color: #34495e;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-
-        .kpi-value {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #805ad5;
-        }
-
-        .kpi-value.negative {
-            color: #e74c3c;
         }
 
         .chart-container {
@@ -514,21 +552,10 @@
             font-weight: 600;
         }
 
-        .precision-note {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 6px;
-            padding: 8px 12px;
-            margin: 10px 20px;
-            font-size: 0.75rem;
-            color: #856404;
-            text-align: center;
-        }
-
         @media (max-width: 768px) {
             .container { padding: 10px; }
             .nav-buttons { gap: 6px; }
-            .btn-nav { padding: 6px 10px; font-size: 0.7rem; }
+            .btn-nav { padding: 8px 12px; font-size: 0.8rem; min-width: 100px; }
             .input-controls { flex-direction: column; align-items: stretch; }
             .preset-buttons { justify-content: center; }
             .settings-inline { justify-content: center; }
@@ -538,29 +565,57 @@
 </head>
 <body>
     <div class="container">
-        <!-- RCD事業部統合ヘッダー -->
+        <!-- 統一4行ヘッダー構造 -->
         <div class="header-section">
+            <!-- 1行目：事業部カラーグラデーションタイトル -->
+            <div class="department-title">
+                RCD事業部 PLシミュレーター - 統一PLシステム Phase 4完成版
+            </div>
+
+            <!-- 2行目：5ボタングローバルナビゲーション -->
             <div class="nav-section">
                 <div class="nav-buttons">
-                    <a href="../index.html" class="btn-nav">ダッシュボード</a>
-                    <a href="sr-pl.html" class="btn-nav btn-sr">SR事業部</a>
-                    <a href="w-pl.html" class="btn-nav btn-w">W事業部</a>
-                    <a href="rc-pl.html" class="btn-nav btn-rc">RC事業部</a>
-                    <a href="rcd-pl.html" class="btn-nav btn-rcd">RCD社</a>
-                    <a href="../combined-dashboard/index.html" class="btn-nav">全体PL</a>
+                    <a href="sr-pl-corrected.html" class="btn-nav btn-sr">SR事業部</a>
+                    <a href="w-pl-fixed.html" class="btn-nav btn-w">W事業部</a>
+                    <a href="rc-pl-corrected.html" class="btn-nav btn-rc">RC事業部</a>
+                    <a href="rcd-pl-corrected.html" class="btn-nav btn-rcd">RCD事業部</a>
+                    <a href="../enhanced_combined_pl.html" class="btn-nav btn-unified">統合PLシステム</a>
                 </div>
             </div>
 
+            <!-- 3行目：事業部固有KPIカード -->
+            <div class="kpi-section">
+                <div class="kpi-display">
+                    <div class="kpi-item">
+                        <div class="kpi-label">年間売上合計</div>
+                        <div class="kpi-value" id="annual-sales">197,760万円</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="kpi-label">前年対比増減</div>
+                        <div class="kpi-value" id="sales-diff">+27,581万円</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="kpi-label">営業利益率</div>
+                        <div class="kpi-value" id="profit-rate">2.4%</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="kpi-label">統合PL連携</div>
+                        <div class="kpi-value" style="color: #27ae60;" id="integration-status">準備完了</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4行目：連携ステータス表示 -->
             <div class="workflow-section">
                 <div class="workflow-title">統合PLシステム ワークフロー - Step 4/4 最終段階（精度向上版）</div>
                 <div class="workflow-info">
-                    <span style="color: #27ae60; font-weight: 600;">✓ SR事業部完了</span>
+                    <span style="color: #27ae60; font-weight: 600;">✅ SR事業部完了</span>
                     <span style="margin: 0 10px; color: #bdc3c7;">|</span>
-                    <span style="color: #27ae60; font-weight: 600;">✓ W事業部完了</span>
+                    <span style="color: #27ae60; font-weight: 600;">✅ W事業部完了</span>
                     <span style="margin: 0 10px; color: #bdc3c7;">|</span>
-                    <span style="color: #27ae60; font-weight: 600;">✓ RC事業部完了</span>
+                    <span style="color: #27ae60; font-weight: 600;">✅ RC事業部完了</span>
                     <span style="margin: 0 10px; color: #bdc3c7;">|</span>
-                    <span style="color: #805ad5; font-weight: 700;">● RCD社設定中</span>
+                    <span style="color: #9b59b6; font-weight: 700;">● RCD社設定中</span>
                     <span style="margin: 0 10px; color: #bdc3c7;">→</span>
                     <span style="color: #f39c12; font-weight: 600;">合計PL統合</span>
                 </div>
@@ -571,40 +626,20 @@
                     <button class="action-btn btn-csv" onclick="exportRCDCSV()">
                         CSVエクスポート（任意）
                     </button>
-                    <button class="action-btn btn-primary" id="send-data-btn" onclick="sendRCDDataAndNavigateToNext()">
+                    <button class="action-btn btn-primary btn-pulse" id="send-data-btn" onclick="sendRCDDataAndNavigateToNext()">
                         RCD社データ送信 → 統合PLへ
                     </button>
-                    <button class="action-btn btn-secondary" onclick="location.href='../combined-dashboard/index.html'">
-                        全体PL分析へ
+                    <button class="action-btn btn-secondary" onclick="location.href='../enhanced_combined_pl.html'">
+                        統合PLシステムへ
                     </button>
                 </div>
             </div>
-        </div>
-
-        <!-- 精度改善通知 -->
-        <div class="precision-note">
-            <strong>🔧 計算精度改善:</strong> 仕入本数を小数2位まで入力可能。計算結果は万円単位で整数化して出力します。
         </div>
 
         <!-- RCD事業部チャートセクション -->
         <div class="chart-section">
             <div class="chart-header">
                 参考前年数値との比較グラフ（統一構造 Version 4.0 - 精度向上版）
-            </div>
-            
-            <div class="kpi-display">
-                <div class="kpi-item">
-                    <div class="kpi-label">年間売上合計</div>
-                    <div class="kpi-value" id="annual-sales">197,760万円</div>
-                </div>
-                <div class="kpi-item">
-                    <div class="kpi-label">前年対比増減</div>
-                    <div class="kpi-value" id="sales-diff">+27,581万円</div>
-                </div>
-                <div class="kpi-item">
-                    <div class="kpi-label">営業利益率</div>
-                    <div class="kpi-value" id="profit-rate">2.4%</div>
-                </div>
             </div>
             
             <div class="chart-container">
@@ -800,7 +835,7 @@
         const BACKUP_KEY = 'rcd_pl_backups';
         const EMERGENCY_KEY = 'rcd_pl_emergency_backup';
 
-        // 通知システム 
+        // 通知システム  
         function showNotification(message, type = 'success', duration = 3000) {
             // 既存の通知を削除
             const existingNotifications = document.querySelectorAll('.notification, .notification-overlay');
@@ -1398,7 +1433,7 @@
             }
         }
 
-        // CSV必須制約を解除したデータ送信
+        // CSVが必要ないデータ送信
         function sendRCDDataAndNavigateToNext() {
             try {
                 const results = calculateRCD();
@@ -1431,7 +1466,7 @@ Phase 4完了！統合PLで全体結果を確認します。
 3秒後に自動移動します...`, 'success', 6000);
                 
                 setTimeout(() => {
-                    window.location.href = '../combined-dashboard/index.html';
+                    window.location.href = '../enhanced_combined_pl.html';
                 }, 3000);
 
                 return results.annual.sales;
