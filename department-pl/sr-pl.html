@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SR事業部PLシミュレーター 完全版</title>
+    <title>SR事業部PLシミュレーター 完全版（修正版）</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -627,7 +627,7 @@
                         🔓 データ保護OFF
                     </button>
                     <button class="action-btn btn-csv" onclick="exportSRCSV()">
-                        CSVエクスポート
+                        CSVエクスポート（任意）
                     </button>
                     <button class="action-btn btn-primary" id="send-btn" onclick="sendDataAndNavigateToNext()">
                         SRデータ送信 → 次のステップ (W事業部)
@@ -1441,15 +1441,10 @@
             }
         }
 
-        // データ送信
+        // CSV必須制約を解除したデータ送信
         function sendDataAndNavigateToNext() {
             if (!window.srResults) {
                 showNotification('先に計算を実行してください。', 'error');
-                return;
-            }
-
-            if (!csvExported) {
-                showNotification('先にCSVエクスポートを実行してください。', 'warning');
                 return;
             }
 
@@ -1651,7 +1646,7 @@
                 
                 // 初期化完了通知
                 if (!dataRestored) {
-                    showNotification('SR事業部PLシミュレーターが初期化されました。\n\nデータ保護機能が追加されています。', 'success', 2000);
+                    showNotification('SR事業部PLシミュレーターが初期化されました。\n\nCSV必須制約を解除しました。\nデータ保護機能が追加されています。', 'success', 2000);
                 } else {
                     showNotification('保存されたデータから復元しました。', 'success', 2000);
                 }
