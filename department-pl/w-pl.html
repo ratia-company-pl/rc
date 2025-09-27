@@ -19,6 +19,153 @@
             color: #333;
         }
 
+        /* 4行ヘッダー構造 */
+        .header-row1 {
+            background: linear-gradient(135deg, #3498db 0%, #5dade2 100%);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+        }
+
+        .header-title {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .version-info {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.9em;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: inline-block;
+        }
+
+        /* 2行目: グローバルナビゲーション（5ボタン） */
+        .header-row2 {
+            background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
+            padding: 8px 15px;
+        }
+
+        .nav-container {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 160px;
+            max-width: 200px;
+            padding: 8px 16px;
+            font-size: 0.8em;
+            border-radius: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* アクティブボタン（W事業部） */
+        .btn-active-w { 
+            background: #3498db !important; 
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.5) !important;
+        }
+
+        .btn-active-sr { 
+            background: #C477CC !important; 
+            box-shadow: 0 4px 8px rgba(196, 119, 204, 0.3);
+        }
+        .btn-active-rc { 
+            background: #27ae60 !important; 
+            box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
+        }
+        .btn-active-rcd { 
+            background: #9b59b6 !important; 
+            box-shadow: 0 4px 8px rgba(155, 89, 182, 0.3);
+        }
+        .btn-active-unified { 
+            background: #f39c12 !important; 
+            box-shadow: 0 4px 8px rgba(243, 156, 18, 0.3);
+        }
+
+        /* 3行目: KPIカード */
+        .header-row3 {
+            background: #f8f9fa;
+            padding: 12px 15px;
+        }
+
+        .mini-kpi-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .mini-kpi {
+            background: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .mini-kpi-label {
+            font-size: 0.7em;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .mini-kpi-value {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        /* 4行目: ワークフロー情報 */
+        .header-row4 {
+            background: #ecf0f1;
+            padding: 10px 15px;
+            text-align: center;
+        }
+
+        .workflow-info {
+            font-size: 0.9rem;
+            color: #34495e;
+            text-align: center;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .workflow-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
         .container {
             max-width: 1600px;
             margin: 0 auto;
@@ -52,84 +199,6 @@
         .status-protected { background: #10b981; }
         .status-unprotected { background: #f59e0b; }
         .status-error { background: #ef4444; }
-
-        .header-section {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .nav-section {
-            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
-            padding: 12px 20px;
-        }
-
-        .nav-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
-        }
-
-        .btn-nav {
-            padding: 8px 14px;
-            border: 2px solid rgba(255,255,255,0.25);
-            border-radius: 8px;
-            background: rgba(255,255,255,0.15);
-            color: white;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.75rem;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .btn-nav:hover {
-            background: rgba(255,255,255,0.25);
-            transform: translateY(-1px);
-        }
-
-        .btn-nav.btn-sr { background: #e53e3e; border-color: #e53e3e; }
-        .btn-nav.btn-w { background: #3498db; border-color: #3498db; box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4); }
-        .btn-nav.btn-rc { background: #38a169; border-color: #38a169; }
-        .btn-nav.btn-rcd { background: #805ad5; border-color: #805ad5; }
-
-        .workflow-section {
-            background: linear-gradient(135deg, #ecf0f1 0%, #d5dbdb 100%);
-            padding: 18px 20px;
-            border-bottom: 3px solid #3498db;
-        }
-
-        .workflow-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .workflow-info {
-            font-size: 0.9rem;
-            color: #34495e;
-            text-align: center;
-            line-height: 1.6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-bottom: 15px;
-        }
-
-        .workflow-actions {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
 
         .action-btn {
             padding: 10px 20px;
@@ -575,9 +644,35 @@
         }
 
         @media (max-width: 768px) {
+            .header-row1, .header-row2, .header-row3, .header-row4 {
+                padding: 10px;
+            }
+            
+            .header-title {
+                font-size: 1.3em;
+            }
+            
+            .nav-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                min-width: 200px;
+                max-width: 300px;
+            }
+            
+            .mini-kpi-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .workflow-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
             .container { padding: 10px; }
-            .nav-buttons { gap: 6px; }
-            .btn-nav { padding: 6px 10px; font-size: 0.7rem; }
             .input-controls { flex-direction: column; align-items: stretch; }
             .preset-buttons { justify-content: center; }
             .settings-inline { justify-content: center; }
@@ -594,6 +689,72 @@
     </style>
 </head>
 <body>
+    <!-- 4行ヘッダー構造 -->
+    <!-- 1行目: タイトル -->
+    <div class="header-row1">
+        <h1 class="header-title">W事業部PLシステム</h1>
+        <div class="version-info">12段階人件費システム・データ保護機能・リアルタイム連携</div>
+    </div>
+
+    <!-- 2行目: グローバルナビゲーション（5ボタン） -->
+    <div class="header-row2">
+        <div class="nav-container">
+            <a href="sr-pl-corrected.html" class="btn">SR事業部PL</a>
+            <a href="#" class="btn btn-active-w">W事業部PL</a>
+            <a href="rc-pl-corrected.html" class="btn">RC事業部PL</a>
+            <a href="rcd-pl-corrected.html" class="btn">RCD事業部PL</a>
+            <a href="enhanced_combined_pl.html" class="btn">統合PLシステム</a>
+        </div>
+    </div>
+
+    <!-- 3行目: KPIカード -->
+    <div class="header-row3">
+        <div class="mini-kpi-container">
+            <div class="mini-kpi">
+                <div class="mini-kpi-label">年間売上合計</div>
+                <div class="mini-kpi-value" id="mini-annual-sales">11,521万円</div>
+            </div>
+            <div class="mini-kpi">
+                <div class="mini-kpi-label">営業利益</div>
+                <div class="mini-kpi-value" id="mini-operating-profit">1,309万円</div>
+            </div>
+            <div class="mini-kpi">
+                <div class="mini-kpi-label">前年増減</div>
+                <div class="mini-kpi-value" id="mini-sales-diff">+0万円</div>
+            </div>
+            <div class="mini-kpi">
+                <div class="mini-kpi-label">データ状況</div>
+                <div class="mini-kpi-value" id="mini-data-status">設定中</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4行目: ワークフロー情報 -->
+    <div class="header-row4">
+        <div class="workflow-info">
+            <span style="color: #27ae60; font-weight: 600;">✓ SR事業部完了</span>
+            <span style="margin: 0 10px; color: #bdc3c7;">|</span>
+            <span style="color: #3498db; font-weight: 700;">● W事業部設定中</span>
+            <span style="margin: 0 10px; color: #bdc3c7;">|</span>
+            <span style="color: #95a5a6;">RC事業部待機</span>
+            <span style="margin: 0 10px; color: #bdc3c7;">|</span>
+            <span style="color: #95a5a6;">RCD事業部待機</span>
+            <span style="margin: 0 10px; color: #bdc3c7;">→</span>
+            <span style="color: #f39c12; font-weight: 600;">合計PL統合</span>
+        </div>
+        <div class="workflow-actions">
+            <button class="action-btn btn-protection" id="protection-btn" onclick="toggleDataProtection()">
+                🔓 データ保護OFF
+            </button>
+            <button class="action-btn btn-csv" onclick="exportWCSV()">
+                CSVエクスポート（任意）
+            </button>
+            <button class="action-btn btn-primary" id="send-btn" onclick="sendWDataAndNavigateToNext()">
+                Wデータ送信 → 次のステップ (RC事業部)
+            </button>
+        </div>
+    </div>
+
     <!-- データ保護状況表示 -->
     <div class="data-protection-status" id="protection-status">
         <div class="status-indicator" id="status-indicator"></div>
@@ -601,46 +762,6 @@
     </div>
 
     <div class="container">
-        <div class="header-section">
-            <div class="nav-section">
-                <div class="nav-buttons">
-                    <a href="../index.html" class="btn-nav">ダッシュボード</a>
-                    <a href="sr-pl.html" class="btn-nav btn-sr">SR事業部</a>
-                    <a href="w-pl.html" class="btn-nav btn-w">W事業部</a>
-                    <a href="rc-pl.html" class="btn-nav btn-rc">RC事業部</a>
-                    <a href="rcd-pl.html" class="btn-nav btn-rcd">RCD社</a>
-                    <a href="../combined-dashboard/index.html" class="btn-nav">全体PL</a>
-                </div>
-            </div>
-
-            <div class="workflow-section">
-                <div class="workflow-title">統合PLシステム ワークフロー - Step 2/4 進行中</div>
-
-                <div class="workflow-info">
-                    <span style="color: #27ae60; font-weight: 600;">✓ SR事業部完了</span>
-                    <span style="margin: 0 10px; color: #bdc3c7;">|</span>
-                    <span style="color: #3498db; font-weight: 700;">● W事業部設定中</span>
-                    <span style="margin: 0 10px; color: #bdc3c7;">|</span>
-                    <span style="color: #95a5a6;">RC事業部待機</span>
-                    <span style="margin: 0 10px; color: #bdc3c7;">|</span>
-                    <span style="color: #95a5a6;">RCD事業部待機</span>
-                    <span style="margin: 0 10px; color: #bdc3c7;">→</span>
-                    <span style="color: #f39c12; font-weight: 600;">合計PL統合</span>
-                </div>
-                <div class="workflow-actions">
-                    <button class="action-btn btn-protection" id="protection-btn" onclick="toggleDataProtection()">
-                        🔓 データ保護OFF
-                    </button>
-                    <button class="action-btn btn-csv" onclick="exportWCSV()">
-                        CSVエクスポート（任意）
-                    </button>
-                    <button class="action-btn btn-primary" id="send-btn" onclick="sendWDataAndNavigateToNext()">
-                        Wデータ送信 → 次のステップ (RC事業部)
-                    </button>
-                </div>
-            </div>
-        </div>
-
         <div class="chart-section">
             <div class="chart-header">
                 参考前年数値との比較グラフ（統一構造 Version 3.0）
@@ -806,7 +927,7 @@
             advertising: 30
         };
 
-        // データ保護システム 
+        // データ保護システム  
         let dataProtectionState = {
             isProtected: false,
             autoSaveInterval: null,
@@ -886,6 +1007,16 @@
                 statusText.textContent = 'データ保護OFF';
                 protectionBtn.innerHTML = '🔓 データ保護OFF';
                 protectionBtn.className = 'action-btn btn-protection';
+            }
+
+            // ミニKPIのデータ状況更新
+            const statusElement = document.getElementById('mini-data-status');
+            if (dataProtectionState.isProtected) {
+                statusElement.textContent = '保護中';
+                statusElement.style.color = '#28a745';
+            } else {
+                statusElement.textContent = '設定中';
+                statusElement.style.color = '#f39c12';
             }
         }
 
@@ -1020,7 +1151,7 @@
             notifications.forEach(el => el.remove());
         }
 
-        // 修正版：シミュレータ準拠の12段階人件費システム 
+        // 修正版：シミュレータ準拠の12段階人件費システム  
         function getWPersonnelAmount(salesAmount) {
             if (salesAmount <= 599) return 201;
             if (salesAmount <= 699) return 208.5;
@@ -1102,6 +1233,7 @@
 
             updateDifferenceDisplay();
             updateKPIDisplay(results.annual);
+            updateMiniKPIDisplay(results.annual);
             updateChart();
             updateProfitTable(results);
             updateExpenseTable(results.expenses);
@@ -1131,6 +1263,18 @@
             document.getElementById('annual-sales').textContent = formatNumber(annual.sales) + '万円';
             document.getElementById('sales-diff').textContent = (salesDiff >= 0 ? '+' : '') + formatNumber(salesDiff) + '万円';
             document.getElementById('profit-rate').textContent = profitRate + '%';
+        }
+
+        function updateMiniKPIDisplay(annual) {
+            const refTotal = wReferenceData.reduce((sum, val) => sum + val, 0);
+            const salesDiff = annual.sales - refTotal;
+
+            document.getElementById('mini-annual-sales').textContent = formatNumber(annual.sales) + '万円';
+            document.getElementById('mini-operating-profit').textContent = formatNumber(annual.operatingProfit) + '万円';
+            
+            const diffElement = document.getElementById('mini-sales-diff');
+            diffElement.textContent = (salesDiff >= 0 ? '+' : '') + formatNumber(salesDiff) + '万円';
+            diffElement.style.color = salesDiff >= 0 ? '#28a745' : '#dc3545';
         }
 
         function updateChart() {
@@ -1458,10 +1602,17 @@
                     updateProtectionStatus();
                 }
 
-                showNotification(`修正版W事業部データを統合PLシステムに送信しました!\n\n年間売上: ${formatNumber(results.annual.sales)}万円\n年間営業利益: ${formatNumber(results.annual.operatingProfit)}万円\n人件費計算方式: 12段階固定金額システム\n\nデータ保護が自動で有効になりました。\n2秒後にRC事業部画面に移動します。`, 'success', 5000);
+                showNotification(`修正版W事業部データを統合PLシステムに送信しました!
+
+年間売上: ${formatNumber(results.annual.sales)}万円
+年間営業利益: ${formatNumber(results.annual.operatingProfit)}万円
+人件費計算方式: 12段階固定金額システム
+
+データ保護が自動で有効になりました。
+2秒後にRC事業部画面に移動します。`, 'success', 5000);
 
                 setTimeout(() => {
-                    window.location.href = 'rc-pl.html';
+                    window.location.href = 'rc-pl-corrected.html';
                 }, 2000);
 
                 return results.annual.sales;
@@ -1515,7 +1666,7 @@
                 
                 // 初期化完了通知
                 if (!dataRestored) {
-                    showNotification('W事業部PLシミュレーターが初期化されました。\n\nデータ保護機能が追加されています。', 'success', 2000);
+                    showNotification('W事業部PLシミュレーターが初期化されました。\n\n統一ナビゲーション機能が追加されています。\n12段階人件費システム対応完了。', 'success', 2000);
                 } else {
                     showNotification('保存されたデータから復元しました。', 'success', 2000);
                 }
