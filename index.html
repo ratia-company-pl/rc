@@ -733,6 +733,11 @@
                     <input type="number" id="base-salary-low" value="676" step="10">
                     <span style="font-size: 0.8em;">万円</span>
                 </div>
+                <div class="executive-input">
+                    <label style="font-size: 0.8em; color: #666;">6月賞与:</label>
+                    <input type="number" id="bonus-amount" value="0" step="50">
+                    <span style="font-size: 0.8em;">万円</span>
+                </div>
                 <button class="action-btn" style="background: #27ae60; font-size: 0.8em; padding: 8px 16px;" onclick="applyExecutive()">
                     設定を適用
                 </button>
@@ -1349,8 +1354,15 @@
             try {
                 const high = parseInt(document.getElementById('base-salary-high').value) || 826;
                 const low = parseInt(document.getElementById('base-salary-low').value) || 676;
+                const bonus = parseInt(document.getElementById('bonus-amount').value) || 0;
                 
+                // 基本報酬の設定（7-9月は高額、10-6月は低額）
                 execData.compensation = [high,high,high,low,low,low,low,low,low,low,low,low];
+                
+                // 6月（配列の11番目）に賞与を加算
+                execData.compensation[11] += bonus;
+                
+                // 法定福利費の計算（賞与含む）
                 execData.welfare = execData.compensation.map(s => Math.round(s * 0.13));
                 
                 // 月次表を更新
@@ -1366,11 +1378,12 @@
                 Charts.updateElement('exec-total', execTotal.toLocaleString());
                 Charts.updateElement('welfare-total', welfareTotal.toLocaleString());
                 
-                updateStatus('設定が適用されました。', 'success');
+                updateStatus(`設定が適用されました。6月賞与: ${bonus.toLocaleString()}万円`, 'success');
                 
                 console.log('役員報酬設定更新:', {
                     年間報酬: execTotal.toLocaleString() + '万円',
-                    年間福利費: welfareTotal.toLocaleString() + '万円'
+                    年間福利費: welfareTotal.toLocaleString() + '万円',
+                    六月賞与: bonus.toLocaleString() + '万円'
                 });
             } catch (e) {
                 console.error('Apply executive error:', e);
@@ -1387,13 +1400,14 @@
                     metadata: {
                         baseHigh: parseInt(document.getElementById('base-salary-high').value),
                         baseLow: parseInt(document.getElementById('base-salary-low').value),
-                        version: "4.0_dashboard_integration_fixed"
+                        bonusAmount: parseInt(document.getElementById('bonus-amount').value) || 0,
+                        version: "4.0_dashboard_integration_bonus_fixed"
                     }
                 };
                 
                 localStorage.setItem('executive_compensation_csv_settings', JSON.stringify(executiveSettings));
                 updateStatus('合計PLページにデータを保存しました。連携完了。', 'success');
-                console.log('Executive settings saved to localStorage for combined PL:', executiveSettings);
+                console.log('Executive settings with bonus saved to localStorage for combined PL:', executiveSettings);
             } catch (e) {
                 console.error('Save error:', e);
                 updateStatus('保存エラー: ' + e.message, 'error');
@@ -1413,7 +1427,20 @@
                         if (data.metadata) {
                             document.getElementById('base-salary-high').value = data.metadata.baseHigh || 826;
                             document.getElementById('base-salary-low').value = data.metadata.baseLow || 676;
+                            document.getElementById('bonus-amount').value = data.metadata.bonusAmount || 0;
                         }
+                        
+                        // テーブル表示を更新
+                        execData.compensation.forEach((sal, i) => {
+                            Charts.updateElement(`exec-m${i}`, sal);
+                            Charts.updateElement(`welfare-m${i}`, execData.welfare[i]);
+                        });
+                        
+                        const execTotal = execData.compensation.reduce((s,v) => s + v, 0);
+                        const welfareTotal = execData.welfare.reduce((s,v) => s + v, 0);
+                        
+                        Charts.updateElement('exec-total', execTotal.toLocaleString());
+                        Charts.updateElement('welfare-total', welfareTotal.toLocaleString());
                         
                         updateStatus('合計PLから読み込み完了。最終更新: ' + new Date(data.lastUpdate).toLocaleString(), 'success');
                     } else {
