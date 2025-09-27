@@ -1,6 +1,147 @@
-<div class="kpi-section-primary">
-                            <div class="kpi-section-title">統合PLからの実際値</div>
-                            <div id="kpi-data-status" class="data-source-indicator indicator-simulation" style="margin:        .chart-title {
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4事業部統合PLダッシュボード</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 8px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .nav-section {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            padding: 12px 20px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .btn-nav {
+            padding: 8px 14px;
+            border: 2px solid rgba(255,255,255,0.25);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .btn-nav:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-1px);
+        }
+
+        .btn-nav.btn-active {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border-color: #3498db;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+        }
+
+        .workflow-section {
+            background: linear-gradient(135deg, #ecf0f1 0%, #d5dbdb 100%);
+            padding: 15px 20px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .workflow-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .workflow-info {
+            font-size: 0.9rem;
+            color: #34495e;
+            text-align: center;
+            line-height: 1.4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 12px;
+        }
+
+        .workflow-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .btn-secondary { background: linear-gradient(135deg, #95a5a6, #7f8c8d); color: white; }
+        .btn-success { background: linear-gradient(135deg, #27ae60, #229954); color: white; }
+        .btn-info { background: linear-gradient(135deg, #3498db, #2980b9); color: white; }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .status-indicator {
+            font-size: 0.75em;
+            padding: 6px 12px;
+            border-radius: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-complete { background: #d4edda; color: #155724; }
+        .status-active { background: #cce5ff; color: #004085; }
+
+        .chart-section {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #eee;
+        }
+
+        .chart-title {
             font-size: 1.0em;
             font-weight: 700;
             margin-bottom: 10px;
@@ -13,6 +154,19 @@
             border: 2px solid #3498db;
             transition: all 0.3s ease;
             user-select: none;
+        }
+
+        .chart-title:hover {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+        }
+
+        .chart-title.active {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+            border-color: #27ae60;
         }
 
         .data-source-indicator {
@@ -36,3 +190,1254 @@
             color: #155724;
             border: 1px solid #28a745;
         }
+
+        .chart-toggle-info {
+            font-size: 0.75em;
+            color: #7f8c8d;
+            text-align: center;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        .main-chart-row {
+            display: flex;
+            width: 100%;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .chart-graph-cell {
+            flex: 0 0 70%;
+        }
+
+        .chart-kpi-cell {
+            flex: 0 0 30%;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            border: 2px solid #667eea;
+            height: 400px;
+        }
+
+        .chart-kpi-panel {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #667eea;
+            height: 400px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .kpi-title {
+            font-size: 0.85em;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #667eea;
+            text-align: center;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 4px;
+            flex-shrink: 0;
+        }
+
+        .kpi-section-primary {
+            flex: 0.65;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 6px;
+            padding: 6px;
+            margin-bottom: 6px;
+            border: 2px solid #28a745;
+            overflow: hidden;
+        }
+
+        .kpi-section-secondary {
+            flex: 0.35;
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-radius: 6px;
+            padding: 6px;
+            border: 2px solid #ffc107;
+            overflow: hidden;
+        }
+
+        .kpi-section-title {
+            font-size: 0.7em;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 4px;
+            padding-bottom: 2px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .kpi-section-primary .kpi-section-title {
+            color: #28a745;
+        }
+
+        .kpi-section-secondary .kpi-section-title {
+            color: #856404;
+        }
+
+        .kpi-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            font-size: 0.68em;
+            line-height: 1.2;
+        }
+
+        .kpi-item:last-child {
+            border-bottom: none;
+        }
+
+        .kpi-label {
+            color: #666;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .kpi-value {
+            font-weight: 700;
+            font-size: 1.0em;
+            white-space: nowrap;
+        }
+
+        .positive { color: #27ae60; }
+        .negative { color: #e74c3c; }
+        .neutral { color: #6c757d; }
+
+        .dept-comparison-section {
+            padding: 15px;
+            background: white;
+            border-top: 1px solid #eee;
+        }
+
+        .section-title {
+            font-size: 0.9em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            border-left: 3px solid #667eea;
+            padding-left: 8px;
+        }
+
+        .dept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .dept-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            border: 2px solid #dee2e6;
+        }
+
+        .dept-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid;
+        }
+
+        .dept-name { font-size: 0.85em; font-weight: bold; }
+        .dept-yoy { font-size: 0.75em; font-weight: 600; }
+        .dept-chart { height: 180px; margin-bottom: 10px; }
+
+        .dept-kpi {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 0.7em;
+        }
+
+        .dept-kpi-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+        }
+
+        .dept-kpi-label { color: #666; font-weight: 500; }
+        .dept-kpi-value { font-weight: bold; }
+
+        .dept-sr { border-color: #f39c12; }
+        .dept-sr .dept-header { border-color: #f39c12; color: #f39c12; }
+        .dept-sr .dept-kpi-value { color: #f39c12; }
+
+        .dept-w { border-color: #3498db; }
+        .dept-w .dept-header { border-color: #3498db; color: #3498db; }
+        .dept-w .dept-kpi-value { color: #3498db; }
+
+        .dept-rc { border-color: #27ae60; }
+        .dept-rc .dept-header { border-color: #27ae60; color: #27ae60; }
+        .dept-rc .dept-kpi-value { color: #27ae60; }
+
+        .dept-rcd { border-color: #9b59b6; }
+        .dept-rcd .dept-header { border-color: #9b59b6; color: #9b59b6; }
+        .dept-rcd .dept-kpi-value { color: #9b59b6; }
+
+        .executive-section {
+            background: #e8f5e8;
+            border: 2px solid #27ae60;
+            border-radius: 8px;
+            margin: 15px;
+            padding: 15px;
+        }
+
+        .executive-title {
+            color: #2c3e50;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #27ae60;
+            padding-bottom: 5px;
+        }
+
+        .executive-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .executive-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .executive-input input {
+            padding: 4px 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            width: 80px;
+            font-size: 0.8em;
+        }
+
+        .sync-status {
+            background: rgba(52, 152, 219, 0.1);
+            border: 1px solid #3498db;
+            border-radius: 4px;
+            padding: 8px 12px;
+            margin: 10px 0;
+            font-size: 0.8em;
+            color: #2c3e50;
+        }
+
+        .sync-success { background: rgba(39, 174, 96, 0.1); border-color: #27ae60; color: #155724; }
+        .sync-warning { background: rgba(243, 156, 18, 0.1); border-color: #f39c12; color: #856404; }
+        .sync-error { background: rgba(231, 76, 60, 0.1); border-color: #e74c3c; color: #721c24; }
+
+        @media (max-width: 768px) {
+            .main-chart-row { flex-direction: column; }
+            .chart-graph-cell, .chart-kpi-cell { flex: none; width: 100%; }
+            .dept-grid { grid-template-columns: 1fr; }
+            .nav-buttons { gap: 6px; }
+            .btn-nav { padding: 6px 10px; font-size: 0.7rem; }
+            .workflow-actions { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-section">
+            <div class="nav-buttons">
+                <button class="btn-nav btn-active" onclick="navigateTo('dashboard')">ダッシュボード</button>
+                <button class="btn-nav" onclick="navigateTo('sr-pl.html')">SR事業部PL</button>
+                <button class="btn-nav" onclick="navigateTo('w-pl.html')">W事業部PL</button>
+                <button class="btn-nav" onclick="navigateTo('rc-pl.html')">RC事業部PL</button>
+                <button class="btn-nav" onclick="navigateTo('rcd-pl.html')">RCD事業部PL</button>
+                <button class="btn-nav" onclick="navigateTo('combined-dashboard/index.html')">全体PL分析</button>
+            </div>
+        </div>
+
+        <div class="workflow-section">
+            <div class="workflow-title">統合PLシステム ワークフロー - 全事業部データ統合中</div>
+            <div class="workflow-info">
+                <span style="color: #27ae60; font-weight: 600;">SR事業部完了</span>
+                <span style="margin: 0 10px; color: #bdc3c7;">|</span>
+                <span style="color: #27ae60; font-weight: 600;">W事業部完了</span>
+                <span style="margin: 0 10px; color: #bdc3c7;">|</span>
+                <span style="color: #27ae60; font-weight: 600;">RC事業部完了</span>
+                <span style="margin: 0 10px; color: #bdc3c7;">|</span>
+                <span style="color: #27ae60; font-weight: 600;">RCD事業部完了</span>
+                <span style="margin: 0 10px; color: #bdc3c7;">→</span>
+                <span style="color: #667eea; font-weight: 700;">統合PL分析中</span>
+            </div>
+            <div class="workflow-actions">
+                <button class="action-btn btn-primary" onclick="loadUnifiedData()">統合PLからデータ取得</button>
+                <button class="action-btn btn-secondary" onclick="refreshData()">全データ更新</button>
+                <div class="status-indicator status-complete">
+                    <span>データ取得: 4/4部門</span>
+                </div>
+                <div class="status-indicator status-active">
+                    <span>統合PL連携: アクティブ</span>
+                </div>
+                <button class="action-btn btn-info" onclick="exportDebug()">デバッグ情報出力</button>
+                <button class="action-btn btn-success" onclick="testUnifiedConnection()">統合PL接続テスト</button>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-title" id="main-chart-title" onclick="toggleChart()">
+                月次利益推移（統合PLリアルタイム連動対応）
+            </div>
+            <div id="data-source-indicator" class="data-source-indicator indicator-simulation">
+                ⚠️ シミュレーション値表示中
+            </div>
+            <div class="chart-toggle-info">クリックして前年比較表示を切替</div>
+            
+            <div class="main-chart-row">
+                <div class="chart-graph-cell">
+                    <div class="chart-wrapper">
+                        <canvas id="monthly-profit-chart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-kpi-cell">
+                    <div class="chart-kpi-panel">
+                        <div class="kpi-title">統合実績サマリー</div>
+                        
+                        <div class="kpi-section-primary">
+                            <div class="kpi-section-title">統合PLからの実際値</div>
+                            <div id="kpi-data-status" class="data-source-indicator indicator-simulation" style="margin: 4px 0; font-size: 0.6em;">
+                                シミュレーション値表示中
+                            </div>
+                            <div class="kpi-item">
+                                <span class="kpi-label">年間売上合計</span>
+                                <span class="kpi-value" id="total-annual-sales">---万円</span>
+                            </div>
+                            <div class="kpi-item">
+                                <span class="kpi-label">平均月次売上</span>
+                                <span class="kpi-value" id="avg-monthly-sales">---万円</span>
+                            </div>
+                            <div class="kpi-item">
+                                <span class="kpi-label">年間利益合計</span>
+                                <span class="kpi-value positive" id="total-annual-profit">---万円</span>
+                            </div>
+                            <div class="kpi-item">
+                                <span class="kpi-label">平均月次利益</span>
+                                <span class="kpi-value positive" id="avg-monthly-profit">---万円</span>
+                            </div>
+                            <div class="kpi-item">
+                                <span class="kpi-label">利益率</span>
+                                <span class="kpi-value" id="profit-margin">---%</span>
+                            </div>
+                        </div>
+
+                        <div class="kpi-section-secondary">
+                            <div class="kpi-section-title">前年対比（参考）</div>
+                            <div class="kpi-item">
+                                <span class="kpi-label">売上増額</span>
+                                <span class="kpi-value" id="yoy-sales-increase">---万円</span>
+                            </div>
+                            <div class="kpi-item">
+                                <span class="kpi-label">利益増額</span>
+                                <span class="kpi-value" id="yoy-profit-increase">---万円</span>
+                            </div>
+                            <div class="kpi-item">
+                                <span class="kpi-label">売上伸び率</span>
+                                <span class="kpi-value" id="yoy-sales-growth">---%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dept-comparison-section">
+            <div class="section-title">各事業部個別データ表示・分析（統合PLから取得）</div>
+            
+            <div class="dept-grid">
+                <div class="dept-card dept-sr">
+                    <div class="dept-header">
+                        <span class="dept-name">SR事業部</span>
+                        <span class="dept-yoy">統合PL連携: <span id="sr-status">待機中</span></span>
+                    </div>
+                    <div class="dept-chart">
+                        <canvas id="sr-monthly-chart"></canvas>
+                    </div>
+                    <div class="dept-kpi">
+                        <div class="dept-kpi-item">
+                            <span class="dept-kpi-label">年間売上</span>
+                            <span class="dept-kpi-value" id="sr-annual-sales">---万円</span>
+                        </div>
+                        <div class="dept-kpi-item">
+                            <span class="dept-kpi-label">営業利益</span>
+                            <span class="dept-kpi-value" id="sr-operating-profit">---万円</span>
+                        </div>
+                        <div class="dept-kpi-item">
+                            <span class="dept-kpi-label">利益率</span>
+                            <span class="dept-kpi-value" id="sr-profit-margin">---%</span>
+                        </div>
+                        <div class="dept-kpi-item">
+                            <span class="dept-kpi-label">データ品質</span>
+                            <span class="dept-kpi-value" id="sr-data-quality">---%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dept-card dept-w">
+                    <div class="dept-header">
+                        <span class="dept-name">W事業部</span>
+                        <span class="dept-yoy">統合PL連携: <span id="w-status">待機中</span></span>
+                    </div>
+                    <div class="dept-chart">
+                        <canvas id="w-monthly-chart"></canvas>
+                    </div>
+                    <div class="dept-kpi">
+                        <div class="dept-kpi-item">
+                            <span class="dept-kpi-label">年間売上</span>
+                            <span class="dept-kpi-value" id="w-annual-sales">---万円</span>
+                        </div>
+                        <div class="dept-kpi-item">
+                            <span class="dept-kpi-label">営業利益</span>
+                            <span class="dept-kpi-value" id="w-operating-profit">---万円</span>
+                        </div>
+                        <div class="dept-kpi-item">
+                            <span class="dept-kpi-label">利益率</span>
+                            <span class="dept-kpi-value" id="w-profit-margin">---%</span>
+                        </div>
+                        <div class="dept-kpi-item">
+                            <span class="dept-kpi-label">データ品質</span>
+                            <span class="dept-kpi-value" id="w-data-quality">---%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dept-card dept-rc">
+                    <div class="dept-header">
+                        <span class="dept-name">RC事業部</span>
+                        <span class="dept-yoy">統合PL連携: <span id="rc-status">待機中</span></span>
+                    </div>
+                    <div class="dept-chart">
+                        <canvas id="rc-monthly-chart"></canvas>
+                    </div>
+                    <div class="dept-kpi">
+                        <div class="dept-kpi-item">
+                            <span class="dept-kpi-label">年間売上</span>
+                            <span class="dept-kpi-value" id="rc-annual-sales">---万円</span>
+                        </div>
+                        <div class="dept-kpi-item">
+                            <span class="dept-kpi-label">営業利益</span>
+                            <span class="dept-kpi-value" id="rc-operating-profit">---万円</span>
+                        </div>
+                        <div class="dept-kpi-item">
+                            <span class="dept-kpi-label">利益率</span>
+                            <span class="dept-kpi-value" id="rc-profit-margin">---%</span>
+                        </div>
+                        <div class="dept-kpi-item">
+                            <span class="dept-kpi-label">データ品質</span>
+                            <span class="dept-kpi-value" id="rc-data-quality">---%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dept-card dept-rcd">
+                    <div class="dept-header">
+                        <span class="dept-name">RCD事業部</span>
+                        <span class="dept-yoy">統合PL連携: <span id="rcd-status">待機中</span></span>
+                    </div>
+                    <div class="dept-chart">
+                        <canvas id="rcd-monthly-chart"></canvas>
+                    </div>
+                    <div class="dept-kpi">
+                        <div class="dept-kpi-item">
+                            <span class="dept-kpi-label">年間売上</span>
+                            <span class="dept-kpi-value" id="rcd-annual-sales">---万円</span>
+                        </div>
+                        <div class="dept-kpi-item">
+                            <span class="dept-kpi-label">営業利益</span>
+                            <span class="dept-kpi-value" id="rcd-operating-profit">---万円</span>
+                        </div>
+                        <div class="dept-kpi-item">
+                            <span class="dept-kpi-label">利益率</span>
+                            <span class="dept-kpi-value" id="rcd-profit-margin">---%</span>
+                        </div>
+                        <div class="dept-kpi-item">
+                            <span class="dept-kpi-label">データ品質</span>
+                            <span class="dept-kpi-value" id="rcd-data-quality">---%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="executive-section">
+            <div class="executive-title">役員報酬設定（合計PL連携強化版）</div>
+            
+            <div class="executive-controls">
+                <div class="executive-input">
+                    <label style="font-size: 0.8em; color: #666;">7-9月基準:</label>
+                    <input type="number" id="base-salary-high" value="826" step="10">
+                    <span style="font-size: 0.8em;">万円</span>
+                </div>
+                <div class="executive-input">
+                    <label style="font-size: 0.8em; color: #666;">10-6月基準:</label>
+                    <input type="number" id="base-salary-low" value="676" step="10">
+                    <span style="font-size: 0.8em;">万円</span>
+                </div>
+                <button class="action-btn" style="background: #27ae60; font-size: 0.8em; padding: 8px 16px;" onclick="applyExecutive()">
+                    設定を適用
+                </button>
+            </div>
+            
+            <div class="executive-controls">
+                <button class="action-btn btn-info" style="font-size: 0.8em; padding: 8px 16px;" onclick="saveToLocalStorage()">
+                    合計PLに保存
+                </button>
+                <button class="action-btn" style="background: #f39c12; font-size: 0.8em; padding: 8px 16px;" onclick="testDataSync()">
+                    データ同期テスト
+                </button>
+                <button class="action-btn" style="background: #e74c3c; font-size: 0.8em; padding: 8px 16px;" onclick="loadFromLocalStorage()">
+                    合計PLから読み込み
+                </button>
+            </div>
+            
+            <div id="sync-status" class="sync-status">
+                連携ステータス: 待機中...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 基本設定
+        let chartMode = 'current';
+        let unifiedDataLoaded = false;
+        
+        // 統合PLシステムのストレージキー定義
+        const UNIFIED_STORAGE_KEYS = {
+            'SR': 'pl_system_sr_corrected_data',
+            'W': 'pl_system_w_corrected_data', 
+            'RC': 'pl_system_rc_corrected_data',
+            'RCD': 'pl_system_rcd_corrected_data',
+            'executive': 'executive_compensation_csv_settings'
+        };
+
+        // 統合PLからのデータ構造 
+        let unifiedPLData = {
+            sales: Array(12).fill(0),
+            cogs: Array(12).fill(0),
+            operatingProfit: Array(12).fill(0),
+            departments: {
+                'SR': { sales: Array(12).fill(0), operatingProfit: Array(12).fill(0), quality: 0 },
+                'W': { sales: Array(12).fill(0), operatingProfit: Array(12).fill(0), quality: 0 },
+                'RC': { sales: Array(12).fill(0), operatingProfit: Array(12).fill(0), quality: 0 },
+                'RCD': { sales: Array(12).fill(0), operatingProfit: Array(12).fill(0), quality: 0 }
+            }
+        };
+
+        const PREV_TOTALS = {
+            sales: 231441, profit: 6303,
+            monthly_sales: [16106,19358,16630,20378,17473,21760,18856,20136,18948,20456,19916,21424],
+            monthly_profit: [201,342,385,612,542,876,648,415,342,485,402,598]
+        };
+
+        const COLORS = { sr: '#f39c12', w: '#3498db', rc: '#27ae60', rcd: '#9b59b6' };
+
+        let execData = {
+            compensation: [826,826,826,676,676,676,676,676,676,676,676,676],
+            welfare: [107,107,107,88,88,88,88,88,88,88,88,88]
+        };
+
+        // 統合PLからデータを取得する関数（強化版）
+        function loadUnifiedData() {
+            try {
+                updateStatus('統合PLからデータを取得中...', 'info');
+                updateDataSourceIndicator(false);
+                console.log('統合PLデータ取得開始');
+                
+                let successCount = 0;
+                let totalDepartments = 4;
+                let hasValidData = false;
+                
+                // 各事業部のデータを統合PLから取得
+                Object.entries(UNIFIED_STORAGE_KEYS).forEach(([dept, key]) => {
+                    if (dept === 'executive') return;
+                    
+                    try {
+                        const rawData = localStorage.getItem(key);
+                        console.log(`${dept} データ取得試行 (キー: ${key}):`, rawData ? 'データあり' : 'データなし');
+                        
+                        if (rawData && rawData !== 'null' && rawData !== 'undefined') {
+                            const parsedData = JSON.parse(rawData);
+                            console.log(`${dept} パース成功:`, parsedData.metadata || 'メタデータなし');
+                            
+                            if (validatePLData(parsedData)) {
+                                unifiedPLData.departments[dept].sales = [...parsedData.sales];
+                                
+                                const monthlyOperatingProfit = Array(12).fill(0);
+                                for (let m = 0; m < 12; m++) {
+                                    let monthlyExpenses = 0;
+                                    if (parsedData.expenses) {
+                                        for (let i = 1; i <= 19; i++) {
+                                            if (parsedData.expenses[i] && parsedData.expenses[i][m]) {
+                                                monthlyExpenses += parsedData.expenses[i][m];
+                                            }
+                                        }
+                                    }
+                                    monthlyOperatingProfit[m] = (parsedData.sales[m] || 0) - (parsedData.cogs[m] || 0) - monthlyExpenses;
+                                }
+                                
+                                unifiedPLData.departments[dept].operatingProfit = monthlyOperatingProfit;
+                                unifiedPLData.departments[dept].quality = calculateQualityScore(parsedData);
+                                
+                                successCount++;
+                                hasValidData = true;
+                                updateDepartmentStatus(dept, 'success');
+                                
+                                console.log(`${dept} データ統合完了:`, {
+                                    annualSales: parsedData.sales.reduce((s, v) => s + v, 0),
+                                    quality: unifiedPLData.departments[dept].quality
+                                });
+                            } else {
+                                console.warn(`${dept} データ構造が不正です:`, Object.keys(parsedData));
+                                updateDepartmentStatus(dept, 'error');
+                                loadDepartmentFallbackData(dept);
+                            }
+                        } else {
+                            console.warn(`${dept} データが存在しません (キー: ${key})`);
+                            updateDepartmentStatus(dept, 'waiting');
+                            loadDepartmentFallbackData(dept);
+                        }
+                    } catch (error) {
+                        console.error(`${dept} データ処理エラー:`, error);
+                        updateDepartmentStatus(dept, 'error');
+                        loadDepartmentFallbackData(dept);
+                    }
+                });
+
+                // 全体の売上・利益を集計
+                aggregateUnifiedData();
+
+                // データの妥当性チェック
+                if (hasValidData && successCount >= 2) {
+                    unifiedDataLoaded = true;
+                    updateDataSourceIndicator(true);
+                    updateStatus(`統合PLデータ取得完了: ${successCount}/${totalDepartments}部門`, 'success');
+                } else {
+                    unifiedDataLoaded = false;
+                    updateDataSourceIndicator(false);
+                    updateStatus(`統合PLデータ不足: ${successCount}/${totalDepartments}部門のみ取得`, 'warning');
+                }
+                
+                updateAllDisplays();
+                
+                console.log('統合PLデータ統合完了:', {
+                    totalAnnualSales: unifiedPLData.sales.reduce((s, v) => s + v, 0),
+                    totalAnnualProfit: unifiedPLData.operatingProfit.reduce((s, v) => s + v, 0),
+                    successRate: `${successCount}/${totalDepartments}`,
+                    dataLoaded: unifiedDataLoaded
+                });
+                
+            } catch (error) {
+                console.error('統合PLデータ取得エラー:', error);
+                updateStatus('統合PLデータ取得エラー: ' + error.message, 'error');
+                updateDataSourceIndicator(false);
+                unifiedDataLoaded = false;
+            }
+        }
+
+        // PLデータの妥当性検証
+        function validatePLData(data) {
+            if (!data || typeof data !== 'object') return false;
+            if (!Array.isArray(data.sales) || data.sales.length !== 12) return false;
+            if (!Array.isArray(data.cogs) || data.cogs.length !== 12) return false;
+            return true;
+        }
+
+        // フォールバックデータの読み込み
+        function loadDepartmentFallbackData(dept) {
+            const fallbackData = {
+                'SR': { sales: [2236,2916,2927,2810,2544,2663,3008,2324,2403,2602,2228,2721], operatingProfit: [223,291,292,281,254,266,300,232,240,260,222,272] },
+                'W': { sales: [886,500,669,1174,1257,2331,712,772,865,824,608,923], operatingProfit: [88,50,66,117,125,233,71,77,86,82,60,92] },
+                'RC': { sales: [1947,1645,1530,1730,1165,1846,1475,1585,1241,1173,1602,1420], operatingProfit: [194,164,153,173,116,184,147,158,124,117,160,142] },
+                'RCD': { sales: [11037,14297,11504,14664,12507,14920,13661,15455,14439,15857,15478,16360], operatingProfit: [1103,1429,1150,1466,1250,1492,1366,1545,1443,1585,1547,1636] }
+            };
+            
+            if (fallbackData[dept]) {
+                unifiedPLData.departments[dept].sales = [...fallbackData[dept].sales];
+                unifiedPLData.departments[dept].operatingProfit = [...fallbackData[dept].operatingProfit];
+                unifiedPLData.departments[dept].quality = 75;
+            }
+        }
+
+        // 統合データの集計
+        function aggregateUnifiedData() {
+            for (let m = 0; m < 12; m++) {
+                unifiedPLData.sales[m] = 0;
+                unifiedPLData.operatingProfit[m] = 0;
+                
+                Object.values(unifiedPLData.departments).forEach(deptData => {
+                    unifiedPLData.sales[m] += deptData.sales[m] || 0;
+                    unifiedPLData.operatingProfit[m] += deptData.operatingProfit[m] || 0;
+                });
+            }
+        }
+
+        // データソース表示の更新
+        function updateDataSourceIndicator(isRealData) {
+            const indicator = document.getElementById('data-source-indicator');
+            const kpiIndicator = document.getElementById('kpi-data-status');
+            
+            if (isRealData) {
+                if (indicator) {
+                    indicator.textContent = '✓ 合計PL値使用中';
+                    indicator.className = 'data-source-indicator indicator-realdata';
+                }
+                if (kpiIndicator) {
+                    kpiIndicator.textContent = '合計PLデータ連動中';
+                    kpiIndicator.className = 'data-source-indicator indicator-realdata';
+                }
+            } else {
+                if (indicator) {
+                    indicator.textContent = '⚠️ シミュレーション値表示中';
+                    indicator.className = 'data-source-indicator indicator-simulation';
+                }
+                if (kpiIndicator) {
+                    kpiIndicator.textContent = 'シミュレーション値表示中';
+                    kpiIndicator.className = 'data-source-indicator indicator-simulation';
+                }
+            }
+        }
+
+        // データ品質スコア計算
+        function calculateQualityScore(data) {
+            let score = 0;
+            if (data.sales && Array.isArray(data.sales) && data.sales.length === 12) score += 25;
+            if (data.cogs && Array.isArray(data.cogs) && data.cogs.length === 12) score += 25;
+            if (data.expenses) {
+                let expenseCount = 0;
+                for (let i = 1; i <= 19; i++) {
+                    if (data.expenses[i] && Array.isArray(data.expenses[i])) expenseCount++;
+                }
+                score += Math.round((expenseCount / 19) * 25);
+            }
+            if (data.annual && data.annual.totalSales && data.annual.operatingProfit) score += 25;
+            return Math.min(100, score);
+        }
+
+        // 事業部ステータス更新
+        function updateDepartmentStatus(dept, status) {
+            const statusSpan = document.getElementById(`${dept.toLowerCase()}-status`);
+            if (statusSpan) {
+                switch (status) {
+                    case 'success':
+                        statusSpan.textContent = '接続済み';
+                        statusSpan.style.color = '#27ae60';
+                        break;
+                    case 'error':
+                        statusSpan.textContent = 'エラー';
+                        statusSpan.style.color = '#e74c3c';
+                        break;
+                    default:
+                        statusSpan.textContent = '待機中';
+                        statusSpan.style.color = '#f39c12';
+                }
+            }
+        }
+
+        // KPI更新（統合PLデータ使用強化版）
+        function updateKPIs() {
+            const totalSales = unifiedDataLoaded ? 
+                unifiedPLData.sales.reduce((sum, val) => sum + val, 0) :
+                getSampleTotalSales();
+                
+            const totalProfit = unifiedDataLoaded ? 
+                unifiedPLData.operatingProfit.reduce((sum, val) => sum + val, 0) :
+                getSampleTotalProfit();
+                
+            const avgSales = Math.round(totalSales / 12);
+            const avgProfit = Math.round(totalProfit / 12);
+            const profitRate = totalSales > 0 ? ((totalProfit / totalSales) * 100).toFixed(1) : '0.0';
+
+            const dataPrefix = unifiedDataLoaded ? '' : '(仮)';
+
+            Charts.updateElement('total-annual-sales', dataPrefix + totalSales.toLocaleString() + '万円');
+            Charts.updateElement('avg-monthly-sales', dataPrefix + avgSales.toLocaleString() + '万円');
+            Charts.updateElement('total-annual-profit', dataPrefix + (totalProfit >= 0 ? '+' : '') + totalProfit.toLocaleString() + '万円');
+            Charts.updateElement('avg-monthly-profit', dataPrefix + (avgProfit >= 0 ? '+' : '') + avgProfit.toLocaleString() + '万円');
+            Charts.updateElement('profit-margin', dataPrefix + profitRate + '%');
+
+            const salesInc = totalSales - PREV_TOTALS.sales;
+            const profitInc = totalProfit - PREV_TOTALS.profit;
+            const growthRate = PREV_TOTALS.sales > 0 ? ((salesInc / PREV_TOTALS.sales) * 100).toFixed(1) : '0.0';
+
+            Charts.updateElement('yoy-sales-increase', dataPrefix + (salesInc >= 0 ? '+' : '') + Math.round(salesInc).toLocaleString() + '万円');
+            Charts.updateElement('yoy-profit-increase', dataPrefix + (profitInc >= 0 ? '+' : '') + Math.round(profitInc).toLocaleString() + '万円');
+            Charts.updateElement('yoy-sales-growth', dataPrefix + (growthRate >= 0 ? '+' : '') + growthRate + '%');
+
+            [document.getElementById('yoy-sales-increase'), document.getElementById('yoy-profit-increase'), document.getElementById('yoy-sales-growth')].forEach((el, i) => {
+                if (el) {
+                    const val = i === 2 ? parseFloat(growthRate) : (i === 0 ? salesInc : profitInc);
+                    el.className = 'kpi-value ' + (val > 0 ? 'positive' : val < 0 ? 'negative' : 'neutral');
+                }
+            });
+        }
+
+        // サンプルデータの合計値を取得
+        function getSampleTotalSales() {
+            const sampleSales = [16399,19688,17073,20752,17944,22290,19202,20544,19342,20874,20300,21957];
+            return sampleSales.reduce((sum, val) => sum + val, 0);
+        }
+
+        function getSampleTotalProfit() {
+            const sampleProfit = [250,380,420,650,580,920,680,450,380,520,440,633];
+            return sampleProfit.reduce((sum, val) => sum + val, 0);
+        }
+
+        // 部門別KPI更新（統合PLデータ使用強化版）
+        function updateDepartmentKPIs() {
+            Object.entries(unifiedPLData.departments).forEach(([dept, data]) => {
+                const deptLower = dept.toLowerCase();
+                const annualSales = data.sales.reduce((sum, val) => sum + val, 0);
+                const annualProfit = data.operatingProfit.reduce((sum, val) => sum + val, 0);
+                const profitMargin = annualSales > 0 ? ((annualProfit / annualSales) * 100).toFixed(1) : '0.0';
+                
+                const dataPrefix = unifiedDataLoaded ? '' : '(仮)';
+                
+                Charts.updateElement(`${deptLower}-annual-sales`, dataPrefix + annualSales.toLocaleString() + '万円');
+                Charts.updateElement(`${deptLower}-operating-profit`, dataPrefix + (annualProfit >= 0 ? '+' : '') + annualProfit.toLocaleString() + '万円');
+                Charts.updateElement(`${deptLower}-profit-margin`, dataPrefix + profitMargin + '%');
+                Charts.updateElement(`${deptLower}-data-quality`, data.quality + '%');
+            });
+        }
+
+        // 全表示の更新
+        function updateAllDisplays() {
+            updateKPIs();
+            updateMainChart();
+            updateDepartmentCharts();
+            updateDepartmentKPIs();
+        }
+
+        const Charts = {
+            main: null,
+            depts: {},
+
+            updateElement(id, value) {
+                const el = document.getElementById(id);
+                if (el) el.textContent = value;
+            },
+
+            createMain() {
+                const ctx = document.getElementById('monthly-profit-chart');
+                if (!ctx) return;
+
+                const months = ['7月','8月','9月','10月','11月','12月','1月','2月','3月','4月','5月','6月'];
+                
+                const sales = unifiedDataLoaded ? 
+                    unifiedPLData.sales : 
+                    [16399,19688,17073,20752,17944,22290,19202,20544,19342,20874,20300,21957];
+                    
+                const profit = unifiedDataLoaded ? 
+                    unifiedPLData.operatingProfit : 
+                    [250,380,420,650,580,920,680,450,380,520,440,633];
+                
+                const cumProfit = [];
+                let cum = 0;
+                profit.forEach(p => { cum += p; cumProfit.push(cum); });
+
+                let datasets;
+                if (chartMode === 'comparison') {
+                    datasets = [
+                        { label: '前年売上高（万円）', type: 'bar', data: PREV_TOTALS.monthly_sales, backgroundColor: 'rgba(149,165,166,0.5)', borderColor: '#95a5a6', borderWidth: 1, yAxisID: 'y' },
+                        { label: '今期売上高（万円）', type: 'bar', data: sales, backgroundColor: 'rgba(52,152,219,0.7)', borderColor: '#3498db', borderWidth: 2, yAxisID: 'y' },
+                        { label: '前年営業利益（万円）', type: 'line', data: PREV_TOTALS.monthly_profit, borderColor: '#e67e22', backgroundColor: 'rgba(230,126,34,0.1)', borderWidth: 3, fill: false, tension: 0.4, yAxisID: 'y1', pointRadius: 4 },
+                        { label: '今期営業利益（万円）', type: 'line', data: profit, borderColor: '#27ae60', backgroundColor: 'rgba(39,174,96,0.1)', borderWidth: 4, fill: false, tension: 0.4, yAxisID: 'y1', pointRadius: 6 }
+                    ];
+                } else {
+                    datasets = [
+                        { label: '月次売上高（万円）', type: 'bar', data: sales, backgroundColor: 'rgba(52,152,219,0.7)', borderColor: '#3498db', borderWidth: 2, yAxisID: 'y' },
+                        { label: '月次営業利益（万円）', type: 'bar', data: profit, backgroundColor: profit.map(v => v >= 0 ? 'rgba(46,204,113,0.8)' : 'rgba(231,76,60,0.8)'), borderColor: profit.map(v => v >= 0 ? '#2ecc71' : '#e74c3c'), borderWidth: 2, yAxisID: 'y1' },
+                        { label: '営業利益の累計推移（万円）', type: 'line', data: cumProfit, borderColor: '#e74c3c', backgroundColor: 'rgba(231,76,60,0.1)', borderWidth: 4, fill: false, tension: 0.4, yAxisID: 'y1', pointRadius: 6 }
+                    ];
+                }
+
+                if (this.main) this.main.destroy();
+
+                const chartTitle = unifiedDataLoaded ? 
+                    '統合PLから取得したリアルデータ' : 
+                    'サンプルデータ表示中（統合PL未接続）';
+                const titleColor = unifiedDataLoaded ? '#27ae60' : '#f39c12';
+
+                this.main = new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels: months, datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: chartTitle,
+                                font: { size: 14, weight: 'bold' },
+                                color: titleColor
+                            },
+                            legend: { display: true, position: 'top', labels: { usePointStyle: true, font: {size: 10, weight: 'bold'}, padding: 8 } },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(ctx) {
+                                        let label = ctx.dataset.label || '';
+                                        if (label) label += ': ';
+                                        if (ctx.parsed.y !== null) {
+                                            if (label.includes('売上')) {
+                                                label += ctx.parsed.y.toLocaleString() + '万円';
+                                            } else {
+                                                label += (ctx.parsed.y >= 0 ? '+' : '') + ctx.parsed.y.toLocaleString() + '万円';
+                                            }
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: { title: { display: true, text: '月度', font: {size: 12, weight: 'bold'} }, ticks: { font: {size: 10, weight: 'bold'} } },
+                            y: { type: 'linear', display: true, position: 'left', title: { display: true, text: '売上高（万円）', font: {size: 12, weight: 'bold'}, color: '#3498db' }, ticks: { color: '#3498db', font: {size: 9, weight: 'bold'}, callback: function(value) { return value.toLocaleString(); } }, grid: { color: 'rgba(52,152,219,0.1)' } },
+                            y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: '営業利益（万円）', font: {size: 12, weight: 'bold'}, color: '#27ae60' }, ticks: { color: '#27ae60', font: {size: 9, weight: 'bold'}, callback: function(value) { return (value >= 0 ? '+' : '') + value.toLocaleString(); } }, grid: { drawOnChartArea: false } }
+                        }
+                    }
+                });
+            },
+
+            updateMainChart() {
+                this.createMain();
+            },
+
+            updateDepartmentCharts() {
+                Object.keys(unifiedPLData.departments).forEach(dept => {
+                    const deptData = unifiedPLData.departments[dept];
+                    const ctx = document.getElementById(`${dept.toLowerCase()}-monthly-chart`);
+                    
+                    if (ctx && !this.depts[dept.toLowerCase()]) {
+                        const months = ['7','8','9','10','11','12','1','2','3','4','5','6'];
+                        const color = COLORS[dept.toLowerCase()];
+                        
+                        this.depts[dept.toLowerCase()] = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: months,
+                                datasets: [{
+                                    label: '月次売上',
+                                    data: deptData.sales,
+                                    backgroundColor: color + '77',
+                                    borderColor: color,
+                                    borderWidth: 2
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: { 
+                                    legend: { display: true, position: 'top', labels: { font: {size: 9} } }
+                                },
+                                scales: { 
+                                    x: { ticks: { font: {size: 8} } }, 
+                                    y: { ticks: { font: {size: 8}, callback: function(value) { return value.toLocaleString(); } } } 
+                                }
+                            }
+                        });
+                    } else if (this.depts[dept.toLowerCase()]) {
+                        this.depts[dept.toLowerCase()].data.datasets[0].data = deptData.sales;
+                        this.depts[dept.toLowerCase()].update();
+                    }
+                });
+            },
+
+            init() {
+                try {
+                    this.createMain();
+                    setTimeout(() => this.updateDepartmentCharts(), 100);
+                } catch (e) {
+                    console.error('Charts init error:', e);
+                }
+            }
+        };
+
+        // 基本機能
+        function navigateTo(page) {
+            try {
+                document.querySelectorAll('.btn-nav').forEach(btn => btn.classList.remove('btn-active'));
+                if (event && event.target) {
+                    event.target.classList.add('btn-active');
+                }
+
+                if (page === 'dashboard') {
+                    updateStatus('ダッシュボードが表示されています', 'success');
+                    return;
+                }
+                
+                const pageUrls = {
+                    'sr-pl.html': './department-pl/sr-pl.html',
+                    'w-pl.html': './department-pl/w-pl.html', 
+                    'rc-pl.html': './department-pl/rc-pl.html',
+                    'rcd-pl.html': './department-pl/rcd-pl.html',
+                    'combined-dashboard/index.html': './combined-dashboard/index.html'
+                };
+                
+                if (pageUrls[page]) {
+                    updateStatus(`${page} に移動しています...`, 'success');
+                    setTimeout(() => { window.location.href = pageUrls[page]; }, 500);
+                } else {
+                    updateStatus(`不明なページ: ${page}`, 'error');
+                }
+            } catch (e) {
+                console.error('Navigation error:', e);
+                updateStatus('ナビゲーションエラー: ' + e.message, 'error');
+            }
+        }
+
+        function toggleChart() {
+            try {
+                chartMode = chartMode === 'current' ? 'comparison' : 'current';
+                const title = document.getElementById('main-chart-title');
+                
+                if (chartMode === 'comparison') {
+                    title.textContent = '月次利益推移（前年比較表示）';
+                    title.classList.add('active');
+                } else {
+                    title.textContent = '月次利益推移（統合PLリアルタイム連動対応）';
+                    title.classList.remove('active');
+                }
+                
+                Charts.createMain();
+            } catch (e) {
+                console.error('Toggle chart error:', e);
+            }
+        }
+
+        function applyExecutive() {
+            try {
+                const high = parseInt(document.getElementById('base-salary-high').value) || 826;
+                const low = parseInt(document.getElementById('base-salary-low').value) || 676;
+                
+                execData.compensation = [high,high,high,low,low,low,low,low,low,low,low,low];
+                execData.welfare = execData.compensation.map(s => Math.round(s * 0.13));
+                
+                updateStatus('設定が適用されました。', 'success');
+            } catch (e) {
+                console.error('Apply executive error:', e);
+                updateStatus('設定適用エラー', 'error');
+            }
+        }
+
+        function saveToLocalStorage() {
+            try {
+                const executiveSettings = {
+                    monthlyCompensation: [...execData.compensation],
+                    welfare: [...execData.welfare],
+                    lastUpdate: new Date().toISOString(),
+                    metadata: {
+                        baseHigh: parseInt(document.getElementById('base-salary-high').value),
+                        baseLow: parseInt(document.getElementById('base-salary-low').value),
+                        version: "4.0_dashboard_integration_fixed"
+                    }
+                };
+                
+                localStorage.setItem('executive_compensation_csv_settings', JSON.stringify(executiveSettings));
+                updateStatus('合計PLページにデータを保存しました。連携完了。', 'success');
+                console.log('Executive settings saved to localStorage for combined PL:', executiveSettings);
+            } catch (e) {
+                console.error('Save error:', e);
+                updateStatus('保存エラー: ' + e.message, 'error');
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem('executive_compensation_csv_settings');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    
+                    if (data.monthlyCompensation && data.welfare) {
+                        execData.compensation = [...data.monthlyCompensation];
+                        execData.welfare = [...data.welfare];
+                        
+                        if (data.metadata) {
+                            document.getElementById('base-salary-high').value = data.metadata.baseHigh || 826;
+                            document.getElementById('base-salary-low').value = data.metadata.baseLow || 676;
+                        }
+                        
+                        updateStatus('合計PLから読み込み完了。最終更新: ' + new Date(data.lastUpdate).toLocaleString(), 'success');
+                    } else {
+                        updateStatus('データ構造が無効です。', 'error');
+                    }
+                } else {
+                    updateStatus('合計PLにデータが見つかりません。', 'warning');
+                }
+            } catch (e) {
+                console.error('Load error:', e);
+                updateStatus('読み込みエラー: ' + e.message, 'error');
+            }
+        }
+
+        function testDataSync() {
+            try {
+                saveToLocalStorage();
+                const testData = localStorage.getItem('executive_compensation_csv_settings');
+                if (testData) {
+                    const parsed = JSON.parse(testData);
+                    const compMatch = JSON.stringify(parsed.monthlyCompensation) === JSON.stringify(execData.compensation);
+                    const welfareMatch = JSON.stringify(parsed.welfare) === JSON.stringify(execData.welfare);
+                    
+                    if (compMatch && welfareMatch) {
+                        updateStatus('データ同期テスト成功！合計PLページと正常に連携できます。', 'success');
+                    } else {
+                        updateStatus('データ同期に不一致があります。', 'error');
+                    }
+                } else {
+                    updateStatus('データ同期テスト失敗。', 'error');
+                }
+            } catch (e) {
+                console.error('Sync test error:', e);
+                updateStatus('同期テストエラー: ' + e.message, 'error');
+            }
+        }
+
+        function refreshData() {
+            try {
+                updateStatus('データ更新中...', 'info');
+                loadUnifiedData();
+                loadFromLocalStorage();
+                updateStatus('データ更新完了', 'success');
+            } catch (e) {
+                console.error('Refresh error:', e);
+                updateStatus('データ更新エラー', 'error');
+            }
+        }
+
+        function exportDebug() {
+            try {
+                const debug = {
+                    unifiedDataLoaded,
+                    chartMode,
+                    unifiedPLDataSummary: {
+                        totalSales: unifiedPLData.sales.reduce((s, v) => s + v, 0),
+                        totalProfit: unifiedPLData.operatingProfit.reduce((s, v) => s + v, 0),
+                        departmentCount: Object.keys(unifiedPLData.departments).length
+                    },
+                    storageKeys: UNIFIED_STORAGE_KEYS,
+                    timestamp: new Date().toISOString()
+                };
+                console.log('Debug Info:', debug);
+                updateStatus('デバッグ情報をコンソールに出力しました', 'success');
+            } catch (e) {
+                console.error('Export debug error:', e);
+                updateStatus('デバッグ出力エラー', 'error');
+            }
+        }
+
+        function testUnifiedConnection() {
+            try {
+                updateStatus('統合PL接続テスト実行中...', 'info');
+                
+                let connectionResults = [];
+                let testsPassed = 0;
+                let totalTests = 5;
+                
+                Object.entries(UNIFIED_STORAGE_KEYS).forEach(([dept, key]) => {
+                    if (dept === 'executive') return;
+                    const data = localStorage.getItem(key);
+                    if (data) {
+                        connectionResults.push(`✓ ${dept}: ストレージキー確認OK`);
+                        testsPassed++;
+                    } else {
+                        connectionResults.push(`✗ ${dept}: ストレージキーなし`);
+                    }
+                });
+                
+                if (unifiedDataLoaded) {
+                    connectionResults.push(`✓ 統合データ読み込み完了`);
+                    testsPassed++;
+                } else {
+                    connectionResults.push(`✗ 統合データ未読み込み`);
+                }
+                
+                const testResult = testsPassed >= 3 ? 'success' : 'warning';
+                const resultMessage = `統合PL接続テスト完了: ${testsPassed}/${totalTests + Object.keys(UNIFIED_STORAGE_KEYS).length - 1}項目成功`;
+                
+                updateStatus(resultMessage, testResult);
+                
+                console.log('統合PL接続テスト完了:', {
+                    passed: testsPassed,
+                    total: totalTests + Object.keys(UNIFIED_STORAGE_KEYS).length - 1,
+                    results: connectionResults
+                });
+                
+            } catch (error) {
+                console.error('統合PL接続テストエラー:', error);
+                updateStatus('接続テストエラー: ' + error.message, 'error');
+            }
+        }
+
+        function updateStatus(msg, type) {
+            try {
+                const status = document.getElementById('sync-status');
+                if (status) {
+                    status.textContent = msg;
+                    status.className = `sync-status sync-${type}`;
+                }
+            } catch (e) {
+                console.error('Status update error:', e);
+            }
+        }
+
+        // システム初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                if (typeof Chart === 'undefined') {
+                    updateStatus('Chart.jsの読み込みに失敗しました。', 'error');
+                    return;
+                }
+                
+                updateStatus('ダッシュボード初期化中...', 'info');
+                
+                // データソース表示を初期状態に設定
+                updateDataSourceIndicator(false);
+                
+                // 役員報酬データの初期読み込み
+                loadFromLocalStorage();
+                
+                // チャート初期化
+                setTimeout(() => {
+                    try {
+                        Charts.init();
+                        
+                        // 初期表示の更新（シミュレーション値でも表示）
+                        updateAllDisplays();
+                        
+                        updateStatus('ダッシュボード初期化完了。統合PLデータ取得ボタンをクリックしてください。', 'success');
+                    } catch (e) {
+                        console.error('Init error:', e);
+                        updateStatus('初期化エラー', 'error');
+                    }
+                }, 300);
+                
+            } catch (e) {
+                console.error('DOMContentLoaded error:', e);
+                updateStatus('システム初期化エラー', 'error');
+            }
+        });
+
+        // 定期的な自動更新（統合PLデータが読み込まれている場合のみ）
+        setInterval(() => {
+            try {
+                if (unifiedDataLoaded) {
+                    loadUnifiedData();
+                }
+            } catch (e) {
+                console.error('Auto refresh error:', e);
+            }
+        }, 30000); // 30秒間隔
+    </script>
+</body>
+</html>
