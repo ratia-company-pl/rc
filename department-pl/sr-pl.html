@@ -19,6 +19,153 @@
             color: #333;
         }
 
+        /* 4行ヘッダー構造 */
+        .header-row1 {
+            background: linear-gradient(135deg, #C477CC 0%, #DF98E6 100%);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+        }
+
+        .header-title {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .version-info {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.9em;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: inline-block;
+        }
+
+        /* 2行目: グローバルナビゲーション（5ボタン） */
+        .header-row2 {
+            background: linear-gradient(135deg, #DF98E6 0%, #C477CC 100%);
+            padding: 8px 15px;
+        }
+
+        .nav-container {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 160px;
+            max-width: 200px;
+            padding: 8px 16px;
+            font-size: 0.8em;
+            border-radius: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* アクティブボタン（SR事業部） */
+        .btn-active-sr { 
+            background: #C477CC !important; 
+            box-shadow: 0 4px 8px rgba(196, 119, 204, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.5) !important;
+        }
+
+        .btn-active-w { 
+            background: #3498db !important; 
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+        }
+        .btn-active-rc { 
+            background: #27ae60 !important; 
+            box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
+        }
+        .btn-active-rcd { 
+            background: #9b59b6 !important; 
+            box-shadow: 0 4px 8px rgba(155, 89, 182, 0.3);
+        }
+        .btn-active-unified { 
+            background: #f39c12 !important; 
+            box-shadow: 0 4px 8px rgba(243, 156, 18, 0.3);
+        }
+
+        /* 3行目: KPIカード */
+        .header-row3 {
+            background: #f8f9fa;
+            padding: 12px 15px;
+        }
+
+        .mini-kpi-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .mini-kpi {
+            background: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .mini-kpi-label {
+            font-size: 0.7em;
+            color: #666;
+            margin-bottom: 3px;
+        }
+
+        .mini-kpi-value {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #C477CC;
+        }
+
+        /* 4行目: 連携ステータス */
+        .header-row4 {
+            background: #ecf0f1;
+            padding: 10px 15px;
+            text-align: center;
+        }
+
+        .workflow-info {
+            font-size: 0.9rem;
+            color: #34495e;
+            text-align: center;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .workflow-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
         .container {
             max-width: 1600px;
             margin: 0 auto;
@@ -60,89 +207,6 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
             z-index: 1999;
-        }
-
-        /* ヘッダーセクション */
-        .header-section {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
-
-        .nav-section {
-            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
-            padding: 12px 20px;
-        }
-
-        .nav-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
-        }
-
-        .btn-nav {
-            padding: 8px 14px;
-            border: 2px solid rgba(255,255,255,0.25);
-            border-radius: 8px;
-            background: rgba(255,255,255,0.15);
-            color: white;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.75rem;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .btn-nav:hover {
-            background: rgba(255,255,255,0.25);
-            transform: translateY(-1px);
-        }
-
-        .btn-nav.btn-sr { 
-            background: #C477CC; 
-            border-color: #C477CC; 
-            box-shadow: 0 4px 12px rgba(196, 119, 204, 0.4);
-        }
-        .btn-nav.btn-w { background: #3498db; border-color: #3498db; }
-        .btn-nav.btn-rc { background: #38a169; border-color: #38a169; }
-        .btn-nav.btn-rcd { background: #805ad5; border-color: #805ad5; }
-
-        .workflow-section {
-            background: linear-gradient(135deg, #ecf0f1 0%, #d5dbdb 100%);
-            padding: 18px 20px;
-            border-bottom: 3px solid #C477CC;
-        }
-
-        .workflow-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .workflow-info {
-            font-size: 0.9rem;
-            color: #34495e;
-            text-align: center;
-            line-height: 1.6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-bottom: 15px;
-        }
-
-        .workflow-actions {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
         }
 
         .action-btn {
@@ -584,9 +648,35 @@
 
         /* レスポンシブ対応 */
         @media (max-width: 768px) {
+            .header-row1, .header-row2, .header-row3, .header-row4 {
+                padding: 10px;
+            }
+            
+            .header-title {
+                font-size: 1.3em;
+            }
+            
+            .nav-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                min-width: 200px;
+                max-width: 300px;
+            }
+            
+            .mini-kpi-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .workflow-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
             .container { padding: 10px; }
-            .nav-buttons { gap: 6px; }
-            .btn-nav { padding: 6px 10px; font-size: 0.7rem; }
             .input-controls { flex-direction: column; align-items: stretch; }
             .preset-buttons { justify-content: center; }
             .settings-inline { justify-content: center; }
@@ -595,47 +685,73 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- ヘッダーセクション -->
-        <div class="header-section">
-            <div class="nav-section">
-                <div class="nav-buttons">
-                    <a href="../index.html" class="btn-nav">ダッシュボード</a>
-                    <a href="sr-pl.html" class="btn-nav btn-sr">SR事業部</a>
-                    <a href="w-pl.html" class="btn-nav btn-w">W事業部</a>
-                    <a href="rc-pl.html" class="btn-nav btn-rc">RC事業部</a>
-                    <a href="rcd-pl.html" class="btn-nav btn-rcd">RCD社</a>
-                    <a href="../combined-dashboard/index.html" class="btn-nav">全体PL</a>
-                </div>
-            </div>
+    <!-- 4行ヘッダー構造 -->
+    <!-- 1行目: タイトル -->
+    <div class="header-row1">
+        <h1 class="header-title">SR事業部PLシステム</h1>
+        <div class="version-info">6店舗別売上管理・販管費19項目統合・リアルタイム連携</div>
+    </div>
 
-            <div class="workflow-section">
-                <div class="workflow-title">統合PLシステム ワークフロー - Step 1/4 進行中</div>
-                <div class="workflow-info">
-                    <span style="color: #C477CC; font-weight: 700;">● SR事業部設定中</span>
-                    <span style="margin: 0 10px; color: #bdc3c7;">|</span>
-                    <span style="color: #95a5a6;">W事業部待機</span>
-                    <span style="margin: 0 10px; color: #bdc3c7;">|</span>
-                    <span style="color: #95a5a6;">RC事業部待機</span>
-                    <span style="margin: 0 10px; color: #bdc3c7;">|</span>
-                    <span style="color: #95a5a6;">RCD事業部待機</span>
-                    <span style="margin: 0 10px; color: #bdc3c7;">→</span>
-                    <span style="color: #f39c12; font-weight: 600;">合計PL統合</span>
-                </div>
-                <div class="workflow-actions">
-                    <button class="action-btn btn-protection" id="protection-btn" onclick="toggleDataProtection()">
-                        🔓 データ保護OFF
-                    </button>
-                    <button class="action-btn btn-csv" onclick="exportSRCSV()">
-                        CSVエクスポート（任意）
-                    </button>
-                    <button class="action-btn btn-primary" id="send-btn" onclick="sendDataAndNavigateToNext()">
-                        SRデータ送信 → 次のステップ (W事業部)
-                    </button>
-                </div>
+    <!-- 2行目: グローバルナビゲーション（5ボタン） -->
+    <div class="header-row2">
+        <div class="nav-container">
+            <a href="#" class="btn btn-active-sr">SR事業部PL</a>
+            <a href="w-pl-fixed.html" class="btn">W事業部PL</a>
+            <a href="rc-pl-corrected.html" class="btn">RC事業部PL</a>
+            <a href="rcd-pl-corrected.html" class="btn">RCD事業部PL</a>
+            <a href="enhanced_combined_pl.html" class="btn">統合PLシステム</a>
+        </div>
+    </div>
+
+    <!-- 3行目: KPIカード -->
+    <div class="header-row3">
+        <div class="mini-kpi-container">
+            <div class="mini-kpi">
+                <div class="mini-kpi-label">年間売上</div>
+                <div class="mini-kpi-value" id="mini-annual-total">31,365万円</div>
+            </div>
+            <div class="mini-kpi">
+                <div class="mini-kpi-label">営業利益</div>
+                <div class="mini-kpi-value" id="mini-annual-profit">5,903万円</div>
+            </div>
+            <div class="mini-kpi">
+                <div class="mini-kpi-label">前年増減</div>
+                <div class="mini-kpi-value" id="mini-annual-diff">+1万円</div>
+            </div>
+            <div class="mini-kpi">
+                <div class="mini-kpi-label">データ状況</div>
+                <div class="mini-kpi-value" id="mini-data-status">設定中</div>
             </div>
         </div>
+    </div>
 
+    <!-- 4行目: ワークフロー情報 -->
+    <div class="header-row4">
+        <div class="workflow-info">
+            <span style="color: #C477CC; font-weight: 700;">● SR事業部設定中</span>
+            <span style="margin: 0 10px; color: #bdc3c7;">|</span>
+            <span style="color: #95a5a6;">W事業部待機</span>
+            <span style="margin: 0 10px; color: #bdc3c7;">|</span>
+            <span style="color: #95a5a6;">RC事業部待機</span>
+            <span style="margin: 0 10px; color: #bdc3c7;">|</span>
+            <span style="color: #95a5a6;">RCD事業部待機</span>
+            <span style="margin: 0 10px; color: #bdc3c7;">→</span>
+            <span style="color: #f39c12; font-weight: 600;">合計PL統合</span>
+        </div>
+        <div class="workflow-actions">
+            <button class="action-btn btn-protection" id="protection-btn" onclick="toggleDataProtection()">
+                🔓 データ保護OFF
+            </button>
+            <button class="action-btn btn-csv" onclick="exportSRCSV()">
+                CSVエクスポート（任意）
+            </button>
+            <button class="action-btn btn-primary" id="send-btn" onclick="sendDataAndNavigateToNext()">
+                SRデータ送信 → 次のステップ (W事業部)
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
         <!-- チャート・KPIセクション -->
         <div class="chart-section">
             <div class="chart-header">
@@ -736,7 +852,7 @@
         <!-- 販管費セクション -->
         <div class="expense-section">
             <div class="expense-header">
-                販管費37項目統一表示
+                販管費19項目統一表示
             </div>
             <table class="expense-table">
                 <thead>
@@ -774,7 +890,7 @@
             }
         };
 
-        // データ保護システム 
+        // データ保護システム
         let dataProtectionState = {
             isProtected: false,
             autoSaveInterval: null,
@@ -789,7 +905,7 @@
         const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
         let monthlyChart = null;
 
-        // 37項目統一フォーマット定義
+        // 販管費19項目統一フォーマット定義
         const unifiedExpenseItems = [
             { id: 1, name: "人件費統合", srId: 1 },
             { id: 2, name: "法定福利費", srId: 2 },
@@ -809,20 +925,7 @@
             { id: 16, name: "リース料", srId: 16 },
             { id: 17, name: "保険料", srId: 17 },
             { id: 18, name: "支払報酬料", srId: 18 },
-            { id: 19, name: "減価償却費", srId: 19 },
-            { id: 20, name: "役員報酬", srId: null },
-            { id: 21, name: "役員法定福利費", srId: null },
-            { id: 22, name: "管理諸費", srId: null },
-            { id: 23, name: "修繕費", srId: null },
-            { id: 24, name: "車両費", srId: null },
-            { id: 25, name: "租税公課", srId: null },
-            { id: 26, name: "交際費", srId: null },
-            { id: 27, name: "諸会費", srId: null },
-            { id: 28, name: "会議費", srId: null },
-            { id: 29, name: "福利厚生費", srId: null },
-            { id: 30, name: "研修費", srId: null },
-            { id: 31, name: "雑費", srId: null },
-            { id: 32, name: "寄付金", srId: null }
+            { id: 19, name: "減価償却費", srId: 19 }
         ];
 
         // SR販管費19項目定義
@@ -848,7 +951,7 @@
             19: { name: "減価償却費", type: "fixed", annual: 230 }
         };
 
-        // 通知システム 
+        // 通知システム
         function showNotification(message, type = 'success', duration = 3000) {
             // 既存の通知を削除
             const existingNotifications = document.querySelectorAll('.notification, .notification-overlay');
@@ -1001,7 +1104,7 @@
                     srData: JSON.parse(JSON.stringify(srData)),
                     protectionState: dataProtectionState.isProtected,
                     timestamp: new Date().toISOString(),
-                    version: 'v2.0'
+                    version: 'v5.0'
                 };
                 
                 localStorage.setItem('pl_system_sr_corrected_data', JSON.stringify(storageData));
@@ -1020,7 +1123,7 @@
                     if (storageData.srData) {
                         srData = storageData.srData;
                         
-                        // 設定値をUIに反映 
+                        // 設定値をUIに反映
                         document.getElementById('commission').value = srData.settings.commission;
                         document.getElementById('bonus6').value = srData.settings.bonus6;
                         document.getElementById('bonus12').value = srData.settings.bonus12;
@@ -1225,7 +1328,7 @@
             tbody.innerHTML = html;
         }
 
-        // 販管費テーブル更新（使用項目のみ表示、CSV用データは全項目保持）
+        // 販管費テーブル更新（19項目のみ表示）
         function updateExpenseTable(expenseDetails) {
             const tbody = document.getElementById('expense-table-body');
             if (!tbody) return;
@@ -1304,6 +1407,7 @@
             };
 
             updateKPIDisplay(annual);
+            updateMiniKPIDisplay(annual);
             updateProfitTable({ monthlyResults });
             updateExpenseTable(expenseDetails);
             updateChart(monthlySales);
@@ -1337,6 +1441,29 @@
             const diffElement = document.getElementById('annual-diff');
             diffElement.textContent = (diff >= 0 ? '+' : '') + formatNumber(diff) + '万円';
             diffElement.style.color = diff >= 0 ? '#28a745' : '#dc3545';
+        }
+
+        // ミニKPI表示更新
+        function updateMiniKPIDisplay(annual) {
+            const refTotal = referenceData.reduce((sum, val) => sum + val, 0);
+            const diff = annual.sales - refTotal;
+
+            document.getElementById('mini-annual-total').textContent = formatNumber(annual.sales) + '万円';
+            document.getElementById('mini-annual-profit').textContent = formatNumber(annual.operatingProfit) + '万円';
+            
+            const diffElement = document.getElementById('mini-annual-diff');
+            diffElement.textContent = (diff >= 0 ? '+' : '') + formatNumber(diff) + '万円';
+            diffElement.style.color = diff >= 0 ? '#28a745' : '#dc3545';
+
+            // データ状況更新
+            const statusElement = document.getElementById('mini-data-status');
+            if (dataProtectionState.isProtected) {
+                statusElement.textContent = '保護中';
+                statusElement.style.color = '#28a745';
+            } else {
+                statusElement.textContent = '設定中';
+                statusElement.style.color = '#f39c12';
+            }
         }
 
         // チャート更新
@@ -1379,7 +1506,7 @@
             });
         }
 
-        // CSV出力 - 37項目統一フォーマット
+        // CSV出力 - 統一構造Version 3.0対応
         function exportSRCSV() {
             try {
                 if (!window.srResults) {
@@ -1398,7 +1525,7 @@
                 csvData.push(['売上原価', ...monthlyResults.map(m => m.cogs), monthlyResults.reduce((sum, m) => sum + m.cogs, 0)]);
                 csvData.push(['売上総利益', ...monthlyResults.map(m => m.grossProfit), monthlyResults.reduce((sum, m) => sum + m.grossProfit, 0)]);
                 
-                // 37項目統一フォーマット（販管費）
+                // 統一構造19項目（販管費）
                 unifiedExpenseItems.forEach(item => {
                     let monthlyData, annual_expense;
                     
@@ -1417,17 +1544,25 @@
                 csvData.push(['販管費合計', ...monthlyResults.map(m => m.totalExpenses), monthlyResults.reduce((sum, m) => sum + m.totalExpenses, 0)]);
                 csvData.push(['営業利益', ...monthlyResults.map(m => m.operatingProfit), annual.operatingProfit]);
 
+                // 統一構造メタデータ
+                csvData.push(['']);
+                csvData.push(['メタデータ']);
+                csvData.push(['部門', 'SR']);
+                csvData.push(['バージョン', '3.0']);
+                csvData.push(['最終更新', new Date().toISOString()]);
+                csvData.push(['人件費計算方式', '売上レンジ別率システム']);
+
                 const csvString = '\uFEFF' + csvData.map(row => row.join(',')).join('\n');
                 const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = `SR事業部_統一PL_${new Date().toISOString().split('T')[0]}.csv`;
+                link.download = `SR事業部_統一構造v3.0_${new Date().toISOString().split('T')[0]}.csv`;
                 link.click();
                 
                 csvExported = true;
                 updateSendButtonState();
                 
-                showNotification('SR事業部統一フォーマット（37項目）PLデータのCSV出力が完了しました。送信準備が整いました！', 'success');
+                showNotification('SR事業部統一フォーマット（19項目）PLデータのCSV出力が完了しました。送信準備が整いました！', 'success');
             } catch (error) {
                 console.error('CSV出力エラー:', error);
                 showNotification('CSV出力でエラーが発生しました: ' + error.message, 'error');
@@ -1444,7 +1579,7 @@
             }
         }
 
-        // CSV必須制約を解除したデータ送信
+        // 統合PLシステム対応データ送信
         function sendDataAndNavigateToNext() {
             if (!window.srResults) {
                 showNotification('先に計算を実行してください。', 'error');
@@ -1454,25 +1589,24 @@
             try {
                 const { monthlyResults, annual, monthlySales, expenseDetails } = window.srResults;
                 
+                // 統一構造Version 3.0対応
                 const unifiedData = {
                     metadata: {
                         department: 'SR',
-                        version: '4.0_unified_corrected',
+                        version: '3.0',
                         lastUpdate: new Date().toISOString(),
                         personnelCalculationMethod: 'sales_range_based_rate_system',
                         dataProtectionEnabled: dataProtectionState.isProtected
                     },
                     sales: monthlySales,
                     cogs: monthlyResults.map(m => m.cogs),
-                    personnel: monthlyResults.map(m => m.personnel),
-                    totalExpenses: monthlyResults.map(m => m.totalExpenses),
-                    operatingProfit: monthlyResults.map(m => m.operatingProfit),
                     expenses: expenseDetails,
+                    operatingProfit: monthlyResults.map(m => m.operatingProfit),
                     annual: annual,
                     exportedAt: new Date().toISOString()
                 };
 
-                // 修正されたキーで保存（888千円差異問題の解決）
+                // 修正されたキーで保存
                 localStorage.setItem('pl_system_sr_corrected_data', JSON.stringify(unifiedData));
                 
                 // データ保護を自動で有効化
@@ -1491,7 +1625,7 @@
 2秒後にW事業部画面に移動します。`, 'success', 5000);
 
                 setTimeout(() => {
-                    window.location.href = 'w-pl.html';
+                    window.location.href = 'w-pl-fixed.html';
                 }, 2000);
 
             } catch (error) {
@@ -1645,11 +1779,11 @@
                     input.addEventListener('input', debounce(updateSRSales, 300));
                 });
                 
-                console.log('SR事業部PLシミュレーター完全修正版初期化完了');
+                console.log('SR事業部PLシミュレーター ナビゲーション統一版初期化完了');
                 
                 // 初期化完了通知
                 if (!dataRestored) {
-                    showNotification('SR事業部PLシミュレーターが初期化されました。\n\nCSV必須制約を解除しました。\nデータ保護機能が追加されています。', 'success', 2000);
+                    showNotification('SR事業部PLシステムが初期化されました。\n\n統一ナビゲーション機能が追加されています。\n販管費19項目統合対応完了。', 'success', 2000);
                 } else {
                     showNotification('保存されたデータから復元しました。', 'success', 2000);
                 }
