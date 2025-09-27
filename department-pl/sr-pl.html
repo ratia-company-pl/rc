@@ -841,7 +841,7 @@
             12: { name: "消耗品費", type: "fixed", annual: 43 },
             13: { name: "事務用品費", type: "fixed", annual: 127 },
             14: { name: "水道光熱費", type: "variable_coeff", annual: 579 },
-            15: { name: "支払手数料", type: "variable_coeff", annual: 1057 },
+            15: { name: "支払手数料", type: "sales_ratio", rate: 0.0353 },
             16: { name: "リース料", type: "fixed", annual: 14 },
             17: { name: "保険料", type: "fixed", annual: 67 },
             18: { name: "支払報酬料", type: "fixed", annual: 408 },
@@ -1078,8 +1078,11 @@
                 case 'fixed':
                     return Math.round(item.annual / 12);
                 case 'variable_coeff':
-                    const coeffType = id === 7 ? 'freight' : (id === 14 ? 'utilities' : 'fees');
+                    const coeffType = id === 7 ? 'freight' : 'utilities';
                     return Math.round(item.annual / 12 * getVariableCoeff(coeffType, monthIndex));
+                case 'sales_ratio':
+                    // 支払手数料: 売上×3.53%
+                    return Math.round(monthResult.sales * 0.0353);
                 case 'setting':
                     return id === 8 ? srData.settings.advertising : 0;
                 default:
