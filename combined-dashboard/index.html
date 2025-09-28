@@ -20,7 +20,7 @@
             min-height: 100vh;
         }
 
-        /* 3行ヘッダー構造（ステータス移動・簡素化） */
+        /* ヘッダー構造 */
         .header-row1 {
             background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
             color: white;
@@ -59,7 +59,7 @@
         .legend-pending { background-color: #f39c12; }
         .legend-error { background-color: #e74c3c; }
 
-        /* 2行目: データ連携ステータス（移動） */
+        /* 2行目: データ連携ステータス */
         .header-row2 {
             background: #ecf0f1;
             padding: 12px 20px;
@@ -89,7 +89,7 @@
             border-radius: 50%;
         }
 
-        /* 3行目: グローバルナビゲーション（5ボタン） */
+        /* 3行目: グローバルナビゲーション */
         .header-row3 {
             background: linear-gradient(135deg, #e67e22 0%, #f39c12 100%);
             padding: 12px 20px;
@@ -126,7 +126,6 @@
             text-decoration: none;
         }
 
-        /* アクティブボタン */
         .btn-active-unified { 
             background: #f39c12 !important; 
             box-shadow: 0 4px 12px rgba(243, 156, 18, 0.4);
@@ -200,7 +199,7 @@
             box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
         }
 
-        /* KPIダッシュボード（60%縮小版） */
+        /* KPIダッシュボード */
         .kpi-dashboard {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -819,26 +818,10 @@
         .metric-change.negative {
             color: #e74c3c;
         }
-
-        .chart-section {
-            border-left: 6px solid #e74c3c;
-        }
-
-        .department-comparison {
-            border-left: 6px solid #3498db;
-        }
-
-        .executive-compensation {
-            border-left: 6px solid #27ae60;
-        }
-
-        .target-profit-section {
-            border-left: 6px solid #e74c3c;
-        }
     </style>
 </head>
 <body>
-    <!-- 3行ヘッダー構造（ステータス移動・簡素化） -->
+    <!-- 3行ヘッダー構造 -->
     <!-- 1行目: タイトル + 色表示の意味 -->
     <div class="header-row1">
         <h1 class="header-title">RC売上利益シミュレーター</h1>
@@ -1262,7 +1245,7 @@
     </div>
 
     <script>
-        // RC売上利益シミュレーター v6.0 - 全機能強化版（前年実績データ完全対応・レイアウト改善版）
+        // RC売上利益シミュレーター v6.0 - 完全修正版（テーブル間データ連携強化）
         class UnifiedPLSystemV6 {
             constructor() {
                 // ストレージキー定義
@@ -1330,7 +1313,7 @@
                     unifiedMonthlyProfit: [781,1005,920,1223,1030,1676,1056,546,696,848,763,663]
                 };
 
-                // 統合PLからの確定値（改修前システムの正確な値を使用）
+                // 統合PLからの確定値（修正前システムの正確な値を使用）
                 this.confirmedPLData = {
                     totalSales: 259266,
                     totalOperatingProfit: 452,
@@ -1377,7 +1360,7 @@
                 this.showNotification('RC売上利益シミュレーター v6.0 初期化完了', 'success');
             }
 
-            // 全事業部データ読み込み（改修前の詳細ロジック復旧）
+            // 全事業部データ読み込み（修正前の詳細ロジック復旧）
             loadAllDepartmentData() {
                 this.departmentData = {};
                 let successCount = 0;
@@ -1515,7 +1498,7 @@
                 }
             }
 
-            // 統合PL計算（改修前のロジック復旧）
+            // 統合PL計算（修正前のロジック復旧）
             calculateUnifiedPL() {
                 // 統合データの初期化
                 this.unifiedData = {
@@ -1567,7 +1550,7 @@
                 this.calculateFinalProfit();
             }
 
-            // 最終営業利益計算（改修前のロジック復旧）
+            // 最終営業利益計算（修正前のロジック復旧）
             calculateFinalProfit() {
                 this.monthlyOperatingProfit = Array(12).fill(0);
                 this.cumulativeOperatingProfit = Array(12).fill(0);
@@ -1605,7 +1588,7 @@
                     this.cumulativeOperatingProfit[month] = cumulativeSum;
                 }
 
-                // 営業利益の異常値チェック（改修前の確定値と比較）
+                // 営業利益の異常値チェック（修正前の確定値と比較）
                 const totalOperatingProfit = this.monthlyOperatingProfit.reduce((sum, val) => sum + val, 0);
                 if (this.unifiedDataLoaded && Math.abs(totalOperatingProfit - this.confirmedPLData.totalOperatingProfit) > 1000) {
                     console.warn('営業利益が異常値のため確定値を使用:', totalOperatingProfit, '万円');
@@ -2291,6 +2274,89 @@
                 });
             }
 
+            // 分析セクションのチャート更新
+            updateAnalysisChart() {
+                const ctx = document.getElementById('analysis-chart');
+                if (!ctx) return;
+
+                if (this.charts.analysis) {
+                    this.charts.analysis.destroy();
+                }
+
+                const months = ['7月','8月','9月','10月','11月','12月','1月','2月','3月','4月','5月','6月'];
+
+                // 詳細分析データ準備
+                const datasets = [
+                    {
+                        label: '売上高推移',
+                        type: 'line',
+                        data: this.unifiedData.sales,
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52,152,219,0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '販管費推移',
+                        type: 'line',
+                        data: this.monthlyTotalExpenses,
+                        borderColor: '#e67e22',
+                        backgroundColor: 'rgba(230,126,34,0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: '営業利益推移',
+                        type: 'bar',
+                        data: this.monthlyOperatingProfit,
+                        backgroundColor: this.monthlyOperatingProfit.map(p => p >= 0 ? 'rgba(39,174,96,0.7)' : 'rgba(231,76,60,0.7)'),
+                        borderColor: this.monthlyOperatingProfit.map(p => p >= 0 ? '#27ae60' : '#e74c3c'),
+                        borderWidth: 2,
+                        yAxisID: 'y1'
+                    }
+                ];
+
+                this.charts.analysis = new Chart(ctx, {
+                    type: 'line',
+                    data: { labels: months, datasets },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: '売上・費用・利益の詳細分析',
+                                font: { size: 16, weight: 'bold' }
+                            },
+                            legend: { display: true, position: 'top' }
+                        },
+                        scales: {
+                            x: { title: { display: true, text: '月度' } },
+                            y: { 
+                                type: 'linear', 
+                                display: true, 
+                                position: 'left',
+                                title: { display: true, text: '売上・費用（万円）' },
+                                ticks: { callback: function(value) { return value.toLocaleString(); } }
+                            },
+                            y1: { 
+                                type: 'linear', 
+                                display: true, 
+                                position: 'right',
+                                title: { display: true, text: '営業利益（万円）' },
+                                ticks: { callback: function(value) { return (value >= 0 ? '+' : '') + value.toLocaleString(); } },
+                                grid: { drawOnChartArea: false }
+                            }
+                        }
+                    }
+                });
+            }
+
             // テーブル更新
             updateTables() {
                 this.updateCombinedPLTable();
@@ -2335,6 +2401,28 @@
                 }
                 const deptExpensesRow = this.createTableRow('', '事業部販管費計', deptExpensesData, 'total-row');
                 tbody.appendChild(deptExpensesRow);
+
+                // 役員報酬・役員法定福利費
+                const executiveCompRow = this.createTableRow('', '役員報酬', this.executiveData.compensation, 'executive-row');
+                tbody.appendChild(executiveCompRow);
+
+                const executiveWelfareRow = this.createTableRow('', '役員法定福利費', this.executiveData.welfare, '');
+                tbody.appendChild(executiveWelfareRow);
+
+                // 全社共通費
+                Object.entries(this.commonExpenseData).forEach(([name, data]) => {
+                    const row = this.createTableRow('', name, data, '');
+                    tbody.appendChild(row);
+                });
+
+                // 全体販管費計
+                const totalExpensesRow = this.createTableRow('', '全体販管費計', this.monthlyTotalExpenses, 'total-row');
+                tbody.appendChild(totalExpensesRow);
+
+                // 営業利益
+                const operatingProfitClass = this.monthlyOperatingProfit.some(val => val < 0) ? 'final-profit-negative' : 'final-profit-positive';
+                const operatingProfitRow = this.createTableRow('', '営業利益', this.monthlyOperatingProfit, operatingProfitClass);
+                tbody.appendChild(operatingProfitRow);
             }
 
             // サマリーテーブル更新
@@ -2350,7 +2438,7 @@
 
                 // 全体営業利益
                 const operatingProfitClass = this.monthlyOperatingProfit.some(val => val < 0) ? 'final-profit-negative' : 'final-profit-positive';
-                const operatingProfitRow = this.createTableRow('', '全体営業利益', this.monthlyOperatingProfit, 'profit-row');
+                const operatingProfitRow = this.createTableRow('', '全体営業利益', this.monthlyOperatingProfit, operatingProfitClass);
                 tbody.appendChild(operatingProfitRow);
             }
 
@@ -2505,6 +2593,13 @@
             event.target.classList.add('active');
             
             unifiedPLSystem.currentSection = sectionName;
+
+            // セクション切り替え時の処理
+            if (sectionName === 'analysis') {
+                setTimeout(() => {
+                    unifiedPLSystem.updateAnalysisChart();
+                }, 100);
+            }
         }
 
         // チャートモード切替
