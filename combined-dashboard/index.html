@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>統合PLシステム v5.0 - 全機能統合版</title>
+    <title>統合PLシステム v6.0 - 全機能強化版</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -286,6 +286,70 @@
         .kpi-change.positive { color: #27ae60; }
         .kpi-change.negative { color: #e74c3c; }
 
+        /* 目標利益配分セクション */
+        .target-profit-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 3px solid #e74c3c;
+        }
+
+        .target-input-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-label {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 0.9em;
+        }
+
+        .input-field {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-field:focus {
+            border-color: #e74c3c;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+
+        .allocation-result {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .allocation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .allocation-item {
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+
         /* 役員報酬設定セクション */
         .executive-compensation {
             background: rgba(255, 255, 255, 0.95);
@@ -303,6 +367,8 @@
             padding-bottom: 8px;
             font-weight: bold;
         }
+
+        .section-title.red { color: #e74c3c; border-color: #e74c3c; }
 
         .compensation-controls {
             display: grid;
@@ -366,6 +432,40 @@
         .action-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 利益影響表示 */
+        .profit-impact-display {
+            background: #e8f5e8;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            border: 2px solid #27ae60;
+        }
+
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .impact-item {
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .impact-label {
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .impact-value {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #27ae60;
         }
 
         /* 統一テーブルスタイル */
@@ -595,6 +695,32 @@
             color: white;
         }
 
+        /* グラフ表示制御 */
+        .chart-visibility-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .visibility-toggle {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            color: #666;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8em;
+        }
+
+        .visibility-toggle.active {
+            background: #27ae60;
+            color: white;
+            border-color: #27ae60;
+        }
+
         /* 通知システム */
         .notification {
             position: fixed;
@@ -736,14 +862,18 @@
         .executive-compensation {
             border-left: 5px solid #27ae60;
         }
+
+        .target-profit-section {
+            border-left: 5px solid #e74c3c;
+        }
     </style>
 </head>
 <body>
     <!-- 4行ヘッダー構造 -->
     <!-- 1行目: タイトル -->
     <div class="header-row1">
-        <h1 class="header-title">統合PLシステム v5.0</h1>
-        <div class="version-info">全機能統合版 - 役員報酬・前年比較・事業部分析・リアルタイム監視</div>
+        <h1 class="header-title">統合PLシステム v6.0</h1>
+        <div class="version-info">全機能強化版 - 目標利益配分・グラフ強化・詳細分析・リアルタイム監視</div>
     </div>
 
     <!-- 2行目: グローバルナビゲーション（5ボタン） -->
@@ -810,6 +940,7 @@
         <!-- ナビゲーションタブ -->
         <div class="nav-tabs">
             <div class="nav-tab active" onclick="showSection('overview')">概要</div>
+            <div class="nav-tab" onclick="showSection('target')">目標利益配分</div>
             <div class="nav-tab" onclick="showSection('executive')">役員報酬</div>
             <div class="nav-tab" onclick="showSection('departments')">事業部比較</div>
             <div class="nav-tab" onclick="showSection('analysis')">分析</div>
@@ -850,17 +981,61 @@
 
             <!-- メインチャート -->
             <div class="chart-section">
-                <h2 class="section-title" style="color: #e74c3c;">月次推移グラフ（売上・販管費・営業利益累計）</h2>
+                <h2 class="section-title" style="color: #e74c3c;">月次推移グラフ（売上・利益重視表示）</h2>
                 <div id="data-source-indicator" class="data-source-indicator indicator-simulation">
                     ⚠️ シミュレーション値表示中
                 </div>
                 <div class="chart-controls">
                     <button class="chart-toggle active" onclick="toggleChartMode('current')">当期実績</button>
                     <button class="chart-toggle" onclick="toggleChartMode('comparison')">前年比較</button>
-                    <button class="chart-toggle" onclick="toggleChartMode('department')">事業部別</button>
+                </div>
+                <div class="chart-visibility-controls" id="visibility-controls">
+                    <!-- 動的に生成される表示制御ボタン -->
                 </div>
                 <div class="chart-container">
                     <canvas id="main-chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 目標利益配分セクション -->
+        <div id="target-section" class="tab-content" style="display: none;">
+            <div class="target-profit-section">
+                <h2 class="section-title red">目標利益配分提案システム</h2>
+                
+                <div class="target-input-group">
+                    <div class="input-group">
+                        <label class="input-label">目標営業利益（万円）</label>
+                        <input type="number" class="input-field" id="target-profit" value="1000" step="100">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">配分方式</label>
+                        <select class="input-field" id="allocation-method">
+                            <option value="sales">売上比例配分</option>
+                            <option value="profit">利益率比例配分</option>
+                            <option value="equal">均等配分</option>
+                            <option value="custom">カスタム配分</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">計算基準</label>
+                        <select class="input-field" id="calculation-base">
+                            <option value="current">当期実績基準</option>
+                            <option value="previous">前年実績基準</option>
+                            <option value="average">平均値基準</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">&nbsp;</label>
+                        <button class="action-button btn-apply" onclick="calculateTargetAllocation()">配分計算実行</button>
+                    </div>
+                </div>
+
+                <div class="allocation-result" id="allocation-result">
+                    <h3 style="margin-bottom: 15px; color: #e74c3c;">📊 目標利益配分結果</h3>
+                    <div class="allocation-grid" id="allocation-grid">
+                        <!-- 動的に生成される配分結果 -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -899,6 +1074,29 @@
 
                 <div id="compensation-status" class="data-source-indicator">
                     ステータス: 待機中...
+                </div>
+
+                <!-- 利益影響表示 -->
+                <div class="profit-impact-display">
+                    <h3 style="margin-bottom: 15px; color: #27ae60;">💰 設定変更の利益影響</h3>
+                    <div class="impact-grid">
+                        <div class="impact-item">
+                            <div class="impact-label">年間報酬総額</div>
+                            <div class="impact-value" id="impact-total-compensation">---万円</div>
+                        </div>
+                        <div class="impact-item">
+                            <div class="impact-label">年間福利費</div>
+                            <div class="impact-value" id="impact-total-welfare">---万円</div>
+                        </div>
+                        <div class="impact-item">
+                            <div class="impact-label">営業利益への影響</div>
+                            <div class="impact-value" id="impact-profit-effect">---万円</div>
+                        </div>
+                        <div class="impact-item">
+                            <div class="impact-label">変更後利益率</div>
+                            <div class="impact-value" id="impact-profit-margin">---%</div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- 役員報酬テーブル -->
@@ -1038,6 +1236,27 @@
 
         <!-- PL詳細セクション -->
         <div id="pl-details-section" class="tab-content" style="display: none;">
+            <!-- 役員報酬詳細テーブル -->
+            <div class="unified-section">
+                <h2 class="section-title">役員報酬・役員法定福利費詳細</h2>
+                <div class="table-container">
+                    <table class="unified-table" id="executive-detail-table">
+                        <thead>
+                            <tr>
+                                <th class="id-column">ID</th>
+                                <th>項目名</th>
+                                <th>7月</th><th>8月</th><th>9月</th><th>10月</th><th>11月</th><th>12月</th>
+                                <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th>
+                                <th>年間合計</th>
+                            </tr>
+                        </thead>
+                        <tbody id="executive-detail-body">
+                            <!-- 動的に生成される役員報酬詳細データ -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- 統合損益計算書 -->
             <div class="unified-section">
                 <h2 class="section-title">統合損益計算書・販管費19項目詳細（7月開始年度）</h2>
@@ -1083,8 +1302,8 @@
     </div>
 
     <script>
-        // 統合PLシステム v5.0 - 全機能統合版（データ送受信強化）
-        class UnifiedPLSystem {
+        // 統合PLシステム v6.0 - 全機能強化版（目標利益配分・グラフ強化・詳細分析対応）
+        class UnifiedPLSystemV6 {
             constructor() {
                 // ストレージキー定義
                 this.STORAGE_KEYS = {
@@ -1127,7 +1346,9 @@
                     },
                     departmentProfit: {
                         'SR': 3038, 'W': 1272, 'RC': 1835, 'RCD': 16997
-                    }
+                    },
+                    monthlySales: [16106,19358,16630,20378,17473,21760,18856,20136,18948,20456,19916,21424],
+                    monthlyProfit: [25,30,20,15,22,28,18,24,26,20,25,17]
                 };
 
                 // 統合PLからの確定値（改修前システムの正確な値を使用）
@@ -1154,17 +1375,27 @@
                     welfare: [107, 107, 107, 88, 88, 88, 88, 88, 88, 88, 88, 88]
                 };
 
+                // グラフ表示制御
+                this.chartVisibility = {
+                    unified: true,
+                    SR: false,
+                    W: false,
+                    RC: false,
+                    RCD: false
+                };
+
                 this.initializeSystem();
             }
 
             initializeSystem() {
-                console.log('統合PLシステム v5.0 初期化開始');
+                console.log('統合PLシステム v6.0 初期化開始');
                 this.loadAllDepartmentData();
                 this.loadExecutiveData();
                 this.calculateUnifiedPL();
                 this.updateAllDisplays();
                 this.updateDataSourceIndicator();
-                this.showNotification('統合PLシステム v5.0 初期化完了', 'success');
+                this.setupChartVisibilityControls();
+                this.showNotification('統合PLシステム v6.0 初期化完了', 'success');
             }
 
             // 全事業部データ読み込み（改修前の詳細ロジック復旧）
@@ -1390,7 +1621,7 @@
                     const monthlyGrossProfit = monthlySales - monthlyCogs;
                     this.monthlyOperatingProfit[month] = monthlyGrossProfit - this.monthlyTotalExpenses[month];
                     
-                    // 累計営業利益
+                    // 累積営業利益
                     cumulativeSum += this.monthlyOperatingProfit[month];
                     this.cumulativeOperatingProfit[month] = cumulativeSum;
                 }
@@ -1403,13 +1634,215 @@
                     const monthlyProfit = this.confirmedPLData.totalOperatingProfit / 12;
                     this.monthlyOperatingProfit = Array(12).fill(monthlyProfit);
                     
-                    // 累計再計算
+                    // 累積再計算
                     cumulativeSum = 0;
                     for (let month = 0; month < 12; month++) {
                         cumulativeSum += this.monthlyOperatingProfit[month];
                         this.cumulativeOperatingProfit[month] = cumulativeSum;
                     }
                 }
+            }
+
+            // 目標利益配分計算機能（新機能）
+            calculateTargetAllocation() {
+                const targetProfit = parseFloat(document.getElementById('target-profit').value) || 1000;
+                const method = document.getElementById('allocation-method').value;
+                const base = document.getElementById('calculation-base').value;
+                
+                try {
+                    let baseData;
+                    switch (base) {
+                        case 'previous':
+                            baseData = this.previousYearData.departmentSales;
+                            break;
+                        case 'current':
+                            baseData = this.getCurrentDepartmentSales();
+                            break;
+                        case 'average':
+                            baseData = this.getAverageDepartmentSales();
+                            break;
+                        default:
+                            baseData = this.getCurrentDepartmentSales();
+                    }
+
+                    const allocation = this.calculateAllocation(targetProfit, method, baseData);
+                    this.displayAllocationResult(allocation, targetProfit);
+                    
+                    this.showNotification('目標利益配分計算完了', 'success');
+                } catch (error) {
+                    console.error('配分計算エラー:', error);
+                    this.showNotification('配分計算でエラーが発生しました', 'error');
+                }
+            }
+
+            // 部門別売上データ取得
+            getCurrentDepartmentSales() {
+                const result = {};
+                ['SR', 'W', 'RC', 'RCD'].forEach(dept => {
+                    const data = this.departmentData[dept];
+                    if (data && data.sales) {
+                        result[dept] = data.sales.reduce((sum, val) => sum + val, 0);
+                    } else {
+                        result[dept] = this.previousYearData.departmentSales[dept] || 0;
+                    }
+                });
+                return result;
+            }
+
+            // 平均売上データ計算
+            getAverageDepartmentSales() {
+                const current = this.getCurrentDepartmentSales();
+                const previous = this.previousYearData.departmentSales;
+                const result = {};
+                
+                ['SR', 'W', 'RC', 'RCD'].forEach(dept => {
+                    result[dept] = Math.round((current[dept] + previous[dept]) / 2);
+                });
+                return result;
+            }
+
+            // 配分計算ロジック
+            calculateAllocation(targetProfit, method, baseData) {
+                const departments = ['SR', 'W', 'RC', 'RCD'];
+                const allocation = {};
+                
+                switch (method) {
+                    case 'sales':
+                        const totalSales = Object.values(baseData).reduce((sum, val) => sum + val, 0);
+                        departments.forEach(dept => {
+                            allocation[dept] = Math.round(targetProfit * (baseData[dept] / totalSales));
+                        });
+                        break;
+                        
+                    case 'profit':
+                        const currentProfitRates = this.getCurrentProfitRates();
+                        const avgRate = Object.values(currentProfitRates).reduce((sum, val) => sum + val, 0) / 4;
+                        departments.forEach(dept => {
+                            allocation[dept] = Math.round(targetProfit * (currentProfitRates[dept] / (avgRate * 4)));
+                        });
+                        break;
+                        
+                    case 'equal':
+                        const equalAmount = Math.round(targetProfit / 4);
+                        departments.forEach(dept => {
+                            allocation[dept] = equalAmount;
+                        });
+                        break;
+                        
+                    case 'custom':
+                        // カスタム配分は後で実装
+                        departments.forEach(dept => {
+                            allocation[dept] = Math.round(targetProfit / 4);
+                        });
+                        break;
+                }
+                
+                return allocation;
+            }
+
+            // 現在の利益率取得
+            getCurrentProfitRates() {
+                const result = {};
+                ['SR', 'W', 'RC', 'RCD'].forEach(dept => {
+                    const sales = this.getCurrentDepartmentSales()[dept];
+                    const profit = this.getCurrentDepartmentProfit()[dept];
+                    result[dept] = sales > 0 ? (profit / sales) : 0.1; // デフォルト10%
+                });
+                return result;
+            }
+
+            // 現在の部門別利益取得
+            getCurrentDepartmentProfit() {
+                const result = {};
+                ['SR', 'W', 'RC', 'RCD'].forEach(dept => {
+                    const data = this.departmentData[dept];
+                    if (data && data.sales && data.cogs) {
+                        const sales = data.sales.reduce((sum, val) => sum + val, 0);
+                        const cogs = data.cogs.reduce((sum, val) => sum + val, 0);
+                        result[dept] = sales - cogs; // 簡易計算
+                    } else {
+                        result[dept] = this.previousYearData.departmentProfit[dept] || 0;
+                    }
+                });
+                return result;
+            }
+
+            // 配分結果表示
+            displayAllocationResult(allocation, targetProfit) {
+                const resultDiv = document.getElementById('allocation-result');
+                const gridDiv = document.getElementById('allocation-grid');
+                
+                gridDiv.innerHTML = '';
+                
+                const departments = ['SR', 'W', 'RC', 'RCD'];
+                const colors = { 'SR': '#C477CC', 'W': '#3498db', 'RC': '#27ae60', 'RCD': '#9b59b6' };
+                
+                departments.forEach(dept => {
+                    const item = document.createElement('div');
+                    item.className = 'allocation-item';
+                    item.style.borderColor = colors[dept];
+                    
+                    item.innerHTML = `
+                        <div style="font-weight: bold; color: ${colors[dept]};">${dept}事業部</div>
+                        <div style="font-size: 1.2em; font-weight: bold; margin: 5px 0;">${allocation[dept].toLocaleString()}万円</div>
+                        <div style="font-size: 0.8em; color: #666;">
+                            目標比: ${((allocation[dept] / targetProfit) * 100).toFixed(1)}%
+                        </div>
+                    `;
+                    
+                    gridDiv.appendChild(item);
+                });
+                
+                // 合計確認
+                const total = Object.values(allocation).reduce((sum, val) => sum + val, 0);
+                const totalItem = document.createElement('div');
+                totalItem.className = 'allocation-item';
+                totalItem.style.backgroundColor = '#f8f9fa';
+                totalItem.style.borderColor = '#e74c3c';
+                totalItem.style.borderWidth = '3px';
+                
+                totalItem.innerHTML = `
+                    <div style="font-weight: bold; color: #e74c3c;">合計</div>
+                    <div style="font-size: 1.2em; font-weight: bold; margin: 5px 0;">${total.toLocaleString()}万円</div>
+                    <div style="font-size: 0.8em; color: #666;">
+                        差異: ${(total - targetProfit).toLocaleString()}万円
+                    </div>
+                `;
+                
+                gridDiv.appendChild(totalItem);
+                
+                resultDiv.style.display = 'block';
+            }
+
+            // グラフ表示制御セットアップ
+            setupChartVisibilityControls() {
+                const controlsDiv = document.getElementById('visibility-controls');
+                if (!controlsDiv) return;
+                
+                const options = [
+                    { key: 'unified', label: '統合データ', color: '#e74c3c' },
+                    { key: 'SR', label: 'SR事業部', color: '#C477CC' },
+                    { key: 'W', label: 'W事業部', color: '#3498db' },
+                    { key: 'RC', label: 'RC事業部', color: '#27ae60' },
+                    { key: 'RCD', label: 'RCD事業部', color: '#9b59b6' }
+                ];
+                
+                controlsDiv.innerHTML = '';
+                
+                options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = `visibility-toggle ${this.chartVisibility[option.key] ? 'active' : ''}`;
+                    button.textContent = option.label;
+                    button.onclick = () => this.toggleChartVisibility(option.key);
+                    controlsDiv.appendChild(button);
+                });
+            }
+
+            // グラフ表示切替
+            toggleChartVisibility(key) {
+                this.chartVisibility[key] = !this.chartVisibility[key];
+                this.setupChartVisibilityControls();
+                this.updateMainChart();
             }
 
             // データソース表示の更新
@@ -1441,6 +1874,8 @@
                     this.updateTables();
                     this.updateDepartmentStatus();
                     this.updateCompensationTable();
+                    this.updateExecutiveDetailTable();
+                    this.updateProfitImpactDisplay();
                     this.updateDataSourceIndicator();
                 } catch (error) {
                     console.error('Display update error:', error);
@@ -1595,7 +2030,7 @@
                 });
             }
 
-            // メインチャート更新（改修前の詳細ロジック復旧）
+            // メインチャート更新（改良版：売上・利益重視、4事業部対応）
             updateMainChart() {
                 const ctx = document.getElementById('main-chart');
                 if (!ctx) return;
@@ -1619,19 +2054,21 @@
                     profit = this.confirmedPLData.monthly_profit;
                 }
                 
-                // 累計利益計算
+                // 累積利益計算
                 cumulativeProfit = [];
                 let cum = 0;
                 profit.forEach(p => { cum += p; cumulativeProfit.push(cum); });
 
-                let datasets;
+                let datasets = [];
+
                 if (this.currentChartMode === 'comparison') {
-                    // 前年比較モード
-                    const prevYearMonthlySales = [16106,19358,16630,20378,17473,21760,18856,20136,18948,20456,19916,21424];
-                    const prevYearMonthlyProfit = [25,30,20,15,22,28,18,24,26,20,25,17];
+                    // 前年比較モード：統合データ + 4事業部
+                    const prevYearMonthlySales = this.previousYearData.monthlySales;
+                    const prevYearMonthlyProfit = this.previousYearData.monthlyProfit;
                     
-                    datasets = [
-                        { 
+                    // 統合データ（前年・当期）
+                    if (this.chartVisibility.unified) {
+                        datasets.push({
                             label: '前年売上高（万円）', 
                             type: 'bar', 
                             data: prevYearMonthlySales, 
@@ -1639,8 +2076,9 @@
                             borderColor: '#95a5a6', 
                             borderWidth: 1, 
                             yAxisID: 'y' 
-                        },
-                        { 
+                        });
+                        
+                        datasets.push({
                             label: '今期売上高（万円）', 
                             type: 'bar', 
                             data: sales, 
@@ -1648,8 +2086,9 @@
                             borderColor: '#3498db', 
                             borderWidth: 2, 
                             yAxisID: 'y' 
-                        },
-                        { 
+                        });
+                        
+                        datasets.push({
                             label: '前年営業利益（万円）', 
                             type: 'line', 
                             data: prevYearMonthlyProfit, 
@@ -1660,8 +2099,9 @@
                             tension: 0.4, 
                             yAxisID: 'y1', 
                             pointRadius: 4 
-                        },
-                        { 
+                        });
+                        
+                        datasets.push({
                             label: '今期営業利益（万円）', 
                             type: 'line', 
                             data: profit, 
@@ -1672,12 +2112,34 @@
                             tension: 0.4, 
                             yAxisID: 'y1', 
                             pointRadius: 6 
+                        });
+                    }
+                    
+                    // 4事業部データ追加
+                    const deptColors = { 'SR': '#C477CC', 'W': '#3498db', 'RC': '#27ae60', 'RCD': '#9b59b6' };
+                    ['SR', 'W', 'RC', 'RCD'].forEach(dept => {
+                        if (this.chartVisibility[dept]) {
+                            const data = this.departmentData[dept];
+                            if (data && data.sales) {
+                                datasets.push({
+                                    label: `${dept}事業部売上（万円）`,
+                                    type: 'line',
+                                    data: data.sales,
+                                    borderColor: deptColors[dept],
+                                    backgroundColor: deptColors[dept] + '33',
+                                    borderWidth: 2,
+                                    fill: false,
+                                    tension: 0.4,
+                                    yAxisID: 'y'
+                                });
+                            }
                         }
-                    ];
+                    });
+                    
                 } else {
-                    // 通常モード
-                    datasets = [
-                        {
+                    // 当期実績モード：売上と利益のみ
+                    if (this.chartVisibility.unified) {
+                        datasets.push({
                             label: '月次売上高（万円）',
                             type: 'bar',
                             data: sales,
@@ -1685,17 +2147,9 @@
                             borderColor: '#3498db',
                             borderWidth: 2,
                             yAxisID: 'y'
-                        },
-                        {
-                            label: '月次販管費（万円）',
-                            type: 'bar',
-                            data: this.monthlyTotalExpenses,
-                            backgroundColor: 'rgba(243,156,18,0.7)',
-                            borderColor: '#f39c12',
-                            borderWidth: 2,
-                            yAxisID: 'y'
-                        },
-                        {
+                        });
+
+                        datasets.push({
                             label: '営業利益累計（万円）',
                             type: 'line',
                             data: cumulativeProfit,
@@ -1705,8 +2159,29 @@
                             fill: false,
                             tension: 0.4,
                             yAxisID: 'y1'
+                        });
+                    }
+                    
+                    // 4事業部データ追加
+                    const deptColors = { 'SR': '#C477CC', 'W': '#3498db', 'RC': '#27ae60', 'RCD': '#9b59b6' };
+                    ['SR', 'W', 'RC', 'RCD'].forEach(dept => {
+                        if (this.chartVisibility[dept]) {
+                            const data = this.departmentData[dept];
+                            if (data && data.sales) {
+                                datasets.push({
+                                    label: `${dept}事業部売上（万円）`,
+                                    type: 'line',
+                                    data: data.sales,
+                                    borderColor: deptColors[dept],
+                                    backgroundColor: deptColors[dept] + '33',
+                                    borderWidth: 2,
+                                    fill: false,
+                                    tension: 0.4,
+                                    yAxisID: 'y'
+                                });
+                            }
                         }
-                    ];
+                    });
                 }
 
                 // チャートタイトルとカラーの設定
@@ -1740,7 +2215,7 @@
                                         let label = ctx.dataset.label || '';
                                         if (label) label += ': ';
                                         if (ctx.parsed.y !== null) {
-                                            if (label.includes('売上') || label.includes('販管費')) {
+                                            if (label.includes('売上')) {
                                                 label += ctx.parsed.y.toLocaleString() + '万円';
                                             } else {
                                                 label += (ctx.parsed.y >= 0 ? '+' : '') + ctx.parsed.y.toLocaleString() + '万円';
@@ -1759,7 +2234,7 @@
                                 type: 'linear', 
                                 display: true, 
                                 position: 'left',
-                                title: { display: true, text: '売上高・販管費（万円）', font: {size: 14, weight: 'bold'}, color: '#3498db' },
+                                title: { display: true, text: '売上高（万円）', font: {size: 14, weight: 'bold'}, color: '#3498db' },
                                 ticks: { color: '#3498db', callback: function(value) { return value.toLocaleString(); } }
                             },
                             y1: { 
@@ -1775,11 +2250,19 @@
                 });
             }
 
-            // 事業部別チャート更新（改修前のロジック復旧）
+            // 事業部別チャート更新（前年実績追加版）
             updateDepartmentCharts() {
                 const departments = ['SR', 'W', 'RC', 'RCD'];
                 const colors = { 'SR': '#C477CC', 'W': '#3498db', 'RC': '#27ae60', 'RCD': '#9b59b6' };
                 const months = ['7','8','9','10','11','12','1','2','3','4','5','6'];
+
+                // 前年データ（部門別）
+                const prevYearDeptData = {
+                    'SR': [2534,2430,2440,2340,2122,2219,2507,1937,2002,2168,1856,2267],
+                    'W': [738,417,558,978,1048,1943,593,643,721,688,507,770],
+                    'RC': [1623,1371,1275,1441,971,1538,1229,1321,1034,978,1335,1184],
+                    'RCD': [9211,12140,9757,12619,10832,13060,11527,13235,12191,13622,13218,14203]
+                };
 
                 departments.forEach(dept => {
                     const ctx = document.getElementById(`${dept.toLowerCase()}-chart`);
@@ -1796,32 +2279,35 @@
                         salesData = data.sales;
                     } else {
                         // フォールバック：前年データを使用
-                        const fallbackSales = {
-                            'SR': [2236,2916,2927,2810,2544,2663,3008,2324,2403,2602,2228,2721],
-                            'W': [886,500,669,1174,1257,2331,712,772,865,824,608,923],
-                            'RC': [1947,1645,1530,1730,1165,1846,1475,1585,1241,1173,1602,1420],
-                            'RCD': [11037,14297,11504,14664,12507,14920,13661,15455,14439,15857,15478,16360]
-                        };
-                        salesData = fallbackSales[dept] || Array(12).fill(0);
+                        salesData = prevYearDeptData[dept] || Array(12).fill(0);
                     }
 
                     this.charts[dept.toLowerCase()] = new Chart(ctx, {
                         type: 'bar',
                         data: {
                             labels: months,
-                            datasets: [{
-                                label: '月次売上',
-                                data: salesData,
-                                backgroundColor: colors[dept] + '77',
-                                borderColor: colors[dept],
-                                borderWidth: 2
-                            }]
+                            datasets: [
+                                {
+                                    label: '前年売上',
+                                    data: prevYearDeptData[dept],
+                                    backgroundColor: 'rgba(149,165,166,0.3)',
+                                    borderColor: '#95a5a6',
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: '今期売上',
+                                    data: salesData,
+                                    backgroundColor: colors[dept] + '77',
+                                    borderColor: colors[dept],
+                                    borderWidth: 2
+                                }
+                            ]
                         },
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
                             plugins: { 
-                                legend: { display: false }
+                                legend: { display: true, position: 'top' }
                             },
                             scales: { 
                                 x: { ticks: { font: {size: 10} } }, 
@@ -1898,6 +2384,46 @@
                 const operatingProfitClass = this.monthlyOperatingProfit.some(val => val < 0) ? 'final-profit-negative' : 'final-profit-positive';
                 const operatingProfitRow = this.createTableRow('', '全体営業利益', this.monthlyOperatingProfit, 'profit-row');
                 tbody.appendChild(operatingProfitRow);
+            }
+
+            // 役員報酬詳細テーブル更新（新機能）
+            updateExecutiveDetailTable() {
+                const tbody = document.getElementById('executive-detail-body');
+                if (!tbody) return;
+                
+                tbody.innerHTML = '';
+
+                // 役員報酬行
+                const compensationRow = this.createTableRow('1', '役員報酬', this.executiveData.compensation, 'executive-row');
+                tbody.appendChild(compensationRow);
+
+                // 法定福利費行
+                const welfareRow = this.createTableRow('2', '役員法定福利費', this.executiveData.welfare, '');
+                tbody.appendChild(welfareRow);
+
+                // 合計行
+                const totalData = this.executiveData.compensation.map((comp, i) => comp + this.executiveData.welfare[i]);
+                const totalRow = this.createTableRow('', '役員費用合計', totalData, 'total-row');
+                tbody.appendChild(totalRow);
+            }
+
+            // 利益影響表示更新（新機能）
+            updateProfitImpactDisplay() {
+                const totalCompensation = this.executiveData.compensation.reduce((sum, val) => sum + val, 0);
+                const totalWelfare = this.executiveData.welfare.reduce((sum, val) => sum + val, 0);
+                const totalExecutiveCost = totalCompensation + totalWelfare;
+                
+                // 現在の営業利益
+                const currentProfit = this.monthlyOperatingProfit.reduce((sum, val) => sum + val, 0);
+                const totalSales = this.unifiedDataLoaded ? 
+                    this.unifiedData.sales.reduce((sum, val) => sum + val, 0) : 
+                    this.confirmedPLData.totalSales;
+                const profitMargin = totalSales > 0 ? (currentProfit / totalSales * 100) : 0;
+
+                document.getElementById('impact-total-compensation').textContent = `${totalCompensation.toLocaleString()}万円`;
+                document.getElementById('impact-total-welfare').textContent = `${totalWelfare.toLocaleString()}万円`;
+                document.getElementById('impact-profit-effect').textContent = `-${totalExecutiveCost.toLocaleString()}万円`;
+                document.getElementById('impact-profit-margin').textContent = `${profitMargin.toFixed(2)}%`;
             }
 
             // テーブル行作成
@@ -2024,6 +2550,11 @@
             unifiedPLSystem.updateMainChart();
         }
 
+        // 目標利益配分計算
+        function calculateTargetAllocation() {
+            unifiedPLSystem.calculateTargetAllocation();
+        }
+
         // 役員報酬機能
         function applyCompensation() {
             const high = parseInt(document.getElementById('salary-high').value) || 826;
@@ -2057,7 +2588,7 @@
                     baseLow: parseInt(document.getElementById('salary-low').value),
                     bonusAmount: parseInt(document.getElementById('bonus-amount').value) || 0,
                     welfareRate: parseFloat(document.getElementById('welfare-rate').value) || 13,
-                    version: "5.0_unified_system"
+                    version: "6.0_enhanced_system"
                 }
             };
             
@@ -2195,7 +2726,7 @@
                 const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = `統合PLシステム v5.0_${new Date().toISOString().split('T')[0]}.csv`;
+                link.download = `統合PLシステム v6.0_${new Date().toISOString().split('T')[0]}.csv`;
                 link.click();
                 
                 unifiedPLSystem.showNotification('統合PLデータのCSVエクスポートが完了しました', 'success');
@@ -2208,8 +2739,8 @@
 
         // システム初期化
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('統合PLシステム v5.0 初期化開始');
-            unifiedPLSystem = new UnifiedPLSystem();
+            console.log('統合PLシステム v6.0 初期化開始');
+            unifiedPLSystem = new UnifiedPLSystemV6();
 
             // 定期的な自動更新（30秒間隔）
             setInterval(() => {
@@ -2232,6 +2763,17 @@
             exportButton.style.right = '20px';
             exportButton.style.zIndex = '1000';
             document.body.appendChild(exportButton);
+
+            // 目標利益配分ボタンの追加
+            const targetButton = document.createElement('button');
+            targetButton.textContent = '目標利益配分';
+            targetButton.className = 'action-button btn-apply';
+            targetButton.onclick = () => showSection('target');
+            targetButton.style.position = 'fixed';
+            targetButton.style.bottom = '70px';
+            targetButton.style.right = '20px';
+            targetButton.style.zIndex = '1000';
+            document.body.appendChild(targetButton);
         });
     </script>
 </body>
