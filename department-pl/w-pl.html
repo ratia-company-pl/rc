@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>W事業部PLシミュレーター Phase 4完成版（修正版）</title>
+    <title>W事業部PLシミュレーター Phase 4完成版（データ保護強化版）</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -692,7 +692,7 @@
     <!-- 1行目: タイトル -->
     <div class="header-row1">
         <h1 class="header-title">W事業部PLシステム</h1>
-        <div class="version-info">12段階人件費システム・データ保護機能・リアルタイム連携</div>
+        <div class="version-info">12段階人件費システム・データ保護強化・リアルタイム連携</div>
     </div>
 
     <!-- 2行目: グローバルナビゲーション（5ボタン） -->
@@ -723,7 +723,7 @@
             </div>
             <div class="mini-kpi">
                 <div class="mini-kpi-label">データ状況</div>
-                <div class="mini-kpi-value" id="mini-data-status">設定中</div>
+                <div class="mini-kpi-value" id="mini-data-status">保護中</div>
             </div>
         </div>
     </div>
@@ -743,7 +743,7 @@
         </div>
         <div class="workflow-actions">
             <button class="action-btn btn-protection" id="protection-btn" onclick="toggleDataProtection()">
-                🔓 データ保護OFF
+                🔒 データ保護ON
             </button>
             <button class="action-btn btn-csv" onclick="exportWCSV()">
                 CSVエクスポート（任意）
@@ -757,7 +757,7 @@
     <!-- データ保護状況表示 -->
     <div class="data-protection-status" id="protection-status">
         <div class="status-indicator" id="status-indicator"></div>
-        <span id="status-text">データ保護OFF</span>
+        <span id="status-text">データ保護ON</span>
     </div>
 
     <div class="container">
@@ -926,14 +926,20 @@
             advertising: 30
         };
 
-        // データ保護システム 
+        // データ保護システム - 初期状態を保護ONに変更
         let dataProtectionState = {
-            isProtected: false,
+            isProtected: true,  // 初期状態を保護ONに変更
             autoSaveInterval: null,
             backupCount: 3
         };
 
         let wChart = null;
+
+        // 実績値をデフォルト設定する関数
+        function setDefaultToActualValues() {
+            wData.sales = [...wReferenceData]; // [886, 500, 669, 1174, 1257, 2331, 712, 772, 865, 824, 608, 923]
+            wData.advertising = 30;
+        }
 
         // データ保護機能
         function toggleDataProtection() {
@@ -1150,7 +1156,7 @@
             notifications.forEach(el => el.remove());
         }
 
-        // 修正版：シミュレータ準拠の12段階人件費システム 
+        // 修正版：シミュレーター準拠の12段階人件費システム
         function getWPersonnelAmount(salesAmount) {
             if (salesAmount <= 599) return 201;
             if (salesAmount <= 699) return 208.5;
@@ -1548,8 +1554,8 @@
                 showNotification('修正版W事業部PLデータのCSV出力が完了しました。', 'success');
 
             } catch (error) {
-                console.error('CSV出力エラー:', error);
-                showNotification('CSV出力でエラーが発生しました: ' + error.message, 'error');
+                console.error('CSVエクスポートエラー:', error);
+                showNotification('CSVエクスポートでエラーが発生しました: ' + error.message, 'error');
             }
         }
 
@@ -1639,17 +1645,31 @@
             };
         }
 
+        // 初期化 - データ保護強化版
         function initialize() {
             try {
-                // 保存データからの復元を試行
+                // 1. 保存データの復元を試行
                 const dataRestored = loadDataFromStorage();
                 
+                // 2. 保存データがない場合のみ実績値設定
                 if (!dataRestored) {
-                    // 初回起動時の初期化
-                    updateProtectionStatus();
+                    setDefaultToActualValues();
                 }
                 
-                updateWSales();
+                // 3. 常にデータ保護ON状態で開始
+                dataProtectionState.isProtected = true;
+                enableDataProtection();
+                updateProtectionStatus();
+                
+                // 4. 既存の初期化処理続行
+                // 計算結果を即座に表示
+                const results = calculateW();
+                updateDifferenceDisplay();
+                updateKPIDisplay(results.annual);
+                updateMiniKPIDisplay(results.annual);
+                updateChart();
+                updateProfitTable(results);
+                updateExpenseTable(results.expenses);
                 
                 const inputs = document.querySelectorAll('input[data-month]');
                 inputs.forEach(input => {
@@ -1661,13 +1681,13 @@
                 // 結果をグローバルに保存
                 window.wResults = calculateW();
                 
-                console.log('W事業部PLシミュレーター完全修正版初期化完了');
+                console.log('W事業部PLシミュレーター データ保護強化版初期化完了');
                 
                 // 初期化完了通知
                 if (!dataRestored) {
-                    showNotification('W事業部PLシミュレーターが初期化されました。\n\n統一ナビゲーション機能が追加されています。\n12段階人件費システム対応完了。', 'success', 2000);
+                    showNotification('W事業部PLシステムが初期化されました。\n\n実績値ベースで開始し、データ保護が有効です。', 'success', 2000);
                 } else {
-                    showNotification('保存されたデータから復元しました。', 'success', 2000);
+                    showNotification('保存された予算データから復元しました。\n\nデータ保護が有効です。', 'success', 2000);
                 }
                 
             } catch (error) {
@@ -1679,6 +1699,23 @@
         // イベントリスナー設定
         window.addEventListener('load', initialize);
         
+        // タブフォーカス時の自動保護
+        window.addEventListener('focus', () => {
+            if (!dataProtectionState.isProtected) {
+                dataProtectionState.isProtected = true;
+                enableDataProtection();
+                updateProtectionStatus();
+                showNotification('タブ復帰により自動的にデータ保護が有効化されました。', 'success', 2000);
+            }
+        });
+        
+        // タブ切り替え時の緊急保存
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                emergencySave();
+            }
+        });
+        
         // ページ離脱前の確認（データ保護が有効でない場合のみ）
         window.addEventListener('beforeunload', (event) => {
             if (!dataProtectionState.isProtected && window.wResults) {
@@ -1689,3 +1726,4 @@
     </script>
 </body>
 </html>
+                    '
