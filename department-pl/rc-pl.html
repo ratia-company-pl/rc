@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RC事業部PLシミュレーター BWJ費用可変対応版 v4.0（修正版）</title>
+    <title>RC事業部PLシミュレーター BWJ費用可変対応版 v4.0（データ保護強化版）</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -44,7 +44,7 @@
             display: inline-block;
         }
 
-        /* 2行目: グローバルナビゲーション（5ボタン） */
+        /* 2行目: グローバルナビゲーション */
         .header-row2 {
             background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
             padding: 8px 15px;
@@ -81,28 +81,10 @@
             text-decoration: none;
         }
 
-        /* アクティブボタン（RC事業部） */
         .btn-active-rc { 
             background: #27ae60 !important; 
             box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
             border: 2px solid rgba(255, 255, 255, 0.5) !important;
-        }
-
-        .btn-active-sr { 
-            background: #C477CC !important; 
-            box-shadow: 0 4px 8px rgba(196, 119, 204, 0.3);
-        }
-        .btn-active-w { 
-            background: #3498db !important; 
-            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
-        }
-        .btn-active-rcd { 
-            background: #9b59b6 !important; 
-            box-shadow: 0 4px 8px rgba(155, 89, 182, 0.3);
-        }
-        .btn-active-unified { 
-            background: #f39c12 !important; 
-            box-shadow: 0 4px 8px rgba(243, 156, 18, 0.3);
         }
 
         /* 3行目: KPIカード */
@@ -216,11 +198,6 @@
             color: white;
         }
 
-        .btn-secondary {
-            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
-            color: white;
-        }
-
         .btn-csv {
             background: linear-gradient(135deg, #f39c12, #e67e22);
             color: white;
@@ -286,10 +263,6 @@
             font-size: 1.2rem;
             font-weight: 700;
             color: #27ae60;
-        }
-
-        .kpi-value.negative {
-            color: #e74c3c;
         }
 
         .chart-container {
@@ -566,20 +539,6 @@
             padding-left: 10px;
         }
 
-        .profit-table th:nth-child(n+2):nth-child(-n+13),
-        .profit-table td:nth-child(n+2):nth-child(-n+13),
-        .expense-table th:nth-child(n+3):nth-child(-n+14),
-        .expense-table td:nth-child(n+3):nth-child(-n+14) {
-            width: 60px;
-        }
-
-        .profit-table th:nth-child(n+14),
-        .profit-table td:nth-child(n+14),
-        .expense-table th:nth-child(n+15),
-        .expense-table td:nth-child(n+15) {
-            width: 80px;
-        }
-
         .profit-table th {
             background: linear-gradient(135deg, #52c41a, #73d13d);
             color: white;
@@ -688,13 +647,11 @@
 </head>
 <body>
     <!-- 4行ヘッダー構造 -->
-    <!-- 1行目: タイトル -->
     <div class="header-row1">
         <h1 class="header-title">RC事業部PLシステム</h1>
         <div class="version-info">BWJ費用可変対応・固定費追加・データ保護機能・リアルタイム連携</div>
     </div>
 
-    <!-- 2行目: グローバルナビゲーション（5ボタン） -->
     <div class="header-row2">
         <div class="nav-container">
             <a href="sr-pl.html" class="btn">SR事業部PL</a>
@@ -705,7 +662,6 @@
         </div>
     </div>
 
-    <!-- 3行目: KPIカード -->
     <div class="header-row3">
         <div class="mini-kpi-container">
             <div class="mini-kpi">
@@ -722,12 +678,11 @@
             </div>
             <div class="mini-kpi">
                 <div class="mini-kpi-label">データ状況</div>
-                <div class="mini-kpi-value" id="mini-data-status">設定中</div>
+                <div class="mini-kpi-value" id="mini-data-status">保護中</div>
             </div>
         </div>
     </div>
 
-    <!-- 4行目: ワークフロー情報 -->
     <div class="header-row4">
         <div class="workflow-info">
             <span style="color: #27ae60; font-weight: 600;">✓ SR事業部完了</span>
@@ -742,7 +697,7 @@
         </div>
         <div class="workflow-actions">
             <button class="action-btn btn-protection" id="protection-btn" onclick="toggleDataProtection()">
-                🔓 データ保護OFF
+                🔒 データ保護ON
             </button>
             <button class="action-btn btn-csv" onclick="exportRCCSV()">
                 CSVエクスポート（任意）
@@ -756,7 +711,7 @@
     <!-- データ保護状況表示 -->
     <div class="data-protection-status" id="protection-status">
         <div class="status-indicator" id="status-indicator"></div>
-        <span id="status-text">データ保護OFF</span>
+        <span id="status-text">データ保護ON</span>
     </div>
 
     <div class="container">
@@ -957,42 +912,22 @@
             fixedPersonnel: 50
         };
 
-        // データ保護システム  
+        // データ保護システム - 初期状態を保護ONに変更
         let dataProtectionState = {
-            isProtected: false,
+            isProtected: true,  // 初期状態を保護ONに変更
             autoSaveInterval: null,
             backupCount: 3
         };
 
         let rcChart = null;
 
-        // 販管費19項目の設定（修正版：固定費用追加）
-        const expenseItems = [
-            { name: '人件費', calculate: () => rcData.fixedPersonnel },
-            { name: '法定福利費', calculate: () => 7 },
-            { name: '衛生費', calculate: () => 0 },
-            { name: '物流管理費', calculate: () => 74 },
-            { name: '地代家賃', calculate: () => 0 },
-            { name: '外注費', calculate: () => 57 },        // 修正：固定57万円/月
-            { name: '運送運賃', calculate: () => 62 },       // 修正：固定62万円/月
-            { name: '広告宣伝費', calculate: () => rcData.advertising },
-            { name: '旅費交通費', calculate: () => 15 },
-            { name: '通信費', calculate: () => 1 },
-            { name: '販売促進費', calculate: (month) => {
-                let base = 10;
-                if (month === 4) base += rcData.bwjConstruction;
-                if (month === 11) base += rcData.bwjTokyo;
-                return base;
-            }},
-            { name: '消耗品費', calculate: () => 36 },       // 修正：固定36万円/月
-            { name: '事務用品費', calculate: () => 10 },
-            { name: '水道光熱費', calculate: () => 2 },
-            { name: '支払手数料', calculate: () => 70 },
-            { name: 'リース料', calculate: () => 7 },        // 修正：固定7万円/月
-            { name: '保険料', calculate: () => 1 },
-            { name: '支払報酬料', calculate: () => 10 },
-            { name: '減価償却費', calculate: () => 7 }
-        ];
+        // 実績値をデフォルト設定する関数
+        function setDefaultToActualValues() {
+            rcData.variations = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; // 基準売上1550万円のまま
+            rcData.advertising = 40;
+            rcData.bwjConstruction = 90;
+            rcData.bwjTokyo = 90;
+        }
 
         // データ保護機能
         function toggleDataProtection() {
@@ -1613,7 +1548,7 @@
             }
         }
 
-        // CSV必須制約を解除した送信関数
+        // データ送信関数
         function sendRCDataAndNavigateToNext() {
             try {
                 const results = calculateRC();
@@ -1705,17 +1640,32 @@
             };
         }
 
+        // 初期化 - データ保護強化版
         function initialize() {
             try {
-                // 保存データからの復元を試行
+                // 1. 保存データの復元を試行
                 const dataRestored = loadDataFromStorage();
                 
+                // 2. 保存データがない場合のみ実績値設定
                 if (!dataRestored) {
-                    // 初回起動時の初期化
-                    updateProtectionStatus();
+                    setDefaultToActualValues();
                 }
                 
-                updateRCSales();
+                // 3. 常にデータ保護ON状態で開始
+                dataProtectionState.isProtected = true;
+                enableDataProtection();
+                updateProtectionStatus();
+                
+                // 4. 既存の初期化処理続行
+                // 計算結果を即座に表示
+                const results = calculateRC();
+                updateSalesDisplay();
+                updateDifferenceDisplay();
+                updateKPIDisplay(results.annual);
+                updateMiniKPIDisplay(results.annual);
+                updateChart();
+                updateProfitTable(results);
+                updateExpenseTable(results.expenses);
                 
                 const inputs = document.querySelectorAll('input[data-month]');
                 inputs.forEach(input => {
@@ -1729,13 +1679,13 @@
                 // 結果をグローバルに保存
                 window.rcResults = calculateRC();
                 
-                console.log('RC事業部PLシミュレーター完全修正版初期化完了');
+                console.log('RC事業部PLシミュレーター データ保護強化版初期化完了');
                 
                 // 初期化完了通知
                 if (!dataRestored) {
-                    showNotification('RC事業部PLシミュレーター（修正版）が初期化されました。\n\n統一ナビゲーション機能が追加されています。\nBWJ費用可変対応・固定費追加対応完了。', 'success', 2000);
+                    showNotification('RC事業部PLシステムが初期化されました。\n\n実績値ベースで開始し、データ保護が有効です。', 'success', 2000);
                 } else {
-                    showNotification('保存されたデータから復元しました。', 'success', 2000);
+                    showNotification('保存された予算データから復元しました。\n\nデータ保護が有効です。', 'success', 2000);
                 }
                 
             } catch (error) {
@@ -1746,6 +1696,23 @@
 
         // イベントリスナー設定
         window.addEventListener('load', initialize);
+        
+        // タブフォーカス時の自動保護
+        window.addEventListener('focus', () => {
+            if (!dataProtectionState.isProtected) {
+                dataProtectionState.isProtected = true;
+                enableDataProtection();
+                updateProtectionStatus();
+                showNotification('タブ復帰により自動的にデータ保護が有効化されました。', 'success', 2000);
+            }
+        });
+        
+        // タブ切り替え時の緊急保存
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                emergencySave();
+            }
+        });
         
         // ページ離脱前の確認（データ保護が有効でない場合のみ）
         window.addEventListener('beforeunload', (event) => {
