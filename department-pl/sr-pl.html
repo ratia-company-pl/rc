@@ -1149,25 +1149,48 @@
                 const stored = localStorage.getItem('pl_system_sr_corrected_data');
                 if (stored) {
                     const storageData = JSON.parse(stored);
+                    console.log('[SR事業部] 保存データ読み込み:', Object.keys(storageData));
                     
+                    // パターン1: srData形式（データ保護での保存）
                     if (storageData.srData) {
                         srData = storageData.srData;
+                        console.log('[SR事業部] srData形式から復元');
                         
                         // 設定値をUIに反映
                         document.getElementById('commission').value = srData.settings.commission;
                         document.getElementById('bonus6').value = srData.settings.bonus6;
                         document.getElementById('bonus12').value = srData.settings.bonus12;
                         document.getElementById('advertising').value = srData.settings.advertising;
+                        
+                        if (storageData.protectionState) {
+                            dataProtectionState.isProtected = true;
+                            enableDataProtection();
+                        }
                     }
-                    
-                    if (storageData.protectionState) {
-                        dataProtectionState.isProtected = true;
-                        enableDataProtection();
+                    // パターン2: 統合PL送信形式（sales配列が直接ある）
+                    else if (storageData.sales && Array.isArray(storageData.sales) && storageData.sales.length === 12) {
+                        console.log('[SR事業部] 統合PL形式から復元:', storageData.sales);
+                        
+                        // salesから売上データを復元
+                        // SR事業部は売上入力が直接ないため、設定値のみ復元
+                        if (storageData.expenses) {
+                            // 広告費は expenses[8] から取得（あれば）
+                            if (storageData.expenses[8] && storageData.expenses[8][0]) {
+                                srData.settings.advertising = storageData.expenses[8][0];
+                                document.getElementById('advertising').value = srData.settings.advertising;
+                            }
+                        }
+                        
+                        // meta情報からデータ保護状態を確認
+                        if (storageData.meta && storageData.meta.dataProtectionEnabled) {
+                            dataProtectionState.isProtected = true;
+                            enableDataProtection();
+                        }
                     }
                     
                     updateProtectionStatus();
                     
-                    console.log('保存データから復元しました');
+                    console.log('[SR事業部] 保存データから復元完了');
                     return true;
                 }
             } catch (error) {
