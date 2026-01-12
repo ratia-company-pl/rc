@@ -1067,6 +1067,68 @@
             <div class="department-comparison">
                 <h2 class="section-title" style="color: #3498db;">事業部別比較・前年対比分析</h2>
                 
+                <!-- 予算入力セクション追加 -->
+                <div class="unified-section" style="margin-bottom: 25px; border-color: #f39c12;">
+                    <h3 style="color: #f39c12; margin-bottom: 15px; font-size: 1.1em;">📊 月別予算・実績区分設定</h3>
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                        <p style="margin: 0; color: #856404; font-size: 0.9em;">
+                            ℹ️ <strong>7-12月</strong>は確定実績（濃い色）、<strong>1-6月</strong>は予算値（薄い色）として表示されます。
+                            各事業部のデータを個別に設定してください。
+                        </p>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <div style="background: white; padding: 15px; border-radius: 10px; border: 2px solid #C477CC;">
+                            <h4 style="color: #C477CC; margin-bottom: 10px;">SR事業部</h4>
+                            <div class="control-group">
+                                <label class="control-label">予算モード切替</label>
+                                <select class="control-input" id="sr-budget-mode" onchange="toggleBudgetMode('SR')">
+                                    <option value="auto">自動（7-12月確定/1-6月予算）</option>
+                                    <option value="manual">手動設定</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="background: white; padding: 15px; border-radius: 10px; border: 2px solid #3498db;">
+                            <h4 style="color: #3498db; margin-bottom: 10px;">W事業部</h4>
+                            <div class="control-group">
+                                <label class="control-label">予算モード切替</label>
+                                <select class="control-input" id="w-budget-mode" onchange="toggleBudgetMode('W')">
+                                    <option value="auto">自動（7-12月確定/1-6月予算）</option>
+                                    <option value="manual">手動設定</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="background: white; padding: 15px; border-radius: 10px; border: 2px solid #27ae60;">
+                            <h4 style="color: #27ae60; margin-bottom: 10px;">RC事業部</h4>
+                            <div class="control-group">
+                                <label class="control-label">予算モード切替</label>
+                                <select class="control-input" id="rc-budget-mode" onchange="toggleBudgetMode('RC')">
+                                    <option value="auto">自動（7-12月確定/1-6月予算）</option>
+                                    <option value="manual">手動設定</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="background: white; padding: 15px; border-radius: 10px; border: 2px solid #9b59b6;">
+                            <h4 style="color: #9b59b6; margin-bottom: 10px;">RCD事業部</h4>
+                            <div class="control-group">
+                                <label class="control-label">予算モード切替</label>
+                                <select class="control-input" id="rcd-budget-mode" onchange="toggleBudgetMode('RCD')">
+                                    <option value="auto">自動（7-12月確定/1-6月予算）</option>
+                                    <option value="manual">手動設定</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="action-button btn-apply" onclick="applyBudgetSettings()">設定を適用してグラフ更新</button>
+                        <button class="action-button btn-save" onclick="saveBudgetSettings()">予算設定を保存</button>
+                    </div>
+                </div>
+                
                 <div class="dept-grid">
                     <div class="dept-card dept-sr">
                         <div class="dept-header">
@@ -2207,10 +2269,15 @@
                 });
             }
 
-            // 事業部別チャート更新（前年実績追加版・正確なデータ使用）
+            // 事業部別チャート更新（確定実績・予算分離版）
             updateDepartmentCharts() {
                 const departments = ['SR', 'W', 'RC', 'RCD'];
-                const colors = { 'SR': '#C477CC', 'W': '#3498db', 'RC': '#27ae60', 'RCD': '#9b59b6' };
+                const colors = { 
+                    'SR': { confirmed: '#8B4B9A', budget: '#C477CC' },
+                    'W': { confirmed: '#2874A6', budget: '#3498db' },
+                    'RC': { confirmed: '#1E8449', budget: '#27ae60' },
+                    'RCD': { confirmed: '#6C3483', budget: '#9b59b6' }
+                };
                 const months = ['7','8','9','10','11','12','1','2','3','4','5','6'];
 
                 departments.forEach(dept => {
@@ -2223,12 +2290,28 @@
 
                     const data = this.departmentData[dept];
                     let salesData = Array(12).fill(0);
+                    let confirmedMonths = Array(12).fill(0); // 確定値（7-12月）
+                    let budgetMonths = Array(12).fill(0);    // 予算値（1-6月）
                     
                     if (data && data.sales) {
                         salesData = data.sales;
+                        // 7-12月（インデックス0-5）は確定値
+                        for (let i = 0; i < 6; i++) {
+                            confirmedMonths[i] = salesData[i];
+                        }
+                        // 1-6月（インデックス6-11）は予算値
+                        for (let i = 6; i < 12; i++) {
+                            budgetMonths[i] = salesData[i];
+                        }
                     } else {
                         // フォールバック：前年データを使用
                         salesData = this.previousYearData.monthlySales[dept] || Array(12).fill(0);
+                        for (let i = 0; i < 6; i++) {
+                            confirmedMonths[i] = salesData[i];
+                        }
+                        for (let i = 6; i < 12; i++) {
+                            budgetMonths[i] = salesData[i];
+                        }
                     }
 
                     const prevYearData = this.previousYearData.monthlySales[dept];
@@ -2243,14 +2326,25 @@
                                     data: prevYearData,
                                     backgroundColor: 'rgba(149,165,166,0.3)',
                                     borderColor: '#95a5a6',
-                                    borderWidth: 1
+                                    borderWidth: 1,
+                                    order: 3
                                 },
                                 {
-                                    label: '今期売上',
-                                    data: salesData,
-                                    backgroundColor: colors[dept] + '77',
-                                    borderColor: colors[dept],
-                                    borderWidth: 2
+                                    label: '確定実績（7-12月）',
+                                    data: confirmedMonths,
+                                    backgroundColor: colors[dept].confirmed,
+                                    borderColor: colors[dept].confirmed,
+                                    borderWidth: 2,
+                                    order: 1
+                                },
+                                {
+                                    label: '予算（1-6月）',
+                                    data: budgetMonths,
+                                    backgroundColor: colors[dept].budget + 'AA',
+                                    borderColor: colors[dept].budget,
+                                    borderWidth: 2,
+                                    borderDash: [5, 5],
+                                    order: 2
                                 }
                             ]
                         },
@@ -2258,10 +2352,46 @@
                             responsive: true,
                             maintainAspectRatio: false,
                             plugins: { 
-                                legend: { display: true, position: 'top' }
+                                legend: { 
+                                    display: true, 
+                                    position: 'top',
+                                    labels: {
+                                        usePointStyle: true,
+                                        font: { size: 10, weight: 'bold' }
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        title: function(context) {
+                                            const monthIndex = context[0].dataIndex;
+                                            const monthLabel = months[monthIndex] + '月';
+                                            const isConfirmed = monthIndex < 6;
+                                            return monthLabel + (isConfirmed ? ' [確定]' : ' [予算]');
+                                        },
+                                        label: function(context) {
+                                            let label = context.dataset.label || '';
+                                            if (label) label += ': ';
+                                            if (context.parsed.y !== null) {
+                                                label += context.parsed.y.toLocaleString() + '万円';
+                                            }
+                                            return label;
+                                        }
+                                    }
+                                }
                             },
                             scales: { 
-                                x: { ticks: { font: {size: 10} } }, 
+                                x: { 
+                                    ticks: { font: {size: 10} },
+                                    grid: {
+                                        color: function(context) {
+                                            // 確定値と予算値の境界線を強調
+                                            return context.index === 6 ? 'rgba(231, 76, 60, 0.5)' : 'rgba(0, 0, 0, 0.1)';
+                                        },
+                                        lineWidth: function(context) {
+                                            return context.index === 6 ? 3 : 1;
+                                        }
+                                    }
+                                }, 
                                 y: { 
                                     ticks: { 
                                         font: {size: 10}, 
@@ -2746,6 +2876,43 @@
             }
         }
 
+        // 予算モード切替
+        function toggleBudgetMode(dept) {
+            const mode = document.getElementById(`${dept.toLowerCase()}-budget-mode`).value;
+            unifiedPLSystem.showNotification(`${dept}事業部: ${mode === 'auto' ? '自動' : '手動'}モードに切替`, 'success');
+        }
+
+        // 予算設定を適用
+        function applyBudgetSettings() {
+            try {
+                // グラフを更新
+                unifiedPLSystem.updateDepartmentCharts();
+                unifiedPLSystem.showNotification('予算設定を適用しました', 'success');
+            } catch (error) {
+                console.error('予算設定適用エラー:', error);
+                unifiedPLSystem.showNotification('予算設定適用でエラーが発生しました', 'error');
+            }
+        }
+
+        // 予算設定を保存
+        function saveBudgetSettings() {
+            try {
+                const budgetSettings = {
+                    SR: document.getElementById('sr-budget-mode').value,
+                    W: document.getElementById('w-budget-mode').value,
+                    RC: document.getElementById('rc-budget-mode').value,
+                    RCD: document.getElementById('rcd-budget-mode').value,
+                    lastUpdate: new Date().toISOString()
+                };
+                
+                localStorage.setItem('department_budget_settings', JSON.stringify(budgetSettings));
+                unifiedPLSystem.showNotification('予算設定を保存しました', 'success');
+            } catch (error) {
+                console.error('予算設定保存エラー:', error);
+                unifiedPLSystem.showNotification('予算設定保存でエラーが発生しました', 'error');
+            }
+        }
+
         // CSVエクスポート機能
         function exportUnifiedCSV() {
             try {
@@ -2804,6 +2971,21 @@
         document.addEventListener('DOMContentLoaded', () => {
             console.log('RC売上利益シミュレーター v6.0 初期化開始');
             unifiedPLSystem = new UnifiedPLSystemV6();
+
+            // 予算設定の読み込み
+            try {
+                const savedBudgetSettings = localStorage.getItem('department_budget_settings');
+                if (savedBudgetSettings) {
+                    const settings = JSON.parse(savedBudgetSettings);
+                    if (settings.SR) document.getElementById('sr-budget-mode').value = settings.SR;
+                    if (settings.W) document.getElementById('w-budget-mode').value = settings.W;
+                    if (settings.RC) document.getElementById('rc-budget-mode').value = settings.RC;
+                    if (settings.RCD) document.getElementById('rcd-budget-mode').value = settings.RCD;
+                    console.log('予算設定を読み込みました');
+                }
+            } catch (error) {
+                console.error('予算設定読み込みエラー:', error);
+            }
 
             // 定期的な自動更新（30秒間隔）
             setInterval(() => {
