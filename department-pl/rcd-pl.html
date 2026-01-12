@@ -1119,9 +1119,12 @@
                 const stored = localStorage.getItem(STORAGE_KEY);
                 if (stored) {
                     const storageData = JSON.parse(stored);
+                    console.log('[RCD事業部] 保存データ読み込み:', Object.keys(storageData));
                     
-                    if (storageData.metadata) {
-                        // 保存データから復元
+                    // パターン1: metadata形式（データ保護での保存 / 統合PL送信形式）
+                    if (storageData.metadata && storageData.metadata.dataProtectionEnabled !== undefined) {
+                        console.log('[RCD事業部] metadata形式から復元');
+                        
                         if (storageData.metadata.dataProtectionEnabled) {
                             dataProtectionState.isProtected = true;
                             enableDataProtection();
@@ -1139,10 +1142,57 @@
                             if (feeInputs[i]) feeInputs[i].value = val;
                         });
                     }
+                    // パターン2: rcdData形式（レガシー）
+                    else if (storageData.rcdData) {
+                        console.log('[RCD事業部] rcdData形式から復元');
+                        
+                        if (storageData.rcdData.monthlyPurchases) {
+                            rcdData.monthlyPurchases = [...storageData.rcdData.monthlyPurchases];
+                        }
+                        if (storageData.rcdData.monthlyFeeOccurrences) {
+                            rcdData.monthlyFeeOccurrences = [...storageData.rcdData.monthlyFeeOccurrences];
+                        }
+                        
+                        // 入力値をUIに反映
+                        const purchaseInputs = document.querySelectorAll('input[data-type="purchase"]');
+                        const feeInputs = document.querySelectorAll('input[data-type="fee"]');
+                        
+                        rcdData.monthlyPurchases.forEach((val, i) => {
+                            if (purchaseInputs[i]) purchaseInputs[i].value = val.toFixed(2);
+                        });
+                        
+                        rcdData.monthlyFeeOccurrences.forEach((val, i) => {
+                            if (feeInputs[i]) feeInputs[i].value = val;
+                        });
+                        
+                        if (storageData.protectionState) {
+                            dataProtectionState.isProtected = true;
+                            enableDataProtection();
+                        }
+                    }
+                    // パターン3: sales形式（統合PL形式、metaなし）
+                    else if (storageData.sales && Array.isArray(storageData.sales) && storageData.sales.length === 12) {
+                        console.log('[RCD事業部] 統合PL形式から復元:', storageData.sales);
+                        
+                        // salesから仕入れ値を逆算（売上 = 仕入れ × 1.25 という仮定）
+                        rcdData.monthlyPurchases = storageData.sales.map(s => s / 1.25);
+                        
+                        // 入力値をUIに反映
+                        const purchaseInputs = document.querySelectorAll('input[data-type="purchase"]');
+                        rcdData.monthlyPurchases.forEach((val, i) => {
+                            if (purchaseInputs[i]) purchaseInputs[i].value = val.toFixed(2);
+                        });
+                        
+                        // meta情報からデータ保護状態を確認
+                        if (storageData.meta && storageData.meta.dataProtectionEnabled) {
+                            dataProtectionState.isProtected = true;
+                            enableDataProtection();
+                        }
+                    }
                     
                     updateProtectionStatus();
                     
-                    console.log('保存データから復元しました');
+                    console.log('[RCD事業部] 保存データから復元完了');
                     return true;
                 }
             } catch (error) {
