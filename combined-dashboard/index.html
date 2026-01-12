@@ -818,6 +818,53 @@
         .metric-change.negative {
             color: #e74c3c;
         }
+
+        /* 確定月チェックボックス（v6.4新機能） */
+        .month-checkbox-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 5px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .month-checkbox-item:hover {
+            border-color: #27ae60;
+        }
+
+        .month-checkbox-item.confirmed {
+            background: #27ae60;
+            border-color: #27ae60;
+            color: white;
+        }
+
+        .month-checkbox-item.budget {
+            background: #fff3cd;
+            border-color: #f39c12;
+            color: #856404;
+        }
+
+        .month-checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .month-checkbox-item label {
+            font-size: 0.85em;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .month-status-text {
+            font-size: 0.7em;
+            margin-top: 3px;
+        }
     </style>
 </head>
 <body>
@@ -1066,6 +1113,24 @@
         <div id="departments-section" class="tab-content" style="display: none;">
             <div class="department-comparison">
                 <h2 class="section-title" style="color: #3498db;">事業部別比較・前年対比分析</h2>
+                
+                <!-- 確定月設定UI（v6.4新機能） -->
+                <div class="confirmed-month-section" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border: 2px solid #27ae60; border-radius: 15px; padding: 20px; margin-bottom: 25px;">
+                    <h3 style="color: #27ae60; margin-bottom: 10px;">
+                        📅 確定月設定
+                        <span id="confirmed-mode-badge" style="display: inline-block; background: #3498db; color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.75em; margin-left: 10px;">自動判定モード</span>
+                    </h3>
+                    <p style="font-size: 0.9em; color: #555; margin-bottom: 15px;">
+                        ✓チェック = 確定実績（濃色）　□ノーチェック = 予算（薄色）
+                        <button onclick="autoDetectConfirmedMonths()" style="padding: 5px 15px; border-radius: 15px; border: 1px solid #3498db; background: #3498db; color: white; cursor: pointer; font-size: 0.85em; margin-left: 10px;">自動判定</button>
+                        <button onclick="forceRefreshAllData()" style="padding: 5px 15px; border-radius: 15px; border: 1px solid #e74c3c; background: #e74c3c; color: white; cursor: pointer; font-size: 0.85em; margin-left: 5px;">🔄 強制更新</button>
+                    </p>
+                    <div id="confirmed-month-grid" style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px;"></div>
+                    <div style="text-align: center; margin-top: 15px;">
+                        <button class="action-button btn-apply" onclick="applyConfirmedMonthSettings()" style="padding: 10px 20px; border: none; border-radius: 10px; background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; cursor: pointer; font-weight: 600;">確定月設定を適用</button>
+                        <button class="action-button btn-save" onclick="saveConfirmedMonthSettings()" style="padding: 10px 20px; border: none; border-radius: 10px; background: linear-gradient(135deg, #3498db, #2980b9); color: white; cursor: pointer; font-weight: 600; margin-left: 10px;">設定を保存</button>
+                    </div>
+                </div>
                 
                 <div class="dept-grid">
                     <div class="dept-card dept-sr">
@@ -1346,11 +1411,17 @@
                     RCD: false
                 };
 
+                // 確定月管理（v6.4新機能）
+                this.confirmedMonths = Array(12).fill(false);
+                this.confirmedModeAuto = true;
+                this.CONFIRMED_MONTHS_KEY = 'unified_pl_confirmed_months_v6';
+
                 this.initializeSystem();
             }
 
             initializeSystem() {
                 console.log('RC売上利益シミュレーター v6.4 初期化開始');
+                this.loadConfirmedMonthSettings();
                 this.loadAllDepartmentData();
                 this.loadExecutiveData();
                 this.calculateUnifiedPL();
@@ -1358,7 +1429,102 @@
                 this.updateDataSourceIndicator();
                 this.setupChartVisibilityControls();
                 this.setupStorageListener();
+                this.renderConfirmedMonthGrid();
                 this.showNotification('RC売上利益シミュレーター v6.4 初期化完了', 'success');
+            }
+
+            // 確定月設定の読み込み（v6.4新機能）
+            loadConfirmedMonthSettings() {
+                try {
+                    const saved = localStorage.getItem(this.CONFIRMED_MONTHS_KEY);
+                    if (saved) {
+                        const settings = JSON.parse(saved);
+                        this.confirmedMonths = settings.months || Array(12).fill(false);
+                        this.confirmedModeAuto = settings.autoMode !== false;
+                        console.log('確定月設定を読み込み:', this.confirmedMonths);
+                    } else {
+                        this.autoDetectConfirmedMonths();
+                    }
+                } catch (e) {
+                    console.error('確定月設定読み込みエラー:', e);
+                    this.autoDetectConfirmedMonths();
+                }
+            }
+
+            // 確定月の自動判定（v6.4新機能）
+            autoDetectConfirmedMonths() {
+                const now = new Date();
+                const currentMonth = now.getMonth() + 1; // 1-12
+                
+                // 決算月（7月始まり）に基づいて確定月を判定
+                // 例: 1月なら 7,8,9,10,11,12月が確定
+                this.confirmedMonths = Array(12).fill(false);
+                
+                let confirmedIndex;
+                if (currentMonth >= 7) {
+                    confirmedIndex = currentMonth - 7; // 7月=0, 8月=1, ...
+                } else {
+                    confirmedIndex = currentMonth + 5; // 1月=6, 2月=7, ...
+                }
+                
+                for (let i = 0; i <= confirmedIndex; i++) {
+                    this.confirmedMonths[i] = true;
+                }
+                
+                this.confirmedModeAuto = true;
+                console.log('確定月を自動判定:', this.confirmedMonths);
+            }
+
+            // 確定月設定の保存（v6.4新機能）
+            saveConfirmedMonthSettings() {
+                try {
+                    const settings = {
+                        months: this.confirmedMonths,
+                        autoMode: this.confirmedModeAuto,
+                        lastUpdate: new Date().toISOString()
+                    };
+                    localStorage.setItem(this.CONFIRMED_MONTHS_KEY, JSON.stringify(settings));
+                    console.log('確定月設定を保存');
+                } catch (e) {
+                    console.error('確定月設定保存エラー:', e);
+                }
+            }
+
+            // 確定月グリッドの描画（v6.4新機能）
+            renderConfirmedMonthGrid() {
+                const grid = document.getElementById('confirmed-month-grid');
+                if (!grid) return;
+                
+                const months = ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月', '4月', '5月', '6月'];
+                grid.innerHTML = '';
+                
+                months.forEach((label, i) => {
+                    const isConfirmed = this.confirmedMonths[i];
+                    const item = document.createElement('div');
+                    item.className = `month-checkbox-item ${isConfirmed ? 'confirmed' : 'budget'}`;
+                    item.innerHTML = `
+                        <input type="checkbox" id="month-${i}" ${isConfirmed ? 'checked' : ''} 
+                               onchange="unifiedPLSystem.toggleMonthConfirmed(${i})">
+                        <label for="month-${i}">${label}</label>
+                        <span class="month-status-text">${isConfirmed ? '確定' : '予算'}</span>
+                    `;
+                    grid.appendChild(item);
+                });
+                
+                // モードバッジ更新
+                const badge = document.getElementById('confirmed-mode-badge');
+                if (badge) {
+                    badge.style.background = this.confirmedModeAuto ? '#3498db' : '#e67e22';
+                    badge.textContent = this.confirmedModeAuto ? '自動判定モード' : '手動設定モード';
+                }
+            }
+
+            // 確定月の切り替え（v6.4新機能）
+            toggleMonthConfirmed(index) {
+                this.confirmedMonths[index] = !this.confirmedMonths[index];
+                this.confirmedModeAuto = false;
+                this.renderConfirmedMonthGrid();
+                this.updateDepartmentCharts();
             }
 
             // ストレージ変更リスナー（v6.4新機能）
@@ -2293,7 +2459,12 @@
             // 事業部別チャート更新（前年実績追加版・正確なデータ使用）
             updateDepartmentCharts() {
                 const departments = ['SR', 'W', 'RC', 'RCD'];
-                const colors = { 'SR': '#C477CC', 'W': '#3498db', 'RC': '#27ae60', 'RCD': '#9b59b6' };
+                const colors = { 
+                    'SR': { main: '#8B4B9A', light: '#C477CC' }, 
+                    'W': { main: '#2874A6', light: '#3498db' }, 
+                    'RC': { main: '#1E8449', light: '#27ae60' }, 
+                    'RCD': { main: '#6C3483', light: '#9b59b6' } 
+                };
                 const months = ['7','8','9','10','11','12','1','2','3','4','5','6'];
 
                 departments.forEach(dept => {
@@ -2308,13 +2479,21 @@
                     let salesData = Array(12).fill(0);
                     
                     if (data && data.sales) {
-                        salesData = data.sales;
+                        salesData = [...data.sales];
                     } else {
                         // フォールバック：前年データを使用
-                        salesData = this.previousYearData.monthlySales[dept] || Array(12).fill(0);
+                        salesData = [...(this.previousYearData.monthlySales[dept] || Array(12).fill(0))];
                     }
 
                     const prevYearData = this.previousYearData.monthlySales[dept];
+
+                    // 確定月に基づく色分け（v6.4新機能）
+                    const backgroundColors = salesData.map((_, i) => 
+                        this.confirmedMonths[i] ? colors[dept].main : colors[dept].light + '88'
+                    );
+                    const borderColors = salesData.map((_, i) => 
+                        this.confirmedMonths[i] ? colors[dept].main : colors[dept].light
+                    );
 
                     this.charts[dept.toLowerCase()] = new Chart(ctx, {
                         type: 'bar',
@@ -2324,16 +2503,18 @@
                                 {
                                     label: '前年売上',
                                     data: prevYearData,
-                                    backgroundColor: 'rgba(149,165,166,0.3)',
-                                    borderColor: '#95a5a6',
-                                    borderWidth: 1
+                                    backgroundColor: 'rgba(180,180,180,0.4)',
+                                    borderColor: 'rgba(150,150,150,0.8)',
+                                    borderWidth: 1,
+                                    order: 2
                                 },
                                 {
                                     label: '今期売上',
                                     data: salesData,
-                                    backgroundColor: colors[dept] + '77',
-                                    borderColor: colors[dept],
-                                    borderWidth: 2
+                                    backgroundColor: backgroundColors,
+                                    borderColor: borderColors,
+                                    borderWidth: 2,
+                                    order: 1
                                 }
                             ]
                         },
@@ -2341,17 +2522,62 @@
                             responsive: true,
                             maintainAspectRatio: false,
                             plugins: { 
-                                legend: { display: true, position: 'top' }
+                                legend: { 
+                                    display: true, 
+                                    position: 'top',
+                                    labels: {
+                                        usePointStyle: true,
+                                        font: { size: 9, weight: 'bold' },
+                                        boxWidth: 12
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        title: (context) => {
+                                            const idx = context[0].dataIndex;
+                                            const isConfirmed = this.confirmedMonths[idx];
+                                            return months[idx] + '月' + (isConfirmed ? ' [確定]' : ' [予算]');
+                                        },
+                                        label: (context) => {
+                                            if (context.parsed.y !== null) {
+                                                return context.dataset.label + ': ' + context.parsed.y.toLocaleString() + '万円';
+                                            }
+                                            return null;
+                                        }
+                                    }
+                                }
                             },
                             scales: { 
-                                x: { ticks: { font: {size: 10} } }, 
+                                x: { 
+                                    ticks: { font: {size: 10} },
+                                    grid: {
+                                        color: (context) => {
+                                            // 確定→予算の境界に赤い線
+                                            const idx = context.index;
+                                            if (idx > 0 && this.confirmedMonths[idx-1] && !this.confirmedMonths[idx]) {
+                                                return 'rgba(231,76,60,0.8)';
+                                            }
+                                            return 'rgba(0,0,0,0.1)';
+                                        },
+                                        lineWidth: (context) => {
+                                            const idx = context.index;
+                                            if (idx > 0 && this.confirmedMonths[idx-1] && !this.confirmedMonths[idx]) {
+                                                return 3;
+                                            }
+                                            return 1;
+                                        }
+                                    }
+                                }, 
                                 y: { 
                                     ticks: { 
                                         font: {size: 10}, 
                                         callback: function(value) { return value.toLocaleString(); } 
-                                    } 
+                                    },
+                                    beginAtZero: true
                                 } 
-                            }
+                            },
+                            barPercentage: 0.9,
+                            categoryPercentage: 0.95
                         }
                     });
                 });
@@ -2850,6 +3076,26 @@
                 console.error('Force refresh error:', e);
                 unifiedPLSystem.showNotification('強制更新エラー: ' + e.message, 'error');
             }
+        }
+
+        // 確定月自動判定（v6.4新機能）
+        function autoDetectConfirmedMonths() {
+            unifiedPLSystem.autoDetectConfirmedMonths();
+            unifiedPLSystem.renderConfirmedMonthGrid();
+            unifiedPLSystem.updateDepartmentCharts();
+            unifiedPLSystem.showNotification('確定月を自動判定しました', 'success');
+        }
+
+        // 確定月設定適用（v6.4新機能）
+        function applyConfirmedMonthSettings() {
+            unifiedPLSystem.updateDepartmentCharts();
+            unifiedPLSystem.showNotification('確定月設定を適用しました', 'success');
+        }
+
+        // 確定月設定保存（v6.4新機能）
+        function saveConfirmedMonthSettings() {
+            unifiedPLSystem.saveConfirmedMonthSettings();
+            unifiedPLSystem.showNotification('確定月設定を保存しました', 'success');
         }
 
         // CSVエクスポート機能
