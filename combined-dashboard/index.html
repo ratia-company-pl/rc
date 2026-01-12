@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RC売上利益シミュレーター v6.4</title>
+    <title>RC売上利益シミュレーター v6.5</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
@@ -58,6 +58,15 @@
         .legend-connected { background-color: #27ae60; }
         .legend-pending { background-color: #f39c12; }
         .legend-error { background-color: #e74c3c; }
+
+        /* クイックアクションボタン（v6.5） */
+        .quick-btn {
+            transition: all 0.2s ease;
+        }
+        .quick-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
 
         /* 2行目: データ連携ステータス */
         .header-row2 {
@@ -819,7 +828,7 @@
             color: #e74c3c;
         }
 
-        /* 確定月チェックボックス（v6.4新機能） */
+        /* 確定月チェックボックス（v6.5新機能） */
         .month-checkbox-item {
             display: flex;
             flex-direction: column;
@@ -871,7 +880,7 @@
     <!-- 3行ヘッダー構造 -->
     <!-- 1行目: タイトル + 色表示の意味 -->
     <div class="header-row1">
-        <h1 class="header-title">RC売上利益シミュレーター</h1>
+        <h1 class="header-title">RC売上利益シミュレーター<span style="background:rgba(255,255,255,0.2);padding:4px 12px;border-radius:12px;font-size:0.5em;margin-left:10px;">v6.5</span></h1>
         <div class="status-legend">
             <div class="legend-item">
                 <div class="legend-dot legend-connected"></div>
@@ -884,6 +893,11 @@
             <div class="legend-item">
                 <div class="legend-dot legend-error"></div>
                 <span>エラー</span>
+            </div>
+            <div class="quick-actions" style="margin-left: 20px; display: flex; gap: 8px;">
+                <button onclick="forceRefreshAllData()" class="quick-btn" style="padding: 4px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.5); background: rgba(231,76,60,0.9); color: white; cursor: pointer; font-size: 0.85em; font-weight: 600;">🔄 強制更新</button>
+                <button onclick="showSection('target')" class="quick-btn" style="padding: 4px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.5); background: rgba(230,126,34,0.9); color: white; cursor: pointer; font-size: 0.85em; font-weight: 600;">📊 目標利益</button>
+                <button onclick="exportUnifiedCSV()" class="quick-btn" style="padding: 4px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.5); background: rgba(52,152,219,0.9); color: white; cursor: pointer; font-size: 0.85em; font-weight: 600;">📥 CSV出力</button>
             </div>
         </div>
     </div>
@@ -1114,7 +1128,7 @@
             <div class="department-comparison">
                 <h2 class="section-title" style="color: #3498db;">事業部別比較・前年対比分析</h2>
                 
-                <!-- 確定月設定UI（v6.4新機能） -->
+                <!-- 確定月設定UI（v6.5新機能） -->
                 <div class="confirmed-month-section" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border: 2px solid #27ae60; border-radius: 15px; padding: 20px; margin-bottom: 25px;">
                     <h3 style="color: #27ae60; margin-bottom: 10px;">
                         📅 確定月設定
@@ -1411,7 +1425,7 @@
                     RCD: false
                 };
 
-                // 確定月管理（v6.4新機能）
+                // 確定月管理（v6.5新機能）
                 this.confirmedMonths = Array(12).fill(false);
                 this.confirmedModeAuto = true;
                 this.CONFIRMED_MONTHS_KEY = 'unified_pl_confirmed_months_v6';
@@ -1420,7 +1434,7 @@
             }
 
             initializeSystem() {
-                console.log('RC売上利益シミュレーター v6.4 初期化開始');
+                console.log('RC売上利益シミュレーター v6.5 初期化開始');
                 this.loadConfirmedMonthSettings();
                 this.loadAllDepartmentData();
                 this.loadExecutiveData();
@@ -1430,10 +1444,10 @@
                 this.setupChartVisibilityControls();
                 this.setupStorageListener();
                 this.renderConfirmedMonthGrid();
-                this.showNotification('RC売上利益シミュレーター v6.4 初期化完了', 'success');
+                this.showNotification('RC売上利益シミュレーター v6.5 初期化完了', 'success');
             }
 
-            // 確定月設定の読み込み（v6.4新機能）
+            // 確定月設定の読み込み（v6.5新機能）
             loadConfirmedMonthSettings() {
                 try {
                     const saved = localStorage.getItem(this.CONFIRMED_MONTHS_KEY);
@@ -1451,7 +1465,7 @@
                 }
             }
 
-            // 確定月の自動判定（v6.4新機能）
+            // 確定月の自動判定（v6.5新機能）
             autoDetectConfirmedMonths() {
                 const now = new Date();
                 const currentMonth = now.getMonth() + 1; // 1-12
@@ -1475,7 +1489,7 @@
                 console.log('確定月を自動判定:', this.confirmedMonths);
             }
 
-            // 確定月設定の保存（v6.4新機能）
+            // 確定月設定の保存（v6.5新機能）
             saveConfirmedMonthSettings() {
                 try {
                     const settings = {
@@ -1490,7 +1504,7 @@
                 }
             }
 
-            // 確定月グリッドの描画（v6.4新機能）
+            // 確定月グリッドの描画（v6.5新機能）
             renderConfirmedMonthGrid() {
                 const grid = document.getElementById('confirmed-month-grid');
                 if (!grid) return;
@@ -1519,7 +1533,7 @@
                 }
             }
 
-            // 確定月の切り替え（v6.4新機能）
+            // 確定月の切り替え（v6.5新機能）
             toggleMonthConfirmed(index) {
                 this.confirmedMonths[index] = !this.confirmedMonths[index];
                 this.confirmedModeAuto = false;
@@ -1527,7 +1541,7 @@
                 this.updateDepartmentCharts();
             }
 
-            // ストレージ変更リスナー（v6.4新機能）
+            // ストレージ変更リスナー（v6.5新機能）
             setupStorageListener() {
                 // 他タブでのデータ変更を検知
                 window.addEventListener('storage', (e) => {
@@ -1610,7 +1624,7 @@
                 }
             }
 
-            // 複数データ形式からPLデータを抽出（v6.4新機能）
+            // 複数データ形式からPLデータを抽出（v6.5新機能）
             extractPLData(parsed, dept) {
                 let salesData = null, cogsData = null, expensesData = null, format = '';
                 
@@ -2487,7 +2501,7 @@
 
                     const prevYearData = this.previousYearData.monthlySales[dept];
 
-                    // 確定月に基づく色分け（v6.4新機能）
+                    // 確定月に基づく色分け（v6.5新機能）
                     const backgroundColors = salesData.map((_, i) => 
                         this.confirmedMonths[i] ? colors[dept].main : colors[dept].light + '88'
                     );
@@ -3058,7 +3072,7 @@
             }
         }
 
-        // 強制更新（v6.4）- キャッシュを完全にクリアして再読み込み
+        // 強制更新（v6.5）- キャッシュを完全にクリアして再読み込み
         function forceRefreshAllData() {
             try {
                 unifiedPLSystem.showNotification('データ強制更新中...', 'warning');
@@ -3078,7 +3092,7 @@
             }
         }
 
-        // 確定月自動判定（v6.4新機能）
+        // 確定月自動判定（v6.5新機能）
         function autoDetectConfirmedMonths() {
             unifiedPLSystem.autoDetectConfirmedMonths();
             unifiedPLSystem.renderConfirmedMonthGrid();
@@ -3086,13 +3100,13 @@
             unifiedPLSystem.showNotification('確定月を自動判定しました', 'success');
         }
 
-        // 確定月設定適用（v6.4新機能）
+        // 確定月設定適用（v6.5新機能）
         function applyConfirmedMonthSettings() {
             unifiedPLSystem.updateDepartmentCharts();
             unifiedPLSystem.showNotification('確定月設定を適用しました', 'success');
         }
 
-        // 確定月設定保存（v6.4新機能）
+        // 確定月設定保存（v6.5新機能）
         function saveConfirmedMonthSettings() {
             unifiedPLSystem.saveConfirmedMonthSettings();
             unifiedPLSystem.showNotification('確定月設定を保存しました', 'success');
@@ -3154,7 +3168,7 @@
 
         // システム初期化
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('RC売上利益シミュレーター v6.4 初期化開始');
+            console.log('RC売上利益シミュレーター v6.5 初期化開始');
             unifiedPLSystem = new UnifiedPLSystemV6();
 
             // 定期的な自動更新（10秒間隔に短縮）
@@ -3168,38 +3182,7 @@
                 }
             }, 10000);
 
-            // 強制更新ボタンの追加（v6.4）
-            const forceRefreshButton = document.createElement('button');
-            forceRefreshButton.textContent = '🔄 強制更新';
-            forceRefreshButton.className = 'action-button btn-refresh';
-            forceRefreshButton.onclick = forceRefreshAllData;
-            forceRefreshButton.style.position = 'fixed';
-            forceRefreshButton.style.bottom = '120px';
-            forceRefreshButton.style.right = '20px';
-            forceRefreshButton.style.zIndex = '1000';
-            document.body.appendChild(forceRefreshButton);
-
-            // CSVエクスポートボタンの追加
-            const exportButton = document.createElement('button');
-            exportButton.textContent = 'CSV一括エクスポート';
-            exportButton.className = 'action-button btn-save';
-            exportButton.onclick = exportUnifiedCSV;
-            exportButton.style.position = 'fixed';
-            exportButton.style.bottom = '20px';
-            exportButton.style.right = '20px';
-            exportButton.style.zIndex = '1000';
-            document.body.appendChild(exportButton);
-
-            // 目標利益配分ボタンの追加
-            const targetButton = document.createElement('button');
-            targetButton.textContent = '目標利益配分';
-            targetButton.className = 'action-button btn-apply';
-            targetButton.onclick = () => showSection('target');
-            targetButton.style.position = 'fixed';
-            targetButton.style.bottom = '70px';
-            targetButton.style.right = '20px';
-            targetButton.style.zIndex = '1000';
-            document.body.appendChild(targetButton);
+            // ボタンはヘッダーに移動済み（v6.5）
         });
     </script>
 </body>
